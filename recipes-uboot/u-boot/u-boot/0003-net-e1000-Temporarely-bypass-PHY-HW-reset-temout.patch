@@ -1,0 +1,44 @@
+From 91e637e6c9819242c307b6ca83d8cc45ddde6f3e Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Thu, 15 Dec 2016 12:41:17 +0200
+Subject: [PATCH 0003/1239] net: e1000: Temporarely bypass PHY HW reset temout
+
+The e1000 driver fails with timeout on MACHHIATOBin board.
+The reason for this timeout is unknown and requres further
+investigation.
+This patch ignores the temeout since after that the e1000
+NIC works normally.
+The patch is internal only.
+
+Change-Id: I3a744d22b37da40426a53fce120997552029c8f4
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-by: Lior Amsalem <alior@marvell.com>
+Reviewed-by: Hua Jing <jinghua@marvell.com>
+---
+ drivers/net/e1000.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/e1000.c b/drivers/net/e1000.c
+index a34f697461..f7bf2a4151 100644
+--- a/drivers/net/e1000.c
++++ b/drivers/net/e1000.c
+@@ -4574,7 +4574,15 @@ e1000_get_phy_cfg_done(struct e1000_hw *hw)
+ 		if (!timeout) {
+ 			DEBUGOUT("MNG configuration cycle has not "
+ 					"completed.\n");
+-			return -E1000_ERR_RESET;
++			/*
++			 * Temporarely WA for PHY HW reset timeout on
++			 * MACCHIATOBin board.
++			 * The reason for the timeout is unknown, adding
++			 * delays before and after PCIe reset line release
++			 * did not help to solve the issue.
++			 *
++			 * return -E1000_ERR_RESET;
++			 */
+ 		}
+ 		break;
+ 	}
+-- 
+2.29.0
+

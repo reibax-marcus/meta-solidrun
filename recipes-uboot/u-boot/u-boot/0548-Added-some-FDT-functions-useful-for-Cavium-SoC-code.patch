@@ -1,0 +1,139 @@
+From 32104911bb8b3bbf2e40f78dc06c9edcd9faaf84 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Sun, 30 Oct 2016 21:51:36 -0700
+Subject: [PATCH 0548/1239] Added some FDT functions useful for Cavium SoC
+ code.
+
+These functions probably should be merged into fdtdec.c or elsewhere since they
+are generic and not specific to Cavium in any way.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ .../include/asm/arch-thunderx/fdt-helper.h    | 36 ++++++++++
+ arch/arm/mach-thunderx/fdt-helper.c           | 71 +++++++++++++++++++
+ 2 files changed, 107 insertions(+)
+ create mode 100644 arch/arm/include/asm/arch-thunderx/fdt-helper.h
+ create mode 100644 arch/arm/mach-thunderx/fdt-helper.c
+
+diff --git a/arch/arm/include/asm/arch-thunderx/fdt-helper.h b/arch/arm/include/asm/arch-thunderx/fdt-helper.h
+new file mode 100644
+index 0000000000..e0e8994500
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/fdt-helper.h
+@@ -0,0 +1,36 @@
++/**
++ * (C) Copyright 2016, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ */
++
++#ifndef __FDT_HELPER_H__
++#define __FDT_HELPER_H__
++
++/**
++ * Given a FDT node, check if it is compatible with a list of devices
++ *
++ * @param[in]	fdt		Flat device tree pointer
++ * @param	node_offset	Node offset in device tree
++ * @param[in]	strlist		Array of FDT devices to check, end must be NULL
++ *
++ * @return	0 if at least one device is compatible, 1 if not compatible.
++ */
++int cavium_fdt_node_check_compatible(const void *fdt, int node_offset,
++				     const char * const *strlist);
++
++/**
++ * Given a FDT node, return the next compatible node.
++ *
++ * @param[in]	fdt_addr	Pointer to flat device tree
++ * @param	start_offset	Starting node offset or -1 to find the first
++ * @param	strlist		Array of FDT device compatibility strings, must
++ *				end with NULL or empty string.
++ *
++ * @return	next matching node or -1 if no more matches.
++ */
++int cavium_fdt_node_offset_by_compatible_list(const void *fdt_addr,
++					      int startoffset,
++					      const char * const *strlist);
++
++#endif /* __FDT_HELPER_H__ */
+diff --git a/arch/arm/mach-thunderx/fdt-helper.c b/arch/arm/mach-thunderx/fdt-helper.c
+new file mode 100644
+index 0000000000..e535819383
+--- /dev/null
++++ b/arch/arm/mach-thunderx/fdt-helper.c
+@@ -0,0 +1,71 @@
++/**
++ * (C) Copyright 2016, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ */
++
++/* This file contains flat device-tree helper functions used by Cavium.
++ * At some later point these functions should be moved into U-Boot common code.
++ */
++
++#include <common.h>
++#include <libfdt.h>
++#include <fdtdec.h>
++#include <fdt_support.h>
++#include <asm/arch/fdt-helper.h>
++
++/**
++ * Given a FDT node, check if it is compatible with a list of devices
++ *
++ * @param[in]	fdt		Flat device tree pointer
++ * @param	node_offset	Node offset in device tree
++ * @param[in]	strlist		Array of FDT devices to check, end must be NULL
++ *
++ * @return	0 if at least one device is compatible, 1 if not compatible.
++ */
++int cavium_fdt_node_check_compatible(const void *fdt, int node_offset,
++				     const char * const *strlist)
++{
++	while (*strlist && **strlist) {
++		debug("%s: Checking %s\n", __func__, *strlist);
++		if (!fdt_node_check_compatible(fdt, node_offset, *strlist)) {
++			debug("%s: match found\n", __func__);
++			return 0;
++		}
++		strlist++;
++	}
++	debug("%s: No match found\n", __func__);
++	return 1;
++}
++
++/**
++ * Given a FDT node, return the next compatible node.
++ *
++ * @param[in]	fdt_addr	Pointer to flat device tree
++ * @param	start_offset	Starting node offset or -1 to find the first
++ * @param	strlist		Array of FDT device compatibility strings, must
++ *				end with NULL or empty string.
++ *
++ * @return	next matching node or -1 if no more matches.
++ */
++int cavium_fdt_node_offset_by_compatible_list(const void *fdt_addr,
++					      int startoffset,
++					      const char * const *strlist)
++{
++	int offset;
++	const char * const *searchlist;
++
++	for (offset = fdt_next_node(fdt_addr, startoffset, NULL);
++	     offset >= 0;
++	offset = fdt_next_node(fdt_addr, offset, NULL)) {
++		searchlist = strlist;
++		while (*searchlist && **searchlist) {
++			if (!fdt_node_check_compatible(fdt_addr, offset,
++				*searchlist))
++				return offset;
++			searchlist++;
++		}
++	}
++	return -1;
++}
++
+-- 
+2.29.0
+

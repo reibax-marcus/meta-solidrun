@@ -1,0 +1,25 @@
+From c519289f2100c353fe69a463f240c180abe8d4ab Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 30 May 2017 16:15:07 -0700
+Subject: [PATCH 0636/1239] Enable Micronix SPI flash for T83.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ include/configs/thunderx_83xx.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 8e1f080871..491283e71f 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -304,6 +304,7 @@
+ #define CONFIG_DM_SPI_FLASH
+ #define CONFIG_SPI_FLASH
+ #define CONFIG_SPI_FLASH_STMICRO
++#define CONFIG_SPI_FLASH_MACRONIX
+ #define CONFIG_CAVIUM_SPI
+ #define CONFIG_SF_DEFAULT_SPEED 12500000
+ #define CONFIG_SF_DEFAULT_MODE	0
+-- 
+2.29.0
+

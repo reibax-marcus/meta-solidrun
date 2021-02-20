@@ -1,0 +1,63 @@
+From 9869490d13d8b47b3464e1de04bb82b7a3f39fd0 Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Fri, 12 May 2017 10:55:56 +0800
+Subject: [PATCH 0099/1239] arm64: dts: a37xx: update comphy lane numbers
+
+The latest change in the comphy_a3700.c driver aligned
+the lanes assignment to the functional specification.
+Reflect that in supported device trees.
+
+Change-Id: Id7a239bd00e35e66b4e5023db081bb417267b8ca
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ arch/arm/dts/armada-3720-db.dts          | 8 ++++----
+ arch/arm/dts/armada-3720-espressobin.dts | 8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/dts/armada-3720-db.dts b/arch/arm/dts/armada-3720-db.dts
+index 169828cbc4..8ee3bdf533 100644
+--- a/arch/arm/dts/armada-3720-db.dts
++++ b/arch/arm/dts/armada-3720-db.dts
+@@ -101,13 +101,13 @@
+ 
+ &comphy {
+ 	phy0 {
+-		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_2_5G>;
++		phy-type = <COMPHY_TYPE_USB3>;
++		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy1 {
+-		phy-type = <COMPHY_TYPE_USB3>;
+-		phy-speed = <COMPHY_SPEED_5G>;
++		phy-type = <COMPHY_TYPE_PEX0>;
++		phy-speed = <COMPHY_SPEED_2_5G>;
+ 	};
+ 
+ 	phy2 {
+diff --git a/arch/arm/dts/armada-3720-espressobin.dts b/arch/arm/dts/armada-3720-espressobin.dts
+index f8fd4ed244..94cab2f4d1 100644
+--- a/arch/arm/dts/armada-3720-espressobin.dts
++++ b/arch/arm/dts/armada-3720-espressobin.dts
+@@ -72,13 +72,13 @@
+ &comphy {
+ 	max-lanes = <3>;
+ 	phy0 {
+-		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_2_5G>;
++		phy-type = <COMPHY_TYPE_USB3>;
++		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy1 {
+-		phy-type = <COMPHY_TYPE_USB3>;
+-		phy-speed = <COMPHY_SPEED_5G>;
++		phy-type = <COMPHY_TYPE_PEX0>;
++		phy-speed = <COMPHY_SPEED_2_5G>;
+ 	};
+ 
+ 	phy2 {
+-- 
+2.29.0
+

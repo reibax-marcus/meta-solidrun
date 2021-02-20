@@ -1,0 +1,93 @@
+From 5d8ff3cfb8d7f1c8ca18fa201737cd04f95a4e10 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Mon, 5 Feb 2018 17:33:45 +0200
+Subject: [PATCH 0134/1239] arm64: mvebu: a8k: add llc info print
+
+Enable displaying LLC print during A8K
+SoCs boot.
+
+Change-Id: I43c42e417823825294678840e25884e2c313383a
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/include/asm/arch-armada8k/cache_llc.h |  5 +++++
+ arch/arm/mach-mvebu/armada8k/cpu.c             |  1 +
+ arch/arm/mach-mvebu/armada8k/soc.c             | 18 ++++++++++++++++++
+ arch/arm/mach-mvebu/include/mach/soc.h         |  1 +
+ 4 files changed, 25 insertions(+)
+
+diff --git a/arch/arm/include/asm/arch-armada8k/cache_llc.h b/arch/arm/include/asm/arch-armada8k/cache_llc.h
+index 8cb114496a..1ef61ca1f6 100644
+--- a/arch/arm/include/asm/arch-armada8k/cache_llc.h
++++ b/arch/arm/include/asm/arch-armada8k/cache_llc.h
+@@ -17,4 +17,9 @@
+ #define LLC_WAY_MASK			0xffffffff
+ #define LLC_CACHE_SYNC_MASK		0x1
+ 
++#define MVEBU_LLC_BASE			(MVEBU_REGISTER(LLC_BASE_ADDR))
++#define LLC_CTRL_REG_OFFSET		0x100
++#define LLC_EN				0x1
++#define LLC_EXCL_EN			0x100
++
+ #endif	/* _CACHE_LLC_H_ */
+diff --git a/arch/arm/mach-mvebu/armada8k/cpu.c b/arch/arm/mach-mvebu/armada8k/cpu.c
+index e29c1d39f1..5a8b996eba 100644
+--- a/arch/arm/mach-mvebu/armada8k/cpu.c
++++ b/arch/arm/mach-mvebu/armada8k/cpu.c
+@@ -157,6 +157,7 @@ int print_cpuinfo(void)
+ {
+ 	soc_print_device_info();
+ 	soc_print_clock_info();
++	soc_print_system_cache_info();
+ 	return 0;
+ }
+ #endif
+diff --git a/arch/arm/mach-mvebu/armada8k/soc.c b/arch/arm/mach-mvebu/armada8k/soc.c
+index 933eb2ba49..8a359eb0a9 100644
+--- a/arch/arm/mach-mvebu/armada8k/soc.c
++++ b/arch/arm/mach-mvebu/armada8k/soc.c
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <common.h>
++#include <asm/arch-armada8k/cache_llc.h>
+ #include <asm/io.h>
+ #include <asm/arch/soc.h>
+ #include <mvebu/mvebu_chip_sar.h>
+@@ -143,6 +144,23 @@ void soc_print_device_info(void)
+ 		printf("CP%x-A%d\n", cp_type, cp_rev);
+ }
+ 
++/* Print System cache (LLC) status and mode */
++void soc_print_system_cache_info(void)
++{
++	u32 val;
++	int llc_en = 0, excl = 0;
++
++	val = readl(MVEBU_LLC_BASE + LLC_CTRL_REG_OFFSET);
++	if (val & LLC_EN) {
++		llc_en = 1;
++		if (val & LLC_EXCL_EN)
++			excl = 1;
++	}
++
++	printf("LLC %s%s\n", llc_en ? "Enabled" : "Disabled",
++	       excl ? " (Exclusive Mode)" : "");
++}
++
+ int soc_early_init_f(void)
+ {
+ #ifdef CONFIG_MVEBU_SAR
+diff --git a/arch/arm/mach-mvebu/include/mach/soc.h b/arch/arm/mach-mvebu/include/mach/soc.h
+index 4a17c8a8c3..cd7fc8f79d 100644
+--- a/arch/arm/mach-mvebu/include/mach/soc.h
++++ b/arch/arm/mach-mvebu/include/mach/soc.h
+@@ -232,5 +232,6 @@
+ #ifndef __ASSEMBLY__
+ void soc_print_device_info(void);
+ int soc_get_ap_cp_num(void *ap_num, void *cp_num);
++void soc_print_system_cache_info(void);
+ #endif /* __ASSEMBLY__ */
+ #endif /* _MVEBU_SOC_H */
+-- 
+2.29.0
+

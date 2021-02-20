@@ -1,0 +1,31 @@
+From 180a9c744e833d955e7db7f962577824aad3d9d1 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Tue, 5 May 2020 14:49:56 -0700
+Subject: [PATCH 1146/1239] driver: mmc: Enable mmc driver for t98 and f95mm
+
+Change-Id: Ic2a670d4e9a18ebcc356380debd2d573a661902f
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27946
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Aaron Williams <awilliams@marvell.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index 97aecfb61a..95544b1960 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -3774,6 +3774,8 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
+ 	} else if (otx_is_soc(CN95XX)) {
+ 		if (!rev)
+ 			host->cond_clock_glitch = true;
++	} else if (otx_is_soc(CN98XX) || otx_is_soc(F95MM)) {
++		host->tap_requires_noclk = true;
+ 	}
+ #endif
+ 	host_probed = true;
+-- 
+2.29.0
+

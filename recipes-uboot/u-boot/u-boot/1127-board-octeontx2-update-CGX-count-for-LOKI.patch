@@ -1,0 +1,46 @@
+From 8332195f7038865586143b283749a98bbb1e7212 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Sat, 4 Apr 2020 19:23:52 -0700
+Subject: [PATCH 1127/1239] board: octeontx2: update CGX count for LOKI
+
+Helps to enumerate CGX LMAC info during boot up.
+
+Change-Id: I4222bb07c3062913e3e30b4bb5e6d0e45fd91ffe
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/26311
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx2/board.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 9e34860f38..39eca2349f 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -150,8 +150,21 @@ void board_late_probe_devices(void)
+ 	struct udevice *dev;
+ 	int err, cgx_cnt, i;
+ 
++	switch (read_partnum()) {
++	case CN98XX:
++		cgx_cnt = 5;
++		break;
++	case F95MM:
++		cgx_cnt = 2;
++		break;
++	case LOKI:
++		cgx_cnt = 4;
++		break;
++	default:
++		cgx_cnt = 3;
++		break;
++	}
+ 	/* Probe MAC(CGX) and NIC AF devices before Network stack init */
+-	cgx_cnt = otx_is_soc(CN98XX) ? 5 : otx_is_soc(F95MM) ? 2 : 3;
+ 	for (i = 0; i < cgx_cnt; i++) {
+ 		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA059, i,
+ 					 &dev);
+-- 
+2.29.0
+

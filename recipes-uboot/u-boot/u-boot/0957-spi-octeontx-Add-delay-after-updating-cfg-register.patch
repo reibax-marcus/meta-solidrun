@@ -1,0 +1,66 @@
+From 7f49973ef0d25de39215e8679c385a5e29864fab Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Wed, 4 Sep 2019 17:46:05 -0700
+Subject: [PATCH 0957/1239] spi: octeontx: Add delay after updating cfg
+ register
+
+This patch introduces a slight delay whenever the MPI_CFG register is
+updated to give the bus and clock a chance to settle if it is
+changed.
+
+Change-Id: I420dc643620583bf5ad1d41617c03b8d8ffc4c55
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/15332
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/spi/octeontx_spi.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/spi/octeontx_spi.c b/drivers/spi/octeontx_spi.c
+index 881371dd15..06452a8536 100644
+--- a/drivers/spi/octeontx_spi.c
++++ b/drivers/spi/octeontx_spi.c
+@@ -308,6 +308,7 @@ static int octeontx_spi_claim_bus(struct udevice *dev)
+ 	mpi_cfg.s.tritx = 0;
+ 	mpi_cfg.s.enable = 1;
+ 	writeq(mpi_cfg.u, baseaddr + MPI_CFG);
++	udelay(5);	/** Wait for bus to settle */
+ 
+ 	return 0;
+ }
+@@ -337,6 +338,7 @@ static int octeontx_spi_release_bus(struct udevice *dev)
+ 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
+ 	mpi_cfg.s.enable = 0;
+ 	writeq(mpi_cfg.u, baseaddr + MPI_CFG);
++	udelay(1);
+ 
+ 	return 0;
+ }
+@@ -365,8 +367,10 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+ 
+ 	mpi_cfg = octeontx_spi_set_mpicfg(dev);
+ 
+-	if (mpi_cfg.u != readq(baseaddr + MPI_CFG))
++	if (mpi_cfg.u != readq(baseaddr + MPI_CFG)) {
+ 		writeq(mpi_cfg.u, baseaddr + MPI_CFG);
++		udelay(10);
++	}
+ 
+ 	debug("\n mpi_cfg upd %llx\n", mpi_cfg.u);
+ 
+@@ -470,8 +474,10 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+ 	if (flags & SPI_XFER_QUAD)
+ 		mpi_cfg.s.iomode = 3;
+ 
+-	if (mpi_cfg.u != readq(baseaddr + MPI_CFG))
++	if (mpi_cfg.u != readq(baseaddr + MPI_CFG)) {
+ 		writeq(mpi_cfg.u, baseaddr + MPI_CFG);
++		udelay(10);
++	}
+ 
+ 	debug("\n mpi_cfg upd %llx\n\n", mpi_cfg.u);
+ 
+-- 
+2.29.0
+

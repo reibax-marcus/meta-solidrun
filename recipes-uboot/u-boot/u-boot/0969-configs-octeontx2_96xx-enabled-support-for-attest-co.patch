@@ -1,0 +1,31 @@
+From f05f35334fb80c171d1169d30ee6b5b5778247a6 Mon Sep 17 00:00:00 2001
+From: Rick Farrington <Ricardo.Farrington@cavium.com>
+Date: Fri, 4 Oct 2019 15:22:16 -0400
+Subject: [PATCH 0969/1239] configs: octeontx2_96xx: enabled support for
+ 'attest' command
+
+Change-Id: I28149c36b1813973eea31fdf7a6abebe68dc25c9
+Signed-off-by: Rick Farrington <Ricardo.Farrington@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/16881
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ configs/octeontx2_96xx_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index ac894fb32e..0db4facb03 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -47,6 +47,7 @@ CONFIG_CMD_BOOTIMGUP=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_FAILSAFE=y
+ CONFIG_CMD_ETH=y
++CONFIG_CMD_ATTEST=y
+ CONFIG_CMD_EXT2=y
+ CONFIG_CMD_EXT4=y
+ CONFIG_CMD_EXT4_WRITE=y
+-- 
+2.29.0
+

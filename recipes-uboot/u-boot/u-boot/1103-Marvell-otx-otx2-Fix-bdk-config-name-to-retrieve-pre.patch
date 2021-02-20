@@ -1,0 +1,83 @@
+From 00ba98a0a972dd5e0bcddcd7d39b58593a2c3b3a Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Thu, 20 Feb 2020 14:11:19 -0800
+Subject: [PATCH 1103/1239] Marvell: otx/otx2: Fix bdk config name to retrieve
+ preserved memory size
+
+Change-Id: I21d2cf351c2848012b147c314faa1c655b92e891
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/23644
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ board/Marvell/octeontx/board-fdt.c  | 7 ++-----
+ board/Marvell/octeontx2/board-fdt.c | 7 ++-----
+ 2 files changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/board/Marvell/octeontx/board-fdt.c b/board/Marvell/octeontx/board-fdt.c
+index 7ee64076e7..314dd5c0f1 100644
+--- a/board/Marvell/octeontx/board-fdt.c
++++ b/board/Marvell/octeontx/board-fdt.c
+@@ -185,7 +185,6 @@ u64 fdt_get_preserved_mem_size(unsigned int node)
+ 	const void *fdt = gd->fdt_blob;
+ 	int bdk_node, len = 64;
+ 	const char *str = NULL;
+-	char prop_name[34] = {};
+ 	u64 preserved_mem_size = 0;
+ 	u64 total_preserved_mem_size = 0;
+ 
+@@ -193,8 +192,7 @@ u64 fdt_get_preserved_mem_size(unsigned int node)
+ 	if (!bdk_node)
+ 		return 0;
+ 
+-	snprintf(prop_name, 34, "DDR-CONFIG-PRESERVE-NON-SECURE.N%d", node);
+-	str = fdt_getprop(fdt, bdk_node, prop_name, &len);
++	str = fdt_getprop(fdt, bdk_node, "DDR-CONFIG-PRESERVE-NON-SECURE", &len);
+ 	if (str) {
+ 		preserved_mem_size = (strtoul(str, NULL, 16) << 20);
+ 		total_preserved_mem_size += preserved_mem_size;
+@@ -203,8 +201,7 @@ u64 fdt_get_preserved_mem_size(unsigned int node)
+ 			       preserved_mem_size);
+ 	}
+ 
+-	snprintf(prop_name, 34, "DDR-CONFIG-PRESERVE-SECURE.N%d", node);
+-	str = fdt_getprop(fdt, bdk_node, prop_name, &len);
++	str = fdt_getprop(fdt, bdk_node, "DDR-CONFIG-PRESERVE-SECURE", &len);
+ 	if (str) {
+ 		preserved_mem_size = (strtoul(str, NULL, 16) << 20);
+ 		total_preserved_mem_size += preserved_mem_size;
+diff --git a/board/Marvell/octeontx2/board-fdt.c b/board/Marvell/octeontx2/board-fdt.c
+index 7d161ce8f7..9b63de3c17 100644
+--- a/board/Marvell/octeontx2/board-fdt.c
++++ b/board/Marvell/octeontx2/board-fdt.c
+@@ -98,7 +98,6 @@ u64 fdt_get_preserved_mem_size(unsigned int node)
+ 	const void *fdt = gd->fdt_blob;
+ 	int bdk_node, len = 64;
+ 	const char *str = NULL;
+-	char prop_name[34] = {};
+ 	u64 preserved_mem_size = 0;
+ 	u64 total_preserved_mem_size = 0;
+ 
+@@ -106,8 +105,7 @@ u64 fdt_get_preserved_mem_size(unsigned int node)
+ 	if (!bdk_node)
+ 		return 0;
+ 
+-	snprintf(prop_name, 34, "DDR-CONFIG-PRESERVE-NON-SECURE.N%d", node);
+-	str = fdt_getprop(fdt, bdk_node, prop_name, &len);
++	str = fdt_getprop(fdt, bdk_node, "DDR-CONFIG-PRESERVE-NON-SECURE", &len);
+ 	if (str) {
+ 		preserved_mem_size = (strtoul(str, NULL, 16) << 20);
+ 		total_preserved_mem_size += preserved_mem_size;
+@@ -116,8 +114,7 @@ u64 fdt_get_preserved_mem_size(unsigned int node)
+ 			       preserved_mem_size);
+ 	}
+ 
+-	snprintf(prop_name, 34, "DDR-CONFIG-PRESERVE-SECURE.N%d", node);
+-	str = fdt_getprop(fdt, bdk_node, prop_name, &len);
++	str = fdt_getprop(fdt, bdk_node, "DDR-CONFIG-PRESERVE-SECURE", &len);
+ 	if (str) {
+ 		preserved_mem_size = (strtoul(str, NULL, 16) << 20);
+ 		total_preserved_mem_size += preserved_mem_size;
+-- 
+2.29.0
+

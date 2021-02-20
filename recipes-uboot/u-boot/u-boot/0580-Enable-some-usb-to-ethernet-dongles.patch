@@ -1,0 +1,46 @@
+From 6fca382a3708ac825bcfe1ea7e3b2bca049dd3cb Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Fri, 2 Dec 2016 16:23:51 -0800
+Subject: [PATCH 0580/1239] Enable some usb to ethernet dongles.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ include/configs/thunderx_81xx.h | 5 ++++-
+ include/configs/thunderx_83xx.h | 5 ++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 6b8bc2e568..dcecd15888 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -324,7 +324,10 @@
+ /** Maximum root ports for XHCI */
+ #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
+ 
+-
++/** Define some USB drivers for ethernet to USB dongles to work */
++#define CONFIG_USB_HOST_ETHER
++#define CONFIG_USB_ETHER_ASIX
++#define CONFIG_USB_ETHER_ASIX88179
+ 
+ /* PCIe network controller drivers */
+ /** Intel E1000 network card */
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index c61220a9db..3cd92da8c7 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -320,7 +320,10 @@
+ /** Maximum root ports for XHCI */
+ #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
+ 
+-
++/** Define some USB drivers for ethernet to USB dongles to work */
++#define CONFIG_USB_HOST_ETHER
++#define CONFIG_USB_ETHER_ASIX
++#define CONFIG_USB_ETHER_ASIX88179
+ 
+ /* PCIe network controller drivers */
+ /** Intel E1000 network card */
+-- 
+2.29.0
+

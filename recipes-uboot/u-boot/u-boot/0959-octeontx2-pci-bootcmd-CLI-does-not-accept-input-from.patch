@@ -1,0 +1,72 @@
+From f92241e1f3277d0675c946c635a2e7641a11a8da Mon Sep 17 00:00:00 2001
+From: vburru <Veerasenareddy.Burru@cavium.com>
+Date: Sun, 15 Sep 2019 21:56:36 -0700
+Subject: [PATCH 0959/1239] octeontx2 pci-bootcmd: CLI does not accept input
+ from pci-bootcmd by default
+
+unable to execute commands through pci-bootcmd when T93/T96 is in
+end point mode when "stdin" is defined to include only serial input,
+though the octeontx2 u-boot code intend to include pci-bootcmd.
+Reason: pci-bootcmd is not added iomux correctly.
+
+Made following changes:
+- set default "stdin" to "serial", if set to NULL
+- add pci-bootcmd to list of input devices, using iomux
+
+Change-Id: I5dfd769d08a0e238f578ba814a7b8c3b8d9d111b
+Signed-off-by: vburru <Veerasenareddy.Burru@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/15881
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ board/Marvell/octeontx2/octeontx2.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index 7ff99a89de..26a6d55d23 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -255,7 +255,7 @@ int board_late_init(void)
+ 	char boardname[20];
+ 	long val;
+ #ifdef CONFIG_OCTEONTX_SERIAL_BOOTCMD
+-	struct udevice *bootcmd_dev;
++	struct udevice *bootcmd_dev = NULL;
+ 	int ret;
+ 	char *stdinname = env_get("stdin");
+ #endif
+@@ -278,17 +278,26 @@ int board_late_init(void)
+ 	atf_configure_ooo(val);
+ 
+ #ifdef CONFIG_OCTEONTX_SERIAL_BOOTCMD
++	if (!stdinname) {
++		env_set("stdin", "serial");
++		stdinname = env_get("stdin");
++	}
++
+ 	/* This will cause the pci-bootcmd driver to be probed. */
+ 	ret = uclass_get_device_by_name(UCLASS_SERIAL, "pci-bootcmd",
+ 					&bootcmd_dev);
+ 	if (!ret && bootcmd_dev)
+ 		debug("%s: %s found!\n", __func__, bootcmd_dev->name);
+ #if CONFIG_IS_ENABLED(CONSOLE_MUX)
+-	if (stdinname) {
+-		ret = iomux_doenv(stdin, stdinname);
++	if (stdinname && bootcmd_dev) {
++		char iomux_name[64];
++
++		snprintf(iomux_name, sizeof(iomux_name),
++			 "%s,%s", stdinname, bootcmd_dev->name);
++		ret = iomux_doenv(stdin, iomux_name);
+ 		if (ret)
+-			printf("%s: Error setting stdin to %s\n",
+-			       __func__, stdinname);
++			printf("%s: Error adding %s to stdin\n",
++			       __func__, iomux_name);
+ 	}
+ #endif
+ #endif
+-- 
+2.29.0
+

@@ -1,0 +1,33 @@
+From 11bc9e6ddce46168452ebee9b06f33abbf5aa83f Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Mon, 20 May 2019 13:29:56 -0700
+Subject: [PATCH 0908/1239] configs: 95xx: sync mmc config options from 96xx
+
+Change-Id: Ia244e07f1a8f0aec47c87fdd718b242a9b3a785a
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/9311
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ include/configs/octeontx2_95xx.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/include/configs/octeontx2_95xx.h b/include/configs/octeontx2_95xx.h
+index b962db4001..406c943127 100644
+--- a/include/configs/octeontx2_95xx.h
++++ b/include/configs/octeontx2_95xx.h
+@@ -98,10 +98,9 @@
+ #undef CONFIG_SYS_PROMPT
+ #define CONFIG_SYS_PROMPT		env_get("prompt")
+ 
+-#define CONFIG_MMC_SUPPORTS_TUNING
+-#define MMC_SUPPORTS_TUNING
+ #define CONFIG_CMD_BKOPS_ENABLE
+ #define CONFIG_SUPPORT_EMMC_RPMB
++#define CONFIG_SUPPORT_EMMC_BOOT
+ 
+ #define CONFIG_MMC_OCTEONTX
+ #ifndef CONFIG_BLK
+-- 
+2.29.0
+

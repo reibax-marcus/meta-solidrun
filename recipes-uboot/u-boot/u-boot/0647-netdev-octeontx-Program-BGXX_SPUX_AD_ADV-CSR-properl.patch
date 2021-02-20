@@ -1,0 +1,34 @@
+From 26ad809f564c1222d543bd934a3b482798451837 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Fri, 7 Jul 2017 21:47:34 -0700
+Subject: [PATCH 0647/1239] netdev:octeontx: Program BGXX_SPUX_AD_ADV CSR
+ properly.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 94eb28b5e0..adf0db7b52 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -497,13 +497,14 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
+ 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_CONTROL, cfg);
+ 
+ 	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_ADV);
++	/* Clear all KR bits, configure according to the mode */
++	cfg &= ~((0xfULL << 22) || (1ULL << 12));
+ 	if (lmac->qlm_mode == QLM_MODE_10G_KR)
+ 		cfg |= (1 << 23);
+ 	else if (lmac->qlm_mode == QLM_MODE_40G_KR4)
+ 		cfg |= (1 << 24);
+ 	else
+ 		cfg &= ~((1 << 23) | (1 << 24));
+-	cfg = cfg & (~((1ULL << 25) | (1ULL << 22) | (1ULL << 12)));
+ 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_ADV, cfg);
+ 
+ 	cfg = bgx_reg_read(bgx, 0, BGX_SPU_DBG_CONTROL);
+-- 
+2.29.0
+

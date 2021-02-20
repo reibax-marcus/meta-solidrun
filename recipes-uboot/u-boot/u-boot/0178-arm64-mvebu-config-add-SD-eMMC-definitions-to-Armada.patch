@@ -1,0 +1,34 @@
+From 03b0d64705b937d505ad9c12841612f5c264aad0 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Thu, 9 Aug 2018 15:40:07 +0300
+Subject: [PATCH 0178/1239] arm64: mvebu: config: add SD/eMMC definitions to
+ Armada boards
+
+Add definitions required for proper SD/eMMC support to common
+Armada header file (partition number and device ID).
+
+Change-Id: Ia0950b9b2fb44992ff1821c438be8a5cc70e0b59
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ include/configs/mvebu_armada-common.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index 81f0ed59b9..6018a55664 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -122,6 +122,11 @@
+ #define CONFIG_ENV_OFFSET		(0x400000 - CONFIG_ENV_SIZE)
+ #endif
+ 
++#ifdef CONFIG_ENV_IS_IN_MMC
++#define CONFIG_SYS_MMC_ENV_DEV		0
++#define CONFIG_SYS_MMC_ENV_PART		0 /* 0-DATA, 1-BOOT0, 2-BOOT1 */
++#endif
++
+ /*
+  * SATA/SCSI/AHCI configuration
+  */
+-- 
+2.29.0
+

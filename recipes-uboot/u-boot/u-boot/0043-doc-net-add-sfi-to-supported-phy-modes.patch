@@ -1,0 +1,28 @@
+From 87a4cf49b4207942b25aee712b2f21fcb90773c1 Mon Sep 17 00:00:00 2001
+From: Stefan Chulski <stefanc@marvell.com>
+Date: Mon, 29 May 2017 13:24:40 +0300
+Subject: [PATCH 0043/1239] doc: net: add sfi to supported phy-modes
+
+Change-Id: I58f497ea34f8dfb29084a988fe51fba347f987e9
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ doc/device-tree-bindings/net/ethernet.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/device-tree-bindings/net/ethernet.txt b/doc/device-tree-bindings/net/ethernet.txt
+index 3fc360523b..658b2c7dee 100644
+--- a/doc/device-tree-bindings/net/ethernet.txt
++++ b/doc/device-tree-bindings/net/ethernet.txt
+@@ -11,7 +11,7 @@ The following properties are common to the Ethernet controllers:
+   the maximum frame size (there's contradiction in ePAPR).
+ - phy-mode: string, operation mode of the PHY interface; supported values are
+   "mii", "gmii", "sgmii", "qsgmii", "tbi", "rev-mii", "rmii", "rgmii", "rgmii-id",
+-  "rgmii-rxid", "rgmii-txid", "rtbi", "smii", "xgmii"; this is now a de-facto
++  "rgmii-rxid", "rgmii-txid", "rtbi", "smii", "xgmii", "sfi"; this is now a de-facto
+   standard property;
+ - phy-connection-type: the same as "phy-mode" property but described in ePAPR;
+ - phy-handle: phandle, specifies a reference to a node representing a PHY
+-- 
+2.29.0
+

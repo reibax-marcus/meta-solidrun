@@ -1,0 +1,38 @@
+From 518ea84481fc361bac98613571c6a5787c0a4c7c Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 26 Jul 2017 17:13:56 +0300
+Subject: [PATCH 0663/1239] nvme: Properly use the PCI subsystem
+
+- Use the proper struct udevice pointer to access PCI registers
+- Use the changed dm_pci_map_bar semantics to access the BARs
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/block/nvme.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/block/nvme.c b/drivers/block/nvme.c
+index 510ecc811a..a5b23cadc6 100644
+--- a/drivers/block/nvme.c
++++ b/drivers/block/nvme.c
+@@ -569,14 +569,14 @@ int init_nvme(struct udevice *udev)
+ 	struct nvme_dev *ndev = dev_get_priv(udev);
+ 	u32 val;
+ 	u64 cap;
++	size_t size;
+ 
+-	ndev->pdev = pci_get_controller(udev);
++	ndev->pdev = udev;
+ 
+ 	ndev->instance = trailing_strtol(udev->name);
+ 
+ 	INIT_LIST_HEAD(&ndev->namespaces);
+-	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0,
+-			PCI_REGION_MEM);
++	ndev->bar = dm_pci_map_bar(udev, 0, &size, PCI_REGION_MEM);
+ 	if (readl(&ndev->bar->csts) == -1) {
+ 		ret = -ENODEV;
+ 		printf("Error: %s: Out of Memory!\n", udev->name);
+-- 
+2.29.0
+

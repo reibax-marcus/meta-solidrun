@@ -1,0 +1,37 @@
+From 078e18d12a1df3c2216db65482f5152c24df0bda Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 17 Nov 2017 14:27:20 -0800
+Subject: [PATCH 0722/1239] drivers: pci: clear bar_response before fetch of
+ upper 32bits
+
+In dm_pci_map_bar, upper32 bar address bits should be updated
+only if its non-zero. Otherwise, lower32 is used for upper32
+even if mem type is not 64bit, which may cause crash.
+Fix by clearing bar_response of lower32 and update pci_bus_start
+only if upper32 is non-zero. Fix fo bug #30874.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/pci/pci-uclass.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pci/pci-uclass.c b/drivers/pci/pci-uclass.c
+index 2bfea83e01..2a47b503bb 100644
+--- a/drivers/pci/pci-uclass.c
++++ b/drivers/pci/pci-uclass.c
+@@ -1503,9 +1503,11 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, size_t *size, int flags)
+ 
+ 		if ((bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
+ 				PCI_BASE_ADDRESS_MEM_TYPE_64) {
++			bar_response = 0;
+ 			dm_pci_read_config32(dev, bar + 4, &bar_response);
+ 		}
+-		pci_bus_start |= (pci_addr_t)bar_response << 32;
++		if (!bar_response)
++			pci_bus_start |= (pci_addr_t)bar_response << 32;
+ 	}
+ 
+ 	if (!pdata->is_phys) {
+-- 
+2.29.0
+

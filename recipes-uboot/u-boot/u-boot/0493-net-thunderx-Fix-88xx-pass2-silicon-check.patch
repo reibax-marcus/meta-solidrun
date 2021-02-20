@@ -1,0 +1,26 @@
+From 05c403b6aa22cc4cd199ebbb054cf083398848c0 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 6 Jun 2016 12:45:06 -0700
+Subject: [PATCH 0493/1239] net: thunderx: Fix 88xx pass2 silicon check
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/nic.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index 1c3636b6f1..cbf9b0d53a 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -515,7 +515,7 @@ static inline bool pass1_silicon(unsigned int revision)
+ 
+ static inline bool pass2_silicon(unsigned int revision)
+ {
+-	return (revision == 8);
++	return (revision >= 8);
+ }
+ 
+ #endif /* NIC_H */
+-- 
+2.29.0
+

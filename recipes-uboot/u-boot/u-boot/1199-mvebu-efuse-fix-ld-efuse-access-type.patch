@@ -1,0 +1,95 @@
+From b81939ba0d1049adf0e8f998ab53fb079847e397 Mon Sep 17 00:00:00 2001
+From: Guo Yi <yi.guo@cavium.com>
+Date: Mon, 20 Jul 2020 14:12:16 -0700
+Subject: [PATCH 1199/1239] mvebu: efuse: fix ld efuse access type
+
+ld0 should be defined as mvebu-fuse-ld-prop
+ld1 should be defined as mvebu-fuse-ld-user
+
+ld0 is selected by setting control register bit6 = 0
+ld1 is selected by setting control register bit6 = 1
+
+Change-Id: I5311fcaaa038d45195e12eb68ab728f3ee2463e6
+Signed-off-by: Guo Yi <yi.guo@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32317
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/armada-ap80x.dtsi | 4 ++--
+ arch/arm/dts/armada-cp110.dtsi | 4 ++--
+ drivers/fuse/fuse-mvebu-ld.c   | 8 ++++----
+ 3 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/dts/armada-ap80x.dtsi b/arch/arm/dts/armada-ap80x.dtsi
+index 51bb6082be..8fe24078a1 100644
+--- a/arch/arm/dts/armada-ap80x.dtsi
++++ b/arch/arm/dts/armada-ap80x.dtsi
+@@ -119,14 +119,14 @@
+ 			};
+ 
+ 			ap_ld_efuse0: efuse-0@6F8F00 {
+-				compatible = "marvell,mvebu-fuse-ld-user";
++				compatible = "marvell,mvebu-fuse-ld-prop";
+ 				reg = <0x6F8008 0x4>;
+ 				otp-mem = <0x6F8F00>;
+ 				status = "disabled";
+ 			};
+ 
+ 			ap_ld_efuse1: efuse-1@6F8F00 {
+-				compatible = "marvell,mvebu-fuse-ld-prop";
++				compatible = "marvell,mvebu-fuse-ld-user";
+ 				reg = <0x6F8008 0x4>;
+ 				otp-mem = <0x6F8F00>;
+ 				status = "disabled";
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index 448cdb2f80..b654edb93a 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -59,14 +59,14 @@
+ 			};
+ 
+ 			CP110_LABEL(ld_efuse0): CP110_LABEL(efuse0)@400F00 {
+-				compatible = "marvell,mvebu-fuse-ld-user";
++				compatible = "marvell,mvebu-fuse-ld-prop";
+ 				reg = <0x400008 0x4>;
+ 				otp-mem = <0x400F00>;
+ 				status = "disabled";
+ 			};
+ 
+ 			CP110_LABEL(ld_efuse1): CP110_LABEL(efuse1)@400F00 {
+-				compatible = "marvell,mvebu-fuse-ld-prop";
++				compatible = "marvell,mvebu-fuse-ld-user";
+ 				reg = <0x400008 0x4>;
+ 				otp-mem = <0x400F00>;
+ 				status = "disabled";
+diff --git a/drivers/fuse/fuse-mvebu-ld.c b/drivers/fuse/fuse-mvebu-ld.c
+index 7f42678c92..c11341407d 100644
+--- a/drivers/fuse/fuse-mvebu-ld.c
++++ b/drivers/fuse/fuse-mvebu-ld.c
+@@ -29,11 +29,11 @@ int mvebu_efuse_ld_read(struct udevice *dev, int row_id, u32 *val)
+ 	ctrl_reg = priv->control_reg;
+ 	row_widths = priv->pdata->row_bit_width;
+ 
+-	/* when read_only flag is set, which means read LD0 */
++	/* when ID eFUSE Select bit is set, which means read LD1 */
+ 	if (device_is_compatible(dev, "marvell,mvebu-fuse-ld-user"))
+-		clrbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
+-	else
+ 		setbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
++	else
++		clrbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
+ 
+ 	for (i = 0; i < GET_LEN(row_widths); i++)
+ 		*(val + i) = readl(otp_mem + 4 * i);
+@@ -54,7 +54,7 @@ int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
+ 	ctrl_reg = priv->control_reg;
+ 	row_widths = priv->pdata->row_bit_width;
+ 
+-	if (device_is_compatible(dev, "marvell,mvebu-fuse-ld-user")) {
++	if (device_is_compatible(dev, "marvell,mvebu-fuse-ld-prop")) {
+ 		printf("This efuse row is LD0 and read-only\n");
+ 		return -EINVAL;
+ 	}
+-- 
+2.29.0
+

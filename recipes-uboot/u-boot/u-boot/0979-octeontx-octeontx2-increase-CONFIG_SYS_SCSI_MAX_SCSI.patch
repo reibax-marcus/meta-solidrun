@@ -1,0 +1,66 @@
+From 153c55b9649db73b341027019200116757e3a9a3 Mon Sep 17 00:00:00 2001
+From: Roy Franz <rfranz@marvell.com>
+Date: Mon, 28 Oct 2019 16:43:41 -0700
+Subject: [PATCH 0979/1239] octeontx: octeontx2: increase
+ CONFIG_SYS_SCSI_MAX_SCSI_ID to 16
+
+Increase CONFIG_SYS_SCSI_MAX_SCSI_ID to 16 to allow up to 16 ports of
+add-in PCIe SATA controllers to work.  This should allow all ports to
+work on all common SATA PCIe controllers.
+'scsi reset' time on t83 is not affected, and debug prints verify that
+the device reported port number (of 1) per controller is used to limit
+the ports scanned for the builtin SATA ports.
+
+Change-Id: Ie33858bc63915b3b0db78702154b5ada77a62227
+Signed-off-by: Roy Franz <rfranz@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/18001
+Reviewed-by: Aaron Williams <awilliams@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ include/configs/octeontx2_96xx.h  | 2 +-
+ include/configs/octeontx2_98xx.h  | 2 +-
+ include/configs/octeontx_common.h | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/configs/octeontx2_96xx.h b/include/configs/octeontx2_96xx.h
+index ed99a7c25b..6d6a3e7ade 100644
+--- a/include/configs/octeontx2_96xx.h
++++ b/include/configs/octeontx2_96xx.h
+@@ -57,7 +57,7 @@
+ /* AHCI support Definitions */
+ #ifdef CONFIG_DM_SCSI
+ /** Maximum number of SATA devices per controller*/
+-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
++#define CONFIG_SYS_SCSI_MAX_SCSI_ID	16
+ /** Enable 48-bit SATA addressing */
+ # define CONFIG_LBA48
+ /** Enable 64-bit addressing */
+diff --git a/include/configs/octeontx2_98xx.h b/include/configs/octeontx2_98xx.h
+index 08228cee38..8bb2493277 100644
+--- a/include/configs/octeontx2_98xx.h
++++ b/include/configs/octeontx2_98xx.h
+@@ -56,7 +56,7 @@
+ /* AHCI support Definitions */
+ #ifdef CONFIG_DM_SCSI
+ /** Maximum number of SATA devices per controller*/
+-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
++#define CONFIG_SYS_SCSI_MAX_SCSI_ID	16
+ /** Enable 48-bit SATA addressing */
+ # define CONFIG_LBA48
+ /** Enable 64-bit addressing */
+diff --git a/include/configs/octeontx_common.h b/include/configs/octeontx_common.h
+index 3e91a027b1..6164858f4e 100644
+--- a/include/configs/octeontx_common.h
++++ b/include/configs/octeontx_common.h
+@@ -52,7 +52,7 @@
+ /* AHCI support Definitions */
+ #ifdef CONFIG_DM_SCSI
+ /** Maximum number of SATA devices per controller*/
+-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
++#define CONFIG_SYS_SCSI_MAX_SCSI_ID	16
+ /** Enable 48-bit SATA addressing */
+ # define CONFIG_LBA48
+ /** Enable 64-bit addressing */
+-- 
+2.29.0
+

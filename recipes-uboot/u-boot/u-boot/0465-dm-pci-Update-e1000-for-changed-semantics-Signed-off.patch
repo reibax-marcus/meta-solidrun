@@ -1,0 +1,27 @@
+From 984bc41a6bf2297c55d4b09ca4f9f638483a892c Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 18 May 2016 22:17:41 -0400
+Subject: [PATCH 0465/1239] dm: pci: Update e1000 for changed semantics
+ Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
+---
+ drivers/net/e1000.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/net/e1000.c b/drivers/net/e1000.c
+index d5818d188e..65fe63c8ce 100644
+--- a/drivers/net/e1000.c
++++ b/drivers/net/e1000.c
+@@ -5555,8 +5555,7 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
+ 	hw->eeprom_semaphore_present = true;
+ #endif
+ #ifdef CONFIG_DM_ETH
+-	hw->hw_addr = dm_pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
+-						PCI_REGION_MEM);
++	hw->hw_addr = dm_pci_map_bar(devno, 0, PCI_REGION_MEM);
+ #else
+ 	hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
+ 						PCI_REGION_MEM);
+-- 
+2.29.0
+

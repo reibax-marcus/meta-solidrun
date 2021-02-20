@@ -1,0 +1,93 @@
+From 7b76daa15320ac5eadca5f9a2edfed66c91262e2 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Tue, 31 Mar 2020 00:10:14 -0700
+Subject: [PATCH 1125/1239] cmd: marvell: Add serdes diagnostics command
+
+Change-Id: Iaa053c1032551f2a35f23a3db91f37805bc6c70e
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/25935
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ cmd/marvell/octeontx2_qlm_cmds.c | 22 ++++++++++++++++++++++
+ drivers/net/octeontx2/cgx.h      |  1 +
+ drivers/net/octeontx2/cgx_intf.c | 18 ++++++++++++++++++
+ 3 files changed, 41 insertions(+)
+
+diff --git a/cmd/marvell/octeontx2_qlm_cmds.c b/cmd/marvell/octeontx2_qlm_cmds.c
+index ab1c4465e0..28dd6e205d 100644
+--- a/cmd/marvell/octeontx2_qlm_cmds.c
++++ b/cmd/marvell/octeontx2_qlm_cmds.c
+@@ -10,6 +10,7 @@
+ 
+ extern int cgx_intf_prbs(u8 qlm, u8 mode, u32 time);
+ extern int cgx_intf_display_eye(u8 qlm, u8 lane);
++extern int cgx_intf_display_serdes(u8 qlm, u8 lane);
+ 
+ static int do_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ {
+@@ -58,3 +59,24 @@ U_BOOT_CMD(eye,    3,    1,     do_eye,
+ 	   "    - run eye by 'lane'  'qlm'\n"
+ );
+ 
++static int do_serdes(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	ulong lane;
++	ulong qlm;
++
++	if (argc != 3)
++		return CMD_RET_USAGE;
++
++	qlm = simple_strtoul(argv[1], NULL, 10);
++	lane = simple_strtoul(argv[2], NULL, 10);
++
++	cgx_intf_display_serdes(qlm, lane);
++
++	return CMD_RET_SUCCESS;
++}
++
++U_BOOT_CMD(serdes,    3,    1,     do_serdes,
++	   "command to display serdes state of a lane in a given QLM",
++	   "<qlm> <lane>\n"
++	   "    - display serdes state of 'lane' in 'qlm'\n"
++);
+diff --git a/drivers/net/octeontx2/cgx.h b/drivers/net/octeontx2/cgx.h
+index e7b4026a86..0d2919f49a 100644
+--- a/drivers/net/octeontx2/cgx.h
++++ b/drivers/net/octeontx2/cgx.h
+@@ -102,5 +102,6 @@ int cgx_intf_get_mac_addr(u8 cgx, u8 lmac, u8 *mac);
+ int cgx_intf_set_macaddr(struct udevice *dev);
+ int cgx_intf_prbs(u8 qlm, u8 mode, u32 time);
+ int cgx_intf_display_eye(u8 qlm, u8 lane);
++int cgx_intf_display_serdes(u8 qlm, u8 lane);
+ 
+ #endif /* __CGX_H__ */
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index a919958256..99b760b44d 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -668,3 +668,21 @@ int cgx_intf_display_eye(u8 qlm, u8 lane)
+ 
+ 	return 0;
+ }
++
++int cgx_intf_display_serdes(u8 qlm, u8 lane)
++{
++	union cgx_scratchx0 scr0;
++	int ret;
++	union cgx_cmd_s cmd;
++
++	cmd.cmd.id = CGX_CMD_DISPLAY_SERDES;
++
++	cmd.dsp_eye_args.qlm = qlm;
++	cmd.dsp_eye_args.lane = lane;
++
++	ret = cgx_intf_req(0, 0, cmd, &scr0.u, 0);
++	if (ret)
++		return -1;
++
++	return 0;
++}
+-- 
+2.29.0
+

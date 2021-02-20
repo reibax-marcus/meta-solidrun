@@ -1,0 +1,90 @@
+From 72190ac3a66bb9dbc2110955d98f31cb3ce205f7 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Wed, 24 Apr 2019 23:21:31 -0700
+Subject: [PATCH 0901/1239] driver: net: octeontx: Add 1000Base-X support
+
+Based on GMP PCS CSR configure SGMII in 1000Base-X mode.
+
+Change-Id: I6dc987f084ae660fb6f985ec4710f567dc9a9dc2
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/8043
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/net/octeontx/octeontx_bgx.c | 19 +++++++++++++++----
+ drivers/net/octeontx/octeontx_bgx.h |  1 +
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/octeontx/octeontx_bgx.c b/drivers/net/octeontx/octeontx_bgx.c
+index 07288d8212..a2f9c2be5c 100644
+--- a/drivers/net/octeontx/octeontx_bgx.c
++++ b/drivers/net/octeontx/octeontx_bgx.c
+@@ -56,6 +56,7 @@ struct lmac {
+ 	int			lmac_type;
+ 	u8			qlm_mode;
+ 	int			qlm;
++	bool			is_1gx;
+ };
+ 
+ struct bgx {
+@@ -354,6 +355,12 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
+ 		return 0; /* Skip checking AN_CPT */
+ 	}
+ 
++	if (lmac->is_1gx) {
++		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL);
++		cfg |= PCS_MISC_CTL_MODE;
++		bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL, cfg);
++	}
++
+ 	if (lmac->qlm_mode == QLM_MODE_SGMII) {
+ 		if (bgx_poll_reg(bgx, lmacid, BGX_GMP_PCS_MRX_STATUS,
+ 			 PCS_MRX_STATUS_AN_CPT, false)) {
+@@ -1029,8 +1036,9 @@ static void bgx_init_hw(struct bgx *bgx)
+ 			lmac->lane_to_sds = lmacid;
+ 			lmac->lmac_type = 0;
+ 			snprintf(buf, sizeof(buf),
+-				 "BGX%d QLM%d LMAC%d mode: SGMII\n",
+-				 bgx->bgx_id, lmac->qlm, lmacid);
++				 "BGX%d QLM%d LMAC%d mode: %s\n",
++				 bgx->bgx_id, lmac->qlm, lmacid,
++				 lmac->is_1gx ? "1000Base-X" : "SGMII");
+ 			break;
+ 		}
+ 		case QLM_MODE_XAUI:
+@@ -1225,6 +1233,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 				lmacid, lmac->lmac_type, is_altpkg);
+ 
+ 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
++		lmac->is_1gx = bgx_reg_read(bgx, index, BGX_GMP_PCS_MISCX_CTL)
++				& (PCS_MISC_CTL_MODE) ? true : false;
+ 
+ 		switch(lmac->lmac_type) {
+ 		case BGX_MODE_SGMII:
+@@ -1241,8 +1251,9 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 						continue;
+ 				}
+ 				lmac->qlm_mode = QLM_MODE_SGMII;
+-				debug("BGX%d QLM%d LMAC%d mode: SGMII\n",
+-						bgx->bgx_id, lmac->qlm, lmacid);
++				debug("BGX%d QLM%d LMAC%d mode: %s\n",
++				      bgx->bgx_id, lmac->qlm, lmacid,
++				      lmac->is_1gx ? "1000Base-X" : "SGMII");
+ 			}
+ 			break;
+ 		case BGX_MODE_XAUI:
+diff --git a/drivers/net/octeontx/octeontx_bgx.h b/drivers/net/octeontx/octeontx_bgx.h
+index 80568f471c..d64fad112f 100644
+--- a/drivers/net/octeontx/octeontx_bgx.h
++++ b/drivers/net/octeontx/octeontx_bgx.h
+@@ -154,6 +154,7 @@
+ #define PCS_MISCX_CTL_DISP_EN			(1ull << 13)
+ #define PCS_MISC_CTL_GMX_ENO			(1ull << 11)
+ #define PCS_MISC_CTL_SAMP_PT_MASK		0x7Full
++#define PCS_MISC_CTL_MODE			(1ull << 8)
+ #define BGX_GMP_GMI_PRTX_CFG		0x38020
+ #define GMI_PORT_CFG_SPEED			(1ull << 1)
+ #define GMI_PORT_CFG_DUPLEX			(1ull << 2)
+-- 
+2.29.0
+

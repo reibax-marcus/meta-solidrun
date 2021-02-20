@@ -1,0 +1,48 @@
+From 35c3be013b53845c95206f626649b0d98fcc0756 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 5 Sep 2018 01:20:38 -0700
+Subject: [PATCH 0792/1239] octeontx: mmc: Forgot to check in updated header
+ file.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ arch/arm/include/asm/arch-octeontx/octeontx_mmc.h       | 3 +++
+ arch/arm/include/asm/arch-octeontx2/cavm-csrs-mio_emm.h | 1 +
+ arch/arm/include/asm/arch-octeontx2/octeontx_mmc.h      | 1 +
+ 3 files changed, 5 insertions(+)
+ create mode 120000 arch/arm/include/asm/arch-octeontx2/cavm-csrs-mio_emm.h
+ create mode 120000 arch/arm/include/asm/arch-octeontx2/octeontx_mmc.h
+
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h b/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h
+index 065f567999..d9975785f5 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h
+@@ -162,6 +162,9 @@ struct octeontx_mmc_slot {
+ 	bool		power_active_high:1;
+ 	bool		ro_inverted:1;	/** True if write-protect is inverted */
+ 	bool		cd_inverted:1;	/** True if card-detect is inverted */
++#ifdef CONFIG_OCTEONTX2
++	u64		timing_fracns;	/** Delay value for 125ps */
++#endif
+ };
+ 
+ struct octeontx_mmc_host {
+diff --git a/arch/arm/include/asm/arch-octeontx2/cavm-csrs-mio_emm.h b/arch/arm/include/asm/arch-octeontx2/cavm-csrs-mio_emm.h
+new file mode 120000
+index 0000000000..303a622b5b
+--- /dev/null
++++ b/arch/arm/include/asm/arch-octeontx2/cavm-csrs-mio_emm.h
+@@ -0,0 +1 @@
++../arch-octeontx/cavm-csrs-mio_emm.h
+\ No newline at end of file
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx_mmc.h b/arch/arm/include/asm/arch-octeontx2/octeontx_mmc.h
+new file mode 120000
+index 0000000000..dfa9755025
+--- /dev/null
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx_mmc.h
+@@ -0,0 +1 @@
++../arch-octeontx/octeontx_mmc.h
+\ No newline at end of file
+-- 
+2.29.0
+

@@ -1,0 +1,32 @@
+From 252b9cefc13172a5729761e02bf333151b883d0c Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 12 Dec 2018 08:30:31 -0800
+Subject: [PATCH 0849/1239] drivers: mmc: fix typo with previous commit
+
+"octeontx: mmc: Added timing support for OcteonTX2"
+
+Change-Id: Id94ff7ec66f0561639e3cba5b6d35a6afbbc12d7
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1462
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ drivers/mmc/octeontx_mmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/octeontx_mmc.c b/drivers/mmc/octeontx_mmc.c
+index ae091ad306..b5b85a4c6b 100644
+--- a/drivers/mmc/octeontx_mmc.c
++++ b/drivers/mmc/octeontx_mmc.c
+@@ -4647,7 +4647,7 @@ static int octeontx_mmc_set_bus_timing(struct mmc *mmc)
+ 	struct octeontx_mmc_slot *slot = mmc->priv;
+ 	union cavm_mio_emm_sample sample;
+ 
+-        debug("%s: OcteonTX\n", __func__);s
++        debug("%s: OcteonTX\n", __func__);
+ 	sample.u = 0;
+ 	sample.s.cmd_cnt = slot->cmd_clk_skew;
+ 	sample.s.dat_cnt = slot->dat_clk_skew;
+-- 
+2.29.0
+

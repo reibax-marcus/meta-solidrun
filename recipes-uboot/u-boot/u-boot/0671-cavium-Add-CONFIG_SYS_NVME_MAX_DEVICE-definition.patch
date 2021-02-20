@@ -1,0 +1,28 @@
+From d48398ffc734abc4aa36b72e2bb2c0becfbc06b6 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 2 Aug 2017 15:18:10 +0300
+Subject: [PATCH 0671/1239] cavium: Add CONFIG_SYS_NVME_MAX_DEVICE definition
+
+Support up to 64 NVME devices when CONFIG_BLK is disabled
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ include/configs/thunderx_83xx.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 04c4ac1418..40dc507974 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -178,6 +178,8 @@
+ # define CONFIG_SYS_64BIT_LBA
+ #endif
+ 
++#define CONFIG_SYS_NVME_MAX_DEVICE 64
++
+ /* PCIe */
+ /** Show devices found on PCI bus */
+ #define CONFIG_PCI_SCAN_SHOW
+-- 
+2.29.0
+

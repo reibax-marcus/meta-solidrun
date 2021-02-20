@@ -1,0 +1,51 @@
+From b4e00f76e8e4126038cff4deadad6269ae76b1e9 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Sun, 30 Oct 2016 21:54:44 -0700
+Subject: [PATCH 0549/1239] Some data structures will be overwritten if U-Boot
+ grows near 512K.
+
+This moves the stack and the CPU release from 512K - 16bytes to 1M - 16 bytes
+since it is easy to hit this location as U-Boot grows.  Ideally these will be
+moved elsewhere though this can be done at some later time.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 37e5c7dce8..27fddd9ca2 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -96,7 +96,8 @@
+ #define CONFIG_SYS_TEXT_BASE		0x00500000
+ 
+ /** Stack starting address */
+-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
++/*#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)*/
++#define CONFIG_SYS_INIT_SP_ADDR			(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+ 
+ #define CONFIG_BOARD_LATE_INIT
+ 
+@@ -109,7 +110,8 @@
+ #define CONFIG_OF_BOARD_SETUP
+ 
+ /* SMP Spin Table Definitions */
+-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
++/*#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)*/
++#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+ 
+ 
+ /* Generic Timer Definitions */
+@@ -358,7 +360,7 @@
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+ /** Size of environment in bytes */
+-#define CONFIG_ENV_SIZE			0x80000
++#define CONFIG_ENV_SIZE			0x8000
+ /** Starting offset of the environment */
+ #define CONFIG_ENV_OFFSET		0xf00000
+ 
+-- 
+2.29.0
+

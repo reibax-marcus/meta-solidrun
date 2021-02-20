@@ -1,0 +1,97 @@
+From 01f3e20689aac94c3d07cde5c37b93a90ec8ee4d Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 6 Sep 2018 16:22:07 -0700
+Subject: [PATCH 0822/1239] drivers: mmc: make changes for new config defines
+
+MMC_WRITE and MMC_HW_PARTITIONING depend on MMC, remove the
+dependency, as cavium mmc host driver doesn't use it.
+Exclude mmc_write.c from compilation as cavium_mmc.c implements
+required support. Minor compiler warning fix.
+Otherwise, related member variables in struct mmc will not be
+included.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/mmc/Kconfig        | 8 +++++++-
+ drivers/mmc/Makefile       | 3 ++-
+ drivers/mmc/octeontx_mmc.c | 2 +-
+ include/mmc.h              | 2 +-
+ 4 files changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/mmc/Kconfig b/drivers/mmc/Kconfig
+index cfbc6a4e47..9061b3e0cc 100644
+--- a/drivers/mmc/Kconfig
++++ b/drivers/mmc/Kconfig
+@@ -13,7 +13,6 @@ config MMC
+ 
+ config MMC_WRITE
+ 	bool "support for MMC/SD write operations"
+-	depends on MMC
+ 	default y
+ 	help
+ 	  Enable write access to MMC and SD Cards
+@@ -48,6 +47,13 @@ config MMC_OCTEONTX
+ 	  If you have an OcteonTX board with a Multimedia Card slot,
+ 	  say Y here.  If unsure, say N.
+ 
++config MMC_HW_PARTITIONING
++	bool "Support for HW partitioning command(eMMC)"
++	default y
++	help
++	  This adds a command and an API to do hardware partitioning on eMMC
++	  devices.
++
+ if MMC
+ 
+ config MMC_SPI
+diff --git a/drivers/mmc/Makefile b/drivers/mmc/Makefile
+index 0ebd73377e..1021802d26 100644
+--- a/drivers/mmc/Makefile
++++ b/drivers/mmc/Makefile
+@@ -4,7 +4,9 @@
+ # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ 
+ obj-$(CONFIG_$(SPL_)DM_MMC) += mmc-uclass.o
++ifndef CONFIG_MMC_OCTEONTX
+ obj-$(CONFIG_$(SPL_)MMC_WRITE) += mmc_write.o
++endif
+ obj-$(CONFIG_MMC) += mmc.o
+ 
+ ifndef CONFIG_$(SPL_)BLK
+@@ -25,7 +27,6 @@ obj-$(CONFIG_MMC_DW_K3)			+= hi6220_dw_mmc.o
+ obj-$(CONFIG_MMC_DW_ROCKCHIP)		+= rockchip_dw_mmc.o
+ obj-$(CONFIG_MMC_DW_SOCFPGA)		+= socfpga_dw_mmc.o
+ obj-$(CONFIG_MMC_DW_SNPS)		+= snps_dw_mmc.o
+-obj-$(CONFIG_CAVIUM_MMC) += cavium_mmc.o
+ obj-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
+ obj-$(CONFIG_FSL_ESDHC_IMX) += fsl_esdhc_imx.o
+ obj-$(CONFIG_FTSDC010) += ftsdc010_mci.o
+diff --git a/drivers/mmc/octeontx_mmc.c b/drivers/mmc/octeontx_mmc.c
+index b29cb7bdba..c32fd5c24c 100644
+--- a/drivers/mmc/octeontx_mmc.c
++++ b/drivers/mmc/octeontx_mmc.c
+@@ -1956,7 +1956,7 @@ void print_mmc_device_info(struct mmc *mmc)
+ 	       mmc->high_capacity ? "yes" : "no");
+ 	printf("Bus width:             %u bits\n", mmc->bus_width);
+ 	printf("Bus frequency:         %u\n", mmc->clock);
+-	if (!mmc->card_caps & MMC_MODE_HS)
++	if (!(mmc->card_caps & MMC_MODE_HS))
+ 		printf("Transfer frequency:    %u\n", mmc->tran_speed);
+ 	printf("Bus DDR:               %s\n", mmc->ddr_mode ? "yes" : "no");
+ 	if (!IS_SD(mmc)) {
+diff --git a/include/mmc.h b/include/mmc.h
+index d6608737d6..fd0463f0f2 100644
+--- a/include/mmc.h
++++ b/include/mmc.h
+@@ -753,7 +753,7 @@ int mmc_voltage_to_mv(enum mmc_voltage voltage);
+  * @disable:	flag indicating if the clock must on or off
+  * @return 0 if OK, -ve on error
+  */
+-#if !CONFIG_IS_ENABLED(MMC_CAVIUM)
++#if !CONFIG_IS_ENABLED(MMC_OCTEONTX)
+ int mmc_set_clock(struct mmc *mmc, uint clock, bool disable);
+ 
+ #define MMC_CLK_ENABLE		false
+-- 
+2.29.0
+

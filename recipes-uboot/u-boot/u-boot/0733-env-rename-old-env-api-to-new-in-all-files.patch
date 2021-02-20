@@ -1,0 +1,231 @@
+From 9b0c4df8bc549e91632dc6e395369878e61495c5 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 14 Nov 2017 17:22:49 -0800
+Subject: [PATCH 0733/1239] env: rename old env api to new in all files
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/cavium/thunderx/fdt.c      | 14 +++++++-------
+ board/cavium/thunderx/thunderx.c | 24 ++++++++++++------------
+ cmd/bootimgup.c                  |  8 ++++----
+ cmd/fdt.c                        |  2 +-
+ cmd/nvedit.c                     |  2 +-
+ drivers/mmc/cavium_mmc.c         |  2 +-
+ drivers/net/cavium/nicvf_main.c  |  4 ++--
+ include/configs/thunderx_81xx.h  |  2 +-
+ 8 files changed, 29 insertions(+), 29 deletions(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index c439a7abd6..dd33955d67 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -57,7 +57,7 @@ void thunderx_parse_bdk_config(void)
+ 	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
+ 	if (str) {
+ 		strncpy(boardname, str, sizeof(boardname));
+-		setenv("board", boardname);
++		env_set("board", boardname);
+ 	} else {
+ 		printf("Error: cannot retrieve board type from fdt\n");
+ 	}
+@@ -246,16 +246,16 @@ void thunderx_parse_mac_addr(void)
+ 				debug("%s eaddr %pM\n", __func__, eaddr);
+ 				memcpy(eth_addr, mac_addr, ARP_HLEN);
+ 				debug("%s eth %pM\n", __func__, eth_addr);
+-				if (getenv(envname) == NULL)
++				if (env_get(envname) == NULL)
+ 					mismatch = 1;
+ 				else {
+-					eth_getenv_enetaddr(envname, env_addr);
++					eth_env_get_enetaddr(envname, env_addr);
+ 					debug("\n env %pM\n", env_addr);
+ 					if (memcmp(env_addr, eth_addr,
+ 						   ARP_HLEN))
+ 						mismatch = 1;
+ 				}
+-				setenv_force(envname, eaddr);
++				env_set_force(envname, eaddr);
+ 				ethdev = eth_get_dev_by_index(eth_id);
+ 				if (ethdev &&
+ 					memcmp(ethdev->enetaddr, eth_addr,
+@@ -269,13 +269,13 @@ void thunderx_parse_mac_addr(void)
+ 				if (!ethaddr_exists(envname)) {
+ 					memset(eth_addr, 0, ARP_HLEN);
+ 					eth_addr[5] = eth_id;
+-					eth_getenv_enetaddr(envname, env_addr);
++					eth_env_get_enetaddr(envname, env_addr);
+ 					if (memcmp(env_addr, eth_addr,
+ 						ARP_HLEN)) {
+ 						mismatch = 1;
+ 						snprintf(eaddr, sizeof(eaddr),
+ 							 "%pM", eth_addr);
+-						setenv_force(envname, eaddr);
++						env_set_force(envname, eaddr);
+ 						ethdev = eth_get_dev_by_index(
+ 								eth_id);
+ 						if (ethdev &&
+@@ -308,7 +308,7 @@ void thunderx_parse_mac_addr(void)
+ 	if (mismatch) {
+ 		printf("Interface configuration or mac addr count"
+ 			" changed, saving env...\n");
+-		saveenv();
++		env_save();
+ 	}
+ #endif
+ }
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 85b0a3d50f..5bd5835149 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -151,7 +151,7 @@ int board_late_init(void)
+ 	thunderx_parse_bdk_config();
+ 	thunderx_parse_mac_addr();
+ 
+-	board = getenv("board");
++	board = env_get("board");
+ 
+ 	/* some times simulator fails to load environment
+ 	 * from flash, try to read it from devicetree
+@@ -163,24 +163,24 @@ int board_late_init(void)
+ 		debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
+ 		if (str) {
+ 			strncpy(boardname, str, sizeof(boardname));
+-			setenv("board", boardname);
++			env_set("board", boardname);
+ 		}
+-		board = getenv("board");
++		board = env_get("board");
+ 	}
+ 
+-	if (board != NULL && !getenv("prompt")) {
++	if (board != NULL && !env_get("prompt")) {
+ 		snprintf(thunderx_prompt, sizeof(thunderx_prompt), "%s> ",
+ 			 board);
+-		printf("Set prompt to \"%s\"\n", thunderx_prompt);
+-		setenv("prompt", thunderx_prompt);
+-	} else if (getenv("prompt")) {
+-		printf("%s: prompt already set to \"%s\"\n",
+-		       __func__, getenv("prompt"));
++		debug("Set prompt to \"%s\"\n", thunderx_prompt);
++		env_set("prompt", thunderx_prompt);
++	} else if (env_get("prompt")) {
++		debug("%s: prompt already set to \"%s\"\n",
++		       __func__, env_get("prompt"));
+ 	} else {
+ 		printf("%s: board is NULL\n", __func__);
+ 	}
+ 
+-	printf("Board type: %s\n", getenv("board"));
++	printf("Board type: %s\n", env_get("board"));
+ #ifdef DEBUG
+ 	dm_dump_all();
+ #endif
+@@ -199,10 +199,10 @@ int board_eth_init(bd_t *bis)
+ #ifdef CONFIG_RANDOM_MACADDR
+ 	unsigned char ethaddr[6];
+ 
+-	if (!eth_getenv_enetaddr("ethaddr", ethaddr)) {
++	if (!eth_env_get_enetaddr("ethaddr", ethaddr)) {
+ 		net_random_ethaddr(ethaddr);
+ 		printf("Generating random MAC address: %pM\n", ethaddr);
+-		eth_setenv_enetaddr("ethaddr", ethaddr);
++		eth_env_set_enetaddr("ethaddr", ethaddr);
+ 	}
+ #endif
+ 
+diff --git a/cmd/bootimgup.c b/cmd/bootimgup.c
+index f0574435fe..858a2b34fd 100644
+--- a/cmd/bootimgup.c
++++ b/cmd/bootimgup.c
+@@ -203,8 +203,8 @@ static int do_bootu_spi(int argc, char * const argv[])
+ 	debug("%s argv0 %s argv1 %s\n", __func__, argv[0], argv[1]);
+ 
+ 	if (argc == 1) {
+-		env1 = getenv("kernel_addr");
+-		env2 = getenv("filesize");
++		env1 = env_get("kernel_addr");
++		env2 = env_get("filesize");
+ 	} else {
+ 		if (!argv[1] || !argv[2])
+ 			return -1;
+@@ -327,8 +327,8 @@ static int do_bootu_mmc(int argc, char * const argv[])
+ 
+ 	blk = 0;
+ 	if (argc == 1) {
+-		env1 = getenv("kernel_addr");
+-		env2 = getenv("filesize");
++		env1 = env_get("kernel_addr");
++		env2 = env_get("filesize");
+ 	} else {
+ 		if (!argv[1] || !argv[2])
+ 			return -1;
+diff --git a/cmd/fdt.c b/cmd/fdt.c
+index bf6c670234..92fece9ecb 100644
+--- a/cmd/fdt.c
++++ b/cmd/fdt.c
+@@ -1090,7 +1090,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
+ 			}
+ 			break;
+ 		case FDT_NOP:
+-			if (!getenv("fdt_hide_nop"))
++			if (!env_get("fdt_hide_nop"))
+ 				printf("%s/* NOP */\n", &tabs[MAX_LEVEL - level]);
+ 			break;
+ 		case FDT_END:
+diff --git a/cmd/nvedit.c b/cmd/nvedit.c
+index b8024da168..55221ac53f 100644
+--- a/cmd/nvedit.c
++++ b/cmd/nvedit.c
+@@ -313,7 +313,7 @@ int env_set(const char *varname, const char *varvalue)
+ 		return _do_env_set(0, 3, (char * const *)argv, H_PROGRAMMATIC);
+ }
+ 
+-int setenv_force(const char *varname, const char *varvalue)
++int env_set_force(const char *varname, const char *varvalue)
+ {
+ 	const char * const argv[5] = { "setenv", "-f", varname, varvalue, NULL };
+ 
+diff --git a/drivers/mmc/cavium_mmc.c b/drivers/mmc/cavium_mmc.c
+index fb0579eed9..061b8b56e7 100644
+--- a/drivers/mmc/cavium_mmc.c
++++ b/drivers/mmc/cavium_mmc.c
+@@ -3391,7 +3391,7 @@ static int cavium_mmc_set_ios(struct udevice *dev)
+ 		debug("        High-Speed DDR eMMC 52MHz at 1.8V or 3V I/O\n");
+ 		hs_timing = true;
+ 		if ((mmc->cfg->voltages & MMC_VDD_165_195) ||
+-		    getenv("cavium_mmc_ddr"))
++		    env_get("cavium_mmc_ddr"))
+ 			ddr = true;
+ 	}
+ 	if (cardtype & EXT_CSD_CARD_TYPE_DDR_1_2V) {
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/cavium/nicvf_main.c
+index c49011e392..4b169c818d 100644
+--- a/drivers/net/cavium/nicvf_main.c
++++ b/drivers/net/cavium/nicvf_main.c
+@@ -503,8 +503,8 @@ int nicvf_initialize(struct udevice *pdev, int vf_num)
+ 	netdev->send = nicvf_xmit;
+ 	netdev->recv = nicvf_recv;
+ 
+-	if (!eth_getenv_enetaddr_by_index("eth", nicvf->vf_id, netdev->enetaddr)) {
+-		eth_getenv_enetaddr("ethaddr", netdev->enetaddr);
++	if (!eth_env_get_enetaddr_by_index("eth", nicvf->vf_id, netdev->enetaddr)) {
++		eth_env_get_enetaddr("ethaddr", netdev->enetaddr);
+ 		netdev->enetaddr[5] += nicvf->vf_id;
+ 	}
+ 
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index ff2e298aba..bddbd12c94 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -336,7 +336,7 @@
+ #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
+ 
+ #undef CONFIG_SYS_PROMPT
+-#define CONFIG_SYS_PROMPT		getenv("prompt")
++#define CONFIG_SYS_PROMPT		env_get("prompt")
+ 
+ /** Enable long help support */
+ #define CONFIG_SYS_LONGHELP
+-- 
+2.29.0
+

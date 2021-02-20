@@ -1,0 +1,40 @@
+From 2ccc36c33d791669fa07705a670bdbb072e21fa9 Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Mon, 28 May 2018 16:05:19 +0800
+Subject: [PATCH 0071/1239] arm64: dts: apn806: add "ap_" prefix for spi0 node
+ and ic20 node
+
+This patch adds "ap_" prefix for apn806's spi0 node and ic20 node to
+distinguish them from CP's corresponding nodes.
+
+Change-Id: I08514cecc9e8f27b16bd0202d309d8690b3b9b78
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ arch/arm/dts/armada-ap806.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/dts/armada-ap806.dtsi b/arch/arm/dts/armada-ap806.dtsi
+index 284228d153..5fbbe4526a 100644
+--- a/arch/arm/dts/armada-ap806.dtsi
++++ b/arch/arm/dts/armada-ap806.dtsi
+@@ -111,7 +111,7 @@
+ 				#gpio-cells = <2>;
+ 			};
+ 
+-			spi0: spi@510600 {
++			ap_spi0: spi@510600 {
+ 				compatible = "marvell,armada-380-spi";
+ 				reg = <0x510600 0x50>;
+ 				#address-cells = <1>;
+@@ -120,7 +120,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			i2c0: i2c@511000 {
++			ap_i2c0: i2c@511000 {
+ 				compatible = "marvell,mv78230-i2c";
+ 				reg = <0x511000 0x20>;
+ 				#address-cells = <1>;
+-- 
+2.29.0
+

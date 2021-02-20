@@ -1,0 +1,87 @@
+From 15e400100a50f143db9e649c0084e0a902295ee8 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 23 Jan 2019 18:40:57 -0800
+Subject: [PATCH 0872/1239] drivers: net: fix issue with invalid mac address
+ from ATF
+
+If ATF sends null or invalid mac address, skip init of
+environment ethaddr variables in driver and let network stack
+set random mac address, which will be used later with write_hwaddr
+to call driver hook to update random mac address in cgx and also
+environment variable.
+
+Change-Id: I01b8c3d43c8015f2e8718a5a4d89141bb1982d4e
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/2708
+Tested-by: sa_ip-sw-jenkins
+---
+ drivers/net/octeontx2/cgx.c    |  2 --
+ drivers/net/octeontx2/nix.c    | 20 +++++++++++++++++++-
+ drivers/net/octeontx2/rvu_pf.c |  7 +++++--
+ 3 files changed, 24 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/octeontx2/cgx.c b/drivers/net/octeontx2/cgx.c
+index 34b7cfe7cf..0c5d8a9c5b 100644
+--- a/drivers/net/octeontx2/cgx.c
++++ b/drivers/net/octeontx2/cgx.c
+@@ -271,8 +271,6 @@ static int cgx_lmac_init(struct cgx *cgx)
+ 		cgx_intf_get_mac_addr(cgx->cgx_id, i, lmac->mac_addr);
+ 		debug("%s: cgx%d lmac%d mac_addr\n",__func__,cgx->cgx_id, i);
+ 		debug("%s: MAC %pM\n", __func__, lmac->mac_addr);
+-		eth_env_set_enetaddr_by_index("eth", lmac->instance-1,
+-						 lmac->mac_addr);
+ 		printf("CGX%d LMAC%d %s \n", cgx->cgx_id, lmac->lmac_id,
+ 					lmac_type_to_str[lmac->lmac_type]);
+ 
+diff --git a/drivers/net/octeontx2/nix.c b/drivers/net/octeontx2/nix.c
+index 2a0fa645c2..8dc1701fba 100644
+--- a/drivers/net/octeontx2/nix.c
++++ b/drivers/net/octeontx2/nix.c
+@@ -743,7 +743,25 @@ int nix_lf_recv(struct udevice *dev, int flags, uchar **packetp)
+ 
+ int nix_lf_setup_mac(struct udevice *dev)
+ {
+-	return -ENOSYS;
++	struct rvu_pf *rvu = dev_get_priv(dev);
++	struct nix *nix = rvu->nix;
++	struct eth_pdata *pdata = dev_get_platdata(dev);
++
++	/* If lower level firmware fails to set proper MAC
++	 * u-boot framework updates MAC to random address.
++	 * Use this hook to update mac address in cgx lmac
++	 * and call mac filter setup to update new address.
++	 */
++	if (memcmp(nix->lmac->mac_addr, pdata->enetaddr, ARP_HLEN)) {
++		memcpy(nix->lmac->mac_addr, pdata->enetaddr, 6);
++		eth_env_set_enetaddr_by_index("eth", rvu->dev->seq,
++					      pdata->enetaddr);
++		cgx_lmac_mac_filter_setup(nix->lmac);
++		debug("%s: lMAC %pM\n", __func__, nix->lmac->mac_addr);
++		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
++	}
++	debug("%s: setupMAC %pM\n", __func__, pdata->enetaddr);
++	return 0;
+ }
+ 
+ int nix_lf_read_rom_mac(struct udevice *dev)
+diff --git a/drivers/net/octeontx2/rvu_pf.c b/drivers/net/octeontx2/rvu_pf.c
+index 44ad529546..99d1a12411 100644
+--- a/drivers/net/octeontx2/rvu_pf.c
++++ b/drivers/net/octeontx2/rvu_pf.c
+@@ -35,8 +35,11 @@ int rvu_pf_init(struct rvu_pf *rvu)
+ 	rvu->nix = nix;
+ 
+ 	/* to make post_probe happy */
+-	memcpy(pdata->enetaddr, nix->lmac->mac_addr, 6);
+-	eth_env_set_enetaddr_by_index("eth", rvu->dev->seq, pdata->enetaddr);
++	if (is_valid_ethaddr(nix->lmac->mac_addr)) {
++		memcpy(pdata->enetaddr, nix->lmac->mac_addr, 6);
++		eth_env_set_enetaddr_by_index("eth", rvu->dev->seq,
++					      pdata->enetaddr);
++	}
+ 
+ 	return 0;
+ }
+-- 
+2.29.0
+

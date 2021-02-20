@@ -1,0 +1,25 @@
+From d2390a987f1071ea3c5dcd2223cafba302fd2909 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 12 Sep 2016 19:06:51 -0700
+Subject: [PATCH 0523/1239] net:thunderx: Define alternate_pkg()
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ include/common.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/common.h b/include/common.h
+index d8f302ea92..75c70a4a12 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -182,6 +182,7 @@ int board_fix_fdt (void *rw_fdt_blob); /* manipulate the U-Boot fdt before its r
+ int board_late_init (void);
+ int board_postclk_init (void); /* after clocks/timebase, before env/serial */
+ int board_early_init_r (void);
++bool alternate_pkg (void);
+ 
+ #if defined(CONFIG_SYS_DRAM_TEST)
+ int testdram(void);
+-- 
+2.29.0
+

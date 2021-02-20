@@ -1,0 +1,26 @@
+From 9758a01a5f14531a2e84480d0a5e55a1f4e09411 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 19 May 2016 18:34:59 -0400
+Subject: [PATCH 0479/1239] gpio: cavium: Fix copy-paste leftovers
+ Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
+---
+ drivers/gpio/thunderx_gpio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/thunderx_gpio.c b/drivers/gpio/thunderx_gpio.c
+index 148c19e9f2..0ec6b9335a 100644
+--- a/drivers/gpio/thunderx_gpio.c
++++ b/drivers/gpio/thunderx_gpio.c
+@@ -160,7 +160,7 @@ static const struct udevice_id thunderx_gpio_ids[] = {
+ };
+ 
+ U_BOOT_DRIVER(gpio_tegra) = {
+-	.name	= "gpio_tegra",
++	.name	= "gpio_thunderx",
+ 	.id	= UCLASS_GPIO,
+ 	.of_match = thunderx_gpio_ids,
+ 	.probe = thunderx_gpio_probe,
+-- 
+2.29.0
+

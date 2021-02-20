@@ -1,0 +1,81 @@
+From abb27450697dda062e62a08eb9c1d74ad5121bed Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 31 Jul 2019 22:08:53 -0700
+Subject: [PATCH 0948/1239] xhci: octeontx2: Work-around designware USB issue
+
+In the Designware XHCI core used in the OcteonTX2
+SoC there is a bug if the received data is short
+and it crosses a 64K boundary.  In this case,
+instead of a single TRB event, two events are
+generated.  The first event is Interrupt-on
+Short Packet (ISP) and the next event is
+Interrupt on Completion (IOC).  Also, in this
+case, both completion events contain the wrong
+length which does not make any sense.
+In order to work around this ugly bug, a 64K
+bounce buffer that is aligned to a 64K boundary
+is used and the data is later copied to the
+actual buffer.  This is only used if the entire
+transaction is no greater than 64K.  So far this
+issue has not manifested itself in larger
+transactions.
+
+Change-Id: I9228ef9e7c94f5cfefc8e905af433f328355d1fa
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/13426
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/usb/host/xhci-ring.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 6a4b365013..17987ad559 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -598,6 +598,21 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
+ 	 * that the buffer should not span 64KB boundary. if so
+ 	 * we send request in more than 1 TRB by chaining them.
+ 	 */
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	/* There is a bug in the designware core used in the OcteonTX2 where
++	 * buffers that cross TRB boundaries cause an extra event to be
++	 * generated and the lengths reported by those events are corrupt.
++	 * In order to work around this, a 64K bounce buffer is used.
++	 */
++	if (usb_pipein(pipe) && (length <= TRB_MAX_BUFF_SIZE) &&
++	    (((uintptr_t)buffer & ~(TRB_MAX_BUFF_SIZE - 1)) !=
++	     (((uintptr_t)buffer + length) & ~(TRB_MAX_BUFF_SIZE - 1)))) {
++		use_rx_bounce = true;
++		orig_buffer = buffer;
++		buffer = ctrl->rx_bounce_buffer;
++		val_64 = (uintptr_t)buffer;
++	}
++#endif
+ 	running_total = TRB_MAX_BUFF_SIZE -
+ 			(lower_32_bits(val_64) & (TRB_MAX_BUFF_SIZE - 1));
+ 	trb_buff_len = running_total;
+@@ -614,12 +629,6 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
+ 	while (running_total < length) {
+ 		num_trbs++;
+ 		running_total += TRB_MAX_BUFF_SIZE;
+-#if defined(CONFIG_ARCH_OCTEONTX2)
+-		if (usb_pipein(pipe) && (length <= 65536)) {
+-			buffer = ctrl->rx_bounce_buffer;
+-			use_rx_bounce = true;
+-		}
+-#endif
+ 	}
+ 
+ 	/*
+@@ -744,7 +753,6 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
+ 	if (use_rx_bounce)
+ 		memcpy(orig_buffer, buffer, udev->act_len);
+ #endif
+-
+ 	return (udev->status != USB_ST_NOT_PROC) ? 0 : -1;
+ }
+ 
+-- 
+2.29.0
+

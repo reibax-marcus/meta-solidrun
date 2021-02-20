@@ -1,0 +1,131 @@
+From eb4faf71905413c358e4ebcf8646523e51cfb6fc Mon Sep 17 00:00:00 2001
+From: Guo Yi <yi.guo@cavium.com>
+Date: Fri, 14 Aug 2020 10:32:38 -0700
+Subject: [PATCH 1204/1239] drivers: fuse: mvebu-ld: Fix CP LD fuse program
+ sequence
+
+There's one extra bit every 63 bit when reading back LD fuse content,
+same as described in the functional spec on LD efuse reading. The AP
+LD fuse does not show this behavior. If all existing LD fuse bits are
+zero then the current code will not show issue. But soon production
+chips will be fused with factory data, then when program the LD fuse
+for secure boot, then the current data will be corrupted
+
+Change-Id: I4a93cb1a6b53f54c8c6a79ea115259912654290d
+Signed-off-by: Guo Yi <yi.guo@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/34010
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/armada-cp110.dtsi |  2 ++
+ drivers/fuse/fuse-mvebu-ld.c   | 23 ++++++++++++++++++++---
+ drivers/fuse/fuse-mvebu.c      |  4 ++++
+ include/mvebu/fuse-mvebu.h     |  1 +
+ 4 files changed, 27 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index b654edb93a..a30e740ab8 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -62,6 +62,7 @@
+ 				compatible = "marvell,mvebu-fuse-ld-prop";
+ 				reg = <0x400008 0x4>;
+ 				otp-mem = <0x400F00>;
++				extra-bit-per-63 = <1>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -69,6 +70,7 @@
+ 				compatible = "marvell,mvebu-fuse-ld-user";
+ 				reg = <0x400008 0x4>;
+ 				otp-mem = <0x400F00>;
++				extra-bit-per-63 = <1>;
+ 				status = "disabled";
+ 			};
+ 
+diff --git a/drivers/fuse/fuse-mvebu-ld.c b/drivers/fuse/fuse-mvebu-ld.c
+index c11341407d..a11968b901 100644
+--- a/drivers/fuse/fuse-mvebu-ld.c
++++ b/drivers/fuse/fuse-mvebu-ld.c
+@@ -13,6 +13,7 @@
+ 
+ #define GET_LEN(width)  DIV_ROUND_UP(width, 32)
+ #define ROW_WORDS_LEN	8
++#define MAX_CP_LD_BITS	252
+ 
+ static int valid_prog_words;
+ static u32 prog_val[ROW_WORDS_LEN];
+@@ -44,7 +45,7 @@ int mvebu_efuse_ld_read(struct udevice *dev, int row_id, u32 *val)
+ int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
+ {
+ 	void __iomem *otp_mem, *ctrl_reg;
+-	int row_base, i, row_widths;
++	int row_base, i, row_widths, real_bit;
+ 	struct mvebu_fuse_block_data *priv = dev_get_priv(dev);
+ 	u32 fuse_read_value[ROW_WORDS_LEN];
+ 
+@@ -58,6 +59,7 @@ int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
+ 		printf("This efuse row is LD0 and read-only\n");
+ 		return -EINVAL;
+ 	}
++
+ 	/* select LD1 for fuse burn */
+ 	setbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
+ 
+@@ -66,9 +68,24 @@ int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
+ 
+ 	/* enable security bit to lock LD efuse row for further programming */
+ 	setbits_le32(ctrl_reg, MVEBU_EFUSE_CTRL_LD_SEC_EN_MASK);
++
+ 	/* read fuse row value before burn fuse */
+-	for (i = 0; i < GET_LEN(row_widths); i++)
+-		fuse_read_value[i] = readl(otp_mem + 4 * i);
++	if (!priv->extra_bit_flag) {
++		for (i = 0; i < GET_LEN(row_widths); i++)
++			fuse_read_value[i] = readl(otp_mem + 4 * i);
++	} else {
++		for (i = 0; i < row_widths && i < MAX_CP_LD_BITS; i++) {
++			if ((i % 32) == 0)
++				fuse_read_value[i / 32] = 0;
++
++			real_bit = i + i / 63;
++			fuse_read_value[i / 32] |=
++				((readl(otp_mem + 4 * (real_bit / 32))
++					& BIT_MASK(real_bit % 32))
++					>> (real_bit % 32)) << (i % 32);
++		}
++	}
++
+ 	/* fuse row value burn */
+ 	for (i = 0; i < GET_LEN(row_widths); i++) {
+ 		fuse_read_value[i] |= *(new_val + i);
+diff --git a/drivers/fuse/fuse-mvebu.c b/drivers/fuse/fuse-mvebu.c
+index 5e2161f6db..30aad94bd0 100644
+--- a/drivers/fuse/fuse-mvebu.c
++++ b/drivers/fuse/fuse-mvebu.c
+@@ -174,6 +174,10 @@ static int fuse_probe(struct udevice *dev)
+ 		(((phys_addr_t)fdtdec_get_int(blob, node,
+ 			"otp-mem", 0)) & 0x00ffffff));
+ 
++	priv->extra_bit_flag =
++		fdtdec_get_int(blob, node, "extra-bit-per-63", 0) ?
++				true : false;
++
+ 	if (device_is_compatible(dev, "marvell,mvebu-fuse-hd"))
+ 		priv->hd_ld_flag = true;
+ 	else
+diff --git a/include/mvebu/fuse-mvebu.h b/include/mvebu/fuse-mvebu.h
+index fbb483f9b1..b55e54f6ea 100644
+--- a/include/mvebu/fuse-mvebu.h
++++ b/include/mvebu/fuse-mvebu.h
+@@ -31,6 +31,7 @@ struct mvebu_fuse_block_data {
+ 	void	*control_reg;
+ 	void	*target_otp_mem;
+ 	bool	hd_ld_flag;
++	bool	extra_bit_flag;
+ 	char	block_name[64];
+ };
+ 
+-- 
+2.29.0
+

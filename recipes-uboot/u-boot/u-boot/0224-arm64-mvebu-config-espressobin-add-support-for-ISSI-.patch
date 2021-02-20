@@ -1,0 +1,29 @@
+From 2d02d1a901c79ca0ec2de50112631f2329aeb340 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Sun, 2 Dec 2018 14:38:38 +0200
+Subject: [PATCH 0224/1239] arm64: mvebu: config: espressobin: add support for
+ ISSI SPI flashes
+
+Enable support of ISSI SPI flashes found on EspressoBIN boards
+
+Change-Id: Icfe3b90665a0ca6ef291018d1e2584bfbb62ad3b
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ configs/mvebu_espressobin-88f3720_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/mvebu_espressobin-88f3720_defconfig b/configs/mvebu_espressobin-88f3720_defconfig
+index 864d730a35..962c2a738c 100644
+--- a/configs/mvebu_espressobin-88f3720_defconfig
++++ b/configs/mvebu_espressobin-88f3720_defconfig
+@@ -48,6 +48,7 @@ CONFIG_SPI_FLASH=y
+ CONFIG_SF_DEFAULT_MODE=0
+ CONFIG_SF_DEFAULT_SPEED=40000000
+ CONFIG_SPI_FLASH_GIGADEVICE=y
++CONFIG_SPI_FLASH_ISSI=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+-- 
+2.29.0
+

@@ -1,0 +1,32 @@
+From 7b168d11956e5ca8e78a2626357b74f1151b44fa Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Thu, 18 Jun 2020 11:33:04 -0700
+Subject: [PATCH 1178/1239] configs: 98xx: Increase heap size
+
+Double the heap size, re-visit later.
+
+Change-Id: Ic8c154628d5ffcb3dc9f9ad822c07ffe3b58d36a
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/30337
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ include/configs/octeontx2_98xx.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/octeontx2_98xx.h b/include/configs/octeontx2_98xx.h
+index f50b1019e5..8cf638908a 100644
+--- a/include/configs/octeontx2_98xx.h
++++ b/include/configs/octeontx2_98xx.h
+@@ -29,7 +29,7 @@
+ #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0xf0000)
+ 
+ /** Heap size for U-Boot */
+-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 64 * 1024 * 1024)
++#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024 * 1024)
+ 
+ #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,53 @@
+From 37fb64e3e55980d6e0eb2e6f202287fd5a2b3b18 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Mon, 27 Jan 2020 12:05:46 +0100
+Subject: [PATCH 1075/1239] net: mvpp2: remove redundant SMI address
+ configuration
+
+Because the mvpp2 driver now relies on the PHYLIB and
+the external MDIO driver, configuring low level
+SMI bus settings is redundant.
+
+Change-Id: Ie579dd23cb40ead83e35c339c829b6a1537d5877
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/22362
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ drivers/net/mvpp2.c | 12 ------------
+ 1 file changed, 12 deletions(-)
+
+diff --git a/drivers/net/mvpp2.c b/drivers/net/mvpp2.c
+index 41afb7ed22..eb91c30d67 100644
+--- a/drivers/net/mvpp2.c
++++ b/drivers/net/mvpp2.c
+@@ -5283,14 +5283,6 @@ static int mvpp2_write_hwaddr(struct udevice *dev)
+ 	return mvpp2_prs_update_mac_da(port, port->dev_addr);
+ }
+ 
+-static int mvpp22_smi_phy_addr_cfg(struct mvpp2_port *port)
+-{
+-	writel(port->phyaddr, port->priv->iface_base +
+-	       MVPP22_SMI_PHY_ADDR_REG(port->gop_id));
+-
+-	return 0;
+-}
+-
+ static int mvpp2_base_probe(struct udevice *dev)
+ {
+ 	struct mvpp2 *priv = dev_get_priv(dev);
+@@ -5409,10 +5401,6 @@ static int mvpp2_probe(struct udevice *dev)
+ 		port->base = priv->iface_base + MVPP22_PORT_BASE +
+ 			port->gop_id * MVPP22_PORT_OFFSET;
+ 
+-		/* Set phy address of the port */
+-		if (port->phyaddr < PHY_MAX_ADDR)
+-			mvpp22_smi_phy_addr_cfg(port);
+-
+ 		/* GoP Init */
+ 		gop_port_init(port);
+ 	}
+-- 
+2.29.0
+

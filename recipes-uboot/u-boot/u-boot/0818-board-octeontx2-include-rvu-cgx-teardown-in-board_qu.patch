@@ -1,0 +1,71 @@
+From f04ee8b9450ae18783ec3d99bcda0d903ac01a4c Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 16 Aug 2018 17:28:38 -0700
+Subject: [PATCH 0818/1239] board: octeontx2: include rvu, cgx teardown in
+ board_quiesce_devices
+
+Using driver model, auto device remove with flag DM_FLAG_OS_PREPARE
+messes with the order of shutdown for rvu af and pf devices.
+lf to pf mappings removal happens first and then cgx,rvu af shutdown
+and lastly rvu pf shutdown. There is no easy way to tweak this order
+and requires much effort on framework, hence use the board level
+function to shutdown in desired order.
+
+Using board_quiesce_devices, follow the below order of shutdown
+ - rvu pf devices (nix lf and npa lf shutdown)
+ - bring down all cgx links (cgx_intf_shutdown)
+ - rvu af and cgx devices (cgx, nix af, npa af and npc af shutdown)
+ - smc call - disable nix/npa lf to pf mappings
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/cavium/octeontx2/octeontx2.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/board/cavium/octeontx2/octeontx2.c b/board/cavium/octeontx2/octeontx2.c
+index 297c64fc64..dcb442ab6f 100644
+--- a/board/cavium/octeontx2/octeontx2.c
++++ b/board/cavium/octeontx2/octeontx2.c
+@@ -6,6 +6,7 @@
+ 
+ #include <common.h>
+ #include <dm.h>
++#include <dm/uclass-internal.h>
+ #include <malloc.h>
+ #include <errno.h>
+ #include <asm/io.h>
+@@ -24,10 +25,30 @@ void board_quiesce_devices(void)
+ {
+ 	ssize_t node_count = atf_node_count();
+ 	int node;
++	struct uclass *uc_dev;
++	int ret;
++
++	/* Removes all RVU PF devices */
++	ret = uclass_get(UCLASS_ETH, &uc_dev);
++	if (uc_dev)
++		ret = uclass_destroy(uc_dev);
++	if (ret)
++		printf("couldn't remove rvu pf devices\n");
++
++	/* Bring down all cgx lmac links */
++	cgx_intf_shutdown();
++
++	/* Removes all CGX and RVU AF devices */
++	ret = uclass_get(UCLASS_MISC, &uc_dev);
++	if (uc_dev)
++		ret = uclass_destroy(uc_dev);
++	if (ret)
++		printf("couldn't remove misc (cgx/rvu_af) devices\n");
++
++	/* SMC call - removes all LF<->PF mappings */
+ 	for (node = 0; node < node_count; node++) {
+ 		atf_disable_rvu_lfs(node);
+ 	}
+-	cgx_intf_shutdown();
+ }
+ 
+ #ifdef CONFIG_BOARD_EARLY_INIT_R
+-- 
+2.29.0
+

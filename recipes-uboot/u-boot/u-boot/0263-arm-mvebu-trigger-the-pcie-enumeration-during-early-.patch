@@ -1,0 +1,34 @@
+From 642846d1ebdb175c66258b30740d14603fd95573 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 24 May 2019 16:49:01 +0200
+Subject: [PATCH 0263/1239] arm: mvebu: trigger the pcie enumeration during
+ early init
+
+After switching to new PCI DM the pci enumeration is not automatically
+triggered therefore trigger it from early init. It is already done for
+Marvell 64-bit support under arch/arm/mach-mvebu/arm64-common.c.
+
+Change-Id: I3236fc3e1b2437784590e0575b3bc4847faeeffb
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ arch/arm/mach-mvebu/cpu.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/mach-mvebu/cpu.c b/arch/arm/mach-mvebu/cpu.c
+index 44b16f9764..c14eae58c0 100644
+--- a/arch/arm/mach-mvebu/cpu.c
++++ b/arch/arm/mach-mvebu/cpu.c
+@@ -726,5 +726,10 @@ int arch_early_init_r(void)
+ 			break;
+ 	}
+ 
++#ifdef CONFIG_DM_PCI
++	/* Trigger PCIe devices detection */
++	pci_init();
++#endif
++
+ 	return 0;
+ }
+-- 
+2.29.0
+

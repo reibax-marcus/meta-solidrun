@@ -1,0 +1,223 @@
+From 06f6daf6fd02019ac105db1e96c0765a712e1dc3 Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Tue, 3 Apr 2018 17:27:23 +0800
+Subject: [PATCH 0172/1239] arm64: dts: a8k: add spi direct access mapping
+
+In ATF, spi direct mapping window of [0xf9000000, 0xf9ffffff] is added
+for a70x0/a70x0_cust/a80x0/a80x0_mcbin, this patch adds the spi direct
+access mapping for corresponding boards in u-boot.
+
+Change-Id: I90dbb76d4ae01794857e36093e3acd4515a4b732
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ arch/arm/dts/armada-7040-db-B.dts  | 5 +++++
+ arch/arm/dts/armada-7040-db-C.dts  | 5 +++++
+ arch/arm/dts/armada-7040-db-E.dts  | 5 +++++
+ arch/arm/dts/armada-7040-db.dts    | 5 +++++
+ arch/arm/dts/armada-70x0-db.dtsi   | 5 +++++
+ arch/arm/dts/armada-8040-db-B.dts  | 3 +++
+ arch/arm/dts/armada-8040-db-C.dts  | 3 +++
+ arch/arm/dts/armada-8040-db-E.dts  | 3 +++
+ arch/arm/dts/armada-8040-db-F.dts  | 3 +++
+ arch/arm/dts/armada-8040-db.dts    | 3 +++
+ arch/arm/dts/armada-8040-mcbin.dts | 3 +++
+ arch/arm/dts/armada-80x0-db.dtsi   | 6 ++++++
+ 12 files changed, 49 insertions(+)
+
+diff --git a/arch/arm/dts/armada-7040-db-B.dts b/arch/arm/dts/armada-7040-db-B.dts
+index 46518e1ae8..479523165b 100644
+--- a/arch/arm/dts/armada-7040-db-B.dts
++++ b/arch/arm/dts/armada-7040-db-B.dts
+@@ -102,6 +102,11 @@
+ &cp0_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp0_spi0_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>,		/* CS1 */
++	      <0 0xffffffff>,		/* CS2 */
++	      <0 0xffffffff>;		/* CS3 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-7040-db-C.dts b/arch/arm/dts/armada-7040-db-C.dts
+index 75649c38fc..ec4e114322 100644
+--- a/arch/arm/dts/armada-7040-db-C.dts
++++ b/arch/arm/dts/armada-7040-db-C.dts
+@@ -103,6 +103,11 @@
+ &cp0_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp0_spi0_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>,		/* CS1 */
++	      <0 0xffffffff>,		/* CS2 */
++	      <0 0xffffffff>;		/* CS3 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-7040-db-E.dts b/arch/arm/dts/armada-7040-db-E.dts
+index 31b57d8a93..871734f881 100644
+--- a/arch/arm/dts/armada-7040-db-E.dts
++++ b/arch/arm/dts/armada-7040-db-E.dts
+@@ -116,6 +116,11 @@
+ &cp0_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp0_spi0_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>,		/* CS1 */
++	      <0 0xffffffff>,		/* CS2 */
++	      <0 0xffffffff>;		/* CS3 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index 7868fbb8f6..170b8553c9 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -134,6 +134,11 @@
+ &cp0_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp0_spi0_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>,		/* CS1 */
++	      <0 0xffffffff>,		/* CS2 */
++	      <0 0xffffffff>;		/* CS3 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-70x0-db.dtsi b/arch/arm/dts/armada-70x0-db.dtsi
+index c1b9cca8a3..02db64794c 100644
+--- a/arch/arm/dts/armada-70x0-db.dtsi
++++ b/arch/arm/dts/armada-70x0-db.dtsi
+@@ -6,12 +6,17 @@
+ #include "armada-70x0.dtsi" /* include SoC device tree */
+ #include "armada-7040-dev-info.dtsi"
+ 
++#define CP110_NUM				0
++#define SPI_DIRECT_BASE				(0xf9000000)
++
+ / {
+ 	model = "DB-ARMADA-70x0";
+ 	compatible = "marvell,armada-70x0-db", "marvell,armada-70x0";
+ 
+ 	cp0 {
+ 		config-space {
++			ranges = <0x0 U64_TO_U32_H(CP110_BASE) U64_TO_U32_L(CP110_BASE) 0x2000000>,			/* internal regs */
++				 <0x2000000 U64_TO_U32_H(SPI_DIRECT_BASE) U64_TO_U32_L(SPI_DIRECT_BASE) 0x1000000>;	/* SPI1-DEV0 */
+ 			i2c@701000 {
+ 				expander0: pca953x@21 {
+ 					compatible = "nxp,pca9555";
+diff --git a/arch/arm/dts/armada-8040-db-B.dts b/arch/arm/dts/armada-8040-db-B.dts
+index 0a0679b0fa..74f9fc2ef1 100644
+--- a/arch/arm/dts/armada-8040-db-B.dts
++++ b/arch/arm/dts/armada-8040-db-B.dts
+@@ -273,6 +273,9 @@
+ &cp1_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp1_spi1_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>;		/* CS1 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-8040-db-C.dts b/arch/arm/dts/armada-8040-db-C.dts
+index e6ad878139..a3977c9e4f 100644
+--- a/arch/arm/dts/armada-8040-db-C.dts
++++ b/arch/arm/dts/armada-8040-db-C.dts
+@@ -281,6 +281,9 @@
+ &cp1_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp1_spi1_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>;		/* CS1 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-8040-db-E.dts b/arch/arm/dts/armada-8040-db-E.dts
+index d1f43a7ec5..22d4617d2a 100644
+--- a/arch/arm/dts/armada-8040-db-E.dts
++++ b/arch/arm/dts/armada-8040-db-E.dts
+@@ -265,6 +265,9 @@
+ &cp1_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp1_spi1_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>;		/* CS1 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-8040-db-F.dts b/arch/arm/dts/armada-8040-db-F.dts
+index f6b8e9265b..6d3596eb3e 100644
+--- a/arch/arm/dts/armada-8040-db-F.dts
++++ b/arch/arm/dts/armada-8040-db-F.dts
+@@ -327,6 +327,9 @@
+ &cp1_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp1_spi1_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>;		/* CS1 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index 04745e5f7d..9c5486297f 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -297,6 +297,9 @@
+ &cp1_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp1_spi1_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>;		/* CS1 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index 9b4240993d..8a98b54d98 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -319,6 +319,9 @@
+ &cp1_spi1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp1_spi1_pins>;
++	reg = <0x700680 0x50>,		/* control */
++	      <0x2000000 0x1000000>,	/* CS0 */
++	      <0 0xffffffff>;		/* CS1 */
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+diff --git a/arch/arm/dts/armada-80x0-db.dtsi b/arch/arm/dts/armada-80x0-db.dtsi
+index b2160e5a93..b48596a4e0 100644
+--- a/arch/arm/dts/armada-80x0-db.dtsi
++++ b/arch/arm/dts/armada-80x0-db.dtsi
+@@ -109,8 +109,13 @@
+ 		};
+ 	};
+ 
++#define CP110_NUM				1
++#define SPI_DIRECT_BASE				(0xf9000000)
++
+ 	cp1 {
+ 		config-space {
++			ranges = <0x0 U64_TO_U32_H(CP110_BASE) U64_TO_U32_L(CP110_BASE) 0x2000000>,			/* internal regs */
++				 <0x2000000 U64_TO_U32_H(SPI_DIRECT_BASE) U64_TO_U32_L(SPI_DIRECT_BASE) 0x1000000>;	/* SPI1-DEV0 */
+ 
+ 			cp1_usb3_0: usb3@500000 {
+ 				vbus-supply = <&cp0_reg_usb3_vbus2>;
+@@ -119,4 +124,5 @@
+ 			};
+ 		};
+ 	};
++#undef CP110_NUM
+ };
+-- 
+2.29.0
+

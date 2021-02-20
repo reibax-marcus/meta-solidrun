@@ -1,0 +1,391 @@
+From da114958232bacfd41428b97b684f5c255f11654 Mon Sep 17 00:00:00 2001
+From: zachary zhang <zhangzg@marvell.com>
+Date: Mon, 21 Aug 2017 18:36:41 +0800
+Subject: [PATCH 0120/1239] efuse: mvebu: add Low Density (LD) efuse operation
+ code
+
+LD efuse operation support is required on ap806 and cp110 since their HW
+include two LD efuses along with HD efuse array.
+This patch adds LD efuse read/write operations for these dies and also
+introduces efuse mbus registration function for A38x SoC.
+
+Change-Id: I782155e2b41c52958813f71fe0bf49b8516e279d
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ arch/arm/mach-mvebu/Kconfig  |   1 +
+ arch/arm/mach-mvebu/cpu.c    |  15 +++++
+ drivers/fuse/Makefile        |   1 +
+ drivers/fuse/fuse-mvebu-ld.c | 109 +++++++++++++++++++++++++++++++++++
+ drivers/fuse/fuse-mvebu.c    |  92 +++++++++++++++++++++++------
+ include/mvebu/fuse-mvebu.h   |   9 ++-
+ 6 files changed, 208 insertions(+), 19 deletions(-)
+ create mode 100644 drivers/fuse/fuse-mvebu-ld.c
+
+diff --git a/arch/arm/mach-mvebu/Kconfig b/arch/arm/mach-mvebu/Kconfig
+index 13a0a57674..0b02f6f176 100644
+--- a/arch/arm/mach-mvebu/Kconfig
++++ b/arch/arm/mach-mvebu/Kconfig
+@@ -39,6 +39,7 @@ config ARMADA_3700
+ config ARMADA_8K
+ 	bool
+ 	select ARM64
++	select HAVE_MVEBU_EFUSE
+ 
+ # Armada PLL frequency (used for NAND clock generation)
+ config SYS_MVEBU_PLL_CLOCK
+diff --git a/arch/arm/mach-mvebu/cpu.c b/arch/arm/mach-mvebu/cpu.c
+index d2f3ea58d9..133831adde 100644
+--- a/arch/arm/mach-mvebu/cpu.c
++++ b/arch/arm/mach-mvebu/cpu.c
+@@ -13,6 +13,10 @@
+ #include <asm/arch/soc.h>
+ #include <sdhci.h>
+ 
++#if defined(CONFIG_MVEBU_EFUSE)
++#include <mvebu/fuse-mvebu.h>
++#endif
++
+ #define DDR_BASE_CS_OFF(n)	(0x0000 + ((n) << 3))
+ #define DDR_SIZE_CS_OFF(n)	(0x0004 + ((n) << 3))
+ 
+@@ -490,6 +494,17 @@ int arch_cpu_init(void)
+ 	/* Disable MBUS error propagation */
+ 	clrsetbits_le32(SOC_COHERENCY_FABRIC_CTRL_REG, MBUS_ERR_PROP_EN, 0);
+ 
++#if defined(CONFIG_MVEBU_EFUSE)
++	if (mvebu_soc_family() == MVEBU_SOC_A38X) {
++		struct fuse_ops a38x_ops;
++
++		a38x_ops.fuse_init = mvebu_efuse_init_hw;
++		a38x_ops.fuse_hd_read = NULL;
++		a38x_ops.fuse_hd_prog = NULL;
++		reg_fuse_ops(&a38x_ops);
++	}
++#endif
++
+ 	return 0;
+ }
+ #endif /* CONFIG_ARCH_CPU_INIT */
+diff --git a/drivers/fuse/Makefile b/drivers/fuse/Makefile
+index 50128201ce..02971f3fba 100644
+--- a/drivers/fuse/Makefile
++++ b/drivers/fuse/Makefile
+@@ -1,3 +1,4 @@
+ obj-$(CONFIG_MVEBU_EFUSE) += fuse-mvebu.o
+ obj-$(CONFIG_MVEBU_EFUSE) += fuse-mvebu-hd.o
++obj-$(CONFIG_MVEBU_EFUSE) += fuse-mvebu-ld.o
+ obj-$(CONFIG_ARMADA_38X) += fuse-mvebu-init.o
+diff --git a/drivers/fuse/fuse-mvebu-ld.c b/drivers/fuse/fuse-mvebu-ld.c
+new file mode 100644
+index 0000000000..0e33a7fb33
+--- /dev/null
++++ b/drivers/fuse/fuse-mvebu-ld.c
+@@ -0,0 +1,109 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:       GPL-2.0+
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <asm/io.h>
++#include <errno.h>
++#include <mvebu/fuse-mvebu.h>
++
++#define GET_LEN(width)  DIV_ROUND_UP(width, 32)
++#define ROW_WORDS_LEN	8
++
++static int valid_prog_words;
++static u32 prog_val[ROW_WORDS_LEN];
++
++int mvebu_efuse_ld_read(struct udevice *dev, int row_id, u32 *val)
++{
++	void __iomem *otp_mem, *ctrl_reg;
++	int row_base, i, row_widths;
++	struct mvebu_fuse_block_data *priv = dev_get_priv(dev);
++
++	row_base = priv->row_base;
++	otp_mem = priv->target_otp_mem + (row_id - row_base) *
++		   priv->pdata->row_step;
++	ctrl_reg = priv->control_reg;
++	row_widths = priv->pdata->row_bit_width;
++
++	/* when read_only flag is set, which means read LD0 */
++	if (device_is_compatible(dev, "marvell,mvebu-fuse-ld-user"))
++		clrbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
++	else
++		setbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
++
++	for (i = 0; i < GET_LEN(row_widths); i++)
++		*(val + i) = readl(otp_mem + 4 * i);
++
++	return 0;
++}
++
++int do_mvebu_efuse_ld_prog(struct udevice *dev, int row_id, u32 *new_val)
++{
++	void __iomem *otp_mem, *ctrl_reg;
++	int row_base, i, row_widths;
++	struct mvebu_fuse_block_data *priv = dev_get_priv(dev);
++	u32 fuse_read_value[ROW_WORDS_LEN];
++
++	row_base = priv->row_base;
++	otp_mem = priv->target_otp_mem + (row_id - row_base) *
++		   priv->pdata->row_step;
++	ctrl_reg = priv->control_reg;
++	row_widths = priv->pdata->row_bit_width;
++
++	if (device_is_compatible(dev, "marvell,mvebu-fuse-ld-user")) {
++		printf("This efuse row is LD0 and read-only\n");
++		return -EINVAL;
++	}
++	/* select LD1 for fuse burn */
++	setbits_le32(ctrl_reg, MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER);
++
++	/* enable fuse prog */
++#ifndef DRY_RUN
++	setbits_le32(ctrl_reg, MVEBU_EFUSE_CTRL_PROGRAM_ENABLE);
++
++	/* enable security bit to lock LD efuse row for further programming */
++	setbits_le32(ctrl_reg, MVEBU_EFUSE_CTRL_LD_SEC_EN_MASK);
++#endif
++	/* read fuse row value before burn fuse */
++	for (i = 0; i < GET_LEN(row_widths); i++)
++		fuse_read_value[i] = readl(otp_mem + 4 * i);
++	/* fuse row value burn */
++	for (i = 0; i < GET_LEN(row_widths); i++) {
++		fuse_read_value[i] |= *(new_val + i);
++		writel(fuse_read_value[i], otp_mem + 4 * i);
++	}
++
++	/* write all 0 for LD eFuse to burn efuse */
++	writel(0x0, otp_mem + 0x20);
++
++	/* wait 1 ms for burn efuse */
++	mdelay(1);
++
++	/* Disable efuse write */
++#ifndef DRY_RUN
++	clrbits_le32(ctrl_reg, MVEBU_EFUSE_CTRL_PROGRAM_ENABLE);
++#endif
++	return 0;
++}
++
++int mvebu_efuse_ld_prog(struct udevice *dev, int word, int row_id, u32 new_val)
++{
++	int res = 0;
++
++	if (word < ROW_WORDS_LEN - 1) {
++		prog_val[word] = new_val;
++		valid_prog_words |= (1 << word);
++	} else if ((valid_prog_words & 0x7F) != 0x7F) {
++		res = -EINVAL;
++	} else {
++		prog_val[ROW_WORDS_LEN - 1] = new_val;
++		res = do_mvebu_efuse_ld_prog(dev, row_id, prog_val);
++		valid_prog_words = 0;
++	}
++
++	return res;
++}
+diff --git a/drivers/fuse/fuse-mvebu.c b/drivers/fuse/fuse-mvebu.c
+index b15b0f5233..46350a3f8f 100644
+--- a/drivers/fuse/fuse-mvebu.c
++++ b/drivers/fuse/fuse-mvebu.c
+@@ -20,6 +20,34 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ static int row_index;
+ 
++static struct fuse_ops fuse_ops = {
++	.fuse_init = NULL,
++	.fuse_hd_read = mvebu_efuse_hd_read,
++	.fuse_hd_prog = mvebu_efuse_hd_prog,
++	.fuse_ld_read = mvebu_efuse_ld_read,
++	.fuse_ld_prog = mvebu_efuse_ld_prog,
++};
++
++int reg_fuse_ops(struct fuse_ops *ops)
++{
++	if (!ops) {
++		printf("ERROR: No fuse operation registration\n");
++		return -EINVAL;
++	}
++	if (ops->fuse_init)
++		fuse_ops.fuse_init = ops->fuse_init;
++	if (ops->fuse_hd_read)
++		fuse_ops.fuse_hd_read = ops->fuse_hd_read;
++	if (ops->fuse_hd_prog)
++		fuse_ops.fuse_hd_prog = ops->fuse_hd_prog;
++	if (ops->fuse_ld_read)
++		fuse_ops.fuse_ld_read = ops->fuse_ld_read;
++	if (ops->fuse_ld_prog)
++		fuse_ops.fuse_ld_prog = ops->fuse_ld_prog;
++
++	return 0;
++}
++
+ static int get_fuse_device(u32 bank, struct udevice **devp)
+ {
+ 	struct mvebu_fuse_block_data *priv;
+@@ -27,7 +55,11 @@ static int get_fuse_device(u32 bank, struct udevice **devp)
+ 
+ 	for (uclass_first_device(UCLASS_MISC, &dev); dev;
+ 	     uclass_next_device(&dev)) {
+-		if ((device_is_compatible(dev, "marvell,mvebu-fuse-hd"))) {
++		if ((device_is_compatible(dev, "marvell,mvebu-fuse-hd")) ||
++		    (device_is_compatible(dev,
++		     "marvell,mvebu-fuse-ld-user")) ||
++		    (device_is_compatible(dev,
++		     "marvell,mvebu-fuse-ld-prop"))) {
+ 			priv = dev_get_priv(dev);
+ 			if (bank >= priv->row_base &&
+ 			    bank < priv->row_base + priv->row_num) {
+@@ -66,7 +98,10 @@ int fuse_read(u32 bank, u32 word, u32 *val)
+ 	fuse_data = kmalloc_array(GET_LEN(row_widths), sizeof(u32),
+ 				  GFP_KERNEL);
+ 
+-	res = ops->fuse_hd_read(dev, bank, fuse_data);
++	if (priv->hd_ld_flag)
++		res = ops->fuse_hd_read(dev, bank, fuse_data);
++	else
++		res = ops->fuse_ld_read(dev, bank, fuse_data);
+ 
+ 	if (res)
+ 		goto read_end;
+@@ -106,7 +141,10 @@ int fuse_prog(u32 bank, u32 word, u32 val)
+ 	if (word >= GET_LEN(row_widths))
+ 		return -EINVAL;
+ 
+-	res = ops->fuse_hd_prog(dev, word, bank, val);
++	if (priv->hd_ld_flag)
++		res = ops->fuse_hd_prog(dev, word, bank, val);
++	else
++		res = ops->fuse_ld_prog(dev, word, bank, val);
+ 
+ 	return res;
+ }
+@@ -122,7 +160,7 @@ static int fuse_probe(struct udevice *dev)
+ 	const void *blob = gd->fdt_blob;
+ 	int node = dev_of_offset(dev);
+ 	struct mvebu_fuse_block_data *priv = dev_get_priv(dev);
+-	const struct fuse_ops *ops = NULL;
++	const struct fuse_ops *ops;
+ 	int res = 0;
+ 
+ 	priv->control_reg = dev_read_addr_ptr(dev);
+@@ -133,40 +171,53 @@ static int fuse_probe(struct udevice *dev)
+ 		(struct mvebu_fuse_platform_data *)dev_get_driver_data(dev);
+ #ifndef DRY_RUN
+ 	priv->target_otp_mem =
+-		(void *)(((unsigned long)fdtdec_get_int(blob, node,
+-			"otp-mem", 0)) & 0xffffffff);
++		(void *)(((phys_addr_t)dev_read_addr(dev) & ~0x00ffffff) +
++		(((phys_addr_t)fdtdec_get_int(blob, node,
++			"otp-mem", 0)) & 0x00ffffff));
+ 
+ #else
+ 	priv->target_otp_mem = NULL;
+ #endif
+ 
+-	ops = device_get_ops(dev);
+-	res = ops->fuse_init(dev);
+-	if (res)
+-		return res;
++	if (device_is_compatible(dev, "marvell,mvebu-fuse-hd"))
++		priv->hd_ld_flag = true;
++	else
++		priv->hd_ld_flag = false;
+ 
+ 	priv->row_num = fdtdec_get_int(blob, node, "rows-count", 1);
+-
+ 	priv->row_base = row_index;
+ 	row_index = priv->row_num + row_index;
+ 
++	debug("%s efuse OTP mem %p, row base = %d\n",
++	      priv->hd_ld_flag != 0 ? "HD " :
++	      (device_is_compatible(dev, "marvell,mvebu-fuse-ld-user") != 0 ?
++			"LD0" : "LD1"),
++	      priv->target_otp_mem, priv->row_base);
++
++	ops = device_get_ops(dev);
++	if (ops->fuse_init)
++		res = ops->fuse_init(dev);
++
+ 	return res;
+ }
+ 
+-static struct fuse_ops fuse_ops = {
+-	.fuse_init = mvebu_efuse_init_hw,
+-	.fuse_hd_read = mvebu_efuse_hd_read,
+-	.fuse_hd_prog = mvebu_efuse_hd_prog,
+-};
+-
+ static struct mvebu_fuse_platform_data fuse_hd_pdata = {
+ 	.row_bit_width = 65,
+ 	.row_step = 16,
+ };
+ 
++static struct mvebu_fuse_platform_data fuse_ld_pdata = {
++	.row_bit_width = 256,
++};
++
+ static const struct udevice_id mvebu_fuse_ids[] = {
+ 	{ .compatible = "marvell,mvebu-fuse-hd",
+ 		.data = (ulong)&fuse_hd_pdata },
++	{ .compatible = "marvell,mvebu-fuse-ld-user",
++		.data = (ulong)&fuse_ld_pdata },
++	{ .compatible = "marvell,mvebu-fuse-ld-prop",
++		.data = (ulong)&fuse_ld_pdata },
++
+ 	{}
+ };
+ 
+@@ -192,7 +243,12 @@ int fuse_bind(struct udevice *dev)
+ 	uclass_foreach_dev(bank, uc) {
+ 		node = dev_of_offset(bank);
+ 		fdtdec_get_alias_seq(blob, "fuse", node, &bank->req_seq);
+-		if ((device_is_compatible(bank, "marvell,mvebu-fuse-hd"))) {
++
++		if ((device_is_compatible(bank, "marvell,mvebu-fuse-hd")) ||
++		    (device_is_compatible(bank,
++		     "marvell,mvebu-fuse-ld-user")) ||
++		    (device_is_compatible(bank,
++		     "marvell,mvebu-fuse-ld-prop"))) {
+ 			if (bank->req_seq > dev->req_seq) {
+ 				list_move(&dev->uclass_node,
+ 					  bank->uclass_node.prev);
+diff --git a/include/mvebu/fuse-mvebu.h b/include/mvebu/fuse-mvebu.h
+index 77752ef6b3..b338a06392 100644
+--- a/include/mvebu/fuse-mvebu.h
++++ b/include/mvebu/fuse-mvebu.h
+@@ -30,6 +30,7 @@ struct mvebu_fuse_block_data {
+ 	unsigned int	row_num;
+ 	void	*control_reg;
+ 	void	*target_otp_mem;
++	bool	hd_ld_flag;
+ 	char	block_name[64];
+ };
+ 
+@@ -38,10 +39,16 @@ struct fuse_ops {
+ 	int (*fuse_hd_read)(struct udevice *dev, int row_id, u32 *val);
+ 	int (*fuse_hd_prog)(struct udevice *dev, int word, int row_id,
+ 			    u32 new_val);
++	int (*fuse_ld_read)(struct udevice *dev, int row_id, u32 *val);
++	int (*fuse_ld_prog)(struct udevice *dev, int word, int row_id,
++			    u32 new_val);
+ };
+ 
+-int mvebu_efuse_init_hw(struct udevice *dev);
+ int mvebu_efuse_hd_read(struct udevice *dev, int row_id, u32 *val);
+ int mvebu_efuse_hd_prog(struct udevice *dev, int word, int row_id, u32 new_val);
++int mvebu_efuse_ld_read(struct udevice *dev, int row_id, u32 *val);
++int mvebu_efuse_ld_prog(struct udevice *dev, int word, int row_id, u32 new_val);
++int reg_fuse_ops(struct fuse_ops *ops);
++int mvebu_efuse_init_hw(struct udevice *dev);
+ 
+ #endif
+-- 
+2.29.0
+

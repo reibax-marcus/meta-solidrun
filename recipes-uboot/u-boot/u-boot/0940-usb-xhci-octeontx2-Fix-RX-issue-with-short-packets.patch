@@ -1,0 +1,133 @@
+From c38724663cbb15547af776fa35230f3a791a8d36 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Thu, 11 Jul 2019 16:55:24 -0700
+Subject: [PATCH 0940/1239] usb: xhci: octeontx2: Fix RX issue with short
+ packets
+
+There appears to be an issue in OcteonTX2 where
+if the receive buffer crosses a 64K boundary
+and partial data is received that fits in
+the first part of the buffer in front of
+the boundary then the OcteonTX2 XHCI engine
+will generate two event responses.  The first
+response will have a completion code of a
+short packet, which is correct, however the
+length field is wrong.
+
+In addition, a second event is also generated
+with a success completion code with another
+invalid length.
+
+Due to this corruption, receive buffers where
+short packets can occur must never cross a 64K
+boundary with the OcteonTX2 SoCs.
+
+This patch adds a 64K bounce buffer aligned to
+64K.  In the event that an input pipe is used,
+the bounce buffer will be used instead of the
+user-supplied buffer and the data will be copied
+from the bounce buffer to the user buffer.
+
+Change-Id: I5cbbf28ae14538c1a970023c1daee2695b20978e
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/12524
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Aaron Williams <Aaron.Williams@cavium.com>
+---
+ drivers/usb/host/xhci-mem.c  | 10 ++++++++++
+ drivers/usb/host/xhci-ring.c | 15 +++++++++++++++
+ drivers/usb/host/xhci.h      | 10 ++++++++++
+ 3 files changed, 35 insertions(+)
+
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index 84c2c3344a..977f6507a0 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -177,6 +177,9 @@ void xhci_cleanup(struct xhci_ctrl *ctrl)
+ 	xhci_free_virt_devices(ctrl);
+ 	free(ctrl->erst.entries);
+ 	free(ctrl->dcbaa);
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	free(ctrl->rx_bounce_buffer);
++#endif
+ 	memset(ctrl, '\0', sizeof(struct xhci_ctrl));
+ }
+ 
+@@ -509,6 +512,13 @@ int xhci_mem_init(struct xhci_ctrl *ctrl, struct xhci_hccr *hccr,
+ 	int i;
+ 	struct xhci_segment *seg;
+ 
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	ctrl->rx_bounce_buffer = memalign(65536, 65536);
++	if (!ctrl->rx_bounce_buffer) {
++		puts("unable to allocate OcteonTX2 RX bounce buffer\n");
++		return -ENOMEM;
++	}
++#endif
+ 	/* DCBAA initialization */
+ 	ctrl->dcbaa = (struct xhci_device_context_array *)
+ 			xhci_malloc(sizeof(struct xhci_device_context_array));
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index b2cfd948f8..6a4b365013 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -575,6 +575,10 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
+ 	int ret;
+ 	u32 trb_fields[4];
+ 	u64 val_64 = (uintptr_t)buffer;
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	void *orig_buffer = buffer;
++	bool use_rx_bounce = false;
++#endif
+ 
+ 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d\n",
+ 		udev, pipe, buffer, length);
+@@ -610,6 +614,12 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
+ 	while (running_total < length) {
+ 		num_trbs++;
+ 		running_total += TRB_MAX_BUFF_SIZE;
++#if defined(CONFIG_ARCH_OCTEONTX2)
++		if (usb_pipein(pipe) && (length <= 65536)) {
++			buffer = ctrl->rx_bounce_buffer;
++			use_rx_bounce = true;
++		}
++#endif
+ 	}
+ 
+ 	/*
+@@ -730,6 +740,11 @@ int xhci_bulk_tx(struct usb_device *udev, unsigned long pipe,
+ 	xhci_acknowledge_event(ctrl);
+ 	xhci_inval_cache((uintptr_t)buffer, length);
+ 
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	if (use_rx_bounce)
++		memcpy(orig_buffer, buffer, udev->act_len);
++#endif
++
+ 	return (udev->status != USB_ST_NOT_PROC) ? 0 : -1;
+ }
+ 
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 6017504488..65f44fb637 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1230,6 +1230,16 @@ struct xhci_ctrl {
+ 	struct xhci_scratchpad *scratchpad;
+ 	struct xhci_virt_device *devs[MAX_HC_SLOTS];
+ 	int rootdev;
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	/* The Marvell OcteonTX2 SOCs have a problem where if the receive
++	 * buffer crosses a 64K boundary then the response events get
++	 * corrupted.  In this case, a 64K bounce buffer is used instead,
++	 * guaranteeing that this case will never happen.  It introduces
++	 * a slight performance penalty since all received data must be
++	 * copied from the bounce buffer to the user-supplied buffer.
++	 */
++	void *rx_bounce_buffer;
++#endif
+ };
+ 
+ unsigned long trb_addr(struct xhci_segment *seg, union xhci_trb *trb);
+-- 
+2.29.0
+

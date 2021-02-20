@@ -1,0 +1,47 @@
+From 19471092739ffaab530abf32368b5a5cfa2f18e1 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 3 May 2016 21:04:58 -0700
+Subject: [PATCH 0395/1239] Update configs
+
+---
+ configs/thunderx_88xx_defconfig | 4 ++++
+ include/configs/thunderx_88xx.h | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/configs/thunderx_88xx_defconfig b/configs/thunderx_88xx_defconfig
+index b890a3010d..4254d3d6a4 100644
+--- a/configs/thunderx_88xx_defconfig
++++ b/configs/thunderx_88xx_defconfig
+@@ -11,6 +11,8 @@ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e024000000 debug maxcpus=48 rootwait rw root=/dev/sda2 coherent_pool=16M"
+ # CONFIG_DISPLAY_CPUINFO is not set
+ # CONFIG_DISPLAY_BOARDINFO is not set
++CONFIG_DEFAULT_DEVICE_TREE="thunder-88xx"
++CONFIG_SYS_EXTRA_OPTIONS="ARM64"
+ CONFIG_HUSH_PARSER=y
+ # CONFIG_AUTO_COMPLETE is not set
+ CONFIG_SYS_PROMPT="ThunderX_88XX> "
+@@ -42,5 +44,7 @@ CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_DM=y
+ # CONFIG_MMC is not set
+ CONFIG_DM_SERIAL=y
++CONFIG_PCI_THUNDERX_ECAM=y
++CONFIG_DEBUG_UART=y
+ CONFIG_DEBUG_UART_PL011=y
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 30abc81d94..81b45fee83 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -6,7 +6,7 @@
+ #ifndef __THUNDERX_88XX_H__
+ #define __THUNDERX_88XX_H__
+ 
+-#define CONFIG_THUNDERX
++#define DEBUG
+ 
+ #define CONFIG_SPECIAL_SYNC_HANDLER
+ 
+-- 
+2.29.0
+

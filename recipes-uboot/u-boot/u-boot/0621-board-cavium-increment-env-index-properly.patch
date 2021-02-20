@@ -1,0 +1,34 @@
+From eb6e75c00432de621eed43537b68b9fd45cc0e7d Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Mon, 6 Mar 2017 16:59:44 -0800
+Subject: [PATCH 0621/1239] board: cavium: increment env index properly
+
+Increment env index for subnodes to not lose correct mapping.
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ board/cavium/thunderx/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index 4b42e38630..47959c6104 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -195,13 +195,13 @@ void thunderx_parse_phy_info(void)
+ 							 "eth%daddr", eth_id);
+ 					else
+ 						strcpy(envname, "ethaddr");
+-					eth_id++;
+ 					setenv_force(envname, eth_addr);
+ 				} else {
+ 					printf("Warning: local-mac-address "
+ 					       "not found for bgx%d lmac%d\n",
+ 					       bgx_id, lmacid);
+ 				}
++				eth_id++;
+ 				lmacid++;
+ 			}
+ 
+-- 
+2.29.0
+

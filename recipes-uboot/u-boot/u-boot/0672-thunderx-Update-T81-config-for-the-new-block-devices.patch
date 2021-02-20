@@ -1,0 +1,76 @@
+From ed869d5e7b3bd53fd86be5ab36f794f3f10161dc Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 2 Aug 2017 15:18:48 +0300
+Subject: [PATCH 0672/1239] thunderx: Update T81 config for the new block
+ devices
+
+Include SCSI AHCI and NVME support
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ configs/t81_defconfig           |  4 ++++
+ include/configs/thunderx_81xx.h | 21 +++++++++++++--------
+ 2 files changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/configs/t81_defconfig b/configs/t81_defconfig
+index 3aa448e871..885652745e 100644
+--- a/configs/t81_defconfig
++++ b/configs/t81_defconfig
+@@ -14,6 +14,7 @@ CONFIG_CMD_MX_CYCLIC=y
+ # CONFIG_CMD_FLASH is not set
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_NVME=y
+ # CONFIG_CMD_FPGA is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_TFTPPUT=y
+@@ -27,6 +28,9 @@ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_DM_I2C_COMPAT=y
++CONFIG_SATA=y
++CONFIG_AHCI_PCI=y
++CONFIG_NVME=y
+ CONFIG_MISC=y
+ CONFIG_PHYLIB=y
+ CONFIG_NETDEVICES=y
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 2724cf5411..b3b4de1abc 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -179,19 +179,24 @@
+ 
+ #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
+ 
+-/* AHCI support Definitions */
+-#ifdef CONFIG_CMD_SATA
+-/** Enable AHCI SATA driver */
+-/** Maximum number of SATA devices */
+-# define CONFIG_SYS_SATA_MAX_DEVICE	2
+-/** Enable 48-bit SATA addressing */
++ /* AHCI support Definitions */
++#define CONFIG_SCSI_AHCI
++
++#ifdef CONFIG_SCSI_AHCI
++ /** Maximum number of SATA devices per controller*/
++# define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
++ /** Enable 48-bit SATA addressing */
+ # define CONFIG_LBA48
+-/** Enable libata, required for SATA */
++ /** Enable libata, required for SATA */
+ # define CONFIG_LIBATA
+-/** Enable 64-bit addressing */
++ /** Enable 64-bit addressing */
+ # define CONFIG_SYS_64BIT_LBA
+ #endif
+ 
++#define CONFIG_SYS_SATA_MAX_DEVICE 2
++
++#define CONFIG_SYS_NVME_MAX_DEVICE 64
++
+ /** Enable EXT4 filesystem support */
+ #define CONFIG_FS_EXT4
+ 
+-- 
+2.29.0
+

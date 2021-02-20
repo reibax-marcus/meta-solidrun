@@ -1,0 +1,160 @@
+From 1894e89b58aec9b0b17064e3af878f20adb332cb Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 6 Feb 2019 09:24:16 -0800
+Subject: [PATCH 0878/1239] drivers: net: octeontx2: sync csr headers as of
+ 2/4/19
+
+Change-Id: I2fa76ebdf6f2a815a2cd6abc30336d12ff9ce108
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/3602
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/octeontx2/cavm-csrs-cgx.h |  2 +-
+ drivers/net/octeontx2/cavm-csrs-lmt.h |  2 +-
+ drivers/net/octeontx2/cavm-csrs-nix.h | 28 +++++++++++++++++----------
+ drivers/net/octeontx2/cavm-csrs-npa.h |  2 +-
+ drivers/net/octeontx2/cavm-csrs-npc.h |  6 ++++--
+ drivers/net/octeontx2/cavm-csrs-rvu.h |  2 +-
+ 6 files changed, 26 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/net/octeontx2/cavm-csrs-cgx.h b/drivers/net/octeontx2/cavm-csrs-cgx.h
+index ab784786d4..13743276d3 100644
+--- a/drivers/net/octeontx2/cavm-csrs-cgx.h
++++ b/drivers/net/octeontx2/cavm-csrs-cgx.h
+@@ -3,7 +3,7 @@
+ /* This file is auto-generated.  Do not edit */
+ 
+ /***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
++* Copyright (C) 2019 Marvell International Ltd.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * https://spdx.org/licenses
+ ***********************license end**************************************/
+diff --git a/drivers/net/octeontx2/cavm-csrs-lmt.h b/drivers/net/octeontx2/cavm-csrs-lmt.h
+index 948606f8b8..1a3ecae1b7 100644
+--- a/drivers/net/octeontx2/cavm-csrs-lmt.h
++++ b/drivers/net/octeontx2/cavm-csrs-lmt.h
+@@ -3,7 +3,7 @@
+ /* This file is auto-generated.  Do not edit */
+ 
+ /***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
++* Copyright (C) 2019 Marvell International Ltd.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * https://spdx.org/licenses
+ ***********************license end**************************************/
+diff --git a/drivers/net/octeontx2/cavm-csrs-nix.h b/drivers/net/octeontx2/cavm-csrs-nix.h
+index 41fefef31c..a4618fe133 100644
+--- a/drivers/net/octeontx2/cavm-csrs-nix.h
++++ b/drivers/net/octeontx2/cavm-csrs-nix.h
+@@ -3,7 +3,7 @@
+ /* This file is auto-generated.  Do not edit */
+ 
+ /***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
++* Copyright (C) 2019 Marvell International Ltd.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * https://spdx.org/licenses
+ ***********************license end**************************************/
+@@ -2844,8 +2844,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RQS_CFG(u64 a)
+  * NIX AF Local Function Receive Size Scaling Table Base Address Register
+  * This register specifies the base AF IOVA of the RSS table per LF. The
+  * table is present when NIX_AF_LF()_RSS_CFG[ENA] is set and consists of
+- * 2^(NIX_AF_LF()_RSS_CFG[SIZE]+8) contiguous NIX_RSSE_S structures,
+- * where the size of each structure is 1 \<\<
++ * 1 \<\< (NIX_AF_LF()_RSS_CFG[SIZE] + 8) contiguous NIX_RSSE_S
++ * structures, where the size of each structure is 1 \<\<
+  * NIX_AF_CONST3[RSSE_LOG2BYTES]. See NIX_AF_LF()_RSS_GRP().
+  */
+ union cavm_nixx_af_lfx_rss_base {
+@@ -5018,11 +5018,11 @@ static inline u64 CAVM_NIXX_AF_RX_LINKX_WRR_CFG(u64 a)
+  * NIX AF Receive Multicast/Mirror Table Base Address Register This
+  * register specifies the base AF IOVA of the receive multicast/mirror
+  * table in NDC/LLC/DRAM. The table consists of 1 \<\<
+- * (NIX_AF_RX_MCAST_CFG[SIZE]+8) contiguous NIX_RX_MCE_S structures. The
+- * size of each structure is 1 \<\< NIX_AF_CONST3[MCE_LOG2BYTES].  The
+- * table contains multicast/mirror replication lists. Each list consists
+- * of linked entries with NIX_RX_MCE_S[EOL] = 1 in the last entry. All
+- * lists must reside within the table size specified by
++ * (NIX_AF_RX_MCAST_CFG[SIZE] + 8) contiguous NIX_RX_MCE_S structures.
++ * The size of each structure is 1 \<\< NIX_AF_CONST3[MCE_LOG2BYTES].
++ * The table contains multicast/mirror replication lists. Each list
++ * consists of linked entries with NIX_RX_MCE_S[EOL] = 1 in the last
++ * entry. All lists must reside within the table size specified by
+  * NIX_AF_RX_MCAST_CFG[SIZE]. A mirror replication list will typically
+  * consist of two entries, but that is not checked or enforced by
+  * hardware.  A receive packet is multicast when the action returned by
+@@ -5339,9 +5339,17 @@ union cavm_nixx_af_sdp_link_credit {
+ 		u64 cc_enable                        : 1;
+ 		u64 cc_packet_cnt                    : 10;
+ 		u64 cc_unit_cnt                      : 20;
+-		u64 reserved_32_63                   : 32;
++		u64 reserved_32_62                   : 31;
++		u64 pse_pkt_id_lmt                   : 1;
+ 	} s;
+-	/* struct cavm_nixx_af_sdp_link_credit_s cn; */
++	struct cavm_nixx_af_sdp_link_credit_cn96xx {
++		u64 reserved_0                       : 1;
++		u64 cc_enable                        : 1;
++		u64 cc_packet_cnt                    : 10;
++		u64 cc_unit_cnt                      : 20;
++		u64 reserved_32_63                   : 32;
++	} cn96xx;
++	/* struct cavm_nixx_af_sdp_link_credit_s cnf95xx; */
+ };
+ 
+ static inline u64 CAVM_NIXX_AF_SDP_LINK_CREDIT(void)
+diff --git a/drivers/net/octeontx2/cavm-csrs-npa.h b/drivers/net/octeontx2/cavm-csrs-npa.h
+index 6bacddd830..312954a8c4 100644
+--- a/drivers/net/octeontx2/cavm-csrs-npa.h
++++ b/drivers/net/octeontx2/cavm-csrs-npa.h
+@@ -3,7 +3,7 @@
+ /* This file is auto-generated.  Do not edit */
+ 
+ /***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
++* Copyright (C) 2019 Marvell International Ltd.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * https://spdx.org/licenses
+ ***********************license end**************************************/
+diff --git a/drivers/net/octeontx2/cavm-csrs-npc.h b/drivers/net/octeontx2/cavm-csrs-npc.h
+index c75bb9e9d4..6655a101d4 100644
+--- a/drivers/net/octeontx2/cavm-csrs-npc.h
++++ b/drivers/net/octeontx2/cavm-csrs-npc.h
+@@ -3,7 +3,7 @@
+ /* This file is auto-generated.  Do not edit */
+ 
+ /***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
++* Copyright (C) 2019 Marvell International Ltd.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * https://spdx.org/licenses
+ ***********************license end**************************************/
+@@ -791,7 +791,9 @@ static inline u64 CAVM_NPC_AF_KPUX_CFG(u64 a)
+  *
+  * NPC AF KPU Debug Registers This register contains information for the
+  * last packet/lookup for which debug is enabled by
+- * NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG].
++ * NPC_AF_DBG_CTL[INTF_DBG,LKUP_DBG]. The register contents are undefined
++ * and should be ignored for a software key lookup (NPC_AF_LKUP_CTL[OP] =
++ * NPC_LKUPOP_E::KEY)
+  */
+ union cavm_npc_af_kpux_dbg {
+ 	u64 u;
+diff --git a/drivers/net/octeontx2/cavm-csrs-rvu.h b/drivers/net/octeontx2/cavm-csrs-rvu.h
+index aeca8e8ee5..0555e9c1a3 100644
+--- a/drivers/net/octeontx2/cavm-csrs-rvu.h
++++ b/drivers/net/octeontx2/cavm-csrs-rvu.h
+@@ -3,7 +3,7 @@
+ /* This file is auto-generated.  Do not edit */
+ 
+ /***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
++* Copyright (C) 2019 Marvell International Ltd.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * https://spdx.org/licenses
+ ***********************license end**************************************/
+-- 
+2.29.0
+

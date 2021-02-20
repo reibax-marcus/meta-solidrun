@@ -1,0 +1,37 @@
+From 9ef58123b7a98868fe9a28f34b01669801291d9f Mon Sep 17 00:00:00 2001
+From: Tom Rini <trini@konsulko.com>
+Date: Tue, 13 Jun 2017 07:10:35 -0400
+Subject: [PATCH 0723/1239] fdt: Check for NULL return from fdt_getprop in 'fdt
+ set'
+
+While the previous pass through fixed one place where we knew that
+fdt_getprop would be given a positive len, in the case of 'fdt set' we
+do not, so check that we did no get NULL from fdt_getprop().
+
+Cc: Simon Glass <sjg@chromium.org>
+Reported-by: Coverity (CID: 163249)
+Fixes 72c98ed1ab48 ("fdt: Add a check to do_fdt() for coverity")
+Signed-off-by: Tom Rini <trini@konsulko.com>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+---
+ cmd/fdt.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/cmd/fdt.c b/cmd/fdt.c
+index bf6c670234..788e0868b6 100644
+--- a/cmd/fdt.c
++++ b/cmd/fdt.c
+@@ -318,6 +318,10 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 			len = 0;
+ 		} else {
+ 			ptmp = fdt_getprop(working_fdt, nodeoffset, prop, &len);
++			if (!ptmp) {
++				printf("prop (%s) not found!\n", prop);
++				return 1;
++			}
+ 			if (len > SCRATCHPAD) {
+ 				printf("prop (%d) doesn't fit in scratchpad!\n",
+ 				       len);
+-- 
+2.29.0
+

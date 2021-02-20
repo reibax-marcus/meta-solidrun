@@ -1,0 +1,26 @@
+From 3495a366ff927fcef9251482230ef693b4df5032 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 4 Nov 2015 16:46:05 -0800
+Subject: [PATCH 0336/1239] cavium: Update PCIe config options
+
+---
+ include/configs/thunderx_88xx.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 8eed9f99c9..b11d4d324d 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -188,7 +188,8 @@
+ #define CONFIG_PCI_SCAN_SHOW
+ #undef CONFIG_PCI_ENUM_ONLY
+ #define CONFIG_PCI_PNP
+-#define CONFIG_THUNDER_ECAMS 4
++#define CONFIG_THUNDERX_ECAMS 8
++#define CONFIG_THUNDERX_RCS 12
+ 
+ #define CONFIG_SYS_CACHELINE_SIZE 128
+ 
+-- 
+2.29.0
+

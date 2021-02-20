@@ -1,0 +1,43 @@
+From ca81b14d12b8f758cdb2a2294a08f8c890c397f5 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Fri, 24 Jul 2020 09:31:00 -0700
+Subject: [PATCH 1198/1239] otx2: Fix Klockwork with NULL derefence issue
+
+Change-Id: I9c93023d7d1f60441bdd50268381ab3dfd5610a1
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32653
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx2/board.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 39eca2349f..66682aa973 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -353,8 +353,8 @@ int board_late_init(void)
+ 	str = fdt_get_board_revision();
+ 	if (str) {
+ 		snprintf(boardrev, sizeof(boardrev), "%s", str);
+-		if (env_get("boardrev") &&
+-		    strcmp(boardrev, env_get("boardrev")))
++		str = env_get("boardrev");
++		if (str && strcmp(boardrev, str))
+ 			save_env = true;
+ 		env_set("boardrev", boardrev);
+ 	}
+@@ -362,8 +362,8 @@ int board_late_init(void)
+ 	str = fdt_get_board_serial();
+ 	if (str) {
+ 		snprintf(boardserial, sizeof(boardserial), "%s", str);
+-		if (env_get("serial#") &&
+-		    strcmp(boardserial, env_get("serial#")))
++		str = env_get("serial#");
++		if (str && strcmp(boardserial, str))
+ 			save_env = true;
+ 		env_set("serial#", boardserial);
+ 	}
+-- 
+2.29.0
+

@@ -1,0 +1,2202 @@
+From 4ebe9bb487dc1359470d0d6cfceb691d037f7dab Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 14 Sep 2018 14:47:33 -0700
+Subject: [PATCH 0826/1239] octeontx: octeontx2: update license headers across
+ code
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ MAINTAINERS                                   | 17 +++++--
+ arch/arm/Kconfig                              |  4 +-
+ arch/arm/include/asm/arch-octeontx/atf.h      | 10 +++--
+ arch/arm/include/asm/arch-octeontx/atf_part.h |  9 ++--
+ .../asm/arch-octeontx/cavm-csrs-mio_emm.h     | 42 +++---------------
+ arch/arm/include/asm/arch-octeontx/clock.h    |  9 ++--
+ .../include/asm/arch-octeontx/fdt-helper.h    |  7 +--
+ arch/arm/include/asm/arch-octeontx/octeontx.h | 10 +++--
+ .../include/asm/arch-octeontx/octeontx_fdt.h  | 10 +++--
+ .../include/asm/arch-octeontx/octeontx_mmc.h  |  6 ++-
+ .../include/asm/arch-octeontx/octeontx_smi.h  | 10 +++--
+ .../include/asm/arch-octeontx/octeontx_svc.h  |  9 ++--
+ .../include/asm/arch-octeontx/octeontx_vnic.h | 10 +++--
+ .../include/asm/arch-octeontx/octeontx_xcv.h  | 10 +++--
+ arch/arm/include/asm/arch-octeontx2/atf.h     | 10 +++--
+ .../include/asm/arch-octeontx2/cavium_mmc.h   | 44 +++----------------
+ arch/arm/include/asm/arch-octeontx2/clock.h   | 10 +++--
+ .../include/asm/arch-octeontx2/fdt-helper.h   |  8 ++--
+ .../include/asm/arch-octeontx2/octeontx2.h    | 11 +++--
+ .../asm/arch-octeontx2/octeontx2_fdt.h        | 11 +++--
+ .../asm/arch-octeontx2/octeontx2_svc.h        |  9 ++--
+ arch/arm/mach-octeontx/Makefile               | 11 ++---
+ arch/arm/mach-octeontx/clock.c                | 10 ++---
+ arch/arm/mach-octeontx/cpu.c                  | 10 ++---
+ arch/arm/mach-octeontx/fdt-helper.c           |  9 ++--
+ arch/arm/mach-octeontx/lowlevel_init.S        |  7 ++-
+ arch/arm/mach-octeontx2/Makefile              | 11 ++---
+ arch/arm/mach-octeontx2/clock.c               | 10 ++---
+ arch/arm/mach-octeontx2/cpu.c                 |  9 ++--
+ arch/arm/mach-octeontx2/fdt-helper.c          |  9 ++--
+ arch/arm/mach-octeontx2/lowlevel_init.S       |  7 ++-
+ board/Marvell/octeontx/MAINTAINERS            |  5 +--
+ board/Marvell/octeontx/Makefile               | 10 +++--
+ board/Marvell/octeontx/atf.c                  | 10 +++--
+ board/Marvell/octeontx/fdt.c                  |  9 ++--
+ board/Marvell/octeontx/octeontx.c             | 11 +++--
+ board/Marvell/octeontx2/MAINTAINERS           |  2 +-
+ board/Marvell/octeontx2/Makefile              | 12 ++---
+ board/Marvell/octeontx2/atf.c                 |  9 ++--
+ board/Marvell/octeontx2/fdt.c                 |  9 ++--
+ board/Marvell/octeontx2/octeontx2.c           |  9 ++--
+ cmd/bootimgup.c                               |  7 ++-
+ configs/octeontx2_95xx_defconfig              |  2 +-
+ configs/octeontx2_96xx_defconfig              |  2 +-
+ configs/octeontx_81xx_defconfig               |  2 +-
+ configs/octeontx_83xx_defconfig               |  2 +-
+ configs/octeontx_88xx_defconfig               | 29 ------------
+ drivers/ata/ahci.c                            |  2 +
+ drivers/gpio/Kconfig                          |  4 +-
+ drivers/gpio/octeontx_gpio.c                  |  6 ++-
+ drivers/i2c/Kconfig                           |  2 +-
+ drivers/i2c/octeontx_i2c.c                    |  6 +--
+ drivers/mmc/Kconfig                           |  2 +-
+ drivers/mmc/octeontx_mmc.c                    |  5 ++-
+ drivers/mtd/nand/octeontx_bch.c               |  7 +--
+ drivers/mtd/nand/octeontx_bch.h               | 43 +++---------------
+ drivers/mtd/nand/octeontx_bch_regs.h          | 42 +++---------------
+ drivers/mtd/nand/octeontx_nand.c              |  6 +--
+ drivers/net/octeontx/Makefile                 | 13 +++---
+ drivers/net/octeontx/nic.h                    |  9 ++--
+ drivers/net/octeontx/nic_main.c               |  9 ++--
+ drivers/net/octeontx/nic_reg.h                |  9 ++--
+ drivers/net/octeontx/nicvf_main.c             |  9 ++--
+ drivers/net/octeontx/nicvf_queues.c           |  9 ++--
+ drivers/net/octeontx/nicvf_queues.h           |  8 ++--
+ drivers/net/octeontx/octeontx_bgx.c           |  9 ++--
+ drivers/net/octeontx/octeontx_bgx.h           |  9 ++--
+ drivers/net/octeontx/octeontx_smi.c           | 10 +++--
+ drivers/net/octeontx/octeontx_xcv.c           |  9 ++--
+ drivers/net/octeontx/q_struct.h               | 12 ++---
+ drivers/net/octeontx2/Makefile                | 13 +++---
+ drivers/net/octeontx2/cavm-csrs-cgx.h         | 12 ++---
+ drivers/net/octeontx2/cavm-csrs-lmt.h         | 11 ++---
+ drivers/net/octeontx2/cavm-csrs-nix.h         | 12 ++---
+ drivers/net/octeontx2/cavm-csrs-npa.h         | 12 ++---
+ drivers/net/octeontx2/cavm-csrs-npc.h         | 12 ++---
+ drivers/net/octeontx2/cavm-csrs-rvu.h         | 12 ++---
+ drivers/net/octeontx2/cgx.c                   | 11 +++--
+ drivers/net/octeontx2/cgx.h                   | 10 ++---
+ drivers/net/octeontx2/cgx_intf.c              |  9 ++--
+ drivers/net/octeontx2/cgx_intf.h              |  9 ++--
+ drivers/net/octeontx2/lmt.h                   |  9 ++--
+ drivers/net/octeontx2/nix.c                   |  9 ++--
+ drivers/net/octeontx2/nix.h                   |  9 ++--
+ drivers/net/octeontx2/nix_af.c                | 11 +++--
+ drivers/net/octeontx2/npc.c                   | 12 +++--
+ drivers/net/octeontx2/npc.h                   | 12 +++--
+ drivers/net/octeontx2/npc_profile.h           | 12 +++--
+ drivers/net/octeontx2/npc_reg.h               |  7 +++
+ drivers/net/octeontx2/rvu.h                   | 10 ++---
+ drivers/net/octeontx2/rvu_af.c                | 11 +++--
+ drivers/net/octeontx2/rvu_common.c            | 10 ++---
+ drivers/net/octeontx2/rvu_pf.c                | 11 +++--
+ drivers/pci/Kconfig                           |  2 +-
+ drivers/pci/pci_octeontx_ecam.c               | 19 +++-----
+ drivers/rtc/ds1337.c                          |  2 +
+ drivers/spi/octeontx_spi.c                    | 12 +++--
+ include/configs/octeontx2_95xx.h              | 10 +++--
+ include/configs/octeontx2_96xx.h              | 10 +++--
+ include/configs/octeontx_81xx.h               | 10 +++--
+ include/configs/octeontx_83xx.h               | 10 +++--
+ 101 files changed, 474 insertions(+), 576 deletions(-)
+ delete mode 100644 configs/octeontx_88xx_defconfig
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d9768c66ca..e70ac727ad 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -170,12 +170,21 @@ F:	board/CZ.NIC/
+ F:	configs/turris_*_defconfig
+ F:	include/configs/turris_*.h
+ 
+-ARM CAVIUM THUNDERX/OCTEONTX
++ARM OCTEONTX
+ M:	Aaron Williams <aaron.williams@cavium.com>
++M:	Suneel Garapati <sgarapati@caviumnetworks.com>
+ S:	Maintained
+-F:	arch/arm/mach-thunderx
+-F:	arch/arm/include/asm-cavium
+-F:	board/cavium
++F:	arch/arm/mach-octeontx/
++F:	arch/arm/include/asm/arch-octeontx/
++F:	board/Marvell/octeontx/
++
++ARM OCTEONTX2
++M:	Aaron Williams <aaron.williams@cavium.com>
++M:	Suneel Garapati <sgarapati@caviumnetworks.com>
++S:	Maintained
++F:	arch/arm/mach-octeontx2/
++F:	arch/arm/include/asm/arch-octeontx2/
++F:	board/Marvell/octeontx2/
+ 
+ ARM FREESCALE IMX
+ M:	Stefano Babic <sbabic@denx.de>
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index eeb90ce179..97407cab86 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1599,7 +1599,7 @@ config ARCH_ROCKCHIP
+ 	imply USB_FUNCTION_FASTBOOT
+ 
+ config ARCH_OCTEONTX
+-	bool "Support Cavium OcteonTX SoCs"
++	bool "Support OcteonTX SoCs"
+ 	select DM
+ 	select ARM64
+ 	select OF_CONTROL
+@@ -1607,7 +1607,7 @@ config ARCH_OCTEONTX
+ 	select SYS_CACHE_SHIFT_7
+ 
+ config ARCH_OCTEONTX2
+-	bool "Support Cavium OcteonTX2 SoCs"
++	bool "Support OcteonTX2 SoCs"
+ 	select DM
+ 	select ARM64
+ 	select OF_CONTROL
+diff --git a/arch/arm/include/asm/arch-octeontx/atf.h b/arch/arm/include/asm/arch-octeontx/atf.h
+index f5929a1ee8..f52b0c877e 100644
+--- a/arch/arm/include/asm/arch-octeontx/atf.h
++++ b/arch/arm/include/asm/arch-octeontx/atf.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ #ifndef __ATF_H__
+ #define __ATF_H__
+ #include <asm/arch/atf_part.h>
+diff --git a/arch/arm/include/asm/arch-octeontx/atf_part.h b/arch/arm/include/asm/arch-octeontx/atf_part.h
+index 182f6f4b88..88b9eaf7a8 100644
+--- a/arch/arm/include/asm/arch-octeontx/atf_part.h
++++ b/arch/arm/include/asm/arch-octeontx/atf_part.h
+@@ -1,8 +1,9 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #ifndef __ATF_PART_H__
+ #define __ATF_PART_H__
+diff --git a/arch/arm/include/asm/arch-octeontx/cavm-csrs-mio_emm.h b/arch/arm/include/asm/arch-octeontx/cavm-csrs-mio_emm.h
+index 9d2ea976d6..f2f026fce2 100644
+--- a/arch/arm/include/asm/arch-octeontx/cavm-csrs-mio_emm.h
++++ b/arch/arm/include/asm/arch-octeontx/cavm-csrs-mio_emm.h
+@@ -2,44 +2,12 @@
+ #define __CAVM_CSRS_MIO_EMM_H__
+ /* This file is auto-generated. Do not edit */
+ 
+-/***********************license start***************
+- * Copyright (c) 2003-2018  Cavium Inc. (support@cavium.com).  All rights
+- * reserved.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- *
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that the following conditions are
+- * met:
+- *
+- *   * Redistributions of source code must retain the above copyright
+- *     notice, this list of conditions and the following disclaimer.
+- *
+- *   * Redistributions in binary form must reproduce the above
+- *     copyright notice, this list of conditions and the following
+- *     disclaimer in the documentation and/or other materials provided
+- *     with the distribution.
+-
+- *   * Neither the name of Cavium Inc. nor the names of
+- *     its contributors may be used to endorse or promote products
+- *     derived from this software without specific prior written
+- *     permission.
+-
+- * This Software, including technical data, may be subject to U.S. export
+- * control laws, including the U.S. Export Administration Act and its
+- * associated regulations, and may be subject to export or import regulations
+- * in other countries.
+-
+- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
+- * AND WITH ALL FAULTS AND CAVIUM  NETWORKS MAKES NO PROMISES, REPRESENTATIONS
+- * OR WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH
+- * RESPECT TO THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY
+- * REPRESENTATION OR DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR
+- * PATENT DEFECTS, AND CAVIUM SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY)
+- * WARRANTIES OF TITLE, MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A
+- * PARTICULAR PURPOSE, LACK OF VIRUSES, ACCURACY OR COMPLETENESS, QUIET
+- * ENJOYMENT, QUIET POSSESSION OR CORRESPONDENCE TO DESCRIPTION.  THE ENTIRE
+- * RISK ARISING OUT OF USE OR PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
+- ***********************license end**************************************/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ /**
+  * @file
+diff --git a/arch/arm/include/asm/arch-octeontx/clock.h b/arch/arm/include/asm/arch-octeontx/clock.h
+index b46d0de186..3b7214d3d4 100644
+--- a/arch/arm/include/asm/arch-octeontx/clock.h
++++ b/arch/arm/include/asm/arch-octeontx/clock.h
+@@ -1,8 +1,9 @@
+-/**
+- * (C) Copyright 2016, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+- **/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #ifndef __OCTEONTX_CLOCK_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx/fdt-helper.h b/arch/arm/include/asm/arch-octeontx/fdt-helper.h
+index e0e8994500..55ec06f428 100644
+--- a/arch/arm/include/asm/arch-octeontx/fdt-helper.h
++++ b/arch/arm/include/asm/arch-octeontx/fdt-helper.h
+@@ -1,7 +1,8 @@
+-/**
+- * (C) Copyright 2016, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
+ #ifndef __FDT_HELPER_H__
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx.h b/arch/arm/include/asm/arch-octeontx/octeontx.h
+index c1e5d35870..7c1715b34d 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ #ifndef __OCTEONTX_H__
+ #define __OCTEONTX_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_fdt.h b/arch/arm/include/asm/arch-octeontx/octeontx_fdt.h
+index 3c75983a96..5c7d567a30 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx_fdt.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_fdt.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2016, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ #ifndef __OCTEONTX_FDT_H__
+ #define __OCTEONTX_FDT_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h b/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h
+index b0d62fe523..d1573a0b0b 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h
+@@ -1,8 +1,10 @@
+ /*
+- * Copyright (c) 2012-2018 Marvell Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
++
+ #ifndef __OCTEONTX_MMC_H__
+ #define __OCTEONTX_MMC_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_smi.h b/arch/arm/include/asm/arch-octeontx/octeontx_smi.h
+index 8fd18b7d49..a721011f13 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx_smi.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_smi.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #ifndef OCTEONTX_SMI_H_
+ #define OCTEONTX_SMI_H_
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_svc.h b/arch/arm/include/asm/arch-octeontx/octeontx_svc.h
+index 8eb95e2a4f..72dde37c1a 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx_svc.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_svc.h
+@@ -1,8 +1,9 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #ifndef __OCTEONTX_SVC_H__
+ #define __OCTEONTX_SVC_H__
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h b/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h
+index 9a07e1775d..898765ac20 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #ifndef VNIC_H_
+ #define VNIC_H_
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_xcv.h b/arch/arm/include/asm/arch-octeontx/octeontx_xcv.h
+index 45f82d997a..d8a61a07c6 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx_xcv.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_xcv.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2018, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #ifndef OCTEONTX_XCV_H_
+ #define OCTEONTX_XCV_H_
+diff --git a/arch/arm/include/asm/arch-octeontx2/atf.h b/arch/arm/include/asm/arch-octeontx2/atf.h
+index 1234b89e3e..614d113489 100644
+--- a/arch/arm/include/asm/arch-octeontx2/atf.h
++++ b/arch/arm/include/asm/arch-octeontx2/atf.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ #ifndef __ATF_H__
+ #define __ATF_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx2/cavium_mmc.h b/arch/arm/include/asm/arch-octeontx2/cavium_mmc.h
+index 5f4a6e26c4..209544363d 100644
+--- a/arch/arm/include/asm/arch-octeontx2/cavium_mmc.h
++++ b/arch/arm/include/asm/arch-octeontx2/cavium_mmc.h
+@@ -1,41 +1,11 @@
+-/***********************license start************************************
+- * Copyright (c) 2012 Cavium Inc. (support@cavium.com). All rights
+- * reserved.
+- *
+- *
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that the following conditions are
+- * met:
+- *
+- *     * Redistributions of source code must retain the above copyright
+- *       notice, this list of conditions and the following disclaimer.
+- *
+- *     * Redistributions in binary form must reproduce the above
+- *       copyright notice, this list of conditions and the following
+- *       disclaimer in the documentation and/or other materials provided
+- *       with the distribution.
+- *
+- *     * Neither the name of Cavium Inc. nor the names of
+- *       its contributors may be used to endorse or promote products
+- *       derived from this software without specific prior written
+- *       permission.
+- *
+- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
+- * AND WITH ALL FAULTS AND CAVIUM INC. MAKES NO PROMISES, REPRESENTATIONS
+- * OR WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH
+- * RESPECT TO THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY
+- * REPRESENTATION OR DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR PATENT
+- * DEFECTS, AND CAVIUM SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY) WARRANTIES
+- * OF TITLE, MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A PARTICULAR
+- * PURPOSE, LACK OF VIRUSES, ACCURACY OR COMPLETENESS, QUIET ENJOYMENT, QUIET
+- * POSSESSION OR CORRESPONDENCE TO DESCRIPTION.  THE ENTIRE RISK ARISING OUT
+- * OF USE OR PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
+- *
+- *
+- * For any questions regarding licensing please contact
+- * support@cavium.com
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- ***********************license end**************************************/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++
+ #ifndef __OCTEON_MMC_H__
+ #define __OCTEON_MMC_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx2/clock.h b/arch/arm/include/asm/arch-octeontx2/clock.h
+index c51961f096..d4364954ed 100644
+--- a/arch/arm/include/asm/arch-octeontx2/clock.h
++++ b/arch/arm/include/asm/arch-octeontx2/clock.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2016, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+- **/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #ifndef __OCTEONTX2_CLOCK_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx2/fdt-helper.h b/arch/arm/include/asm/arch-octeontx2/fdt-helper.h
+index e0e8994500..b01dbe0412 100644
+--- a/arch/arm/include/asm/arch-octeontx2/fdt-helper.h
++++ b/arch/arm/include/asm/arch-octeontx2/fdt-helper.h
+@@ -1,9 +1,11 @@
+-/**
+- * (C) Copyright 2016, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef __FDT_HELPER_H__
+ #define __FDT_HELPER_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2.h b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+index 09b9c2de75..29d320a8f3 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+@@ -1,8 +1,11 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++
+ #ifndef __OCTEONTX2_H__
+ #define __OCTEONTX2_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2_fdt.h b/arch/arm/include/asm/arch-octeontx2/octeontx2_fdt.h
+index b9fbba390b..fb406c6312 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2_fdt.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2_fdt.h
+@@ -1,8 +1,11 @@
+-/**
+- * (C) Copyright 2016, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++
+ #ifndef __OCTEONTX2_FDT_H__
+ #define __OCTEONTX2_FDT_H__
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+index 4f765464bd..38eae6c9af 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+@@ -1,8 +1,9 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #ifndef __OCTEONTX2_SVC_H__
+ #define __OCTEONTX2_SVC_H__
+diff --git a/arch/arm/mach-octeontx/Makefile b/arch/arm/mach-octeontx/Makefile
+index 01b3f77ec2..c3192343dd 100644
+--- a/arch/arm/mach-octeontx/Makefile
++++ b/arch/arm/mach-octeontx/Makefile
+@@ -1,8 +1,9 @@
+-#
+-# Copyright 2014-2016, Cavium Networks, Inc
+-#
+-# SPDX-License-Identifier:	GPL-2.0+
+-#
++#/*
++# * Copyright (C) 2018 Marvell International Ltd.
++# *
++# * SPDX-License-Identifier:    GPL-2.0
++# * https://spdx.org/licenses
++# */
+ 
+ obj-y += lowlevel_init.o clock.o cpu.o
+ 
+diff --git a/arch/arm/mach-octeontx/clock.c b/arch/arm/mach-octeontx/clock.c
+index e963dc7dfa..b6c127dc4b 100644
+--- a/arch/arm/mach-octeontx/clock.c
++++ b/arch/arm/mach-octeontx/clock.c
+@@ -1,9 +1,9 @@
+-/**
+- * (C) Copyright 2016, Cavium, Inc. <support@cavium.com>
+- * Aaron Williams, <aaron.williams@cavium.com>
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+- **/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #include <common.h>
+ #include <asm/io.h>
+diff --git a/arch/arm/mach-octeontx/cpu.c b/arch/arm/mach-octeontx/cpu.c
+index 0f544ca716..013dd8157c 100644
+--- a/arch/arm/mach-octeontx/cpu.c
++++ b/arch/arm/mach-octeontx/cpu.c
+@@ -1,9 +1,9 @@
+-/**
+- * (C) Copyright 2016, Cavium, Inc. <support@cavium.com>
+- * Suneel Garapati, <suneel.garapati@cavium.com>
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+- **/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #include <common.h>
+ #include <asm/armv8/mmu.h>
+diff --git a/arch/arm/mach-octeontx/fdt-helper.c b/arch/arm/mach-octeontx/fdt-helper.c
+index e535819383..0bef17aa11 100644
+--- a/arch/arm/mach-octeontx/fdt-helper.c
++++ b/arch/arm/mach-octeontx/fdt-helper.c
+@@ -1,10 +1,11 @@
+-/**
+- * (C) Copyright 2016, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
+-/* This file contains flat device-tree helper functions used by Cavium.
++/* This file contains flat device-tree helper functions.
+  * At some later point these functions should be moved into U-Boot common code.
+  */
+ 
+diff --git a/arch/arm/mach-octeontx/lowlevel_init.S b/arch/arm/mach-octeontx/lowlevel_init.S
+index a8877e5bc3..ed52ed2481 100644
+--- a/arch/arm/mach-octeontx/lowlevel_init.S
++++ b/arch/arm/mach-octeontx/lowlevel_init.S
+@@ -1,9 +1,8 @@
+ /*
+- * (C) Copyright 2014-2016, Cavium Networks, Inc
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+- *
+- * Extracted from armv8/start.S
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
+ #include <config.h>
+diff --git a/arch/arm/mach-octeontx2/Makefile b/arch/arm/mach-octeontx2/Makefile
+index 01b3f77ec2..c3192343dd 100644
+--- a/arch/arm/mach-octeontx2/Makefile
++++ b/arch/arm/mach-octeontx2/Makefile
+@@ -1,8 +1,9 @@
+-#
+-# Copyright 2014-2016, Cavium Networks, Inc
+-#
+-# SPDX-License-Identifier:	GPL-2.0+
+-#
++#/*
++# * Copyright (C) 2018 Marvell International Ltd.
++# *
++# * SPDX-License-Identifier:    GPL-2.0
++# * https://spdx.org/licenses
++# */
+ 
+ obj-y += lowlevel_init.o clock.o cpu.o
+ 
+diff --git a/arch/arm/mach-octeontx2/clock.c b/arch/arm/mach-octeontx2/clock.c
+index e963dc7dfa..b6c127dc4b 100644
+--- a/arch/arm/mach-octeontx2/clock.c
++++ b/arch/arm/mach-octeontx2/clock.c
+@@ -1,9 +1,9 @@
+-/**
+- * (C) Copyright 2016, Cavium, Inc. <support@cavium.com>
+- * Aaron Williams, <aaron.williams@cavium.com>
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+- **/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #include <common.h>
+ #include <asm/io.h>
+diff --git a/arch/arm/mach-octeontx2/cpu.c b/arch/arm/mach-octeontx2/cpu.c
+index b43a0dfa6d..577c3c4b0a 100644
+--- a/arch/arm/mach-octeontx2/cpu.c
++++ b/arch/arm/mach-octeontx2/cpu.c
+@@ -1,8 +1,9 @@
+-/**
+- * (C) Copyright 2016, Cavium, Inc. <support@cavium.com>
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+- **/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #include <common.h>
+ #include <asm/armv8/mmu.h>
+diff --git a/arch/arm/mach-octeontx2/fdt-helper.c b/arch/arm/mach-octeontx2/fdt-helper.c
+index e535819383..0bef17aa11 100644
+--- a/arch/arm/mach-octeontx2/fdt-helper.c
++++ b/arch/arm/mach-octeontx2/fdt-helper.c
+@@ -1,10 +1,11 @@
+-/**
+- * (C) Copyright 2016, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
+-/* This file contains flat device-tree helper functions used by Cavium.
++/* This file contains flat device-tree helper functions.
+  * At some later point these functions should be moved into U-Boot common code.
+  */
+ 
+diff --git a/arch/arm/mach-octeontx2/lowlevel_init.S b/arch/arm/mach-octeontx2/lowlevel_init.S
+index e4a02830d7..cb6a5a05dd 100644
+--- a/arch/arm/mach-octeontx2/lowlevel_init.S
++++ b/arch/arm/mach-octeontx2/lowlevel_init.S
+@@ -1,9 +1,8 @@
+ /*
+- * (C) Copyright 2014-2016, Cavium Networks, Inc
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+- *
+- * Extracted from armv8/start.S
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
+ #include <config.h>
+diff --git a/board/Marvell/octeontx/MAINTAINERS b/board/Marvell/octeontx/MAINTAINERS
+index 5ae4a8f800..7cd0e6029e 100644
+--- a/board/Marvell/octeontx/MAINTAINERS
++++ b/board/Marvell/octeontx/MAINTAINERS
+@@ -1,6 +1,5 @@
+ OCTEONTX BOARD
+ M:	Sergey Temerkhanov <s.temerkhanov@gmail.com>
++M:	Suneel Garapati <sgarapati@caviumnetworks.com>
+ S:	Maintained
+-F:	board/cavium/octeontx/
+-F:	include/configs/octeontx_88xx.h
+-F:	configs/octeontx_88xx_defconfig
++F:	board/Marvell/octeontx/
+diff --git a/board/Marvell/octeontx/Makefile b/board/Marvell/octeontx/Makefile
+index dca8b152d5..331a849b80 100644
+--- a/board/Marvell/octeontx/Makefile
++++ b/board/Marvell/octeontx/Makefile
+@@ -1,7 +1,9 @@
+-# SPDX-License-Identifier: GPL-2.0+
+-# (C) Copyright 2014, Cavium Inc.
+-#
+-#
++#/*
++# * Copyright (C) 2018 Marvell International Ltd.
++# *
++# * SPDX-License-Identifier:    GPL-2.0
++# * https://spdx.org/licenses
++# */
+ 
+ obj-y	:= octeontx.o atf.o
+ obj-$(CONFIG_OF_LIBFDT) += fdt.o
+diff --git a/board/Marvell/octeontx/atf.c b/board/Marvell/octeontx/atf.c
+index 89e6a06bc1..073eccc3af 100644
+--- a/board/Marvell/octeontx/atf.c
++++ b/board/Marvell/octeontx/atf.c
+@@ -1,7 +1,9 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/**
+- * (C) Copyright 2014, Cavium Inc.
+-**/
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #include <common.h>
+ #include <asm/io.h>
+diff --git a/board/Marvell/octeontx/fdt.c b/board/Marvell/octeontx/fdt.c
+index 06881177c4..faf866c36b 100644
+--- a/board/Marvell/octeontx/fdt.c
++++ b/board/Marvell/octeontx/fdt.c
+@@ -1,8 +1,9 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #include <common.h>
+ #include <malloc.h>
+diff --git a/board/Marvell/octeontx/octeontx.c b/board/Marvell/octeontx/octeontx.c
+index e62454acdb..d608c21de2 100644
+--- a/board/Marvell/octeontx/octeontx.c
++++ b/board/Marvell/octeontx/octeontx.c
+@@ -1,7 +1,10 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/**
+- * (C) Copyright 2014, Cavium Inc.
+-**/
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ #include <common.h>
+ #include <dm.h>
+ #include <malloc.h>
+diff --git a/board/Marvell/octeontx2/MAINTAINERS b/board/Marvell/octeontx2/MAINTAINERS
+index df88e50d86..8acac706b2 100644
+--- a/board/Marvell/octeontx2/MAINTAINERS
++++ b/board/Marvell/octeontx2/MAINTAINERS
+@@ -1,6 +1,6 @@
+ OCTEONTX2 BOARD
+ M:	Suneel Garapati <sgarapati@caviumnetworks.com>
+ S:	Maintained
+-F:	board/cavium/octeontx2/
++F:	board/Marvell/octeontx2/
+ F:	include/configs/octeontx2_96xx.h
+ F:	configs/octeontx2_96xx_defconfig
+diff --git a/board/Marvell/octeontx2/Makefile b/board/Marvell/octeontx2/Makefile
+index 04eb06b6ad..4827bf7e97 100644
+--- a/board/Marvell/octeontx2/Makefile
++++ b/board/Marvell/octeontx2/Makefile
+@@ -1,9 +1,9 @@
+-#
+-#
+-# (C) Copyright 2014, Cavium Inc.
+-#
+-# SPDX-License-Identifier:	GPL-2.0+
+-#
++#/*
++# * Copyright (C) 2018 Marvell International Ltd.
++# *
++# * SPDX-License-Identifier:    GPL-2.0
++# * https://spdx.org/licenses
++# */
+ 
+ obj-y	:= octeontx2.o atf.o
+ obj-$(CONFIG_OF_LIBFDT) += fdt.o
+diff --git a/board/Marvell/octeontx2/atf.c b/board/Marvell/octeontx2/atf.c
+index 388975ffee..18531be621 100644
+--- a/board/Marvell/octeontx2/atf.c
++++ b/board/Marvell/octeontx2/atf.c
+@@ -1,8 +1,9 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #include <common.h>
+ #include <asm/io.h>
+diff --git a/board/Marvell/octeontx2/fdt.c b/board/Marvell/octeontx2/fdt.c
+index a3ddd3d44b..292112e097 100644
+--- a/board/Marvell/octeontx2/fdt.c
++++ b/board/Marvell/octeontx2/fdt.c
+@@ -1,8 +1,9 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #include <common.h>
+ #include <malloc.h>
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index d96b874f87..faa6fea2b3 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -1,8 +1,9 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #include <common.h>
+ #include <dm.h>
+diff --git a/cmd/bootimgup.c b/cmd/bootimgup.c
+index a83805f21c..4329cfafd9 100644
+--- a/cmd/bootimgup.c
++++ b/cmd/bootimgup.c
+@@ -1,9 +1,8 @@
+ /*
+- * Command for updating boot image.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * Copyright (C) 2008 Atmel Corporation
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
+ #include <common.h>
+diff --git a/configs/octeontx2_95xx_defconfig b/configs/octeontx2_95xx_defconfig
+index 57aab8a2d4..be205c4e9b 100644
+--- a/configs/octeontx2_95xx_defconfig
++++ b/configs/octeontx2_95xx_defconfig
+@@ -14,7 +14,7 @@ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+-CONFIG_SYS_PROMPT="Cavium> "
++CONFIG_SYS_PROMPT="Marvell> "
+ # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 8bf610a72e..11b5ad411b 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -15,7 +15,7 @@ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+-CONFIG_SYS_PROMPT="Cavium> "
++CONFIG_SYS_PROMPT="Marvell> "
+ # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index 5728bb9108..5f078ad647 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -15,7 +15,7 @@ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+-CONFIG_SYS_PROMPT="Cavium> "
++CONFIG_SYS_PROMPT="Marvell> "
+ # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
+ CONFIG_CMD_MD5SUM=y
+ CONFIG_CMD_MEMTEST=y
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index 4fdf9eb06b..8f6879a249 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -15,7 +15,7 @@ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+-CONFIG_SYS_PROMPT="Cavium> "
++CONFIG_SYS_PROMPT="Marvell> "
+ # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
+ CONFIG_CMD_MD5SUM=y
+ CONFIG_CMD_MEMTEST=y
+diff --git a/configs/octeontx_88xx_defconfig b/configs/octeontx_88xx_defconfig
+deleted file mode 100644
+index 38c4433426..0000000000
+--- a/configs/octeontx_88xx_defconfig
++++ /dev/null
+@@ -1,29 +0,0 @@
+-CONFIG_ARM=y
+-CONFIG_TARGET_OCTEONTX_88XX=y
+-CONFIG_IDENT_STRING=" for Cavium Thunder CN88XX ARM v8 Multi-Core"
+-CONFIG_DEFAULT_DEVICE_TREE="thunderx-88xx"
+-CONFIG_DEBUG_UART=y
+-CONFIG_BOOTDELAY=5
+-CONFIG_USE_BOOTARGS=y
+-CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e024000000 debug maxcpus=48 rootwait rw root=/dev/sda2 coherent_pool=16M"
+-# CONFIG_DISPLAY_CPUINFO is not set
+-# CONFIG_DISPLAY_BOARDINFO is not set
+-CONFIG_HUSH_PARSER=y
+-CONFIG_SYS_PROMPT="OcteonTX_88XX> "
+-# CONFIG_CMD_EXPORTENV is not set
+-# CONFIG_CMD_IMPORTENV is not set
+-# CONFIG_CMD_EDITENV is not set
+-# CONFIG_CMD_SAVEENV is not set
+-# CONFIG_CMD_ENV_EXISTS is not set
+-# CONFIG_CMD_FLASH is not set
+-# CONFIG_CMD_FPGA is not set
+-# CONFIG_CMD_NET is not set
+-# CONFIG_CMD_NFS is not set
+-CONFIG_DM=y
+-# CONFIG_MMC is not set
+-CONFIG_DM_SERIAL=y
+-CONFIG_DEBUG_UART_PL011=y
+-CONFIG_DEBUG_UART_BASE=0x87e024000000
+-CONFIG_DEBUG_UART_CLOCK=24000000
+-CONFIG_DEBUG_UART_SKIP_INIT=y
+-CONFIG_REGEX=y
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 5aaaf698c7..b55e11d77e 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -1,5 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0+
+ /*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
+  * Copyright (C) Freescale Semiconductor, Inc. 2006.
+  * Author: Jason Jin<Jason.jin@freescale.com>
+  *         Zhang Wei<wei.zhang@freescale.com>
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 6de1c76f90..dea9e14bdf 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -277,11 +277,11 @@ config PIC32_GPIO
+ 	  Say yes here to support Microchip PIC32 GPIOs.
+ 
+ config OCTEONTX_GPIO
+-	bool "Cavium OcteonTX GPIO driver"
++	bool "OcteonTX GPIO driver"
+ 	depends on DM_GPIO
+ 	default y
+ 	help
+-	  Say yes here to support Cavium OcteonTX GPIOs.
++	  Say yes here to support OcteonTX GPIOs.
+ 
+ config STM32_GPIO
+ 	bool "ST STM32 GPIO driver"
+diff --git a/drivers/gpio/octeontx_gpio.c b/drivers/gpio/octeontx_gpio.c
+index ff13ca0574..76c6750d10 100644
+--- a/drivers/gpio/octeontx_gpio.c
++++ b/drivers/gpio/octeontx_gpio.c
+@@ -1,5 +1,8 @@
+ /*
+- * (C) Copyright 2016 Cavium, Inc. <support@cavium.com>
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  *
+  * (C) Copyright 2011
+  * eInfochips Ltd. <www.einfochips.com>
+@@ -8,7 +11,6 @@
+  * (C) Copyright 2010
+  * Marvell Semiconductor <www.marvell.com>
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+  */
+ 
+ #include <common.h>
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index 3dde48701c..8f0e9533a3 100644
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -371,7 +371,7 @@ config SYS_I2C_OCTEONTX
+ 	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2) && DM_I2C
+ 	default y
+ 	help
+-	 Enable I2C support for Cavium OcteonTX line of processors.
++	 Enable I2C support for OcteonTX line of processors.
+ 
+ config SYS_I2C_S3C24X0
+ 	bool "Samsung I2C driver"
+diff --git a/drivers/i2c/octeontx_i2c.c b/drivers/i2c/octeontx_i2c.c
+index 1de3ef04bc..b403f09b37 100644
+--- a/drivers/i2c/octeontx_i2c.c
++++ b/drivers/i2c/octeontx_i2c.c
+@@ -1,8 +1,8 @@
+ /*
+- * (C) Copyright 2016
+- * Cavium, Inc. <support@cavium.com>
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
+ #include <common.h>
+diff --git a/drivers/mmc/Kconfig b/drivers/mmc/Kconfig
+index 9061b3e0cc..9bc4f611f5 100644
+--- a/drivers/mmc/Kconfig
++++ b/drivers/mmc/Kconfig
+@@ -43,7 +43,7 @@ config MMC_OCTEONTX
+ 	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+ 	depends on DM_MMC
+ 	help
+-	  This selects the Cavium OcteonTX Multimedia card Interface.
++	  This selects the OcteonTX Multimedia card Interface.
+ 	  If you have an OcteonTX board with a Multimedia Card slot,
+ 	  say Y here.  If unsure, say N.
+ 
+diff --git a/drivers/mmc/octeontx_mmc.c b/drivers/mmc/octeontx_mmc.c
+index c32fd5c24c..dde7b27b5b 100644
+--- a/drivers/mmc/octeontx_mmc.c
++++ b/drivers/mmc/octeontx_mmc.c
+@@ -1,7 +1,8 @@
+ /*
+- * Copyright (c) 2012 - 2018 Marvell Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
+ /*
+diff --git a/drivers/mtd/nand/octeontx_bch.c b/drivers/mtd/nand/octeontx_bch.c
+index 5a24811260..99653c6b83 100644
+--- a/drivers/mtd/nand/octeontx_bch.c
++++ b/drivers/mtd/nand/octeontx_bch.c
+@@ -1,10 +1,11 @@
+ /*
+- * (C) Copyright 2018 Marvell International Ltd.
+- * <aaron.williams@marvell.com>
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <common.h>
+ #include <malloc.h>
+ #include <memalign.h>
+diff --git a/drivers/mtd/nand/octeontx_bch.h b/drivers/mtd/nand/octeontx_bch.h
+index c46bcb3150..3e4c9c0210 100644
+--- a/drivers/mtd/nand/octeontx_bch.h
++++ b/drivers/mtd/nand/octeontx_bch.h
+@@ -1,41 +1,10 @@
+-/***********************license start************************************
+- * Copyright (c) 2018 Cavium Inc. (support@cavium.com).  All rights
+- * reserved.
+- *
+- *
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that the following conditions are
+- * met:
+- *
+- *     * Redistributions of source code must retain the above copyright
+- *       notice, this list of conditions and the following disclaimer.
+- *
+- *     * Redistributions in binary form must reproduce the above
+- *       copyright notice, this list of conditions and the following
+- *       disclaimer in the documentation and/or other materials provided
+- *       with the distribution.
+- *
+- *     * Neither the name of Cavium Inc. nor the names of
+- *       its contributors may be used to endorse or promote products
+- *       derived from this software without specific prior written
+- *       permission.
+- *
+- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
+- * AND WITH ALL FAULTS AND CAVIUM INC. MAKES NO PROMISES, REPRESENTATIONS
+- * OR WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH
+- * RESPECT TO THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY
+- * REPRESENTATION OR DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR PATENT
+- * DEFECTS, AND CAVIUM SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY) WARRANTIES
+- * OF TITLE, MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A PARTICULAR
+- * PURPOSE, LACK OF VIRUSES, ACCURACY OR COMPLETENESS, QUIET ENJOYMENT, QUIET
+- * POSSESSION OR CORRESPONDENCE TO DESCRIPTION.  THE ENTIRE RISK ARISING OUT
+- * OF USE OR PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
+- *
+- *
+- * For any questions regarding licensing please contact
+- * support@cavium.com
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- ***********************license end**************************************/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #ifndef __OCTEONTX_BCH_H__
+ #define __OCTEONTX_BCH_H__
+diff --git a/drivers/mtd/nand/octeontx_bch_regs.h b/drivers/mtd/nand/octeontx_bch_regs.h
+index e989b64c28..ddd1949b8d 100644
+--- a/drivers/mtd/nand/octeontx_bch_regs.h
++++ b/drivers/mtd/nand/octeontx_bch_regs.h
+@@ -1,41 +1,9 @@
+-/***********************license start************************************
+- * Copyright (c) 2018 Cavium Inc. (support@cavium.com).  All rights
+- * reserved.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- *
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that the following conditions are
+- * met:
+- *
+- *     * Redistributions of source code must retain the above copyright
+- *       notice, this list of conditions and the following disclaimer.
+- *
+- *     * Redistributions in binary form must reproduce the above
+- *       copyright notice, this list of conditions and the following
+- *       disclaimer in the documentation and/or other materials provided
+- *       with the distribution.
+- *
+- *     * Neither the name of Cavium Inc. nor the names of
+- *       its contributors may be used to endorse or promote products
+- *       derived from this software without specific prior written
+- *       permission.
+- *
+- * TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS"
+- * AND WITH ALL FAULTS AND CAVIUM INC. MAKES NO PROMISES, REPRESENTATIONS
+- * OR WARRANTIES, EITHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, WITH
+- * RESPECT TO THE SOFTWARE, INCLUDING ITS CONDITION, ITS CONFORMITY TO ANY
+- * REPRESENTATION OR DESCRIPTION, OR THE EXISTENCE OF ANY LATENT OR PATENT
+- * DEFECTS, AND CAVIUM SPECIFICALLY DISCLAIMS ALL IMPLIED (IF ANY) WARRANTIES
+- * OF TITLE, MERCHANTABILITY, NONINFRINGEMENT, FITNESS FOR A PARTICULAR
+- * PURPOSE, LACK OF VIRUSES, ACCURACY OR COMPLETENESS, QUIET ENJOYMENT, QUIET
+- * POSSESSION OR CORRESPONDENCE TO DESCRIPTION.  THE ENTIRE RISK ARISING OUT
+- * OF USE OR PERFORMANCE OF THE SOFTWARE LIES WITH YOU.
+- *
+- *
+- * For any questions regarding licensing please contact
+- * support@cavium.com
+- *
+- ***********************license end**************************************/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ #ifndef __OCTEONTX_BCH_REGS_H__
+ #define __OCTEONTX_BCH_REGS_H__
+diff --git a/drivers/mtd/nand/octeontx_nand.c b/drivers/mtd/nand/octeontx_nand.c
+index 33e295019f..f7f88da3fa 100644
+--- a/drivers/mtd/nand/octeontx_nand.c
++++ b/drivers/mtd/nand/octeontx_nand.c
+@@ -1,8 +1,8 @@
+ /*
+- * (C) Copyright 2018 Marvell International Ltd.
+- * <aaron.williams@marvell.com>
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
+ #include <common.h>
+diff --git a/drivers/net/octeontx/Makefile b/drivers/net/octeontx/Makefile
+index 2367d30999..1a61836ef8 100644
+--- a/drivers/net/octeontx/Makefile
++++ b/drivers/net/octeontx/Makefile
+@@ -1,7 +1,10 @@
+-#
+-# (C) Copyright 2014, Cavium Inc.
+-#
+-# SPDX-License-Identifier:	GPL-2.0+
+-#
++#/*
++# * Copyright (C) 2018 Marvell International Ltd.
++# *
++# * SPDX-License-Identifier:    GPL-2.0
++# * https://spdx.org/licenses
++# */
++
++
+ obj-$(CONFIG_NET_OCTEONTX) += octeontx_bgx.o nic_main.o nicvf_queues.o \
+ 		nicvf_main.o octeontx_smi.o octeontx_xcv.o
+diff --git a/drivers/net/octeontx/nic.h b/drivers/net/octeontx/nic.h
+index 435a1d1335..b26976c42c 100644
+--- a/drivers/net/octeontx/nic.h
++++ b/drivers/net/octeontx/nic.h
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2014 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef NIC_H
+ #define	NIC_H
+ 
+diff --git a/drivers/net/octeontx/nic_main.c b/drivers/net/octeontx/nic_main.c
+index 7f3f21ae91..99f65eec22 100644
+--- a/drivers/net/octeontx/nic_main.c
++++ b/drivers/net/octeontx/nic_main.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2014 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <config.h>
+ #include <common.h>
+ #include <net.h>
+diff --git a/drivers/net/octeontx/nic_reg.h b/drivers/net/octeontx/nic_reg.h
+index 1db3d6e43e..a4e7df2690 100644
+--- a/drivers/net/octeontx/nic_reg.h
++++ b/drivers/net/octeontx/nic_reg.h
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2014 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef NIC_REG_H
+ #define NIC_REG_H
+ 
+diff --git a/drivers/net/octeontx/nicvf_main.c b/drivers/net/octeontx/nicvf_main.c
+index 6f981b258a..fa81160cd9 100644
+--- a/drivers/net/octeontx/nicvf_main.c
++++ b/drivers/net/octeontx/nicvf_main.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2014 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <config.h>
+ #include <common.h>
+ #include <dm.h>
+diff --git a/drivers/net/octeontx/nicvf_queues.c b/drivers/net/octeontx/nicvf_queues.c
+index b001e69823..405c7535fa 100644
+--- a/drivers/net/octeontx/nicvf_queues.c
++++ b/drivers/net/octeontx/nicvf_queues.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2014 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <config.h>
+ #include <common.h>
+ #include <net.h>
+diff --git a/drivers/net/octeontx/nicvf_queues.h b/drivers/net/octeontx/nicvf_queues.h
+index ce575511cb..e0c64a572b 100644
+--- a/drivers/net/octeontx/nicvf_queues.h
++++ b/drivers/net/octeontx/nicvf_queues.h
+@@ -1,11 +1,11 @@
+ /*
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * Copyright (C) 2014 Cavium, Inc.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef NICVF_QUEUES_H
+ #define NICVF_QUEUES_H
+ 
+diff --git a/drivers/net/octeontx/octeontx_bgx.c b/drivers/net/octeontx/octeontx_bgx.c
+index e911378dc2..07288d8212 100644
+--- a/drivers/net/octeontx/octeontx_bgx.c
++++ b/drivers/net/octeontx/octeontx_bgx.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2014 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <config.h>
+ #include <common.h>
+ #include <errno.h>
+diff --git a/drivers/net/octeontx/octeontx_bgx.h b/drivers/net/octeontx/octeontx_bgx.h
+index a983e9e2fe..80568f471c 100644
+--- a/drivers/net/octeontx/octeontx_bgx.h
++++ b/drivers/net/octeontx/octeontx_bgx.h
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2014 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef OCTEONT_BGX_H
+ #define OCTEONT_BGX_H
+ 
+diff --git a/drivers/net/octeontx/octeontx_smi.c b/drivers/net/octeontx/octeontx_smi.c
+index c26c653f68..2b21170d95 100644
+--- a/drivers/net/octeontx/octeontx_smi.c
++++ b/drivers/net/octeontx/octeontx_smi.c
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #include <common.h>
+ #include <dm.h>
+diff --git a/drivers/net/octeontx/octeontx_xcv.c b/drivers/net/octeontx/octeontx_xcv.c
+index d9c166f42e..ca2951a738 100644
+--- a/drivers/net/octeontx/octeontx_xcv.c
++++ b/drivers/net/octeontx/octeontx_xcv.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2016 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <config.h>
+ #include <common.h>
+ #include <errno.h>
+diff --git a/drivers/net/octeontx/q_struct.h b/drivers/net/octeontx/q_struct.h
+index 729276bd80..723d73030b 100644
+--- a/drivers/net/octeontx/q_struct.h
++++ b/drivers/net/octeontx/q_struct.h
+@@ -1,15 +1,11 @@
+ /*
+- * This file contains HW queue descriptor formats, config register
+- * structures e.t.c
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * Copyright (C) 2014 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef Q_STRUCT_H
+ #define Q_STRUCT_H
+ 
+diff --git a/drivers/net/octeontx2/Makefile b/drivers/net/octeontx2/Makefile
+index bc72ea17b4..beee8f28d5 100644
+--- a/drivers/net/octeontx2/Makefile
++++ b/drivers/net/octeontx2/Makefile
+@@ -1,7 +1,10 @@
+-#
+-# (C) Copyright 2018, Cavium Inc.
+-#
+-# SPDX-License-Identifier:	GPL-2.0+
+-#
++#/*
++# * Copyright (C) 2018 Marvell International Ltd.
++# *
++# * SPDX-License-Identifier:    GPL-2.0
++# * https://spdx.org/licenses
++# */
++
++
+ obj-$(CONFIG_NET_OCTEONTX2) += cgx_intf.o cgx.o nix_af.o nix.o rvu_pf.o \
+ 				rvu_af.o rvu_common.o
+diff --git a/drivers/net/octeontx2/cavm-csrs-cgx.h b/drivers/net/octeontx2/cavm-csrs-cgx.h
+index 54fe1f1ead..a4fc056cf4 100644
+--- a/drivers/net/octeontx2/cavm-csrs-cgx.h
++++ b/drivers/net/octeontx2/cavm-csrs-cgx.h
+@@ -1,12 +1,12 @@
+ #ifndef __CAVM_CSRS_CGX_H__
+ #define __CAVM_CSRS_CGX_H__
+ /* This file is auto-generated.  Do not edit */
+-
+-/***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
+-* SPDX-License-Identifier: BSD-3-Clause
+-* https://spdx.org/licenses
+-***********************license end**************************************/
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+ /**
+  * @file
+diff --git a/drivers/net/octeontx2/cavm-csrs-lmt.h b/drivers/net/octeontx2/cavm-csrs-lmt.h
+index 948606f8b8..f646a00262 100644
+--- a/drivers/net/octeontx2/cavm-csrs-lmt.h
++++ b/drivers/net/octeontx2/cavm-csrs-lmt.h
+@@ -1,12 +1,13 @@
+ #ifndef __CAVM_CSRS_LMT_H__
+ #define __CAVM_CSRS_LMT_H__
+ /* This file is auto-generated.  Do not edit */
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
+ 
+-/***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
+-* SPDX-License-Identifier: BSD-3-Clause
+-* https://spdx.org/licenses
+-***********************license end**************************************/
+ 
+ /**
+  * @file
+diff --git a/drivers/net/octeontx2/cavm-csrs-nix.h b/drivers/net/octeontx2/cavm-csrs-nix.h
+index a93e033664..f69c194432 100644
+--- a/drivers/net/octeontx2/cavm-csrs-nix.h
++++ b/drivers/net/octeontx2/cavm-csrs-nix.h
+@@ -2,11 +2,13 @@
+ #define __CAVM_CSRS_NIX_H__
+ /* This file is auto-generated.  Do not edit */
+ 
+-/***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
+-* SPDX-License-Identifier: BSD-3-Clause
+-* https://spdx.org/licenses
+-***********************license end**************************************/
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ /**
+  * @file
+diff --git a/drivers/net/octeontx2/cavm-csrs-npa.h b/drivers/net/octeontx2/cavm-csrs-npa.h
+index 6bacddd830..2901e5695a 100644
+--- a/drivers/net/octeontx2/cavm-csrs-npa.h
++++ b/drivers/net/octeontx2/cavm-csrs-npa.h
+@@ -2,11 +2,13 @@
+ #define __CAVM_CSRS_NPA_H__
+ /* This file is auto-generated.  Do not edit */
+ 
+-/***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
+-* SPDX-License-Identifier: BSD-3-Clause
+-* https://spdx.org/licenses
+-***********************license end**************************************/
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ /**
+  * @file
+diff --git a/drivers/net/octeontx2/cavm-csrs-npc.h b/drivers/net/octeontx2/cavm-csrs-npc.h
+index 3f69d9d7c3..dac26001b4 100644
+--- a/drivers/net/octeontx2/cavm-csrs-npc.h
++++ b/drivers/net/octeontx2/cavm-csrs-npc.h
+@@ -2,11 +2,13 @@
+ #define __CAVM_CSRS_NPC_H__
+ /* This file is auto-generated.  Do not edit */
+ 
+-/***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
+-* SPDX-License-Identifier: BSD-3-Clause
+-* https://spdx.org/licenses
+-***********************license end**************************************/
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ /**
+  * @file
+diff --git a/drivers/net/octeontx2/cavm-csrs-rvu.h b/drivers/net/octeontx2/cavm-csrs-rvu.h
+index 813c0fef88..5eef0fb62c 100644
+--- a/drivers/net/octeontx2/cavm-csrs-rvu.h
++++ b/drivers/net/octeontx2/cavm-csrs-rvu.h
+@@ -2,11 +2,13 @@
+ #define __CAVM_CSRS_RVU_H__
+ /* This file is auto-generated.  Do not edit */
+ 
+-/***********************license start***********************************
+-* Copyright (C) 2018 Marvell International Ltd.
+-* SPDX-License-Identifier: BSD-3-Clause
+-* https://spdx.org/licenses
+-***********************license end**************************************/
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ /**
+  * @file
+diff --git a/drivers/net/octeontx2/cgx.c b/drivers/net/octeontx2/cgx.c
+index 98e5e2d8ad..a7de312a79 100644
+--- a/drivers/net/octeontx2/cgx.c
++++ b/drivers/net/octeontx2/cgx.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
++
++
+ #include <common.h>
+ #include <net.h>
+ #include <malloc.h>
+diff --git a/drivers/net/octeontx2/cgx.h b/drivers/net/octeontx2/cgx.h
+index 52027f9419..b7ac7aa7f9 100644
+--- a/drivers/net/octeontx2/cgx.h
++++ b/drivers/net/octeontx2/cgx.h
+@@ -1,13 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef __CGX_H__
+ #define __CGX_H__
+ 
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index ac5853e011..04a466ce54 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <common.h>
+ #include <net.h>
+ #include <malloc.h>
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index 01994c53ed..7503419170 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef __CGX_INTF_H__
+ #define __CGX_INTF_H__
+ 
+diff --git a/drivers/net/octeontx2/lmt.h b/drivers/net/octeontx2/lmt.h
+index 8018b801df..0108a05635 100644
+--- a/drivers/net/octeontx2/lmt.h
++++ b/drivers/net/octeontx2/lmt.h
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ /**
+  * Atomically adds a signed value to a 64 bit (aligned) memory location,
+  * and returns previous value.
+diff --git a/drivers/net/octeontx2/nix.c b/drivers/net/octeontx2/nix.c
+index 2d8a89ff18..2a0fa645c2 100644
+--- a/drivers/net/octeontx2/nix.c
++++ b/drivers/net/octeontx2/nix.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <common.h>
+ #include <net.h>
+ #include <malloc.h>
+diff --git a/drivers/net/octeontx2/nix.h b/drivers/net/octeontx2/nix.h
+index bd97a4e2b4..27791b5668 100644
+--- a/drivers/net/octeontx2/nix.h
++++ b/drivers/net/octeontx2/nix.h
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef __NIX_H__
+ #define	__NIX_H__
+ 
+diff --git a/drivers/net/octeontx2/nix_af.c b/drivers/net/octeontx2/nix_af.c
+index 3099225513..7cb2c19b8e 100644
+--- a/drivers/net/octeontx2/nix_af.c
++++ b/drivers/net/octeontx2/nix_af.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
++
++
+ #include <common.h>
+ #include <net.h>
+ #include <malloc.h>
+diff --git a/drivers/net/octeontx2/npc.c b/drivers/net/octeontx2/npc.c
+index 1fa5ae4ee3..5eec2797a0 100644
+--- a/drivers/net/octeontx2/npc.c
++++ b/drivers/net/octeontx2/npc.c
+@@ -1,13 +1,11 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/* Cavium OcteonTx2 RVU Admin function driver
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <common.h>
+ #include <net.h>
+ #include <netdev.h>
+diff --git a/drivers/net/octeontx2/npc.h b/drivers/net/octeontx2/npc.h
+index 4c76279125..112ef03f2e 100644
+--- a/drivers/net/octeontx2/npc.h
++++ b/drivers/net/octeontx2/npc.h
+@@ -1,13 +1,11 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/* Cavium OcteonTx2 RVU Admin function driver
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef __NPC_H__
+ #define __NPC_H__
+ 
+diff --git a/drivers/net/octeontx2/npc_profile.h b/drivers/net/octeontx2/npc_profile.h
+index 77e3a31065..4f521fb2c7 100644
+--- a/drivers/net/octeontx2/npc_profile.h
++++ b/drivers/net/octeontx2/npc_profile.h
+@@ -1,13 +1,11 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/* Cavium OcteonTx2 RVU Admin function driver
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef NPC_PROFILE_H
+ #define NPC_PROFILE_H
+ 
+diff --git a/drivers/net/octeontx2/npc_reg.h b/drivers/net/octeontx2/npc_reg.h
+index dbfd358e84..4f3e993570 100644
+--- a/drivers/net/octeontx2/npc_reg.h
++++ b/drivers/net/octeontx2/npc_reg.h
+@@ -1,3 +1,10 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ /* Register definitions */
+ 
+diff --git a/drivers/net/octeontx2/rvu.h b/drivers/net/octeontx2/rvu.h
+index 1c848635af..a61da69ae7 100644
+--- a/drivers/net/octeontx2/rvu.h
++++ b/drivers/net/octeontx2/rvu.h
+@@ -1,13 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #ifndef __RVU_H__
+ #define __RVU_H__
+ 
+diff --git a/drivers/net/octeontx2/rvu_af.c b/drivers/net/octeontx2/rvu_af.c
+index 3a83d9029d..c0016974b4 100644
+--- a/drivers/net/octeontx2/rvu_af.c
++++ b/drivers/net/octeontx2/rvu_af.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
++
++
+ #include <common.h>
+ #include <net.h>
+ #include <malloc.h>
+diff --git a/drivers/net/octeontx2/rvu_common.c b/drivers/net/octeontx2/rvu_common.c
+index 3bca6ed3ab..5622b65d16 100644
+--- a/drivers/net/octeontx2/rvu_common.c
++++ b/drivers/net/octeontx2/rvu_common.c
+@@ -1,13 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
+ 
++
+ #include <common.h>
+ #include <net.h>
+ #include <malloc.h>
+diff --git a/drivers/net/octeontx2/rvu_pf.c b/drivers/net/octeontx2/rvu_pf.c
+index 1b01b63980..44ad529546 100644
+--- a/drivers/net/octeontx2/rvu_pf.c
++++ b/drivers/net/octeontx2/rvu_pf.c
+@@ -1,12 +1,11 @@
+ /*
+- * Copyright (C) 2018 Cavium, Inc.
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation; either version 2 of
+- * the License, or (at your option) any later version.
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
++
++
+ #include <common.h>
+ #include <net.h>
+ #include <malloc.h>
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index c60ff7d8f0..4a123f7c10 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -110,7 +110,7 @@ config PCI_OCTEONTX_ECAM
+ 	bool "OcteonTX ECAM support"
+ 	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+ 	help
+-	  Enable support for the Cavium OcteonTX SoC family ECAM controllers.
++	  Enable support for the OcteonTX/TX2 SoC family ECAM controllers.
+ 	  These controllers provide PCI configuration access to all on-board
+ 	  peripherals so it should only be disabled for testing purposes
+ 
+diff --git a/drivers/pci/pci_octeontx_ecam.c b/drivers/pci/pci_octeontx_ecam.c
+index 20b95e1b85..6539a0f635 100644
+--- a/drivers/pci/pci_octeontx_ecam.c
++++ b/drivers/pci/pci_octeontx_ecam.c
+@@ -1,15 +1,10 @@
+-/** @file
+-#
+-#  Copyright (c) 2014, Cavium Inc. All rights reserved.<BR>
+-#  This program and the accompanying materials
+-#  are licensed and made available under the terms and conditions of the BSD License
+-#  which accompanies this distribution.  The full text of the license may be found at
+-#  http://opensource.org/licenses/bsd-license.php
+-#
+-#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+-#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+-#
+-#**/
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #include <common.h>
+ #include <dm.h>
+diff --git a/drivers/rtc/ds1337.c b/drivers/rtc/ds1337.c
+index 7ff50340e0..27962c8d1f 100644
+--- a/drivers/rtc/ds1337.c
++++ b/drivers/rtc/ds1337.c
+@@ -1,5 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0+
+ /*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
+  * (C) Copyright 2001-2008
+  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+  * Keith Outwater, keith_outwater@mvis.com`
+diff --git a/drivers/spi/octeontx_spi.c b/drivers/spi/octeontx_spi.c
+index fa2426202a..61faac531f 100755
+--- a/drivers/spi/octeontx_spi.c
++++ b/drivers/spi/octeontx_spi.c
+@@ -1,12 +1,10 @@
+-/**
+- * OcteonTX SPI U_BOOT_DRIVER
+- *
+- * Copyright (C) 2016 Cavium, Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-LICENSE-IDENTIFIER:	GPL-2.0+
+- *
+- * SPI/MPI driver for Cavium OcteonTX series of SoCs
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
+  */
++
+ #include <common.h>
+ #include <spi.h>
+ #include <asm/io.h>
+diff --git a/include/configs/octeontx2_95xx.h b/include/configs/octeontx2_95xx.h
+index 4166348d6f..f79c57f29e 100644
+--- a/include/configs/octeontx2_95xx.h
++++ b/include/configs/octeontx2_95xx.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2018, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #ifndef __OCTEONTX2_95XX_H__
+ #define __OCTEONTX2_95XX_H__
+diff --git a/include/configs/octeontx2_96xx.h b/include/configs/octeontx2_96xx.h
+index bfc99f7778..0c9e7d4796 100644
+--- a/include/configs/octeontx2_96xx.h
++++ b/include/configs/octeontx2_96xx.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2017, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #ifndef __OCTEONTX2_96XX_H__
+ #define __OCTEONTX2_96XX_H__
+diff --git a/include/configs/octeontx_81xx.h b/include/configs/octeontx_81xx.h
+index 8ded0736b1..4549e974ce 100644
+--- a/include/configs/octeontx_81xx.h
++++ b/include/configs/octeontx_81xx.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #ifndef __OCTEONTX_81XX_H__
+ #define __OCTEONTX_81XX_H__
+diff --git a/include/configs/octeontx_83xx.h b/include/configs/octeontx_83xx.h
+index 30d67573a2..85b8f6306a 100644
+--- a/include/configs/octeontx_83xx.h
++++ b/include/configs/octeontx_83xx.h
+@@ -1,8 +1,10 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
+ 
+ #ifndef __OCTEONTX_83XX_H__
+ #define __OCTEONTX_83XX_H__
+-- 
+2.29.0
+

@@ -1,0 +1,35 @@
+From e44a27b4d91fcae137468dea9cbf807eb8df42bb Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Wed, 23 Oct 2019 13:29:18 +0200
+Subject: [PATCH 0255/1239] arm64: mvbeu: config: a8k: enable EFUSE support
+
+Change-Id: Ia19fdb0f53dc461a0c12be6c0c854ea673931cd3
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+---
+ configs/mvebu_db_armada8k_defconfig | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index 0ad7eaf21f..46ed70b24c 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -25,6 +25,7 @@ CONFIG_BOARD_EARLY_INIT_F=y
+ CONFIG_SYS_PROMPT="Marvell>> "
+ CONFIG_CMD_MVEBU_SAR=y
+ # CONFIG_CMD_FLASH is not set
++CONFIG_CMD_FUSE=y
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
+@@ -45,6 +46,8 @@ CONFIG_MAC_PARTITION=y
+ CONFIG_DEFAULT_DEVICE_TREE="armada-8040-db"
+ CONFIG_ENV_IS_IN_SPI_FLASH=y
+ CONFIG_AHCI_MVEBU=y
++CONFIG_MVEBU_EFUSE=y
++CONFIG_MVEBU_EFUSE_READ_ONLY=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DM_PCA953X=y
+ CONFIG_DM_I2C=y
+-- 
+2.29.0
+

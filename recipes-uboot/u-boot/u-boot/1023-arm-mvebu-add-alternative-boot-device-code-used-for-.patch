@@ -1,0 +1,47 @@
+From 13b56cf03acabde2d98923b2ad15927a5b214fc0 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Tue, 25 Sep 2018 16:44:30 +0200
+Subject: [PATCH 1023/1239] arm: mvebu: add alternative boot device code used
+ for nand
+
+If booting from NAND (alternative NAND code) let the bootrom continue to
+load the rest of the bootloader.
+
+Change-Id: I7c412ebb29034ca22199d96b4d4af532d52c30df
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/18422
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19341
+---
+ arch/arm/mach-mvebu/include/mach/soc.h | 1 +
+ arch/arm/mach-mvebu/spl.c              | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/arch/arm/mach-mvebu/include/mach/soc.h b/arch/arm/mach-mvebu/include/mach/soc.h
+index cd7fc8f79d..9f9927e426 100644
+--- a/arch/arm/mach-mvebu/include/mach/soc.h
++++ b/arch/arm/mach-mvebu/include/mach/soc.h
+@@ -185,6 +185,7 @@
+ #define BOOT_DEV_SEL_MASK	(0x3f << BOOT_DEV_SEL_OFFS)
+ 
+ #define BOOT_FROM_NAND		0x0A
++#define BOOT_FROM_NAND_ALT	0x0E
+ #define BOOT_FROM_SATA		0x22
+ #define BOOT_FROM_UART		0x28
+ #define BOOT_FROM_SATA_ALT	0x2A
+diff --git a/arch/arm/mach-mvebu/spl.c b/arch/arm/mach-mvebu/spl.c
+index 3cb27b7f4b..f4c8b419da 100644
+--- a/arch/arm/mach-mvebu/spl.c
++++ b/arch/arm/mach-mvebu/spl.c
+@@ -47,6 +47,7 @@ static u32 get_boot_device(void)
+ 	switch (boot_device) {
+ #if defined(CONFIG_ARMADA_38X)
+ 	case BOOT_FROM_NAND:
++	case BOOT_FROM_NAND_ALT:
+ 		return BOOT_DEVICE_NAND;
+ #endif
+ #ifdef CONFIG_SPL_MMC_SUPPORT
+-- 
+2.29.0
+

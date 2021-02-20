@@ -1,0 +1,50 @@
+From 7a271af0a1e3e4d679ec3059ca955bdf52a49f95 Mon Sep 17 00:00:00 2001
+From: Felix Manlunas <fmanlunas@marvell.com>
+Date: Mon, 26 Aug 2019 14:46:49 -0700
+Subject: [PATCH 0951/1239] drivers: net: octeontx2: cgx: Accept broadcast
+ packets
+
+U-Boot does not respond to ARP requests when a network operation (like TFTP
+download) is done via CGX LMAC because the DMAC filter is configured to
+reject broadcast packets.
+
+This causes a failure to resume TFTP download when the download is
+interrupted by QSFP unplug/plug.  When the unplug occurs, the link goes
+down at the TFTP server (x86 Linux) which then removes all ARP cache
+entries associated with the Ethernet interface whose link went down.  When
+the QSFP transceiver is plugged back in, the link goes back up, then the
+TFTP server sends an ARP request to U-Boot, who never receives it.
+
+Fix it by configuring the DMAC filter to accept broadcast packets.
+
+Change-Id: I7733acee711933b86a5f8dbb8b2de099f4db779e
+Signed-off-by: Felix Manlunas <fmanlunas@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/14916
+Reviewed-by: Aaron Williams <awilliams@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/net/octeontx2/cgx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/octeontx2/cgx.c b/drivers/net/octeontx2/cgx.c
+index 3aa00d1e07..4059c41e64 100644
+--- a/drivers/net/octeontx2/cgx.c
++++ b/drivers/net/octeontx2/cgx.c
+@@ -123,12 +123,12 @@ void cgx_lmac_mac_filter_setup(struct lmac *lmac)
+ 	dmac_cam0.s.id = lmac->lmac_id;
+ 	dmac_cam0.s.adr = mac;
+ 	dmac_cam0.s.en = 1;
+-	reg_addr = lmac->cgx->reg_base + 
++	reg_addr = lmac->cgx->reg_base +
+ 			CAVM_CGXX_CMR_RX_DMACX_CAM0(lmac->lmac_id * 8);
+ 	writeq(dmac_cam0.u, reg_addr);
+ 	debug("%s: reg %p dmac_cam0 %llx\n", __func__, reg_addr, dmac_cam0.u);
+ 	dmac_ctl0.u = 0x0;
+-	dmac_ctl0.s.bcst_accept = 0;
++	dmac_ctl0.s.bcst_accept = 1;
+ 	dmac_ctl0.s.mcst_mode = 0;
+ 	dmac_ctl0.s.cam_accept = 1;
+ 	reg_addr = lmac->cgx->reg_base +
+-- 
+2.29.0
+

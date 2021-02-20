@@ -1,0 +1,964 @@
+From cdb1187ecbcd39402e381bdb8470252d623610b9 Mon Sep 17 00:00:00 2001
+From: Evan Wang <xswang@marvell.com>
+Date: Fri, 14 Apr 2017 16:36:48 +0800
+Subject: [PATCH 0112/1239] arm64: mvebu: cmd: add hardware information command
+
+Add support for hw_info command to save/load hardware
+board information on EEPROM
+The command includes:
+    - hw_info dump: dump all or specific HW parameter
+    - hw_info load: save all or specific HW parameter
+      to env variables
+    - hw_info store: store inputted string
+
+The patch include:
+    - Add for cmd_hw_info
+    - Add Kconfig option for hw_info and includes it
+      in Makefile
+    - Call cmd_hw_info_load during env reset to
+      initialize the HW configuration
+
+Change-Id: I6022feeb192f0e0c9dc7043b32f4a7edbe8c6c55
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ arch/arm/Kconfig                        |   1 +
+ board/Marvell/common/Kconfig            |  13 +
+ board/Marvell/common/Makefile           |   8 +
+ board/Marvell/common/cfg_eeprom.c       | 386 ++++++++++++++++++++++++
+ board/Marvell/mvebu_armada-37xx/board.c |   7 +
+ board/Marvell/mvebu_armada-8k/board.c   |   7 +
+ cmd/mvebu/Kconfig                       |  10 +
+ cmd/mvebu/Makefile                      |   1 +
+ cmd/mvebu/hw_info.c                     | 297 ++++++++++++++++++
+ include/mvebu/cfg_eeprom.h              |  95 ++++++
+ 10 files changed, 825 insertions(+)
+ create mode 100644 board/Marvell/common/Kconfig
+ create mode 100644 board/Marvell/common/Makefile
+ create mode 100644 board/Marvell/common/cfg_eeprom.c
+ create mode 100644 cmd/mvebu/hw_info.c
+ create mode 100644 include/mvebu/cfg_eeprom.h
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 3b0e315061..5d8bc22de0 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1794,6 +1794,7 @@ source "board/hisilicon/hikey/Kconfig"
+ source "board/hisilicon/hikey960/Kconfig"
+ source "board/hisilicon/poplar/Kconfig"
+ source "board/isee/igep003x/Kconfig"
++source "board/Marvell/common/Kconfig"
+ source "board/phytec/pcm051/Kconfig"
+ source "board/silica/pengwyn/Kconfig"
+ source "board/spear/spear300/Kconfig"
+diff --git a/board/Marvell/common/Kconfig b/board/Marvell/common/Kconfig
+new file mode 100644
+index 0000000000..3aabf3fcaf
+--- /dev/null
++++ b/board/Marvell/common/Kconfig
+@@ -0,0 +1,13 @@
++menu "MVEBU Development Board Utilities"
++	depends on ARCH_MVEBU
++
++config BOARD_CONFIG_EEPROM
++	bool "Support configuration EEPROM"
++	default n
++	help
++	  If this option is enabled, U-Boot will initialize
++	  configuration EEPROM on board.
++	  It will be enabled once the CMD_MVEBU_BOX_INFO or
++	  MULTI_DT_FILE is enabled
++
++endmenu
+diff --git a/board/Marvell/common/Makefile b/board/Marvell/common/Makefile
+new file mode 100644
+index 0000000000..4c1d181138
+--- /dev/null
++++ b/board/Marvell/common/Makefile
+@@ -0,0 +1,8 @@
++#
++# Copyright (C) 2018 Marvell International Ltd.
++#
++# SPDX-License-Identifier: GPL-2.0+
++# https://spdx.org/licenses
++#
++
++obj-$(CONFIG_BOARD_CONFIG_EEPROM)	+= cfg_eeprom.o
+diff --git a/board/Marvell/common/cfg_eeprom.c b/board/Marvell/common/cfg_eeprom.c
+new file mode 100644
+index 0000000000..6091568c04
+--- /dev/null
++++ b/board/Marvell/common/cfg_eeprom.c
+@@ -0,0 +1,386 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++#include <common.h>
++#include <mvebu/cfg_eeprom.h>
++
++struct eeprom_struct board_config_val = CFG_DEFAULT_VALUE;
++struct config_types_info config_types_info[] = MV_EEPROM_CONFIG_INFO;
++int eeprom_initialized = -1;
++int g_board_hw_info = -1;
++
++static char hw_info_param_list[][HW_INFO_MAX_NAME_LEN] = {
++	"pcb_slm",
++	"pcb_rev",
++	"eco_rev",
++	"pcb_sn",
++	"ethaddr",
++	"eth1addr",
++	"eth2addr",
++	"eth3addr",
++	"eth4addr",
++	"eth5addr",
++	"eth6addr",
++	"eth7addr",
++	"eth8addr",
++	"eth9addr"
++};
++
++static int hw_info_param_num = (sizeof(hw_info_param_list) /
++				sizeof(hw_info_param_list[0]));
++
++static u32 cfg_eeprom_checksum8(u8 *start, u32 len)
++{
++	u32 sum = 0;
++	u8 *startp = start;
++
++	do {
++		sum += *startp;
++		startp++;
++		len--;
++	} while (len > 0);
++	return sum;
++}
++
++/* cfg_eeprom_get_config_type
++ * config_info input pointer receive the mapping of the
++ * required field in the local struct
++ */
++static bool cfg_eeprom_get_config_type(enum mv_config_type_id id,
++				       struct config_types_info *config_info)
++{
++	int i;
++
++	/* verify existence of requested config type, pull its data */
++	for (i = 0; i < MV_CONFIG_TYPE_MAX_OPTION ; i++)
++		if (config_types_info[i].config_id == id) {
++			*config_info = config_types_info[i];
++			return true;
++		}
++	pr_err("requested MV_CONFIG_TYPE_ID was not found (%d)\n", id);
++
++	return false;
++}
++
++/* read specific field from EEPROM
++ * @data_length: if equal to -1 read number of bytes as the length of the field.
++ */
++static void read_field_from_eeprom(enum mv_config_type_id id,
++				   u8 *data, int data_length)
++{
++	struct config_types_info config_info;
++	struct udevice *dev;
++	int err;
++
++	err = i2c_get_chip_for_busnum(BOARD_HW_INFO_EEPROM_DEV,
++				      BOARD_DEV_TWSI_INIT_EEPROM,
++				      BOARD_HW_INFO_EEPROM_ADDR_LEN,
++				      &dev);
++	if (err) {
++		debug("%s: Cannot find EEPROM I2C chip\n", __func__);
++		return;
++	}
++
++	if (!cfg_eeprom_get_config_type(id, &config_info)) {
++		pr_err("Could not find field %x in EEPROM struct\n", id);
++		return;
++	}
++
++	if (data_length == READ_SPECIFIC_FIELD)
++		data_length = config_info.byte_cnt;
++
++	dm_i2c_read(dev, config_info.byte_num, data, data_length);
++}
++
++/* cfg_eeprom_write_to_eeprom - write the global struct to EEPROM. */
++int cfg_eeprom_write_to_eeprom(int length)
++{
++	int reserve_length, size_of_loop, i;
++	struct udevice *dev;
++	u8 *pattern = (u8 *)&board_config_val.pattern;
++	int err;
++
++	err = i2c_get_chip_for_busnum(BOARD_HW_INFO_EEPROM_DEV,
++				      BOARD_DEV_TWSI_INIT_EEPROM,
++				      BOARD_HW_INFO_EEPROM_ADDR_LEN,
++				      &dev);
++	if (err) {
++		debug("%s: Cannot find EEPROM I2C chip\n", __func__);
++		return err;
++	}
++
++	/* calculate checksum and save it in struct */
++	board_config_val.checksum = cfg_eeprom_checksum8(pattern,
++							 EEPROM_STRUCT_SIZE -
++							 4);
++
++	/* write fdt struct to EEPROM */
++	size_of_loop = length / I2C_PAGE_WRITE_SIZE;
++	reserve_length = length % I2C_PAGE_WRITE_SIZE;
++
++	/* i2c support on page write with size 32-byets */
++	for (i = 0; i < size_of_loop; i++) {
++		u8 *buffer = (u8 *)&(board_config_val) +
++						i * I2C_PAGE_WRITE_SIZE;
++		dm_i2c_write(dev, i * I2C_PAGE_WRITE_SIZE,
++			     buffer,
++			     I2C_PAGE_WRITE_SIZE);
++#ifdef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
++		/* EEPROM write need delay, or cause write operation fail */
++		udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
++#endif
++	}
++
++	/* write the reserve data from 32-bytes */
++	if (reserve_length) {
++		u8 *buffer = (u8 *)&(board_config_val) +
++						i * I2C_PAGE_WRITE_SIZE;
++		dm_i2c_write(dev, i * I2C_PAGE_WRITE_SIZE,
++			     buffer,
++			     reserve_length);
++#ifdef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS
++		/* EEPROM write need delay */
++		udelay(CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS * 1000);
++#endif
++	}
++
++	return 0;
++}
++
++/* cfg_eeprom_save - write the local struct to EEPROM */
++void cfg_eeprom_save(int length)
++{
++	/* write local struct with fdt blob to EEPROM */
++	cfg_eeprom_write_to_eeprom(length);
++	/* reset g_board_id so it will get board ID from EEPROM again */
++	g_board_hw_info = -1;
++}
++
++/* cfg_eeprom_get_board_config - return the whole board config
++ * It is assumed the cfg_eeprom_init must be called prior to this routine,
++ * otherwise static default configuration will be used.
++ */
++struct eeprom_struct *cfg_eeprom_get_board_config(void)
++{
++	return &board_config_val;
++}
++
++/* cfg_eeprom_get_hw_info_str - copy hw_info from cfg_eeprom to destination */
++void cfg_eeprom_get_hw_info_str(uchar *hw_info_str)
++{
++	int len;
++
++	/* hw_info isn't initialized, need to read hw_info from EEPROM */
++	if (g_board_hw_info == -1) {
++		u8 *hw_info = (u8 *)board_config_val.man_info.hw_info;
++		/* read hw_info config from EEPROM */
++		read_field_from_eeprom(MV_CONFIG_HW_INFO,
++				       hw_info,
++				       READ_SPECIFIC_FIELD);
++	}
++	len = strlen((const char *)board_config_val.man_info.hw_info);
++	if (len >= MVEBU_HW_INFO_LEN)
++		len = MVEBU_HW_INFO_LEN - 1;
++
++	memcpy(hw_info_str, board_config_val.man_info.hw_info, len);
++}
++
++/* cfg_eeprom_set_hw_info_str - copy hw_info sting to cfg_eeprom module
++ * It is assumed the cfg_eeprom_init must be called prior to this routine,
++ * otherwise static default configuration will be used.
++ */
++void cfg_eeprom_set_hw_info_str(uchar *hw_info_str)
++{
++	int len;
++	struct config_types_info config_info;
++
++	/* read hw_info config from EEPROM */
++	if (!cfg_eeprom_get_config_type(MV_CONFIG_HW_INFO, &config_info)) {
++		pr_err("Could not find MV_CONFIG_hw_info\n");
++		return;
++	}
++
++	len = strlen((const char *)hw_info_str);
++	if (len >= config_info.byte_cnt)
++		len = config_info.byte_cnt - 1;
++
++	/* need to set all value to 0 at first for later string operation */
++	memset(board_config_val.man_info.hw_info, 0, config_info.byte_cnt);
++	memcpy(board_config_val.man_info.hw_info, hw_info_str, len);
++}
++
++/* cfg_eeprom_skip_space - skip the space character */
++static char *cfg_eeprom_skip_space(char *buf)
++{
++	while ((buf[0] == ' ' || buf[0] == '\t'))
++		++buf;
++	return buf;
++}
++
++/*
++ * cfg_eeprom_parse_hw_info
++ * - parse the hw_info from string to name/value pairs
++ */
++int cfg_eeprom_parse_hw_info(struct hw_info_data_struct *hw_info_data_array)
++{
++	int count;
++	char *name;
++	char *value;
++	int len;
++	uchar hw_info_str[MVEBU_HW_INFO_LEN];
++
++	/* need to set all to 0 for later string operation */
++	memset(hw_info_str, 0, sizeof(hw_info_str));
++
++	cfg_eeprom_get_hw_info_str(hw_info_str);
++	name = (char *)hw_info_str;
++	name = cfg_eeprom_skip_space(name);
++	/* return 0 in case the string is empty */
++	if (!name)
++		return 0;
++
++	for (count = 0; name; count++) {
++		value = strchr(name, '=');
++
++		if (!value)
++			return count;
++
++		*value = '\0';
++		len = strlen(name);
++		memcpy(hw_info_data_array[count].name, name, len);
++		hw_info_data_array[count].name[len] = '\0';
++		value++;
++
++		name = strchr(value, ' ');
++		if (!name)
++			return ++count;
++
++		*name = '\0';
++		len = strlen(value);
++		memcpy(hw_info_data_array[count].value, value, len);
++		hw_info_data_array[count].value[len] = '\0';
++		name = cfg_eeprom_skip_space(name + 1);
++	}
++	count++;
++
++	return count;
++}
++
++/* cfg_eeprom_validate_name - check parameter's name is valid or not
++ * valid - return 0
++ * invalid - return -1
++ */
++int cfg_eeprom_validate_name(char *name)
++{
++	int idx;
++
++	for (idx = 0; idx < hw_info_param_num; idx++) {
++		if (strcmp(name, hw_info_param_list[idx]) == 0)
++			return 0;
++	}
++
++	return -1;
++}
++
++/* cfg_eeprom_parse_env - parse the env from env to name/value pairs */
++int cfg_eeprom_parse_env(struct hw_info_data_struct *data_array,
++			 int size)
++{
++	int param_num = 0;
++	int idx;
++	int len;
++	char *name;
++	char *value;
++
++	/* need to memset to 0 for later string operation */
++	memset(data_array, 0, size);
++	for (idx = 0; idx < hw_info_param_num; idx++) {
++		name = hw_info_param_list[idx];
++		value = env_get(name);
++
++		if (!value) {
++			printf("miss %s in env, please set it at first\n",
++			       hw_info_param_list[idx]);
++			continue;
++		}
++
++		len = strlen(name);
++		if (len > HW_INFO_MAX_NAME_LEN)
++			len  = HW_INFO_MAX_NAME_LEN;
++		memcpy(data_array[param_num].name, name, len);
++		len = strlen(value);
++		if (len > HW_INFO_MAX_NAME_LEN)
++			len  = HW_INFO_MAX_NAME_LEN;
++		memcpy(data_array[param_num].value, value, len);
++
++		param_num++;
++	}
++
++	return param_num;
++}
++
++/*
++ * cfg_eeprom_init - initialize FDT configuration struct
++ * The EEPROM FDT is used if 1) the checksum is valid, 2) the system
++ * is not in recovery mode, 3) validation_counter < AUTO_RECOVERY_RETRY_TIMES
++ * Otherwise the default FDT is used.
++ */
++int cfg_eeprom_init(void)
++{
++	struct eeprom_struct eeprom_buffer;
++	u32 calculate_checksum;
++	struct udevice *dev;
++	u8 *pattern = (u8 *)&eeprom_buffer.pattern;
++	int err;
++
++	err = i2c_get_chip_for_busnum(BOARD_HW_INFO_EEPROM_DEV,
++				      BOARD_DEV_TWSI_INIT_EEPROM,
++				      BOARD_HW_INFO_EEPROM_ADDR_LEN,
++				      &dev);
++	if (err) {
++		debug("%s: Cannot find EEPROM I2C chip\n", __func__);
++		return err;
++	}
++
++	/* It is possible that this init will be called by several
++	 * modules during init, however only need to initialize it
++	 * for one time
++	 */
++	if (eeprom_initialized == 1)
++		return 0;
++
++	/* read pattern from EEPROM */
++	read_field_from_eeprom(MV_CONFIG_PATTERN,
++			       pattern,
++			       READ_SPECIFIC_FIELD);
++
++	/* check if pattern in EEPROM is invalid */
++	if (eeprom_buffer.pattern != board_config_val.pattern) {
++		printf("EEPROM configuration pattern not detected.\n");
++		goto init_done;
++	}
++
++	/* read struct from EEPROM */
++	err = dm_i2c_read(dev, 0,
++			  (u8 *)&eeprom_buffer,
++			  EEPROM_STRUCT_SIZE);
++	if (err) {
++		pr_err("read error from device: %p", dev);
++		return err;
++	}
++
++	/* calculate checksum */
++	calculate_checksum = cfg_eeprom_checksum8(pattern,
++						  EEPROM_STRUCT_SIZE - 4);
++	if (calculate_checksum == eeprom_buffer.checksum) {
++		/* update board_config_val struct with read from EEPROM */
++		board_config_val = eeprom_buffer;
++	}
++
++init_done:
++	eeprom_initialized = 1;
++	return 0;
++}
++
+diff --git a/board/Marvell/mvebu_armada-37xx/board.c b/board/Marvell/mvebu_armada-37xx/board.c
+index 6d1bea279f..3d5ce8f36c 100644
+--- a/board/Marvell/mvebu_armada-37xx/board.c
++++ b/board/Marvell/mvebu_armada-37xx/board.c
+@@ -10,6 +10,10 @@
+ #include <asm/io.h>
+ #include <asm/arch/cpu.h>
+ #include <asm/arch/soc.h>
++#include <power/regulator.h>
++#ifdef CONFIG_BOARD_CONFIG_EEPROM
++#include <mvebu/cfg_eeprom.h>
++#endif
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -121,6 +125,9 @@ static int board_comphy_usb3_sata_mux(enum COMPHY_LANE2_MUXING comphy_mux)
+ 
+ int board_early_init_f(void)
+ {
++#ifdef CONFIG_BOARD_CONFIG_EEPROM
++	cfg_eeprom_init();
++#endif
+ 	return 0;
+ }
+ 
+diff --git a/board/Marvell/mvebu_armada-8k/board.c b/board/Marvell/mvebu_armada-8k/board.c
+index cd385a8393..30a6fb55ca 100644
+--- a/board/Marvell/mvebu_armada-8k/board.c
++++ b/board/Marvell/mvebu_armada-8k/board.c
+@@ -10,6 +10,9 @@
+ #include <asm/arch/cpu.h>
+ #include <asm/arch/soc.h>
+ #include <power/regulator.h>
++#ifdef CONFIG_BOARD_CONFIG_EEPROM
++#include <mvebu/cfg_eeprom.h>
++#endif
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -35,6 +38,10 @@ int board_init(void)
+ 	/* adress of boot parameters */
+ 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+ 
++#ifdef CONFIG_BOARD_CONFIG_EEPROM
++	cfg_eeprom_init();
++#endif
++
+ 	return 0;
+ }
+ 
+diff --git a/cmd/mvebu/Kconfig b/cmd/mvebu/Kconfig
+index 92af99d297..3b876de7ee 100644
+--- a/cmd/mvebu/Kconfig
++++ b/cmd/mvebu/Kconfig
+@@ -27,6 +27,16 @@ config CMD_MVEBU_TSEN
+ 	  tsen - Display the SoC temperature
+ 	  as read from the on chip thermal sensor
+ 
++config CMD_MVEBU_HW_INFO
++	bool "hw_info"
++	select BOARD_CONFIG_EEPROM
++	default n
++	help
++	  hw_info - load HW information such as board ID, PCB SLM number,
++	  MAC addresses from EEPROM and apply them to environment variables.
++	  And update the MAC address in FDT file for Linux.
++	  When save the box information, it will be saved to EEPROM.
++
+ choice
+ 	prompt "Flash for image"
+ 	default MVEBU_SPI_BOOT
+diff --git a/cmd/mvebu/Makefile b/cmd/mvebu/Makefile
+index f76d823a77..492612fbc8 100644
+--- a/cmd/mvebu/Makefile
++++ b/cmd/mvebu/Makefile
+@@ -10,3 +10,4 @@ obj-$(CONFIG_CMD_MVEBU_RX_TRAINING) += rx_training.o
+ obj-$(CONFIG_CMD_MVEBU_AVS) += avs.o
+ obj-$(CONFIG_CMD_MVEBU_MAP) += map.o
+ obj-$(CONFIG_CMD_MVEBU_TSEN) += thermal.o
++obj-$(CONFIG_CMD_MVEBU_HW_INFO) += hw_info.o
+diff --git a/cmd/mvebu/hw_info.c b/cmd/mvebu/hw_info.c
+new file mode 100644
+index 0000000000..7a7659258e
+--- /dev/null
++++ b/cmd/mvebu/hw_info.c
+@@ -0,0 +1,297 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++#include <config.h>
++#include <command.h>
++#include <common.h>
++#include <errno.h>
++#include <console.h>
++#include <env.h>
++#include <mvebu/cfg_eeprom.h>
++
++/* load the HW configuration from cfg_eeprom module and dump them */
++static int cmd_hw_info_dump(char *name)
++{
++	int idx;
++	int hw_param_num;
++	struct hw_info_data_struct hw_info_data_array[HW_INFO_MAX_PARAM_NUM];
++
++	hw_param_num = cfg_eeprom_parse_hw_info(hw_info_data_array);
++
++	/* it is possible the HW configuration is empty */
++	if (hw_param_num == 0)
++		return 0;
++
++	if (hw_param_num > MVEBU_HW_INFO_LEN) {
++		pr_err("hw_info internal error, counter should not exceed %d\n",
++		       MVEBU_HW_INFO_LEN);
++		return -EINVAL;
++	}
++
++	printf("\nname               value\n");
++	printf("------------------------------------\n");
++	for (idx = 0; idx < hw_param_num; idx++) {
++		if (name) {
++			if (strcmp(name, hw_info_data_array[idx].name) == 0) {
++				printf("%-16s   %-s\n",
++				       hw_info_data_array[idx].name,
++				       hw_info_data_array[idx].value);
++				break;
++			}
++		} else {
++			printf("%-16s   %-s\n",
++			       hw_info_data_array[idx].name,
++			       hw_info_data_array[idx].value);
++		}
++	}
++
++	return 0;
++}
++
++int cmd_hw_info_load(char *name, int silence)
++{
++	int idx;
++	int hw_param_num;
++	struct hw_info_data_struct hw_info_data_array[HW_INFO_MAX_PARAM_NUM];
++
++	/* get hw_info from system
++	 * need to memset the hw_info to 0 for later string operation
++	 */
++	hw_param_num = cfg_eeprom_parse_hw_info(hw_info_data_array);
++
++	/* it is possible the HW configuration is empty */
++	if (hw_param_num == 0)
++		return 0;
++
++	if (hw_param_num > MVEBU_HW_INFO_LEN) {
++		pr_err("HW info: variables from EEPROM can not exceed %d\n",
++		       MVEBU_HW_INFO_LEN);
++		return -EINVAL;
++	}
++
++	/* save the HW parameter to env varibles one by one */
++	for (idx = 0; idx < hw_param_num; idx++) {
++		/* if customer input a specific and valid HW parameter name,
++		 * only save this HW parameter from EEPROM to env variables.
++		 * otherwise save all the HW parameters from EEPROM to env.
++		 */
++		if (name) {
++			if (strcmp(name, hw_info_data_array[idx].name) == 0) {
++				env_set(hw_info_data_array[idx].name,
++					hw_info_data_array[idx].value);
++				break;
++			}
++		} else {
++			env_set(hw_info_data_array[idx].name,
++				hw_info_data_array[idx].value);
++		}
++	}
++
++	printf("HW information is loaded to environment variables\n");
++	cmd_hw_info_dump(name);
++
++	/* just print indication to ask user to perform saveenv manually in
++	 * silence mode, which is used when restore the HW configuration to env
++	 * variables with env reset. to ask confirmation that if need to save
++	 * env in non-silence mode, which is used by hw_info cmd.
++	 */
++	if (silence) {
++		printf("To save the changes, please run the command saveenv\n");
++	} else {
++		printf("Do you want to save environment variables? <y/N> ");
++		if (confirm_yesno())
++			env_save();
++		else
++			printf("To save changes, please run command saveenv\n");
++	}
++
++	return 0;
++}
++
++static int cmd_hw_info_store(char *name)
++{
++	int idx;
++	int str_len = 0;
++	int total_str_len = 0;
++	int ret;
++	int hw_param_num;
++	int name_in_eeprom_flag = 0;
++	char *target_value;
++	uchar hw_info_str[MVEBU_HW_INFO_LEN];
++	struct hw_info_data_struct hw_info_data_arry[HW_INFO_MAX_PARAM_NUM];
++
++	printf("Are you sure to override factory settings in EEPROM? <y/N>");
++	if (!confirm_yesno())
++		return 0;
++
++	/* need to memset the arry to 0 for later string operation */
++	memset(hw_info_data_arry, 0, sizeof(hw_info_data_arry));
++
++	if (!name) {
++		/* get hw_info from env */
++		hw_param_num = cfg_eeprom_parse_env(&hw_info_data_arry[0],
++						    sizeof(hw_info_data_arry));
++		/* return in case no valid env variables */
++		if (hw_param_num == 0) {
++			printf("There is no supported HW configuration ");
++			printf("in env\n");
++
++			return 0;
++		}
++	} else {
++		/* get hw_info from eeprom */
++		hw_param_num = cfg_eeprom_parse_hw_info(hw_info_data_arry);
++
++		/* name valid check */
++		ret = cfg_eeprom_validate_name(name);
++		if (ret) {
++			printf("The HW parameter is invalid\n");
++
++			return 0;
++		}
++		/* check the name in hw_info_data_arry */
++		for (idx = 0; idx < hw_param_num; idx++) {
++			if (strcmp(name, hw_info_data_arry[idx].name) == 0) {
++				target_value = env_get(name);
++				str_len = strlen(target_value);
++				/* clear value */
++				memset(hw_info_data_arry[idx].value, 0,
++				       sizeof(hw_info_data_arry[idx].value));
++				/* overwrite value */
++				memcpy(hw_info_data_arry[idx].value,
++				       target_value, str_len);
++				name_in_eeprom_flag = 1;
++			}
++		}
++		/* name is not in hw_info_data_arry */
++		if (!name_in_eeprom_flag) {
++			target_value = env_get(name);
++			str_len = strlen(name);
++			/* clear name */
++			memset(hw_info_data_arry[idx].name, 0,
++			       sizeof(hw_info_data_arry[idx].name));
++			/* add name */
++			memcpy(hw_info_data_arry[idx].name, name, str_len);
++
++			str_len = strlen(target_value);
++			/* clear value */
++			memset(hw_info_data_arry[idx].value, 0,
++			       sizeof(hw_info_data_arry[idx].value));
++			/* add value */
++			memcpy(hw_info_data_arry[idx].value, target_value,
++			       str_len);
++
++			hw_param_num++;
++		}
++	}
++
++	 /* need to memset the hw_info to 0 for later string operation */
++	memset(hw_info_str, 0, sizeof(hw_info_str));
++	for (idx = 0;
++	     (idx < hw_param_num) && (total_str_len < MVEBU_HW_INFO_LEN);
++	     idx++) {
++		str_len = strlen(hw_info_data_arry[idx].name);
++		if (str_len > HW_INFO_MAX_NAME_LEN)
++			str_len = HW_INFO_MAX_NAME_LEN;
++
++		if ((total_str_len + str_len) > MVEBU_HW_INFO_LEN) {
++			pr_err("HW info string from env exceeds %d\n",
++			       MVEBU_HW_INFO_LEN);
++			break;
++		}
++
++		memcpy(hw_info_str + total_str_len,
++		       hw_info_data_arry[idx].name, str_len);
++		total_str_len += str_len;
++
++		if ((total_str_len + 1) > MVEBU_HW_INFO_LEN) {
++			pr_err("HW information string from env exceeds %d\n",
++			       MVEBU_HW_INFO_LEN);
++			break;
++		}
++
++		hw_info_str[total_str_len++] = '=';
++
++		str_len = strlen(hw_info_data_arry[idx].value);
++		if (str_len > HW_INFO_MAX_VALUE_LEN)
++			str_len = HW_INFO_MAX_VALUE_LEN;
++
++		if ((total_str_len + str_len) > MVEBU_HW_INFO_LEN) {
++			pr_err("HW information string from env exceeds %d\n",
++			       MVEBU_HW_INFO_LEN);
++			break;
++		}
++
++		memcpy(hw_info_str + total_str_len,
++		       hw_info_data_arry[idx].value, str_len);
++		total_str_len += str_len;
++
++		if ((total_str_len + 1) > MVEBU_HW_INFO_LEN) {
++			pr_err("HW information string from env exceeds %d\n",
++			       MVEBU_HW_INFO_LEN);
++			break;
++		}
++		hw_info_str[total_str_len++] = ' ';
++	}
++
++	cfg_eeprom_set_hw_info_str(hw_info_str);
++	/* save hw_info to EEPROM, and also the rest without changing */
++	cfg_eeprom_save(EEPROM_STRUCT_SIZE);
++
++	printf("hw_info is saved to EEPROM\n");
++	cmd_hw_info_dump(name);
++
++	return 0;
++}
++
++int do_hw_info(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	const char *cmd = argv[1];
++
++	if (argc < 2)
++		return CMD_RET_USAGE;
++
++	if (!strcmp(cmd, "dump")) {
++		if (cmd_hw_info_dump(argv[2]))
++			return -EINVAL;
++	} else if (!strcmp(cmd, "load")) {
++		if (cmd_hw_info_load(argv[2], 0))
++			return -EINVAL;
++	} else if (!strcmp(cmd, "store")) {
++		if (cmd_hw_info_store(argv[2]))
++			return -EINVAL;
++	} else {
++		return CMD_RET_USAGE;
++	}
++
++	return 0;
++}
++
++U_BOOT_CMD(
++	hw_info,      3,     0,      do_hw_info,
++	"hw_info\n",
++	"\n"
++	"Load/Store HW information environment variables from/to EEPROM\n"
++	"HW information includes predefined list of Env. variables (such as PCB SLM number, MAC addresses, etc).\n"
++	"\tdump  <evn_name>            - Dump all (or specific <env_name>) HW parameter from EEPROM\n"
++	"\tload  <env_name>            - Load all (or specific <env_name>) HW parameter from EEPROM to env variables\n"
++	"\tstore <env_name>            - Store all or specific HW parameter from env variables to EEPROM\n"
++	"\t				 usage of 'hw_info store' requires proper values to be set for the variables listed below\n"
++	"Supported HW information parameters\n"
++	"\tpcb_slm       PCB SLM number\n"
++	"\tpcb_rev       PCB revision number\n"
++	"\teco_rev       ECO revision number\n"
++	"\tpcb_sn        PCB SN\n"
++	"\tethaddr       first MAC address\n"
++	"\teth1addr      second MAC address\n"
++	"\teth2addr      third MAC address\n"
++	"\teth3addr      fourth MAC address\n"
++	"\teth4addr      fifth MAC address\n"
++	"\teth5addr      sixth MAC address\n"
++	"\teth6addr      seventh MAC address\n"
++	"\teth7addr      eighth MAC address\n"
++	"\teth8addr      ninth MAC address\n"
++	"\teth9addr      tenth MAC address\n"
++);
+diff --git a/include/mvebu/cfg_eeprom.h b/include/mvebu/cfg_eeprom.h
+new file mode 100644
+index 0000000000..d4fb8f9f08
+--- /dev/null
++++ b/include/mvebu/cfg_eeprom.h
+@@ -0,0 +1,95 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++#ifndef _MCEBU_CFG_EEPROM_H_
++#define _MVEBU_CFG_EEPROM_H_
++#include <common.h>
++#include <i2c.h>
++#include <errno.h>
++#include <asm/io.h>
++
++#define BOARD_DEV_TWSI_INIT_EEPROM		0x57
++#define BOARD_HW_INFO_EEPROM_ADDR_LEN		2
++#define BOARD_HW_INFO_EEPROM_DEV		0
++
++enum mv_config_type_id {
++	MV_CONFIG_CHECKSUM,
++	MV_CONFIG_PATTERN,
++	MV_CONFIG_LENGTH,
++	MV_CONFIG_HW_INFO,
++	MV_CONFIG_TYPE_MAX_OPTION,  /* limit for user read/write routines */
++};
++
++/* #pragma pack(1) */
++#define MVEBU_HW_INFO_LEN			512
++struct manufacturing_information_struct {
++	u8 hw_info[MVEBU_HW_INFO_LEN];
++};
++
++/* #pragma pack(1) */
++struct eeprom_struct {
++	u32 checksum;
++	u32 pattern;
++	u16 length;
++	struct manufacturing_information_struct man_info;
++};
++
++struct config_types_info {
++	enum mv_config_type_id config_id;
++	char name[30];
++	u32 byte_num;
++	u32 byte_cnt;
++};
++
++#define I2C_PAGE_WRITE_SIZE			32
++#define EEPROM_STRUCT_SIZE			(sizeof(struct eeprom_struct))
++#define HW_INFO_MAX_PARAM_NUM			32
++
++struct hw_info_point_struct {
++	char *name;
++	char *value;
++};
++
++#define READ_SPECIFIC_FIELD			-1
++#define HW_INFO_MAX_NAME_LEN			32
++#define HW_INFO_MAX_VALUE_LEN			32
++struct hw_info_data_struct {
++	char name[HW_INFO_MAX_NAME_LEN];
++	char value[HW_INFO_MAX_VALUE_LEN];
++};
++
++#define offset_in_eeprom(a)	((u32)(offsetof(struct eeprom_struct, a)))
++
++/* MV_CONFIG_TYPE_ID */
++/* {{configId,		name,		byte_num,	byte_cnt}} */
++#define MV_EEPROM_CONFIG_INFO { \
++{ MV_CONFIG_CHECKSUM,	"Checksum",	offset_in_eeprom(checksum),	   \
++				sizeof(board_config_val.checksum)},	   \
++{ MV_CONFIG_PATTERN,	"Pattern",	offset_in_eeprom(pattern),	   \
++				sizeof(board_config_val.pattern)},	   \
++{ MV_CONFIG_LENGTH,	"Data length",	offset_in_eeprom(length),	   \
++				sizeof(board_config_val.length)},	   \
++{ MV_CONFIG_HW_INFO,	"Box Info",	offset_in_eeprom(man_info.hw_info),\
++				sizeof(board_config_val.man_info.hw_info)} \
++}
++
++#define CFG_DEFAULT_VALUE  {						     \
++	0x00000000,				     /* checksum */	     \
++	0xfecadefa,				     /* EEPROM pattern */    \
++	EEPROM_STRUCT_SIZE,			     /* length = 0x10A B */  \
++	{{[0 ... (MVEBU_HW_INFO_LEN - 1)] = 0x00} }   /* man info */	     \
++}
++
++int cfg_eeprom_init(void);
++void cfg_eeprom_save(int length);
++struct eeprom_struct *cfg_eeprom_get_board_config(void);
++void cfg_eeprom_get_hw_info_str(uchar *hw_info_str);
++void cfg_eeprom_set_hw_info_str(uchar *hw_info_str);
++int cfg_eeprom_parse_hw_info(struct hw_info_data_struct *hw_info_data_array);
++int cfg_eeprom_parse_env(struct hw_info_data_struct *data_array,
++			 int size);
++int cfg_eeprom_validate_name(char *name);
++
++#endif /* _MVEBU_CFG_EEPROM_H_ */
+-- 
+2.29.0
+

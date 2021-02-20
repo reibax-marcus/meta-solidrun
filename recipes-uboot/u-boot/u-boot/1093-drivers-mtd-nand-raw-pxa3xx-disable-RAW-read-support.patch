@@ -1,0 +1,68 @@
+From d89923ba728de770075c4db6a3cdf08a5d80681a Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Sun, 9 Feb 2020 11:15:42 +0200
+Subject: [PATCH 1093/1239] drivers/mtd/nand/raw/pxa3xx: disable RAW read
+ support
+
+Temporarely disable RAW read support due to failures on NFCv2
+platforms (A7K/A8K/CN913x)
+
+Change-Id: I64f3923960480863de8822315022ebd5af1fe354
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23118
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Jia Ma <jiam@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+---
+ drivers/mtd/nand/raw/pxa3xx_nand.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/mtd/nand/raw/pxa3xx_nand.c b/drivers/mtd/nand/raw/pxa3xx_nand.c
+index 22c3fef4b2..8538c38cd5 100644
+--- a/drivers/mtd/nand/raw/pxa3xx_nand.c
++++ b/drivers/mtd/nand/raw/pxa3xx_nand.c
+@@ -21,6 +21,8 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
++#define MVEBU_RAW_READ_DISABLE	1
++
+ #define TIMEOUT_DRAIN_FIFO	5	/* in ms */
+ #define	CHIP_DELAY_TIMEOUT	200
+ #define NAND_STOP_DELAY		40
+@@ -1198,6 +1200,7 @@ static int pxa3xx_nand_read_page_hwecc(struct mtd_info *mtd,
+ 	return info->max_bitflips;
+ }
+ 
++#ifndef MVEBU_RAW_READ_DISABLE
+ static int pxa3xx_nand_read_page_raw(struct mtd_info *mtd,
+ 				     struct nand_chip *chip, uint8_t *buf,
+ 				     int oob_required, int page)
+@@ -1260,6 +1263,7 @@ static int pxa3xx_nand_read_oob_raw(struct mtd_info *mtd,
+ 	return chip->ecc.read_page_raw(mtd, chip, chip->buffers->databuf, true,
+ 				       page);
+ }
++#endif /* MVEBU_RAW_READ_DISABLE */
+ 
+ static uint8_t pxa3xx_nand_read_byte(struct mtd_info *mtd)
+ {
+@@ -1692,8 +1696,15 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
+ 
+ 		nand_set_controller_data(chip, host);
+ 		chip->ecc.read_page	= pxa3xx_nand_read_page_hwecc;
++#ifndef MVEBU_RAW_READ_DISABLE
++		/*
++		 * TODO: RAW read support seems to be broken in NFCv2,
++		 * reported working on NFCv1 (A38x).
++		 * The code needs further debug.
++		 */
+ 		chip->ecc.read_page_raw	= pxa3xx_nand_read_page_raw;
+ 		chip->ecc.read_oob_raw	= pxa3xx_nand_read_oob_raw;
++#endif
+ 		chip->ecc.write_page	= pxa3xx_nand_write_page_hwecc;
+ 		chip->controller        = &info->controller;
+ 		chip->waitfunc		= pxa3xx_nand_waitfunc;
+-- 
+2.29.0
+

@@ -1,0 +1,103 @@
+From 452c59b8013d7b2339f84162b55d51059955c808 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 23 Nov 2015 09:18:17 -0800
+Subject: [PATCH 0372/1239] cavium: vnic: Fix RX queue handling
+
+---
+ drivers/net/cavium/nicvf_main.c   |  7 +++---
+ drivers/net/cavium/nicvf_queues.c | 40 +++++++++++++++++++++++++++++++
+ 2 files changed, 44 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/cavium/nicvf_main.c
+index 135e0e8c87..2a3484d9c7 100644
+--- a/drivers/net/cavium/nicvf_main.c
++++ b/drivers/net/cavium/nicvf_main.c
+@@ -6,7 +6,7 @@
+  * published by the Free Software Foundation; either version 2 of
+  * the License, or (at your option) any later version.
+  */
+-
++#define DEBUG
+ #include <config.h>
+ #include <common.h>
+ #include <net.h>
+@@ -381,7 +381,7 @@ static int nicvf_recv(struct eth_device *netdev)
+ 	struct nicvf *nic = netdev->priv;
+ 	void *pkt;
+ 	int pkt_len = 0;
+-#if 0
++#ifdef DEBUG
+ 	u8 *dpkt;
+ 	int i, j;
+ #endif
+@@ -389,7 +389,7 @@ static int nicvf_recv(struct eth_device *netdev)
+ 	nicvf_cq_handler(nic, &pkt, &pkt_len);
+ 
+ 	if (pkt_len) {
+-#if 0
++#ifdef DEBUG
+ 		dpkt = pkt;
+ 		printf("RX packet contents:\n");
+ 		for (i = 0; i < 8; i++) {
+@@ -401,6 +401,7 @@ static int nicvf_recv(struct eth_device *netdev)
+ 		}
+ #endif
+ 		net_process_received_packet(pkt, pkt_len);
++		nicvf_refill_rbdr(nic);
+ 	}
+ 
+ 	return pkt_len;
+diff --git a/drivers/net/cavium/nicvf_queues.c b/drivers/net/cavium/nicvf_queues.c
+index 47cabea9f7..b414b81e29 100644
+--- a/drivers/net/cavium/nicvf_queues.c
++++ b/drivers/net/cavium/nicvf_queues.c
+@@ -137,6 +137,46 @@ static void nicvf_free_rbdr(struct nicvf *nic, struct rbdr *rbdr)
+ 	nicvf_free_q_desc_mem(nic, &rbdr->dmem);
+ }
+ 
++/* Refill receive buffer descriptors with new buffers.
++ * This runs in softirq context .
++ */
++void nicvf_refill_rbdr(struct nicvf *nic)
++{
++	struct queue_set *qs = nic->qs;
++	int rbdr_idx = qs->rbdr_cnt;
++	unsigned long qcount, head, tail, rb_cnt;
++	struct rbdr *rbdr;
++
++	if (!rbdr_idx)
++		return;
++	rbdr_idx--;
++	rbdr = &qs->rbdr[rbdr_idx];
++	/* Check if it's enabled */
++	if (!rbdr->enable) {
++		printf("Receive queue %d is disabled\n", rbdr_idx);
++		return;
++	}
++
++	/* check if valid descs reached or crossed threshold level */
++	qcount = nicvf_queue_reg_read(nic, NIC_QSET_RBDR_0_1_STATUS0, rbdr_idx);
++	head = nicvf_queue_reg_read(nic, NIC_QSET_RBDR_0_1_HEAD, rbdr_idx);
++	tail = nicvf_queue_reg_read(nic, NIC_QSET_RBDR_0_1_TAIL, rbdr_idx);
++
++	qcount &= 0x7FFFF;
++
++	rb_cnt = qs->rbdr_len - qcount - 1;
++
++	debug("%s: %d: qcount: %lu, head: %lx, tail: %lx, rb_cnt: %lu\n",
++	      __FUNCTION__, __LINE__, qcount, head, tail, rb_cnt);
++
++
++	/* Notify HW */
++	nicvf_queue_reg_write(nic, NIC_QSET_RBDR_0_1_DOOR, rbdr_idx, rb_cnt);
++
++	asm volatile ("dsb sy");
++}
++
++
+ /* TBD: how to handle full packets received in CQ
+  * i.e conversion of buffers into SKBs
+  */
+-- 
+2.29.0
+

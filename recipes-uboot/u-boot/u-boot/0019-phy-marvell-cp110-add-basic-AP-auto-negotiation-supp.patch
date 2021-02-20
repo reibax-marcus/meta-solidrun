@@ -1,0 +1,112 @@
+From 7b83e7771318cee7d5db1fb1295b3d8c8f45ef40 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 19 May 2017 10:52:22 +0200
+Subject: [PATCH 0019/1239] phy: marvell: cp110: add basic AP
+ (auto-negotiation) support
+
+During AP the proper mode is auto-negotiated and the mac, pcs and serdes
+configuration are done by the firmware loaded to the MG's CM3 for appropriate
+negotiated mode. Therefore there is no need to configure the mac, pcs and
+serdes from u-boot. The only thing that need to be setup is powering up
+the comphy, which is done through Common PHY<n> Configuration 1 Register
+(CP0: 0xF2441000, CP1: 0xF4441000). This step can't be done by MG's CM3,
+since it doesn't have an access to this register-set (but it has access to
+the network registers like: MG, AP, MAC, PCS, Serdes etc.)
+
+Change-Id: I8498a2a452d95c8993c483272556838b902dabf1
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ drivers/phy/marvell/comphy_core.c        |  2 +-
+ drivers/phy/marvell/comphy_cp110.c       | 31 +++++++++++++++++++++++-
+ include/dt-bindings/comphy/comphy_data.h |  5 ++--
+ 3 files changed, 34 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/phy/marvell/comphy_core.c b/drivers/phy/marvell/comphy_core.c
+index 6f79c4c02b..0aa15c892d 100644
+--- a/drivers/phy/marvell/comphy_core.c
++++ b/drivers/phy/marvell/comphy_core.c
+@@ -40,7 +40,7 @@ static const char *get_type_string(u32 type)
+ 		"SGMII1", "SGMII2", "SGMII3", "QSGMII", "USB3"
+ 		"USB3_HOST0", "USB3_HOST1", "USB3_DEVICE",
+ 		"XAUI0", "XAUI1", "XAUI2", "XAUI3",
+-		"RXAUI0", "RXAUI1", "SFI", "IGNORE"
++		"RXAUI0", "RXAUI1", "SFI", "AP", "IGNORE"
+ 	};
+ 
+ 	if (type < 0 || type > COMPHY_TYPE_MAX)
+diff --git a/drivers/phy/marvell/comphy_cp110.c b/drivers/phy/marvell/comphy_cp110.c
+index bc18e39601..0841c765ce 100644
+--- a/drivers/phy/marvell/comphy_cp110.c
++++ b/drivers/phy/marvell/comphy_cp110.c
+@@ -45,7 +45,7 @@ struct comphy_mux_data cp110_comphy_phy_mux_data[] = {
+ 	/* Lane 2 */
+ 	{6, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_SGMII0, 0x1},
+ 	     {COMPHY_TYPE_RXAUI0, 0x1}, {COMPHY_TYPE_SFI, 0x1},
+-	     {COMPHY_TYPE_SATA0, 0x4} } },
++	     {COMPHY_TYPE_SATA0, 0x4}, {COMPHY_TYPE_AP, 0x1} } },
+ 	/* Lane 3 */
+ 	{8, {{COMPHY_TYPE_UNCONNECTED, 0x0}, {COMPHY_TYPE_RXAUI1, 0x1},
+ 	     {COMPHY_TYPE_SGMII1, 0x2}, {COMPHY_TYPE_SATA1, 0x4} } },
+@@ -1011,6 +1011,32 @@ static int comphy_sata_power_up(u32 lane, void __iomem *hpipe_base,
+ 	return ret;
+ }
+ 
++/* During AP the proper mode is auto-negotiated and the mac, pcs and serdes
++ * configuration are done by the firmware loaded to the MG's CM3 for appropriate
++ * negotiated mode. Therefore there is no need to configure the mac, pcs and
++ * serdes from u-boot. The only thing that need to be setup is powering up
++ * the comphy, which is done through Common PHY<n> Configuration 1 Register
++ * (CP0: 0xF2441000, CP1: 0xF4441000). This step can't be done by MG's CM3,
++ * since it doesn't have an access to this register-set (but it has access to
++ * the network registers like: MG, AP, MAC, PCS, Serdes etc.)
++ */
++static int comphy_ap_power_up(u32 lane, void __iomem *comphy_base)
++{
++	u32 mask, data;
++	void __iomem *comphy_addr = COMPHY_ADDR(comphy_base, lane);
++
++	debug_enter();
++	debug("stage: RFU configurations - hard reset comphy\n");
++	/* RFU configurations - hard reset comphy */
++	mask = COMMON_PHY_CFG1_PWR_UP_MASK;
++	data = 0x1 << COMMON_PHY_CFG1_PWR_UP_OFFSET;
++	mask |= COMMON_PHY_CFG1_PIPE_SELECT_MASK;
++	data |= 0x0 << COMMON_PHY_CFG1_PIPE_SELECT_OFFSET;
++	reg_set(comphy_addr + COMMON_PHY_CFG1_REG, data, mask);
++
++	return 1;
++}
++
+ static int comphy_sgmii_power_up(u32 lane, u32 sgmii_speed,
+ 				 void __iomem *hpipe_base,
+ 				 void __iomem *comphy_base)
+@@ -2253,6 +2279,9 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
+ 			ret = comphy_rxauii_power_up(lane, hpipe_base_addr,
+ 						     comphy_base_addr);
+ 			break;
++		case COMPHY_TYPE_AP:
++			ret = comphy_ap_power_up(lane, comphy_base_addr);
++			break;
+ 		default:
+ 			debug("Unknown SerDes type, skip initialize SerDes %d\n",
+ 			      lane);
+diff --git a/include/dt-bindings/comphy/comphy_data.h b/include/dt-bindings/comphy/comphy_data.h
+index 7d62dcf7fa..e6b4bfca3c 100644
+--- a/include/dt-bindings/comphy/comphy_data.h
++++ b/include/dt-bindings/comphy/comphy_data.h
+@@ -44,8 +44,9 @@
+ #define COMPHY_TYPE_RXAUI0		22
+ #define COMPHY_TYPE_RXAUI1		23
+ #define COMPHY_TYPE_SFI			24
+-#define COMPHY_TYPE_IGNORE		25
+-#define COMPHY_TYPE_MAX			26
++#define COMPHY_TYPE_AP			25
++#define COMPHY_TYPE_IGNORE		26
++#define COMPHY_TYPE_MAX			27
+ #define COMPHY_TYPE_INVALID		0xff
+ 
+ #define COMPHY_POLARITY_NO_INVERT	0
+-- 
+2.29.0
+

@@ -1,0 +1,87 @@
+From 31e8c477af4e31d39278a78cb697107ff6c6ff71 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 3 Aug 2017 16:19:07 -0700
+Subject: [PATCH 0682/1239] board: cavium: remove use of CPU_RELEASE_ADDR
+
+CPU_RELEASE_ADDR is not needed as u-boot is neither multi
+entry nor uses spin-table method.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/cavium/thunderx/thunderx.c |  2 --
+ include/configs/thunderx_81xx.h  |  7 -------
+ include/configs/thunderx_83xx.h  | 11 -----------
+ include/configs/thunderx_93xx.h  |  4 ----
+ 4 files changed, 24 deletions(-)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 172119f376..d6bb59c7e4 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -100,8 +100,6 @@ int dram_init(void)
+ 
+ 	gd->ram_size -= MEM_BASE;
+ 
+-	*(unsigned long *)CPU_RELEASE_ADDR = 0;
+-
+ 	return 0;
+ }
+ 
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 4de11c6589..1b591705ba 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -59,13 +59,6 @@
+ 
+ #define CONFIG_BOARD_LATE_INIT
+ 
+-/* Flat Device Tree Definitions */
+-
+-/* SMP Spin Table Definitions */
+-/*#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)*/
+-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+-
+-
+ /* Generic Timer Definitions */
+ #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
+ 
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index f25fd7a2b4..647104a54b 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -54,17 +54,6 @@
+ 
+ #define CONFIG_BOARD_LATE_INIT
+ 
+-/* Flat Device Tree Definitions */
+-
+-/**
+- * The board code has additional modification that it wants to make to the
+- * flat device tree before handing it off to the Linux kernel.
+- */
+-
+-/* SMP Spin Table Definitions */
+-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+-
+-
+ /* Generic Timer Definitions */
+ #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
+ 
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index 87b4d169a2..6c16676cb0 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -47,10 +47,6 @@
+ 
+ #define CONFIG_BOARD_LATE_INIT
+ 
+-/* SMP Spin Table Definitions */
+-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+-
+-
+ /* Generic Timer Definitions */
+ #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
+ 
+-- 
+2.29.0
+

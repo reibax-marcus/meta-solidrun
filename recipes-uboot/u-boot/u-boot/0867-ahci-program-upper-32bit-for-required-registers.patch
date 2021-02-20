@@ -1,0 +1,72 @@
+From babdd34c8c8252b8146591032de9332caf22ced3 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 14 Jan 2019 17:26:35 -0800
+Subject: [PATCH 0867/1239] ahci: program upper 32bit for required registers
+
+If 64-bit address is supported, use '_hi' suffix registers
+to program upper 32bit.
+
+Change-Id: Iaef48d087b9f8cbadd6c6953c9115d95ac0289ed
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/2175
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Tested-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+---
+ drivers/ata/ahci.c | 17 +++++++++++++++++
+ include/ahci.h     |  3 +++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index b55e11d77e..3d2bd2c7cc 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -511,6 +511,11 @@ static int ahci_fill_sg(struct ahci_uc_priv *uc_priv, u8 port,
+ 		ahci_sg->addr =
+ 		    cpu_to_le32((unsigned long) buf + i * MAX_DATA_BYTE_COUNT);
+ 		ahci_sg->addr_hi = 0;
++#ifdef CONFIG_PHYS_64BIT
++		ahci_sg->addr_hi =
++		    cpu_to_le32((u32)(((u64)(buf + i * MAX_DATA_BYTE_COUNT)
++					>> 16) >> 16));
++#endif
+ 		ahci_sg->flags_size = cpu_to_le32(0x3fffff &
+ 					  (buf_len < MAX_DATA_BYTE_COUNT
+ 					   ? (buf_len - 1)
+@@ -600,8 +605,20 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
+ 
+ 	writel_with_flush((unsigned long)pp->cmd_slot,
+ 			  port_mmio + PORT_LST_ADDR);
++#ifdef CONFIG_PHYS_64BIT
++	if (uc_priv->cap & HOST_64BIT)
++		writel_with_flush(
++			cpu_to_le32((u32)(((u64)(pp->cmd_slot) >> 16) >> 16)),
++			port_mmio + PORT_LST_ADDR_HI);
++#endif
+ 
+ 	writel_with_flush(pp->rx_fis, port_mmio + PORT_FIS_ADDR);
++#ifdef CONFIG_PHYS_64BIT
++	if (uc_priv->cap & HOST_64BIT)
++		writel_with_flush(
++			cpu_to_le32((u32)(((pp->rx_fis) >> 16) >> 16)),
++			port_mmio + PORT_FIS_ADDR_HI);
++#endif
+ 
+ #ifdef CONFIG_SUNXI_AHCI
+ 	sunxi_dma_init(port_mmio);
+diff --git a/include/ahci.h b/include/ahci.h
+index 4b2762ac28..673473deeb 100644
+--- a/include/ahci.h
++++ b/include/ahci.h
+@@ -40,6 +40,9 @@
+ #define HOST_IRQ_EN		(1 << 1)  /* global IRQ enable */
+ #define HOST_AHCI_EN		(1 << 31) /* AHCI enabled */
+ 
++/* HOST_CAP bits */
++#define HOST_64BIT		(1 << 31) /* 64-Bit Addressing */
++
+ /* Registers for each SATA port */
+ #define PORT_LST_ADDR		0x00 /* command list DMA addr */
+ #define PORT_LST_ADDR_HI	0x04 /* command list DMA addr hi */
+-- 
+2.29.0
+

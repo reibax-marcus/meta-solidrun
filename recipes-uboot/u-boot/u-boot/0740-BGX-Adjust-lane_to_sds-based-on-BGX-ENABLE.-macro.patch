@@ -1,0 +1,195 @@
+From e65f50849c9318b53defc2dae2598c8938dfbdf8 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Fri, 9 Feb 2018 14:30:38 -0800
+Subject: [PATCH 0740/1239] BGX: Adjust lane_to_sds based on BGX-ENABLE.* macro
+
+On SFF8104 BGX0 is configured as QSGMII or XFI interface based on the GPIO settings.
+When BGX0 is in XFI mode, according to schematics, it uses DLM1 lane1. Recently
+BDK has been udpated (v2.02.2) to configure the QLM in XFI_2X1 mode which expects
+lmac1 to be configured in XFI mode, this is configured by setting '1' to
+BGX-ENABLE-N0.BGXx.Px macro. Adjust qlm-mode to match this so that BDK can trim the
+device tree properly.
+
+Parse BGX-ENABLE.N0.BGXx.Px to find which lmac is configured.
+
+These are the macros configured in BDK when BGX0 is configured in XFI mode on
+sff8104 board
+  BGX-ENABLE.N0.BGX0.P0=0
+  BGX-ENABLE.N0.BGX0.P1=1
+  BGX-ENABLE.N0.BGX0.P2=0
+  BGX-ENABLE.N0.BGX0.P3=0
+
+u-boot still configures BGX0.lmac0, sets lane_to_sds to 3 instead of 2.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ .../include/asm/arch-thunderx/thunderx_vnic.h |  2 +-
+ board/cavium/thunderx/fdt.c                   | 25 ++++++++++++++--
+ drivers/net/cavium/thunder_bgx.c              | 29 ++++++++++++++-----
+ drivers/net/cavium/thunder_bgx.h              |  1 +
+ 4 files changed, 45 insertions(+), 12 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_vnic.h b/arch/arm/include/asm/arch-thunderx/thunderx_vnic.h
+index 97775d8d2a..c19da45102 100644
+--- a/arch/arm/include/asm/arch-thunderx/thunderx_vnic.h
++++ b/arch/arm/include/asm/arch-thunderx/thunderx_vnic.h
+@@ -15,6 +15,6 @@ int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
+ void bgx_get_count(int node, int *bgx_count);
+ int bgx_get_lmac_count(int node, int bgx_idx);
+ void bgx_set_board_info(int bgx_id, int *mdio_bus,
+-			int *phy_addr, bool *autoneg_dis, bool *lmac_reg);
++			int *phy_addr, bool *autoneg_dis, bool *lmac_reg, bool *lmac_enable);
+ 
+ #endif /* VNIC_H_ */
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index dd33955d67..e9aec435cc 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -31,6 +31,7 @@ void thunderx_parse_bdk_config(void)
+ 	const char *str;
+ 	int node;
+ 	int ret = 0, len = sizeof(boardname);
++	int bgx_id;
+ 
+ 	debug("%s: ENTER\n", __func__);
+ 	if (!gd->fdt_blob) {
+@@ -100,10 +101,17 @@ void thunderx_parse_phy_info(void)
+ 	const void *fdt = gd->fdt_blob;
+ 	int offset = 0, node, bgx_id = 0, lmacid = 0;
+ 	const u32 *val;
+-	char bgxname[16];
++	char bgxname[24];
+ 	int len, rgx_id = 0, eth_id = 0;
+ 	int phandle, phy_offset;
+-	int subnode;
++	int subnode, i;
++
++				int bgxnode;
++				bgxnode = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
++				if (bgxnode < 0) {
++					printf("%s: /cavium,bdk is missing from device tree: %s\n",
++		       			__func__, fdt_strerror(bgxnode));
++				}
+ 
+ 	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
+ 	if (offset > 1) {
+@@ -112,6 +120,7 @@ void thunderx_parse_phy_info(void)
+ 			bool autoneg_dis[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
+ 			int mdio_bus[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = -1};
+ 			bool lmac_reg[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
++			bool lmac_enable[MAX_LMAC_PER_BGX] = { [0 ... MAX_LMAC_PER_BGX - 1] = 0};
+ 			snprintf(bgxname, sizeof(bgxname),
+ 				 "bgx%d", bgx_id);
+ 			node = fdt_subnode_offset(fdt, offset, bgxname);
+@@ -174,9 +183,19 @@ void thunderx_parse_phy_info(void)
+ 				lmacid++;
+ 			}
+ 
++			for (i = 0; i < MAX_LMAC_PER_BGX; i++) {
++				const char *str;
++				snprintf(bgxname, sizeof(bgxname), "BGX-ENABLE.N0.BGX%d.P%d", bgx_id, i);
++				if (bgxnode >= 0) {
++					str = fdt_getprop(gd->fdt_blob, bgxnode, bgxname, &len);
++					if (str)
++						lmac_enable[i] = simple_strtol(str, NULL, 10);
++				}
++			}
++
+ 			lmacid = 0;
+ 			bgx_set_board_info(bgx_id, mdio_bus, phy_addr,
+-					   autoneg_dis, lmac_reg);
++					   autoneg_dis, lmac_reg, lmac_enable);
+ 		}
+ 	}
+ #endif
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 41fa5e706e..cfee57507a 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -1006,7 +1006,7 @@ void bgx_lmac_disable(struct bgx *bgx, uint8_t lmacid)
+ static void bgx_init_hw(struct bgx *bgx)
+ {
+ 	struct lmac *lmac;
+-	int i, lmacid, count = 0;
++	int i, lmacid, count = 0, inc = 0;
+ 	char buf[40];
+ 	static qsgmii_configured = 0;
+ 
+@@ -1141,21 +1141,31 @@ static void bgx_init_hw(struct bgx *bgx)
+ 			continue;
+ 		}
+ 
+-
+ 		/* Reset lmac to the unused slot */
+ 		if (is_bgx_port_valid(bgx->bgx_id, count) &&
+ 		    (lmac->qlm_mode != QLM_MODE_QSGMII)) {
++			int lmac_enable = 0;
+ 			tlmac = &bgx->lmac[count];
+ 			tlmac->lmac_type = lmac->lmac_type;
+-			tlmac->lane_to_sds = lmac->lane_to_sds;
++			/* Adjust lane_to_sds based on BGX-ENABLE */
++			for (; (inc + count) < MAX_LMAC_PER_BGX; inc++) {
++				lmac_enable = bgx_board_info[bgx->bgx_id].lmac_enable[count + inc];
++				if (lmac_enable)
++					break;
++			}
++
++			if ((inc != 0) && (inc < MAX_LMAC_PER_BGX) && lmac_enable && (inc != count))
++				tlmac->lane_to_sds = lmac->lane_to_sds + abs(inc - count);
++			else
++				tlmac->lane_to_sds = lmac->lane_to_sds;
+ 			tlmac->qlm = lmac->qlm;
+ 			tlmac->qlm_mode = lmac->qlm_mode;
+ 
+ 			printf("%s", buf);
+ 			/* Initialize lmac_type and lane_to_sds */
+ 			bgx_reg_write(bgx, count, BGX_CMRX_CFG,
+-				      (lmac->lmac_type << 8) |
+-				      lmac->lane_to_sds);
++				      (tlmac->lmac_type << 8) |
++				      tlmac->lane_to_sds);
+ 			count += 1;
+ 		}
+ 	}
+@@ -1306,7 +1316,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ }
+ 
+ void bgx_set_board_info(int bgx_id, int *mdio_bus,
+-			int *phy_addr, bool *autoneg_dis, bool *lmac_reg)
++			int *phy_addr, bool *autoneg_dis, bool *lmac_reg,
++			bool *lmac_enable)
+ {
+ 	unsigned int i;
+ 
+@@ -1315,12 +1326,14 @@ void bgx_set_board_info(int bgx_id, int *mdio_bus,
+ 		bgx_board_info[bgx_id].phy_info[i].mdio_bus = mdio_bus[i];
+ 		bgx_board_info[bgx_id].phy_info[i].autoneg_dis = autoneg_dis[i];
+ 		bgx_board_info[bgx_id].lmac_reg[i] = lmac_reg[i];
++		bgx_board_info[bgx_id].lmac_enable[i] = lmac_enable[i];
+ 		debug("bgx_set_board_info bgx_id %d lmac %d phy_addr 0x%x mdio bus %d\n"
+-		      "autoneg_dis %d lmac_reg %d\n", bgx_id, i,
++		      "autoneg_dis %d lmac_reg %d, lmac_enable = %d\n", bgx_id, i,
+ 			bgx_board_info[bgx_id].phy_info[i].phy_addr,
+ 			bgx_board_info[bgx_id].phy_info[i].mdio_bus,
+ 			bgx_board_info[bgx_id].phy_info[i].autoneg_dis,
+-			bgx_board_info[bgx_id].lmac_reg[i]);
++			bgx_board_info[bgx_id].lmac_reg[i],
++			bgx_board_info[bgx_id].lmac_enable[i]);
+ 	}
+ }
+ 
+diff --git a/drivers/net/cavium/thunder_bgx.h b/drivers/net/cavium/thunder_bgx.h
+index a3cde5a773..b7e64ef368 100644
+--- a/drivers/net/cavium/thunder_bgx.h
++++ b/drivers/net/cavium/thunder_bgx.h
+@@ -232,6 +232,7 @@ struct phy_info {
+ struct bgx_board_info {
+ 	struct phy_info phy_info[MAX_LMAC_PER_BGX];
+ 	bool lmac_reg[MAX_LMAC_PER_BGX];
++	bool lmac_enable[MAX_LMAC_PER_BGX];
+ };
+ 
+ enum LMAC_TYPE {
+-- 
+2.29.0
+

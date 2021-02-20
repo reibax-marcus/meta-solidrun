@@ -1,0 +1,32 @@
+From ed3e8294058df230159908421785dde16f642cae Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Thu, 3 Nov 2016 01:02:16 -0700
+Subject: [PATCH 0551/1239] Added myself as a maintainer for Cavium's
+ ThunderX/OcteonTX line of SoCs.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c53656695a..d9768c66ca 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -170,6 +170,13 @@ F:	board/CZ.NIC/
+ F:	configs/turris_*_defconfig
+ F:	include/configs/turris_*.h
+ 
++ARM CAVIUM THUNDERX/OCTEONTX
++M:	Aaron Williams <aaron.williams@cavium.com>
++S:	Maintained
++F:	arch/arm/mach-thunderx
++F:	arch/arm/include/asm-cavium
++F:	board/cavium
++
+ ARM FREESCALE IMX
+ M:	Stefano Babic <sbabic@denx.de>
+ M:	Fabio Estevam <festevam@gmail.com>
+-- 
+2.29.0
+

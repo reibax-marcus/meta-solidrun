@@ -1,0 +1,33 @@
+From 6ad13d49908aa8a9f770802c92a08e371ab1042a Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 4 Dec 2019 09:46:22 -0800
+Subject: [PATCH 1022/1239] drivers: mtd: spi-nor: add flash entry for
+ MT25QL02G
+
+Add entry to support MT25QL02G flash device found on
+one of OcteonTX2 platforms.
+
+Change-Id: Ieae824dfdcd13a605f2fef95298c8fdcf68cb1e8
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19828
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/mtd/spi/spi-nor-ids.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/mtd/spi/spi-nor-ids.c b/drivers/mtd/spi/spi-nor-ids.c
+index 40e2bb2114..a8e5c30769 100644
+--- a/drivers/mtd/spi/spi-nor-ids.c
++++ b/drivers/mtd/spi/spi-nor-ids.c
+@@ -171,6 +171,7 @@ const struct flash_info spi_nor_ids[] = {
+ 	{ INFO("n25q00",      0x20ba21, 0, 64 * 1024, 2048, SECT_4K | USE_FSR | SPI_NOR_QUAD_READ | NO_CHIP_ERASE) },
+ 	{ INFO("n25q00a",     0x20bb21, 0, 64 * 1024, 2048, SECT_4K | USE_FSR | SPI_NOR_QUAD_READ | NO_CHIP_ERASE) },
+ 	{ INFO("mt25qu02g",   0x20bb22, 0, 64 * 1024, 4096, SECT_4K | USE_FSR | SPI_NOR_QUAD_READ | NO_CHIP_ERASE) },
++	{ INFO("mt25ql02g",   0x20ba22, 0, 64 * 1024, 4096, SECT_4K | USE_FSR | SPI_NOR_QUAD_READ | NO_CHIP_ERASE | SPI_NOR_4B_OPCODES) },
+ 	{ INFO("mt35xu512aba", 0x2c5b1a, 0,  128 * 1024,  512, USE_FSR | SPI_NOR_4B_OPCODES) },
+ 	{ INFO("mt35xu02g",  0x2c5b1c, 0, 128 * 1024,  2048, USE_FSR | SPI_NOR_4B_OPCODES) },
+ #endif
+-- 
+2.29.0
+

@@ -1,0 +1,135 @@
+From 40666f22dd9ff0f2102dfa41e34d33de2422bade Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 2 Aug 2017 12:41:30 -0700
+Subject: [PATCH 0676/1239] cmd: bootimgup: update with latest block layer
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ cmd/Kconfig           | 11 ++++++-----
+ cmd/bootimgup.c       | 15 +++++++++++----
+ configs/t81_defconfig |  7 +++++++
+ configs/t83_defconfig |  1 +
+ configs/t93_defconfig |  1 +
+ 5 files changed, 26 insertions(+), 9 deletions(-)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index e9049af17d..d24512d259 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1530,6 +1530,12 @@ endif
+ 
+ menu "Misc commands"
+ 
++config CMD_BOOTIMGUP
++	depends on MMC_CAVIUM
++	bool "bootimgup"
++	help
++	  bootimgup command support
++
+ config CMD_BMP
+ 	bool "Enable 'bmp' command"
+ 	depends on LCD || DM_VIDEO || VIDEO
+@@ -1559,11 +1565,6 @@ config CMD_BSP
+ 	  option provides a way to control this. The commands that are enabled
+ 	  vary depending on the board.
+ 
+-config CMD_BOOTIMGUP
+-	bool "bootimgup"
+-	help
+-	  bootimgup command support
+-
+ config CMD_BKOPS_ENABLE
+ 	bool "mmc bkops enable"
+ 	depends on CMD_MMC
+diff --git a/cmd/bootimgup.c b/cmd/bootimgup.c
+index 79fe76d4bb..f0574435fe 100644
+--- a/cmd/bootimgup.c
++++ b/cmd/bootimgup.c
+@@ -315,6 +315,7 @@ static int do_bootu_mmc(int argc, char * const argv[])
+ {
+ 	static int curr_device = -1;
+ 	struct mmc *mmc;
++	struct blk_desc *desc;
+ 	char *env1, *env2;
+ 	unsigned long blk, len, n;
+ 	unsigned long addr;
+@@ -374,8 +375,14 @@ static int do_bootu_mmc(int argc, char * const argv[])
+ 	if (!mmc)
+ 		return CMD_RET_FAILURE;
+ 
+-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, mmc->block_dev.blksz);
+-	n = mmc->block_dev.block_read(&mmc->block_dev, 0, 1, buffer);
++	desc = mmc_get_blk_desc(mmc, curr_device);
++	if (!desc)
++		return CMD_RET_FAILURE;
++
++	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, desc->blksz);
++	n = blk_dread(desc, 0, 1, buffer);
++	/* flush cache after read */
++	flush_cache((ulong)addr, 512);
+ 	if (n != 1) {
+ 		printf("ERROR: read partition table failed\n");
+ 		return 1;
+@@ -394,7 +401,7 @@ static int do_bootu_mmc(int argc, char * const argv[])
+ 		return CMD_RET_FAILURE;
+ 	}
+ 
+-	n = mmc->block_dev.block_write(&mmc->block_dev, blk, len, (void *)addr);
++	n = blk_dwrite(desc, blk, len, (void *)addr);
+ 	printf("%ld blocks written: %s\n", n, (n == len) ? "OK" : "ERROR");
+ 	if (n != len)
+ 		return CMD_RET_FAILURE;
+@@ -403,7 +410,7 @@ static int do_bootu_mmc(int argc, char * const argv[])
+ 	memcpy(&buffer[446], (void *) (addr + 446), 16);
+ 
+ 	/* Update partition table with read boot sector */
+-	n = mmc->block_dev.block_write(&mmc->block_dev, 0, 1, (void *)buffer);
++	n = blk_dwrite(desc, 0, 1, (void *)buffer);
+ 	printf("%ld blocks written: %s\n", n, (n == 1) ? "OK" : "ERROR");
+ 	if (n != 1)
+ 		return CMD_RET_FAILURE;
+diff --git a/configs/t81_defconfig b/configs/t81_defconfig
+index 885652745e..e066d7ee5b 100644
+--- a/configs/t81_defconfig
++++ b/configs/t81_defconfig
+@@ -26,6 +26,13 @@ CONFIG_CMD_CDP=y
+ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
++CONFIG_CMD_BOOTIMGUP=y
++CONFIG_CMD_EXT4=y
++CONFIG_CMD_EXT4_WRITE=y
++CONFIG_CMD_FAT=y
++CONFIG_EFI_PARTITION=y
++CONFIG_PARTITION_TYPE_GUID=y
++CONFIG_OF_BOARD=y
+ CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_DM_I2C_COMPAT=y
+ CONFIG_SATA=y
+diff --git a/configs/t83_defconfig b/configs/t83_defconfig
+index c86644b7d1..b5b302e5eb 100644
+--- a/configs/t83_defconfig
++++ b/configs/t83_defconfig
+@@ -30,6 +30,7 @@ CONFIG_CMD_CDP=y
+ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
++CONFIG_CMD_BOOTIMGUP=y
+ CONFIG_CMD_EXT4=y
+ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_CMD_FAT=y
+diff --git a/configs/t93_defconfig b/configs/t93_defconfig
+index fabba817fe..f4fd78c183 100644
+--- a/configs/t93_defconfig
++++ b/configs/t93_defconfig
+@@ -29,6 +29,7 @@ CONFIG_CMD_CDP=y
+ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
++CONFIG_CMD_BOOTIMGUP=y
+ CONFIG_EFI_PARTITION=y
+ CONFIG_PARTITION_TYPE_GUID=y
+ CONFIG_NET_RANDOM_ETHADDR=y
+-- 
+2.29.0
+

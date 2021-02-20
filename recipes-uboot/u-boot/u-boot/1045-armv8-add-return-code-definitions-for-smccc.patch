@@ -1,0 +1,36 @@
+From 7eee6da61aa80d4e64e1af9ea13867c981aa2d67 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Tue, 17 Dec 2019 14:48:17 +0100
+Subject: [PATCH 1045/1239] armv8: add return code definitions for smccc
+
+Definitions taken from Linux
+
+Change-Id: Ibe04983cc3b01d552af14ca39e7319280c2770e1
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/20586
+Reviewed-by: Yoav Gvili <ygvili@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/include/asm/system.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/include/asm/system.h b/arch/arm/include/asm/system.h
+index a1a5e35ef6..8a99ed39da 100644
+--- a/arch/arm/include/asm/system.h
++++ b/arch/arm/include/asm/system.h
+@@ -253,6 +253,11 @@ void mmu_change_region_attr(phys_addr_t start, size_t size, u64 attrs);
+  */
+ void smc_call(struct pt_regs *args);
+ 
++/* Return codes defined in ARM DEN 0070A */
++#define SMCCC_RET_SUCCESS			0
++#define SMCCC_RET_NOT_SUPPORTED			-1
++#define SMCCC_RET_NOT_REQUIRED			-2
++
+ void __noreturn psci_system_reset(void);
+ void __noreturn psci_system_off(void);
+ 
+-- 
+2.29.0
+

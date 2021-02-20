@@ -1,0 +1,30 @@
+From 224641b28165a3296da727a953f5c85f7fc974dc Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 16 Oct 2018 02:16:04 -0700
+Subject: [PATCH 0835/1239] mtd: mtdparts: Fix a crash that occurs if
+ mtdparts=mtdparts=
+
+If the environment variable mtdparts is equal to "mtdparts=" then U-Boot will crash
+because dev is never initialized and it is later freed since it contains garbage.
+
+signed-off-by: Aaron Williams <aaron.williams@marvell.com>
+---
+ cmd/mtdparts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/mtdparts.c b/cmd/mtdparts.c
+index 46155cabf6..467838a3ee 100644
+--- a/cmd/mtdparts.c
++++ b/cmd/mtdparts.c
+@@ -1553,7 +1553,7 @@ static const char *env_get_mtdparts(char *buf)
+ static int parse_mtdparts(const char *const mtdparts)
+ {
+ 	const char *p;
+-	struct mtd_device *dev;
++	struct mtd_device *dev = NULL;
+ 	int err = 1;
+ 	char tmp_parts[MTDPARTS_MAXLEN];
+ 
+-- 
+2.29.0
+

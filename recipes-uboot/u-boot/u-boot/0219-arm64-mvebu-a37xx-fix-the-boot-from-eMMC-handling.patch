@@ -1,0 +1,122 @@
+From 4c1adbcb4d9bcf63ca3e12fbf1c556365c6691a2 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 26 Nov 2018 16:05:13 +0200
+Subject: [PATCH 0219/1239] arm64: mvebu: a37xx: fix the boot from eMMC
+ handling
+
+Update environment device and partition IDs according to target.
+For Armada-37xx the boot is supported only from eMMC, not SD.
+The eMMC is located on sdhci-1 and should use Boot0 partition
+Therefore both MMC device and partition numbers should be "1".
+Update documentation requesting to setup the environment
+destination after changing the boot device.
+Fix "bubt" command and mvebu/Kconfig by adding dependency from
+Xenon SDHCI driver to MMC boot selection.
+
+Change-Id: Ifd72e32e2502faec6b517091158088cbc9ff8749
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ cmd/mvebu/Kconfig                     |  2 +-
+ cmd/mvebu/bubt.c                      |  6 +++++-
+ doc/mvebu/build.txt                   | 12 +++++++++---
+ include/configs/mvebu_armada-common.h |  5 +++++
+ 4 files changed, 20 insertions(+), 5 deletions(-)
+
+diff --git a/cmd/mvebu/Kconfig b/cmd/mvebu/Kconfig
+index 86e7f42bab..ceb7257d9b 100644
+--- a/cmd/mvebu/Kconfig
++++ b/cmd/mvebu/Kconfig
+@@ -61,7 +61,7 @@ config MVEBU_SPI_BOOT
+ 
+ config MVEBU_MMC_BOOT
+ 	bool "eMMC flash boot"
+-	depends on MVEBU_MMC
++	depends on (MVEBU_MMC || MMC_SDHCI_XENON)
+ 	help
+ 	  Enable boot from eMMC boot partition
+ 	  Allow usage of eMMC/SD device as a target for "bubt" command
+diff --git a/cmd/mvebu/bubt.c b/cmd/mvebu/bubt.c
+index 6daa2cf60b..ae7515c585 100644
+--- a/cmd/mvebu/bubt.c
++++ b/cmd/mvebu/bubt.c
+@@ -25,8 +25,12 @@
+ #include <u-boot/sha256.h>
+ 
+ #ifndef CONFIG_SYS_MMC_ENV_DEV
++#ifdef CONFIG_TARGET_MVEBU_ARMADA_37XX
++#define CONFIG_SYS_MMC_ENV_DEV	1
++#else
+ #define CONFIG_SYS_MMC_ENV_DEV	0
+ #endif
++#endif
+ 
+ #if defined(CONFIG_ARMADA_8K)
+ #define MAIN_HDR_MAGIC		0xB105B002
+@@ -767,7 +771,7 @@ struct bubt_dev *find_bubt_dev(char *dev_name)
+ #define DEFAULT_BUBT_DST "nand"
+ #elif defined(CONFIG_MVEBU_MMC_BOOT)
+ #define DEFAULT_BUBT_DST "mmc"
+-else
++#else
+ #define DEFAULT_BUBT_DST "error"
+ #endif
+ #endif /* DEFAULT_BUBT_DST */
+diff --git a/doc/mvebu/build.txt b/doc/mvebu/build.txt
+index 50236aede2..30b03888e4 100644
+--- a/doc/mvebu/build.txt
++++ b/doc/mvebu/build.txt
+@@ -124,6 +124,8 @@ In order to change the boot device to eMMC, set the following parameter
+ the default configuration::
+ 
+ 	- CONFIG_MVEBU_MMC_BOOT=y
++	- CONFIG_ENV_IS_IN_MMC=y
++	- Remove any other CONFIG_ENV_IS_IN_* occurrences in defconfig file
+ 
+ If "menuconfig" is used, navigate to the following location::
+ 
+@@ -132,7 +134,12 @@ If "menuconfig" is used, navigate to the following location::
+ 	    -> MVEBU commands
+ 	      -> Flash for image
+ 
+-and select "eMMC flash boot".
++and select "eMMC flash boot" for the boot device, then select the device for the
++environment location):
++
++	-> Command line interface
++	  -> Environment
++	    -> Environment in an MMC device
+ 
+ The eMMC has 2 boot partitions (BOOT0 and BOOT1) and a user data partition
+ (DATA).
+@@ -170,8 +177,7 @@ If select CP's SD card/eMMC as boot device, the Macro parameter should be::
+ 
+ 	#define CONFIG_SYS_MMC_ENV_DEV         1
+ 
+-Both parameters can be changed in the "include/configs/mvebu_armada-37xx.h"
+-or "include/configs/mvebu_armada-8k.h" depend on the device.
++Both parameters can be changed in the "include/configs/mvebu_armadacommon.h".
+ 
+ Note that this configuration is only available when "Flash for image"
+ selects "eMMC flash boot" device as described above.
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index 7ac966cc03..b9605bf7d5 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -123,9 +123,14 @@
+ #endif
+ 
+ #ifdef CONFIG_ENV_IS_IN_MMC
++#ifdef CONFIG_TARGET_MVEBU_ARMADA_37XX
++#define CONFIG_SYS_MMC_ENV_DEV		1 /* A3700 emmc is on sdhci-1*/
++#define CONFIG_SYS_MMC_ENV_PART		1 /* 0-DATA, 1-BOOT0, 2-BOOT1 */
++#else
+ #define CONFIG_SYS_MMC_ENV_DEV		0
+ #define CONFIG_SYS_MMC_ENV_PART		0 /* 0-DATA, 1-BOOT0, 2-BOOT1 */
+ #endif
++#endif
+ 
+ /*
+  * SATA/SCSI/AHCI configuration
+-- 
+2.29.0
+

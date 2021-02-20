@@ -1,0 +1,37 @@
+From 039a70d49c85545228925224e4c1aeba7ff01ee7 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarpati@caviumnetworks.com>
+Date: Tue, 4 Apr 2017 15:42:28 -0700
+Subject: [PATCH 0626/1239] drivers: spi: remove static pci probe
+
+move to driver-model probe method based on compatible.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/spi/cavium_spi.c | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/drivers/spi/cavium_spi.c b/drivers/spi/cavium_spi.c
+index 7e487f9d0e..026a8f8e14 100755
+--- a/drivers/spi/cavium_spi.c
++++ b/drivers/spi/cavium_spi.c
+@@ -19,7 +19,6 @@
+ #define THUNDERX_SPI_MAX_BYTES		9
+ #define THUNDERX_SPI_MAX_CLOCK_HZ	50000000
+ 
+-#define PCI_DEVICE_ID_THUNDER_SPI	0xa00b
+ #define THUNDERX_SPI_NUM_CS		4
+ 
+ #define THUNDERX_SPI_CS_VALID(cs)	((cs) < THUNDERX_SPI_NUM_CS)
+@@ -446,9 +445,3 @@ U_BOOT_DRIVER(thunderx_pci_spi) = {
+ 	.ops			= &thunderx_spi_ops,
+ };
+ 
+-static const struct pci_device_id thunderx_pci_spi_supported[] = {
+-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_SPI) },
+-	{},
+-};
+-
+-U_BOOT_PCI_DEVICE(thunderx_pci_spi, thunderx_pci_spi_supported);
+-- 
+2.29.0
+

@@ -1,0 +1,26 @@
+From f233b6afe8aaff41b76abf6ca27ccd84f8545b62 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Wed, 10 Aug 2016 12:16:15 -0700
+Subject: [PATCH 0516/1239] Print BGX and port no when phy is not present.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ board/cavium/thunderx/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index ddd4d0eb5e..8d2db07958 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -40,7 +40,7 @@ static void thunderx_parse_phy_address(const void *fdt, int node)
+ 				mdio_bus = (val >> 8) & 0xF;
+ 				phy_addr[phy_id] = val & 0xFF;
+ 			} else {
+-				debug("Err: cannot retrieve phy address from fdt\n");
++				debug("Err: cannot retrieve phy address from fdt:%d:%d\n", bgx_id, phy_id);
+ 			}
+ 		}
+ 		bgx_set_board_info(bgx_id, mdio_bus, &phy_addr[0]);
+-- 
+2.29.0
+

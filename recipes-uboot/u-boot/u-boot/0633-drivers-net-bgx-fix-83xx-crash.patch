@@ -1,0 +1,34 @@
+From 5edefd01bf9f1a6923821639522061a1870503bd Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 20 Apr 2017 10:43:36 -0700
+Subject: [PATCH 0633/1239] drivers: net: bgx: fix 83xx crash
+
+bgx if not configured returns PCI region as NULL and crashes
+u-boot. Return from probe if PCI region not found.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 0449a2ef75..1bba1e005e 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -1314,9 +1314,11 @@ int thunderx_bgx_probe(struct udevice *dev)
+ 	size_t size;
+ 	int inc = 1;
+ 
+-
+ 	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+-
++	if (bgx->reg_base == NULL) {
++		debug("No PCI region found\n");
++		return 0;
++	}
+ 	is_altpkg = alternate_pkg();
+ 
+ #ifdef CONFIG_THUNDERX_XCV
+-- 
+2.29.0
+

@@ -1,0 +1,40 @@
+From 090d2de987b37c882badeeab17678eb33a099bee Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Sat, 14 May 2016 11:42:22 -0400
+Subject: [PATCH 0433/1239] net: Add more 10G modes to the PHY library
+
+There are lots of 10G interfaces defined in the 802.3 family.
+This commit adds definitions for some of them
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ include/phy.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/include/phy.h b/include/phy.h
+index 312896a1b4..2e3d4de487 100644
+--- a/include/phy.h
++++ b/include/phy.h
+@@ -90,6 +90,7 @@ static const char *phy_interface_strings[] = {
+ 	[PHY_INTERFACE_MODE_XAUI]		= "xaui",
+ 	[PHY_INTERFACE_MODE_RXAUI]		= "rxaui",
+ 	[PHY_INTERFACE_MODE_SFI]		= "sfi",
++	[PHY_INTERFACE_MODE_XLAUI]		= "xlaui",
+ 	[PHY_INTERFACE_MODE_NONE]		= "",
+ };
+ 
+@@ -294,7 +295,10 @@ extern struct phy_driver gen10g_driver;
+ /* For now, XGMII is the only 10G interface */
+ static inline int is_10g_interface(phy_interface_t interface)
+ {
+-	return interface == PHY_INTERFACE_MODE_XGMII;
++	return (interface == PHY_INTERFACE_MODE_XGMII) ||
++	       (interface == PHY_INTERFACE_MODE_XAUI)  ||
++	       (interface == PHY_INTERFACE_MODE_XLAUI) ||
++	       (interface == PHY_INTERFACE_MODE_RXAUI);
+ }
+ 
+ #endif
+-- 
+2.29.0
+

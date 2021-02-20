@@ -1,0 +1,64 @@
+From 709c3f1a66c348a629e87ecff36382f5372890c2 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarpati@caviumnetworks.com>
+Date: Tue, 4 Apr 2017 15:47:15 -0700
+Subject: [PATCH 0629/1239] drivers: net: cavium: remove static pci probe
+
+move bgx to driver-model probe method based on compatible.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/cavium/nic.h         |  2 --
+ drivers/net/cavium/thunder_bgx.c | 13 ++-----------
+ 2 files changed, 2 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index 0d61fe5435..3d8beaa521 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -22,8 +22,6 @@
+ #define	PCI_DEVICE_ID_THUNDER_NIC_PF	0xA01E
+ #define	PCI_DEVICE_ID_THUNDER_NIC_VF_1	0x0011
+ #define PCI_DEVICE_ID_THUNDER_NIC_VF_2	0xA034
+-#define	PCI_DEVICE_ID_THUNDER_BGX	0xA026
+-#define	PCI_DEVICE_ID_THUNDER_RGX	0xA054
+ 
+ /* Subsystem device IDs */
+ #define PCI_SUBSYS_DEVID_88XX_NIC_PF		0xA11E
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 02bce45122..fea13adb1b 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -804,7 +804,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 			printf("BGX%d:LMAC %u link up\n", bgx_idx, lmacid);
+ 			return lmac->link_up;
+ 		}
+-		snprintf(mii_name, sizeof(mii_name), "txsmi%d",
++		snprintf(mii_name, sizeof(mii_name), "smi%d",
+ 			 bgx_board_info[bgx_idx].phy_info[lmacid].mdio_bus);
+ 
+ 		debug("mii_name: %s\n", mii_name);
+@@ -1388,7 +1388,7 @@ static const struct misc_ops thunderx_bgx_ops = {
+ };
+ 
+ static const struct udevice_id thunderx_bgx_ids[] = {
+-	{ .compatible = "cavium,bgx" },
++	{ .compatible = "cavium,thunderx-bgx" },
+ 	{}
+ };
+ 
+@@ -1401,12 +1401,3 @@ U_BOOT_DRIVER(thunderx_bgx) = {
+ 	.priv_auto_alloc_size = sizeof(struct bgx),
+ };
+ 
+-static struct pci_device_id thunderx_bgx_supported[] = {
+-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_BGX) },
+-#ifdef CONFIG_THUNDERX_XCV
+-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_RGX) },
+-#endif
+-	{}
+-};
+-
+-U_BOOT_PCI_DEVICE(thunderx_bgx, thunderx_bgx_supported);
+-- 
+2.29.0
+

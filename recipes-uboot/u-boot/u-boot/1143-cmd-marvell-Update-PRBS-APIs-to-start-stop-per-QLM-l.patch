@@ -1,0 +1,128 @@
+From 2364a6abf5d1134ceb3c38e3612e6120922f0d9b Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Tue, 28 Apr 2020 15:14:44 -0700
+Subject: [PATCH 1143/1239] cmd:marvell: Update PRBS APIs to start/stop per QLM
+ lane
+
+Change-Id: I12689a4f1767ca752ba635ae33e88dfda4051e5a
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27633
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ cmd/marvell/octeontx2_qlm_cmds.c | 29 +++++++++++++++++++----------
+ drivers/net/octeontx2/cgx.h      |  2 +-
+ drivers/net/octeontx2/cgx_intf.c |  3 ++-
+ drivers/net/octeontx2/cgx_intf.h |  3 ++-
+ 4 files changed, 24 insertions(+), 13 deletions(-)
+
+diff --git a/cmd/marvell/octeontx2_qlm_cmds.c b/cmd/marvell/octeontx2_qlm_cmds.c
+index 28dd6e205d..60dbbdcf5b 100644
+--- a/cmd/marvell/octeontx2_qlm_cmds.c
++++ b/cmd/marvell/octeontx2_qlm_cmds.c
+@@ -8,7 +8,7 @@
+ #include <common.h>
+ #include <command.h>
+ 
+-extern int cgx_intf_prbs(u8 qlm, u8 mode, u32 time);
++extern int cgx_intf_prbs(u8 qlm, u8 mode, u32 time, u32 lane);
+ extern int cgx_intf_display_eye(u8 qlm, u8 lane);
+ extern int cgx_intf_display_serdes(u8 qlm, u8 lane);
+ 
+@@ -17,24 +17,33 @@ static int do_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	ulong time;
+ 	ulong mode;
+ 	ulong qlm;
++	ulong lane;
+ 
+-	if (argc != 4)
++	if (argc == 5) {
++		qlm = simple_strtoul(argv[1], NULL, 10);
++		mode = simple_strtoul(argv[2], NULL, 10);
++		time = simple_strtoul(argv[3], NULL, 10);
++		lane = simple_strtoul(argv[4], NULL, 10);
++	} else if (argc == 4) {
++		qlm = simple_strtoul(argv[1], NULL, 10);
++		mode = simple_strtoul(argv[2], NULL, 10);
++		time = simple_strtoul(argv[3], NULL, 10);
++		lane = -1;
++	} else {
+ 		return CMD_RET_USAGE;
++	}
+ 
+-	qlm = simple_strtoul(argv[1], NULL, 10);
+-	mode = simple_strtoul(argv[2], NULL, 10);
+-	time = simple_strtoul(argv[3], NULL, 10);
+-
+-	cgx_intf_prbs(qlm, mode, time);
++	cgx_intf_prbs(qlm, mode, time, lane);
+ 
+ 	return CMD_RET_SUCCESS;
+ }
+ 
+-U_BOOT_CMD(prbs,    4,    1,     do_prbs,
++U_BOOT_CMD(prbs,    5,    1,     do_prbs,
+ 	   "command to run PRBS on slected QLM",
+-	   "<qlm> <mode> <time>\n"
++	   "<qlm> <mode> <time> [lane]\n"
+ 	   "    - run PRBS with pattern indicated by 'mode' on selected 'qlm'\n"
+-	   "      PRBS will be enabled by 'time' seconds"
++	   "      PRBS will be enabled by 'time' seconds\n"
++	   "      PRBS is performed on a particular LANE if passed"
+ );
+ 
+ static int do_eye(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+diff --git a/drivers/net/octeontx2/cgx.h b/drivers/net/octeontx2/cgx.h
+index 0d2919f49a..d2ce7e04a4 100644
+--- a/drivers/net/octeontx2/cgx.h
++++ b/drivers/net/octeontx2/cgx.h
+@@ -100,7 +100,7 @@ int cgx_intf_get_link_sts(u8 cgx, u8 lmac, u64 *lnk_sts);
+ int cgx_intf_link_up_dwn(u8 cgx, u8 lmac, u8 up_dwn, u64 *lnk_sts);
+ int cgx_intf_get_mac_addr(u8 cgx, u8 lmac, u8 *mac);
+ int cgx_intf_set_macaddr(struct udevice *dev);
+-int cgx_intf_prbs(u8 qlm, u8 mode, u32 time);
++int cgx_intf_prbs(u8 qlm, u8 mode, u32 time, u8 lane);
+ int cgx_intf_display_eye(u8 qlm, u8 lane);
+ int cgx_intf_display_serdes(u8 qlm, u8 lane);
+ 
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index 99b760b44d..499f4c781a 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -265,7 +265,7 @@ void cgx_intf_shutdown(void)
+ 	cgx_intf_req(0, 0, cmd, &scr0.u, 1);
+ }
+ 
+-int cgx_intf_prbs(u8 qlm, u8 mode, u32 time)
++int cgx_intf_prbs(u8 qlm, u8 mode, u32 time, u8 lane)
+ {
+ 	union cgx_scratchx0 scr0;
+ 	int ret;
+@@ -276,6 +276,7 @@ int cgx_intf_prbs(u8 qlm, u8 mode, u32 time)
+ 	cmd.prbs_args.qlm = qlm;
+ 	cmd.prbs_args.mode = mode;
+ 	cmd.prbs_args.time = time;
++	cmd.prbs_args.lane = lane;
+ 
+ 	ret = cgx_intf_req(0, 0, cmd, &scr0.u, 0);
+ 	if (ret)
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index e0d9750461..0b2bf696fe 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -412,10 +412,11 @@ struct cgx_mac_addr_args {
+ 
+ struct cgx_prbs_args {
+ 	u64 reserved1:8; /* start from bit 8 */
++	u64 lane:8;
+ 	u64 qlm:8;
+ 	u64 stop_on_error:1;
+ 	u64 mode:8;
+-	u64 time:39;
++	u64 time:31;
+ };
+ 
+ struct cgx_display_eye_args {
+-- 
+2.29.0
+

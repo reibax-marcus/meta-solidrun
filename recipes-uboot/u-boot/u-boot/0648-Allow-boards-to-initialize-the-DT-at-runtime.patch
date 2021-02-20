@@ -1,0 +1,47 @@
+From 58cfc3743a3941e0db4567a4f6d4bd8e1c324f27 Mon Sep 17 00:00:00 2001
+From: Alex Deymo <deymo@google.com>
+Date: Sun, 2 Apr 2017 01:25:20 -0700
+Subject: [PATCH 0648/1239] Allow boards to initialize the DT at runtime.
+
+In some boards like the Raspberry Pi the initial bootloader will pass
+a DT to the kernel. When using U-Boot as such kernel, the board code in
+U-Boot should be able to provide U-Boot with this, already assembled
+device tree blob.
+
+This patch introduces a new config option CONFIG_OF_BOARD to use instead
+of CONFIG_OF_EMBED or CONFIG_OF_SEPARATE which will initialize the DT
+from a board-specific funtion instead of bundling one with U-Boot or as
+a separated file. This allows boards like the Raspberry Pi to reuse the
+device tree passed from the bootcode.bin and start.elf firmware
+files, including the run-time selected device tree overlays.
+
+Signed-off-by: Alex Deymo <deymo@google.com>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+---
+ board/raspberrypi/rpi/rpi.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/board/raspberrypi/rpi/rpi.c b/board/raspberrypi/rpi/rpi.c
+index 9e0abdda31..98a07deaa4 100644
+--- a/board/raspberrypi/rpi/rpi.c
++++ b/board/raspberrypi/rpi/rpi.c
+@@ -516,6 +516,16 @@ void *board_fdt_blob_setup(void)
+ 	return (void *)fw_dtb_pointer;
+ }
+ 
++/*
++ * If the firmware passed a device tree use it for U-Boot.
++ */
++void *board_fdt_blob_setup(void)
++{
++	if (fdt_magic(fw_dtb_pointer) != FDT_MAGIC)
++		return NULL;
++	return (void *)fw_dtb_pointer;
++}
++
+ int ft_board_setup(void *blob, bd_t *bd)
+ {
+ 	/*
+-- 
+2.29.0
+

@@ -1,0 +1,40 @@
+From 7dff8293bf16271fdd92377ffa4c30392cbb7ce5 Mon Sep 17 00:00:00 2001
+From: aaronw <aaron.williams@cavium.com>
+Date: Thu, 7 Mar 2019 20:53:42 -0800
+Subject: [PATCH 0890/1239] mmc: remove hacks for old OcteonTX MMC driver
+
+Change-Id: Ibe91fc796314909747193dee20e51bfee899f7c2
+Signed-off-by: aaronw <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/5425
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ drivers/mmc/Makefile | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/mmc/Makefile b/drivers/mmc/Makefile
+index 1021802d26..8a295e3925 100644
+--- a/drivers/mmc/Makefile
++++ b/drivers/mmc/Makefile
+@@ -4,9 +4,7 @@
+ # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ 
+ obj-$(CONFIG_$(SPL_)DM_MMC) += mmc-uclass.o
+-ifndef CONFIG_MMC_OCTEONTX
+ obj-$(CONFIG_$(SPL_)MMC_WRITE) += mmc_write.o
+-endif
+ obj-$(CONFIG_MMC) += mmc.o
+ 
+ ifndef CONFIG_$(SPL_)BLK
+@@ -37,7 +35,7 @@ obj-$(CONFIG_MVEBU_MMC) += mvebu_mmc.o
+ obj-$(CONFIG_MMC_OMAP_HS)		+= omap_hsmmc.o
+ obj-$(CONFIG_MMC_MXC)			+= mxcmmc.o
+ obj-$(CONFIG_MMC_MXS)			+= mxsmmc.o
+-obj-$(CONFIG_MMC_OCTEONTX)		+= octeontx_mmc.o
++obj-$(CONFIG_MMC_OCTEONTX)		+= octeontx_hsmmc.o
+ obj-$(CONFIG_MMC_PCI)			+= pci_mmc.o
+ obj-$(CONFIG_PXA_MMC_GENERIC) += pxa_mmc_gen.o
+ obj-$(CONFIG_SUPPORT_EMMC_RPMB) += rpmb.o
+-- 
+2.29.0
+

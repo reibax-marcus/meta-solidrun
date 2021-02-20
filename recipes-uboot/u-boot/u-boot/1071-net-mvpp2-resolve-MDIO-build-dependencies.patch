@@ -1,0 +1,36 @@
+From 0ac2f342d701f40298d02e6b50c4d933f3471276 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Mon, 27 Jan 2020 11:17:55 +0100
+Subject: [PATCH 1071/1239] net: mvpp2: resolve MDIO build dependencies
+
+Now as the mvpp2 depends on the updated DM_MDIO
+reflect that in Kconfig file. As the vast majority
+of the boards use the built-in MDIO controller,
+enable MVMDIO by default as well.
+
+Change-Id: Ifbff89693c3a2c31dd2e162bed83797ce5556633
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/22360
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/net/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 95552546d2..5ffac849d8 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -297,6 +297,8 @@ config MVNETA
+ config MVPP2
+ 	bool "Marvell Armada 375/7K/8K network interface support"
+ 	depends on ARMADA_375 || ARMADA_8K
++	select DM_MDIO
++	select MVMDIO
+ 	select PHYLIB
+ 	help
+ 	  This driver supports the network interface units in the
+-- 
+2.29.0
+

@@ -1,0 +1,80 @@
+From 109360627b5ffd0a8ded46e3df727015397f9147 Mon Sep 17 00:00:00 2001
+From: allen yan <yanwei@marvell.com>
+Date: Wed, 5 Apr 2017 10:24:46 +0800
+Subject: [PATCH 0092/1239] arm64: dts: armada-3720-db: declare regulator
+ supplies
+
+This patch introduces a control over USB2/3 and SDIO
+power supplies via GPIO-driven regulators.
+
+Signed-off-by: allen yan <yanwei@marvell.com>
+Signed-off-by: Evan Wang <xswang@marvell.com>
+---
+ arch/arm/dts/armada-3720-db.dts | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/arch/arm/dts/armada-3720-db.dts b/arch/arm/dts/armada-3720-db.dts
+index 4543c66af8..cc129380b8 100644
+--- a/arch/arm/dts/armada-3720-db.dts
++++ b/arch/arm/dts/armada-3720-db.dts
+@@ -66,6 +66,35 @@
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x00000000 0x00000000 0x20000000>;
+ 	};
++
++	reg_usb3_vbus: usb3_vbus@0 {
++		compatible = "regulator-fixed";
++		regulator-name = "usb3-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		shutdown-delay-us = <1000000>;
++		gpio = <&expander0 1 GPIO_ACTIVE_HIGH>;
++	};
++
++	reg_usb2_vbus: usb2_vbus@0 {
++		compatible = "regulator-fixed";
++		regulator-name = "usb2-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		shutdown-delay-us = <1000000>;
++		gpio = <&expander0 0 GPIO_ACTIVE_HIGH>;
++	};
++
++	vcc_sd_reg0: regulator@0 {
++		compatible = "regulator-gpio";
++		regulator-name = "vcc_sd0";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-type = "voltage";
++		states = <1800000 0x1
++				  3300000 0x0>;
++		gpios = <&gpiosb 23 GPIO_ACTIVE_HIGH>;
++	};
+ };
+ 
+ &comphy {
+@@ -109,6 +138,7 @@
+ 
+ &sdhci0 {
+ 	bus-width = <4>;
++	vqmmc-supply = <&vcc_sd_reg0>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&sdio_pins>;
+ 	status = "okay";
+@@ -156,11 +186,13 @@
+ 
+ /* CON29 */
+ &usb2 {
++	vbus-supply = <&reg_usb2_vbus>;
+ 	status = "okay";
+ };
+ 
+ /* CON31 */
+ &usb3 {
++	vbus-supply = <&reg_usb3_vbus>;
+ 	status = "okay";
+ };
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,29 @@
+From 9bc365e0a59e3d6f9be050e7a80a6a3f8d8a3ece Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Mon, 24 Dec 2018 10:23:02 -0800
+Subject: [PATCH 0860/1239] net:octeontx2: Use correct field to print errcode.
+
+Change-Id: I3b64d753f4521d231a351bef70560066d01ac9f4
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/1475
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+---
+ drivers/net/octeontx2/cgx_intf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index 172705ff84..118a10a015 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -136,7 +136,7 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
+ 	}
+ 	if (scr0.s.evt_sts.stat != CGX_STAT_SUCCESS) {
+ 		printf("%s failure for cmd %d on cgx %u lmac %u with errcode"
+-			" %d\n", __func__, cmd, cgx, lmac, scr0.s.err.type);
++			" %d\n", __func__, cmd, cgx, lmac, scr0.s.link_sts.err_type);
+ 		err = -1;
+ 		goto error;
+ 	}
+-- 
+2.29.0
+

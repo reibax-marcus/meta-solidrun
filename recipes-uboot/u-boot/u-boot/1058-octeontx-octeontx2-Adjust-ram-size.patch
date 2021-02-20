@@ -1,0 +1,146 @@
+From 970a50728566e7062df3ce770cfd370e4c42ef74 Mon Sep 17 00:00:00 2001
+From: Lukasz Majczak <lukaszm@marvell.com>
+Date: Fri, 10 Jan 2020 14:12:43 +0100
+Subject: [PATCH 1058/1239] octeontx: octeontx2: Adjust ram size
+
+Adjust total ram size used by u-boot with respect to preserved memory
+regions set by the BDK.
+
+Change-Id: I7d36e12d40852ecb2bb8df39f83c430425898c04
+Signed-off-by: Lukasz Majczak <lukaszm@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/21410
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx/board.h  |  2 +-
+ arch/arm/include/asm/arch-octeontx2/board.h |  2 +-
+ board/Marvell/octeontx/board-fdt.c          | 26 +++++++++++++++++++++
+ board/Marvell/octeontx/board.c              |  2 +-
+ board/Marvell/octeontx2/board-fdt.c         | 26 +++++++++++++++++++++
+ board/Marvell/octeontx2/board.c             |  1 +
+ 6 files changed, 56 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx/board.h b/arch/arm/include/asm/arch-octeontx/board.h
+index 8755226a31..174d7fbbfb 100644
+--- a/arch/arm/include/asm/arch-octeontx/board.h
++++ b/arch/arm/include/asm/arch-octeontx/board.h
+@@ -119,5 +119,5 @@ void fdt_board_get_ethaddr(int bgx, int lmac, unsigned char *eth);
+ 
+ void bgx_set_board_info(int bgx_id, int *mdio_bus, int *phy_addr,
+ 			bool *autoneg_dis, bool *lmac_reg, bool *lmac_enable);
+-
++u64 fdt_get_preserved_mem_size(unsigned int node);
+ #endif /* __BOARD_H__ */
+diff --git a/arch/arm/include/asm/arch-octeontx2/board.h b/arch/arm/include/asm/arch-octeontx2/board.h
+index 6d3691e809..2e425825cf 100644
+--- a/arch/arm/include/asm/arch-octeontx2/board.h
++++ b/arch/arm/include/asm/arch-octeontx2/board.h
+@@ -187,5 +187,5 @@ const char *fdt_get_board_serial(void);
+ const char *fdt_get_board_revision(void);
+ void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr);
+ void acquire_flash_arb(bool acquire);
+-
++u64 fdt_get_preserved_mem_size(unsigned int node);
+ #endif /* __BOARD_H__ */
+diff --git a/board/Marvell/octeontx/board-fdt.c b/board/Marvell/octeontx/board-fdt.c
+index 0f38ee8cba..d0b7901097 100644
+--- a/board/Marvell/octeontx/board-fdt.c
++++ b/board/Marvell/octeontx/board-fdt.c
+@@ -180,6 +180,32 @@ static int fdt_get_bdk_node(void)
+ 	return node;
+ }
+ 
++u64 fdt_get_preserved_mem_size(unsigned int node)
++{
++	const void *fdt = gd->fdt_blob;
++	int bdk_node, len = 64;
++	const char *str = NULL;
++	char prop_name[34] = {};
++	u64 preserved_mem_size = 0;
++
++	bdk_node = fdt_get_bdk_node();
++	if (!bdk_node)
++		return 0;
++
++	snprintf(prop_name, 34, "DDR-CONFIG-PRESERVE-NON-SECURE.N%d", node);
++	str = fdt_getprop(fdt, bdk_node, prop_name, &len);
++	if (str)
++		preserved_mem_size += (strtoul(str, NULL, 16) << 20);
++
++	snprintf(prop_name, 34, "DDR-CONFIG-PRESERVE-SECURE.N%d", node);
++	str = fdt_getprop(fdt, bdk_node, prop_name, &len);
++	if (str)
++		preserved_mem_size += (strtoul(str, NULL, 16) << 20);
++
++	printf("Total memory preserved region: 0x%llx bytes\n", preserved_mem_size);
++	return preserved_mem_size;
++}
++
+ const char *fdt_get_board_serial(void)
+ {
+ 	const void *fdt = gd->fdt_blob;
+diff --git a/board/Marvell/octeontx/board.c b/board/Marvell/octeontx/board.c
+index 7658b1eadf..206af02b1f 100644
+--- a/board/Marvell/octeontx/board.c
++++ b/board/Marvell/octeontx/board.c
+@@ -67,7 +67,7 @@ int dram_init(void)
+ {
+ 	gd->ram_size = smc_dram_size(0);
+ 	gd->ram_size -= CONFIG_SYS_SDRAM_BASE;
+-
++	gd->ram_size -= fdt_get_preserved_mem_size(0);
+ 	mem_map_fill();
+ 
+ 	return 0;
+diff --git a/board/Marvell/octeontx2/board-fdt.c b/board/Marvell/octeontx2/board-fdt.c
+index c975bcdf71..9b3028204c 100644
+--- a/board/Marvell/octeontx2/board-fdt.c
++++ b/board/Marvell/octeontx2/board-fdt.c
+@@ -93,6 +93,32 @@ int fdt_get_board_mac_cnt(void)
+ 	return mac_count;
+ }
+ 
++u64 fdt_get_preserved_mem_size(unsigned int node)
++{
++	const void *fdt = gd->fdt_blob;
++	int bdk_node, len = 64;
++	const char *str = NULL;
++	char prop_name[34] = {};
++	u64 preserved_mem_size = 0;
++
++	bdk_node = fdt_get_bdk_node();
++	if (!bdk_node)
++		return 0;
++
++	snprintf(prop_name, 34, "DDR-CONFIG-PRESERVE-NON-SECURE.N%d", node);
++	str = fdt_getprop(fdt, bdk_node, prop_name, &len);
++	if (str)
++		preserved_mem_size += (strtoul(str, NULL, 16) << 20);
++
++	snprintf(prop_name, 34, "DDR-CONFIG-PRESERVE-SECURE.N%d", node);
++	str = fdt_getprop(fdt, bdk_node, prop_name, &len);
++	if (str)
++		preserved_mem_size += (strtoul(str, NULL, 16) << 20);
++
++	printf("Total memory preserved region: 0x%llx bytes\n", preserved_mem_size);
++	return preserved_mem_size;
++}
++
+ const char *fdt_get_board_serial(void)
+ {
+ 	const void *fdt = gd->fdt_blob;
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 9e34860f38..47c5fd69a5 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -138,6 +138,7 @@ int dram_init(void)
+ {
+ 	gd->ram_size = smc_dram_size(0);
+ 	gd->ram_size -= CONFIG_SYS_SDRAM_BASE;
++	gd->ram_size -= fdt_get_preserved_mem_size(0);
+ 
+ 	mem_map_fill();
+ 
+-- 
+2.29.0
+

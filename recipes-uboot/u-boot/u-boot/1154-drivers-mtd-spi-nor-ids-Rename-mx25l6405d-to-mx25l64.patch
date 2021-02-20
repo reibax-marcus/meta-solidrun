@@ -1,0 +1,35 @@
+From 1c968f8151b073d72af293874f25ba057a5db638 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Mon, 18 May 2020 15:03:45 -0700
+Subject: [PATCH 1154/1239] drivers: mtd: spi-nor-ids: Rename mx25l6405d to
+ mx25l6433f
+
+EOL device mx25l6405d is replaced by mx25l6433f using the same
+JEDEC ID so update with appropriate flags.
+
+Change-Id: I7dbffe16f90944c93b17b53ec8f0d70880bb30da
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28675
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mtd/spi/spi-nor-ids.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/spi/spi-nor-ids.c b/drivers/mtd/spi/spi-nor-ids.c
+index 95672677ef..8506a9fdf7 100644
+--- a/drivers/mtd/spi/spi-nor-ids.c
++++ b/drivers/mtd/spi/spi-nor-ids.c
+@@ -136,7 +136,8 @@ const struct flash_info spi_nor_ids[] = {
+ 	{ INFO("mx25l8005",   0xc22014, 0, 64 * 1024,  16, 0) },
+ 	{ INFO("mx25l1606e",  0xc22015, 0, 64 * 1024,  32, SECT_4K) },
+ 	{ INFO("mx25l3205d",  0xc22016, 0, 64 * 1024,  64, SECT_4K) },
+-	{ INFO("mx25l6405d",  0xc22017, 0, 64 * 1024, 128, SECT_4K) },
++	{ INFO("mx25l6433f",  0xc22017, 0, 64 * 1024, 128,
++			 SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
+ 	{ INFO("mx25u2033e",  0xc22532, 0, 64 * 1024,   4, SECT_4K) },
+ 	{ INFO("mx25u1635e",  0xc22535, 0, 64 * 1024,  32, SECT_4K) },
+ 	{ INFO("mx25u3235f",  0xc22536, 0, 64 * 1024,  64, SECT_4K) },
+-- 
+2.29.0
+

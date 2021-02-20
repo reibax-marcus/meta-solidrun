@@ -1,0 +1,56 @@
+From c318707ff021e8c0e231324cbe966579bdff55bc Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Mon, 11 Jun 2018 17:49:35 +0200
+Subject: [PATCH 0153/1239] arm64: mvebu: add platform specific synchronous
+ exception handler
+
+When the attempt to access ATF RT services region
+is made (0x4000000-0x5400000) print some helpful
+information.
+
+Change-Id: Ie82850f4030dbd6ab32cc28a98e4a21ae0dd981f
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ arch/arm/mach-mvebu/arm64-common.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/arch/arm/mach-mvebu/arm64-common.c b/arch/arm/mach-mvebu/arm64-common.c
+index 5c6e26fa54..41765b86a9 100644
+--- a/arch/arm/mach-mvebu/arm64-common.c
++++ b/arch/arm/mach-mvebu/arm64-common.c
+@@ -15,6 +15,7 @@
+ #include <asm/arch/soc.h>
+ #include <asm/armv8/mmu.h>
+ #include <power/regulator.h>
++#include <mach/fw_info.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -145,3 +146,24 @@ int arch_early_init_r(void)
+ 
+ 	return 0;
+ }
++
++void plat_do_sync(void)
++{
++	u32 far, el;
++
++	el = current_el();
++
++	if (el == 1)
++		asm volatile("mrs %0, far_el1" : "=r" (far));
++	else if (el == 2)
++		asm volatile("mrs %0, far_el2" : "=r" (far));
++	else
++		asm volatile("mrs %0, far_el3" : "=r" (far));
++
++	if (far >= ATF_REGION_START && far <= ATF_REGION_END) {
++		pr_err("\n\tAttempt to access RT service or TEE region (addr: 0x%x, el%d)\n",
++		       far, el);
++		pr_err("\tDo not use address range 0x%x-0x%x\n\n",
++		       ATF_REGION_START, ATF_REGION_END);
++	}
++}
+-- 
+2.29.0
+

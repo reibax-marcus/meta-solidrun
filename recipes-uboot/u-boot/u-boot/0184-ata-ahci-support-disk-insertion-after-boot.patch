@@ -1,0 +1,40 @@
+From 52c0639cfb9460600891118b628bd70eca433f3a Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Thu, 23 Aug 2018 19:03:53 +0300
+Subject: [PATCH 0184/1239] ata: ahci: support disk insertion after boot
+
+Run AHCI port initialization procedure when the port command
+buffer is not allocated, but link is up.
+This patch allows plugging in AHCI devices after board boot.
+
+Change-Id: Id5fbb896195144f3c9f1b6c521566bb88f94f402
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ drivers/ata/ahci.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 9a08575053..9ee170daf9 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -639,6 +639,17 @@ static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
+ 		return -1;
+ 	}
+ 
++	/*
++	 * If the device was plugged after boot, the port is not initialized
++	 * Try to restart the port for supporting device hot plug-in
++	 */
++	if (pp->cmd_tbl == 0) {
++		if (ahci_port_start(uc_priv, port)) {
++			printf("Cannot restart port %d\n", port);
++			return -1;
++		}
++	}
++
+ 	memcpy((unsigned char *)pp->cmd_tbl, fis, fis_len);
+ 
+ 	sg_count = ahci_fill_sg(uc_priv, port, buf, buf_len);
+-- 
+2.29.0
+

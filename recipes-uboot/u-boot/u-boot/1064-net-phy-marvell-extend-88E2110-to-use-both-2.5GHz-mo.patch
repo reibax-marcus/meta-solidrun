@@ -1,0 +1,37 @@
+From 1939fe0c705f085f2664313620f8cf7393e967f6 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Wed, 22 Jan 2020 17:59:26 +0100
+Subject: [PATCH 1064/1239] net: phy: marvell: extend 88E2110 to use both
+ 2.5GHz modes
+
+Allow 88E2110 to configure advertisements for both
+SGMII @2.5Ghz and 2500BaseX modes.
+
+Change-Id: I60e61534246755c890f5283d6041f9c8fbcea87b
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/22043
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+---
+ drivers/net/phy/marvell.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index 4b2921129f..c5e0d7ef26 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -720,7 +720,8 @@ static int m88e2110_config(struct phy_device *phydev)
+ 		/* Disabled 10G advertisement */
+ 		phy_write(phydev, 7, 0x20, 0x1e1);
+ 	} else {
+-		if (phydev->interface == PHY_INTERFACE_MODE_SGMII_2500) {
++		if (phydev->interface == PHY_INTERFACE_MODE_SGMII_2500 ||
++		    phydev->interface == PHY_INTERFACE_MODE_2500BASEX) {
+ 			/* Disabled 10G/5G advertisements */
+ 			phy_write(phydev, 7, 0x20, 0xa1);
+ 		} else {
+-- 
+2.29.0
+

@@ -1,0 +1,29 @@
+From 54bf0e27372eaf88f2548febca5abc479c2d2354 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 3 Jul 2019 19:00:18 -0700
+Subject: [PATCH 0937/1239] Removed space.
+
+Change-Id: Iea5cca2943f504267f0d769e566570febb3191c7
+Reviewed-on: https://sj1git1.cavium.com/12077
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index c4f7e90122..b438f52413 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -737,7 +737,7 @@ static void octeontx_mmc_track_switch(struct mmc *mmc, u32 cmd_arg)
+ 		slot->want_switch.s.bus_width = val;
+ 		break;
+ 	case EXT_CSD_POWER_CLASS:
+-		slot->want_switch.s. power_class = val;
++		slot->want_switch.s.power_class = val;
+ 		break;
+ 	case EXT_CSD_HS_TIMING:
+ 		slot->want_switch.s.hs_timing = 0;
+-- 
+2.29.0
+

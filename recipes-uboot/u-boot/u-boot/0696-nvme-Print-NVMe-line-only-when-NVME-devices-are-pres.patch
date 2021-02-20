@@ -1,0 +1,43 @@
+From f8b69588df3c67ee1ee9da6732c5b58a61d13538 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 22 Aug 2017 23:29:14 +0300
+Subject: [PATCH 0696/1239] nvme: Print "NVMe:" line only when NVME devices are
+ present
+
+Only print the "NVME: " prompt and a list of devices when there
+are any actual NVME devices in the system
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ common/board_r.c     | 1 -
+ drivers/block/nvme.c | 2 ++
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/common/board_r.c b/common/board_r.c
+index fecebac550..ce0c15c763 100644
+--- a/common/board_r.c
++++ b/common/board_r.c
+@@ -428,7 +428,6 @@ static int initr_mmc(void)
+ #ifdef CONFIG_NVME
+ static int initr_nvme(void)
+ {
+-	puts("NVMe:  ");
+ 	nvme_initialize();
+ 	return 0;
+ }
+diff --git a/drivers/block/nvme.c b/drivers/block/nvme.c
+index ddb61900fa..477eb9b2f1 100644
+--- a/drivers/block/nvme.c
++++ b/drivers/block/nvme.c
+@@ -905,6 +905,8 @@ int __nvme_initialize(void)
+ 		if (ret)
+ 			break;
+ 
++		puts("NVMe:  ");
++
+ 		for (uclass_first_device(UCLASS_NVME, &ndev);
+ 		     ndev;
+ 		     uclass_next_device(&ndev)) {
+-- 
+2.29.0
+

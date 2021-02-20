@@ -1,0 +1,44 @@
+From 6bb339e5906662d0b8a54f0f3c3e877d003b9195 Mon Sep 17 00:00:00 2001
+From: Victor Axelrod <victora@marvell.com>
+Date: Tue, 25 Jul 2017 17:22:04 +0300
+Subject: [PATCH 0266/1239] arm: mvebu: a38x: support external dram code
+
+This patch adds support for external mv_ddr dram code.
+It requires to pass to make utility a path to mv_ddr using EXT_DDR_PATH
+variable.
+Here is an example how to compile u-boot with external mv_ddr code,
+where mv_ddr directory is located in parallel with u-boot:
+	$ make DEVICE_TREE=armada-388-gp EXT_DDR_PATH=../../mv_ddr/ -j4
+
+Change-Id: Ic89c1205cdda8e909e22143e87a8e8aaf84abafa
+Signed-off-by: Victor Axelrod <victora@marvell.com>
+---
+ drivers/Makefile | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/Makefile b/drivers/Makefile
+index e6db57f1b0..99d0f5ada1 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -31,10 +31,17 @@ ifndef CONFIG_TPL_BUILD
+ ifdef CONFIG_SPL_BUILD
+ 
+ obj-$(CONFIG_SPL_BOOTCOUNT_LIMIT) += bootcount/
++
++ifneq ($(EXT_DDR_PATH),)
++DDR_PATH := $(EXT_DDR_PATH)
++else
++DDR_PATH := ddr/marvell/a38x/
++endif
++
+ obj-$(CONFIG_SPL_CPU_SUPPORT) += cpu/
+ obj-$(CONFIG_SPL_CRYPTO_SUPPORT) += crypto/
+ obj-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += ddr/fsl/
+-obj-$(CONFIG_ARMADA_38X) += ddr/marvell/a38x/
++obj-$(CONFIG_ARMADA_38X) += $(DDR_PATH)
+ obj-$(CONFIG_ARMADA_XP) += ddr/marvell/axp/
+ obj-$(CONFIG_$(SPL_)ALTERA_SDRAM) += ddr/altera/
+ obj-$(CONFIG_ARCH_IMX8M) += ddr/imx/imx8m/
+-- 
+2.29.0
+

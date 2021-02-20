@@ -1,0 +1,61 @@
+From ea8a073edf6daa5110f4195a8cce48542bedde5e Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 26 Jul 2017 14:39:52 +0300
+Subject: [PATCH 0662/1239] NVMe: add nvme commands
+
+Add nvme commands in U-Boot command line.
+
+1. "nvme list" - show all available NVMe blk devices
+2. "nvme info" - show current or a specific NVMe blk device
+3. "nvme device" - show or set current device
+4. "nvme part" - print partition table
+5. "nvme read" - read data from NVMe blk device
+6. "nvme write" - write data to NVMe blk device
+
+Signed-off-by: Zhikang Zhang <zhikang.zh...@nxp.com>
+Signed-off-by: Wenbin Song <wenbin.s...@nxp.com>
+---
+ cmd/Kconfig | 9 +++++++++
+ disk/part.c | 6 ++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index c2fae7c7d2..c72827d877 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1149,6 +1149,15 @@ config CMD_SATA
+ 	  Attachment, where AT refers to an IBM AT (Advanced Technology)
+ 	  computer released in 1984.
+ 
++config CMD_NVME
++	bool "NVMe"
++	depends on NVME
++	help
++	  NVMe support.
++	  This enables nvme commands in command line
++	  You can use comamnd "nvme" to show what commands it supports
++	  such as "nvme info" "nvme list".
++
+ config CMD_SAVES
+ 	bool "saves - Save a file over serial in S-Record format"
+ 	help
+diff --git a/disk/part.c b/disk/part.c
+index 8982ef3bae..47bae0f539 100644
+--- a/disk/part.c
++++ b/disk/part.c
+@@ -157,6 +157,12 @@ void dev_print (struct blk_desc *dev_desc)
+ 	case IF_TYPE_DOC:
+ 		puts("device type DOC\n");
+ 		return;
++	case IF_TYPE_NVME:
++		printf("Vendor: %s Rev: %s Prod: %s\n",
++		       dev_desc->vendor,
++		       dev_desc->revision,
++		       dev_desc->product);
++	break;
+ 	case IF_TYPE_UNKNOWN:
+ 		puts("device type unknown\n");
+ 		return;
+-- 
+2.29.0
+

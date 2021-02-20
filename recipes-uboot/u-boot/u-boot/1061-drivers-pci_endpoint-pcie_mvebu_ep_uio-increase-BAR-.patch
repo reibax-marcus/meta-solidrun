@@ -1,0 +1,35 @@
+From 22bf6804c7358f21ed9184e5fec0b799be23d317 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 20 Jan 2020 16:11:07 +0200
+Subject: [PATCH 1061/1239] drivers/pci_endpoint/pcie_mvebu_ep_uio: increase
+ BAR count to 6
+
+The actual BARs count in PCI header is 6. Fist 4 slots are
+occupied by 64-bit BAR0 and BAR2 and BAR4 is currently set
+for AP internal registers space access
+
+Change-Id: I5c3727fbf595c2d677a123c71863274d542bbe85
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/21907
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ drivers/pci_endpoint/pcie_mvebu_ep_uio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c b/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+index beb707aece..bb89549848 100644
+--- a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
++++ b/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+@@ -29,7 +29,7 @@ struct uio_pci {
+ };
+ 
+ /* make sure we have at least one mem regions to map the host ram */
+-#define MAX_BAR_MAP		4
++#define MAX_BAR_MAP		6
+ #define PCIE_EP_ALL_BARS	0x3f
+ 
+ 
+-- 
+2.29.0
+

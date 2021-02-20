@@ -1,0 +1,21 @@
+From ed53ae43084c8182300285e6442c3b5e81b22b06 Mon Sep 17 00:00:00 2001
+From: Jia Ma <jiam@marvell.com>
+Date: Sun, 31 May 2020 14:18:53 -0700
+Subject: [PATCH 1158/1239] Bump u-boot-2019.10-devel to release 8.0.0
+
+Change-Id: I846e49aae75f422c79f03eca41fd5f2039674abb
+Signed-off-by: Jia Ma <jiam@marvell.com>
+---
+ localversion | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/localversion b/localversion
+index 98a1d9ebe7..e89c0b9810 100644
+--- a/localversion
++++ b/localversion
+@@ -1 +1 @@
+--7.0.0
++-8.0.0
+-- 
+2.29.0
+

@@ -1,0 +1,37 @@
+From 1a9bd1720bc26b9ec47f718de2282b7fdb764371 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 23 Feb 2018 10:10:50 -0800
+Subject: [PATCH 0756/1239] drivers: smi: update data type for rd/wr data regs
+
+fix for bug #32256
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/cavium/thunderx_smi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/cavium/thunderx_smi.c b/drivers/net/cavium/thunderx_smi.c
+index 6ab1ba21dc..de24c51909 100644
+--- a/drivers/net/cavium/thunderx_smi.c
++++ b/drivers/net/cavium/thunderx_smi.c
+@@ -61,7 +61,7 @@ union smi_x_cmd {
+ union smi_x_wr_dat {
+ 	u64 u;
+ 	struct smi_x_wr_dat_s {
+-		int dat:16;
++		unsigned int dat:16;
+ 		int val:1;
+ 		int pending:1;
+ 	} s;
+@@ -70,7 +70,7 @@ union smi_x_wr_dat {
+ union smi_x_rd_dat {
+ 	u64 u;
+ 	struct smi_x_rd_dat_s {
+-		int dat:16;
++		unsigned int dat:16;
+ 		int val:1;
+ 		int pending:1;
+ 	} s;
+-- 
+2.29.0
+

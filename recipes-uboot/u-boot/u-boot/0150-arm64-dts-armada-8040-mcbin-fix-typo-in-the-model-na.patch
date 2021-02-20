@@ -1,0 +1,39 @@
+From 271ced1dfaf5696a17b9486b805ac22e161d48c1 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Thu, 5 Jul 2018 19:00:29 +0300
+Subject: [PATCH 0150/1239] arm64: dts: armada-8040-mcbin: fix typo in the
+ model name
+
+On the occasion, fix spacing in sdhci node.
+
+Change-Id: Ied22ab642305bc1a3930bff312a36e92a90c2be3
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-8040-mcbin.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index 2b7b06929b..66355ab176 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -6,7 +6,7 @@
+ #include "armada-80x0-db.dtsi" /* include SoC device tree */
+ 
+ / {
+-	model = "Marvell Armada 8040 MACHIATOBin";
++	model = "Marvell Armada 8040 MACCHIATOBin";
+ 	compatible = "marvell,armada8040-mcbin",
+ 		     "marvell,armada8040";
+ 
+@@ -85,7 +85,7 @@
+ &ap_sdhci0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&ap_emmc_pins>;
+-	bus-width= <8>;
++	bus-width = <8>;
+ 	status = "okay";
+ };
+ 
+-- 
+2.29.0
+

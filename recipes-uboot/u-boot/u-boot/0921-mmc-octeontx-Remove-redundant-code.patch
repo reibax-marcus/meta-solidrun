@@ -1,0 +1,35 @@
+From 759a2f1b5a3ca492541f18510b23f9927bf0ec80 Mon Sep 17 00:00:00 2001
+From: aaronw <awilliams@marvell.com>
+Date: Thu, 23 May 2019 19:13:31 -0700
+Subject: [PATCH 0921/1239] mmc: octeontx: Remove redundant code
+
+Change-Id: Id67257a1d7f0c6497e5dacd3ccdbfb21bfe63b68
+Signed-off-by: aaronw <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/9842
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index fea4a9ab2c..4e720cac37 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -1538,12 +1538,9 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
+ 	int err;
+ 	struct adj *a;
+ 
+-	if (slot->is_asim || slot->is_emul)
+-		return 0;
+-
+ 	pr_info("%s re-tuning, opcode 0x%x\n", dev->name, opcode);
+ 
+-	if (slot->is_asim)
++	if (slot->is_asim || slot->is_emul)
+ 		return 0;
+ 
+ 	for (a = adj; a->name; a++) {
+-- 
+2.29.0
+

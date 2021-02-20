@@ -1,0 +1,75 @@
+From d4a67a20c058b2d105658c31ad99458b7c9c977b Mon Sep 17 00:00:00 2001
+From: Sujeet Baranwal <sbaranwal@marvell.com>
+Date: Mon, 23 Nov 2020 11:35:30 -0800
+Subject: [PATCH 1238/1239] modification: Change in copyright message
+
+Name and ids are removed from source file header.
+
+Change-Id: I837f17e6baaf8cc621b89154efa79d4d79a74419
+Signed-off-by: Sujeet Baranwal <sbaranwal@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/40742
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Devapraba Muthumani <dmuthumani@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+---
+ arch/arm/mach-mvebu/cpu_armada.c | 3 +--
+ lib/mv_ddr_spd.h                 | 3 +--
+ lib/smbios_ddr_info.c            | 3 +--
+ lib/smbios_ddr_info.h            | 3 +--
+ 4 files changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/mach-mvebu/cpu_armada.c b/arch/arm/mach-mvebu/cpu_armada.c
+index 3aab32bdc2..dd2b3e34c4 100644
+--- a/arch/arm/mach-mvebu/cpu_armada.c
++++ b/arch/arm/mach-mvebu/cpu_armada.c
+@@ -1,7 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0+
+ /*
+- * (C) Copyright 2020
+- * Sujeet Baranwal, sbaranwal@marvell.com
++ * Copyright (C) 2020 Marvell.
+  */
+ 
+ #include <common.h>
+diff --git a/lib/mv_ddr_spd.h b/lib/mv_ddr_spd.h
+index a401240e14..e2870d5850 100644
+--- a/lib/mv_ddr_spd.h
++++ b/lib/mv_ddr_spd.h
+@@ -1,7 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0+ */
+ /*
+- * Copyright (C) 2020, Sujeet Baranwal <sbaranwal@marvell.com>
+- *
++ * Copyright (C) 2020 Marvell.
+  */
+ 
+ #ifndef _MV_DDR_SPD_H
+diff --git a/lib/smbios_ddr_info.c b/lib/smbios_ddr_info.c
+index 200b90ad69..3b61f84dfd 100644
+--- a/lib/smbios_ddr_info.c
++++ b/lib/smbios_ddr_info.c
+@@ -1,7 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0+
+ /*
+- * Copyright (C) 2020, Sujeet Baranwal <sbaranwal@marvell.com>
+- *
++ * Copyright (C) 2020 Marvell.
+  */
+ 
+ #include <stdint.h>
+diff --git a/lib/smbios_ddr_info.h b/lib/smbios_ddr_info.h
+index b776b0ed0f..2947896adb 100644
+--- a/lib/smbios_ddr_info.h
++++ b/lib/smbios_ddr_info.h
+@@ -1,7 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0+ */
+ /*
+- * Copyright (C) 2020, Sujeet Baranwal <sbaranwal@marvell.com>
+- *
++ * Copyright (C) 2020 Marvell.
+  */
+ 
+ #ifndef _SMBIOS_DDR_INFO_H_
+-- 
+2.29.0
+

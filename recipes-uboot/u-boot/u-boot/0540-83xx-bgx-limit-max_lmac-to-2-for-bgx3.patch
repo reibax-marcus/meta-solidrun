@@ -1,0 +1,31 @@
+From 6778edec146a4730c9d07d4816770d327ac09430 Mon Sep 17 00:00:00 2001
+From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+Date: Tue, 8 Nov 2016 23:39:58 +0530
+Subject: [PATCH 0540/1239] 83xx, bgx: limit max_lmac to 2 for bgx3
+
+bgx3 is connected to dlm4(2 lane module)
+
+Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index ad57e4599e..ecd5b9f1e6 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -965,6 +965,11 @@ static void bgx_set_max_lmac(struct bgx *bgx)
+ 		default:
+ 			break;
+ 	}
++
++	/* BGX3 is connected to DLM4 */
++	if (bgx->bgx_id == 3 && bgx->max_lmac > 2)
++		bgx->max_lmac = 2;
++
+ 	debug("BGX:%d MAX_LMAC:%d\n",bgx->bgx_id, bgx->max_lmac);
+ }
+ 
+-- 
+2.29.0
+

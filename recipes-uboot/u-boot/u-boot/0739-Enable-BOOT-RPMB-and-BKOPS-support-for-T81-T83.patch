@@ -1,0 +1,43 @@
+From 4c799100eceb84cc2aec7fd55e3a078ff455d6a5 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 7 Feb 2018 20:16:18 -0800
+Subject: [PATCH 0739/1239] Enable BOOT, RPMB and BKOPS support for T81 & T83
+
+---
+ include/configs/thunderx_81xx.h | 4 ++++
+ include/configs/thunderx_83xx.h | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index bddbd12c94..437899b446 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -357,6 +357,10 @@
+ #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
+ #define CONFIG_SYS_MMC_SET_DEV
+ 
++#define CONFIG_SUPPORT_EMMC_BOOT
++#define CONFIG_SUPPORT_EMMC_RPMB
++#define CONFIG_CMD_BKOPS_ENABLE
++
+ #define CONFIG_CMD_TIME
+ 
+ #endif /* __THUNDERX_81XX_H__ */
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index aba071a137..fa7d8bbd06 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -339,6 +339,10 @@
+ #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
+ #define CONFIG_SYS_MMC_SET_DEV
+ 
++#define CONFIG_SUPPORT_EMMC_BOOT
++#define CONFIG_SUPPORT_EMMC_RPMB
++#define CONFIG_CMD_BKOPS_ENABLE
++
+ #define CONFIG_CMD_TIME
+ 
+ #endif /* __THUNDERX_83XX_H__ */
+-- 
+2.29.0
+

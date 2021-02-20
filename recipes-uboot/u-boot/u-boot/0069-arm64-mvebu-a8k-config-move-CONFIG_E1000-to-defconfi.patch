@@ -1,0 +1,62 @@
+From f274bed5e393d9ef55748678d0b89183f5962537 Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Mon, 28 May 2018 16:21:11 +0800
+Subject: [PATCH 0069/1239] arm64: mvebu: a8k: config: move CONFIG_E1000 to
+ defconfig files
+
+This patch removes the hard coded dependency of CONFGI_PCIE_DW_MVEBU to
+CONFIG_E1000, and moves CONFIG_E1000 to a8k defconfig files.
+
+Change-Id: I78cd3882f46a9fef040df8564e517dd293af0254
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ configs/mvebu_db_armada8k_defconfig   | 1 +
+ configs/mvebu_mcbin-88f8040_defconfig | 1 +
+ include/configs/mvebu_armada-8k.h     | 7 -------
+ 3 files changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index b727d2668c..d69cd79bac 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -60,6 +60,7 @@ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_GIGE=y
++CONFIG_E1000=y
+ CONFIG_MVPP2=y
+ CONFIG_NVME=y
+ CONFIG_PCI=y
+diff --git a/configs/mvebu_mcbin-88f8040_defconfig b/configs/mvebu_mcbin-88f8040_defconfig
+index d468ef9dcf..6ffe091d9c 100644
+--- a/configs/mvebu_mcbin-88f8040_defconfig
++++ b/configs/mvebu_mcbin-88f8040_defconfig
+@@ -56,6 +56,7 @@ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_GIGE=y
++CONFIG_E1000=y
+ CONFIG_MVPP2=y
+ CONFIG_NVME=y
+ CONFIG_PCI=y
+diff --git a/include/configs/mvebu_armada-8k.h b/include/configs/mvebu_armada-8k.h
+index 494c4197ed..27b77beb9c 100644
+--- a/include/configs/mvebu_armada-8k.h
++++ b/include/configs/mvebu_armada-8k.h
+@@ -25,13 +25,6 @@
+ 
+ #define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
+ 
+-/*
+- * PCI configuration
+- */
+-#ifdef CONFIG_PCIE_DW_MVEBU
+-#define CONFIG_E1000
+-#endif
+-
+ #define BOOT_TARGET_DEVICES(func) \
+ 	func(MMC, mmc, 1) \
+ 	func(MMC, mmc, 0) \
+-- 
+2.29.0
+

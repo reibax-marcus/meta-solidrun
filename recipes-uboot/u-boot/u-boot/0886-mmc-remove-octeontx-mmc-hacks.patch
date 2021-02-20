@@ -1,0 +1,316 @@
+From a496d7402f8ca9b6c2fdd60264c943aae7b13c23 Mon Sep 17 00:00:00 2001
+From: aaronw <aaron.williams@cavium.com>
+Date: Mon, 4 Mar 2019 20:29:29 -0800
+Subject: [PATCH 0886/1239] mmc: remove octeontx mmc hacks
+
+The hacks for the old driver are no longer needed for the new driver.
+
+Change-Id: I18f5a2a6299f30bc977a67ba018dadb48a6cd562
+Signed-off-by: aaronw <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/5410
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ cmd/bootimgup.c                  |  2 +-
+ cmd/mmc.c                        | 28 ----------
+ configs/octeontx2_96xx_defconfig |  4 +-
+ drivers/mmc/mmc-uclass.c         | 93 +-------------------------------
+ 4 files changed, 4 insertions(+), 123 deletions(-)
+
+diff --git a/cmd/bootimgup.c b/cmd/bootimgup.c
+index 5b55b80ead..d42a4bf874 100644
+--- a/cmd/bootimgup.c
++++ b/cmd/bootimgup.c
+@@ -449,7 +449,7 @@ static int do_bootu_mmc(int argc, char * const argv[])
+ 	if (!mmc)
+ 		return CMD_RET_FAILURE;
+ 
+-	desc = mmc_get_blk_desc(mmc, curr_device);
++	desc = mmc_get_blk_desc(mmc);
+ 	if (!desc)
+ 		return CMD_RET_FAILURE;
+ 
+diff --git a/cmd/mmc.c b/cmd/mmc.c
+index e6e7fffa19..633bcbbf10 100644
+--- a/cmd/mmc.c
++++ b/cmd/mmc.c
+@@ -13,9 +13,6 @@
+ 
+ static int curr_device = -1;
+ 
+-#ifdef CONFIG_MMC_OCTEONTX
+-extern void print_mmc_device_info(struct mmc *mmc);
+-#else
+ static void print_mmcinfo(struct mmc *mmc)
+ {
+ 	int i;
+@@ -95,7 +92,6 @@ static void print_mmcinfo(struct mmc *mmc)
+ 		}
+ 	}
+ }
+-#endif
+ 
+ static struct mmc *init_mmc_device(int dev, bool force_init)
+ {
+@@ -138,11 +134,7 @@ static int do_mmcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	if (!mmc)
+ 		return CMD_RET_FAILURE;
+ 
+-#ifdef CONFIG_MMC_OCTEONTX
+-	print_mmc_device_info(mmc);
+-#else
+ 	print_mmcinfo(mmc);
+-#endif
+ 	return CMD_RET_SUCCESS;
+ }
+ 
+@@ -283,12 +275,8 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
+ 	/* Switch to the RPMB partition */
+ #ifndef CONFIG_BLK
+ 	original_part = mmc->block_dev.hwpart;
+-#else
+-#ifdef CONFIG_MMC_OCTEONTX
+-	original_part = mmc_get_blk_desc(mmc, curr_device)->hwpart;
+ #else
+ 	original_part = mmc_get_blk_desc(mmc)->hwpart;
+-#endif
+ #endif
+ 	if (blk_select_hwpart_devnum(IF_TYPE_MMC, curr_device, MMC_PART_RPMB) !=
+ 	    0)
+@@ -324,11 +312,7 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
+ 	printf("\nMMC read: dev # %d, block # %d, count %d ... ",
+ 	       curr_device, blk, cnt);
+ 
+-#ifdef CONFIG_MMC_OCTEONTX
+-	n = blk_dread(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
+-#else
+ 	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, addr);
+-#endif
+ 	printf("%d blocks read: %s\n", n, (n == cnt) ? "OK" : "ERROR");
+ 
+ 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+@@ -425,11 +409,7 @@ static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
+ 		printf("Error: card is write protected!\n");
+ 		return CMD_RET_FAILURE;
+ 	}
+-#ifdef CONFIG_MMC_OCTEONTX
+-	n = blk_dwrite(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
+-#else
+ 	n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, addr);
+-#endif
+ 	printf("%d blocks written: %s\n", n, (n == cnt) ? "OK" : "ERROR");
+ 
+ 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+@@ -457,11 +437,7 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
+ 		printf("Error: card is write protected!\n");
+ 		return CMD_RET_FAILURE;
+ 	}
+-#ifdef CONFIG_MMC_OCTEONTX
+-	n = blk_derase(mmc_get_blk_desc(mmc, curr_device), blk, cnt);
+-#else
+ 	n = blk_derase(mmc_get_blk_desc(mmc), blk, cnt);
+-#endif
+ 	printf("%d blocks erased: %s\n", n, (n == cnt) ? "OK" : "ERROR");
+ 
+ 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+@@ -536,11 +512,7 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
+ 	else
+ 		printf("mmc%d(part %d) is current device\n",
+ 		       curr_device,
+-#ifdef CONFIG_MMC_OCTEONTX
+-		       mmc_get_blk_desc(mmc, curr_device)->hwpart);
+-#else
+ 		       mmc_get_blk_desc(mmc)->hwpart);
+-#endif
+ 
+ 	return CMD_RET_SUCCESS;
+ }
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 17697b5ad2..f4dc762ed7 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -60,9 +60,9 @@ CONFIG_I2C_SET_DEFAULT_BUS_NUM=y
+ CONFIG_I2C_MUX=y
+ CONFIG_I2C_MUX_PCA954x=y
+ CONFIG_MISC=y
+-# CONFIG_MMC is not set
++CONFIG_MMC=y
+ CONFIG_DM_MMC=y
+-CONFIG_MMC_OCTEONTX=y
++CONFIG_MMC_OCTEONTX is not set
+ CONFIG_MTD=y
+ CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH=y
+diff --git a/drivers/mmc/mmc-uclass.c b/drivers/mmc/mmc-uclass.c
+index b21843ef1b..81230f59a3 100644
+--- a/drivers/mmc/mmc-uclass.c
++++ b/drivers/mmc/mmc-uclass.c
+@@ -11,11 +11,6 @@
+ #include <dm/lists.h>
+ #include "mmc_private.h"
+ 
+-#ifdef CONFIG_MMC_OCTEONTX
+-# include <asm/gpio.h>
+-# include <asm/arch/octeontx_mmc.h>
+-#endif
+-
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+ int dm_mmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+@@ -203,17 +198,9 @@ struct mmc *mmc_get_mmc_dev(struct udevice *dev)
+ {
+ 	if (!device_active(dev))
+ 		return NULL;
+-#ifdef CONFIG_MMC_OCTEONTX
+-	struct octeontx_mmc_host *host = dev_get_priv(dev);
+-	if (!host)
+-		return NULL;
+-	struct mmc *mmc = host->slots[host->cur_slotid].mmc;
+-	return mmc;
+-#else
+ 	struct mmc_uclass_priv *upriv;
+ 	upriv = dev_get_uclass_priv(dev);
+ 	return upriv->mmc;
+-#endif
+ }
+ 
+ #if CONFIG_IS_ENABLED(BLK)
+@@ -233,14 +220,6 @@ struct mmc *find_mmc_device(int dev_num)
+ 
+ 	mmc_dev = dev_get_parent(dev);
+ 
+-#ifdef CONFIG_MMC_OCTEONTX
+-	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
+-
+-	if (dev_num > OCTEONTX_MAX_MMC_SLOT && !host)
+-		return NULL;
+-
+-	host->cur_slotid = dev_num;
+-#endif
+ 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
+ 
+ 	return mmc;
+@@ -256,28 +235,11 @@ int mmc_get_next_devnum(void)
+ 	return blk_find_max_devnum(IF_TYPE_MMC);
+ }
+ 
+-#ifdef CONFIG_MMC_OCTEONTX
+-struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum)
+-{
+-	struct blk_desc *desc;
+-	struct udevice *dev;
+-
+-	for (device_find_first_child(mmc->dev, &dev);
+-	     dev;
+-	     device_find_next_child(&dev)) {
+-		desc = dev_get_uclass_platdata(dev);
+-		if (desc && desc->if_type == IF_TYPE_MMC &&
+-		    desc->devnum == devnum)
+-			return desc;
+-	}
+-	return NULL;
+-}
+-#else
+ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
+ {
+ 	struct blk_desc *desc;
+ 	struct udevice *dev;
+- 
++
+ 	device_find_first_child(mmc->dev, &dev);
+ 	if (!dev)
+ 		return NULL;
+@@ -285,7 +247,6 @@ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
+ 
+ 	return desc;
+ }
+-#endif
+ 
+ void mmc_do_preinit(void)
+ {
+@@ -319,40 +280,6 @@ void print_mmc_devices(char separator)
+ 	for (uclass_first_device(UCLASS_MMC, &dev);
+ 	     dev;
+ 	     uclass_next_device(&dev), first = false) {
+-#ifdef CONFIG_MMC_OCTEONTX
+-		/* The OcteonTX has multiple slots connected to a single
+-		 * PCI device so each slot must be processed inside the
+-		 * device.
+-		 */
+-		struct octeontx_mmc_host *host = dev_get_priv(dev);
+-		struct mmc *m = NULL;
+-
+-		if (!host)
+-			continue;
+-
+-		for (int devnum = 0; devnum < OCTEONTX_MAX_MMC_SLOT;
+-			devnum++, m=NULL) {
+-			if (!first) {
+-				printf("%c", separator);
+-				if (separator != '\n')
+-					puts(" ");
+-			}
+-
+-			if (!(host->slots[devnum].mmc))
+-				continue;
+-			m = host->slots[devnum].mmc;
+-
+-			if (m->has_init)
+-				mmc_type = IS_SD(m) ? "SD" : "eMMC";
+-			else
+-				mmc_type = NULL;
+-
+-			printf("%s: %d ", m->cfg->name, devnum);
+-
+-			if (mmc_type)
+-				printf("(%s)  ", mmc_type);
+-		}
+-#else
+ 		struct mmc *m = mmc_get_mmc_dev(dev);
+ 
+ 		if (!first) {
+@@ -369,7 +296,6 @@ void print_mmc_devices(char separator)
+ 			mmc_get_blk_desc(m)->devnum);
+ 		if (mmc_type)
+ 			printf(" (%s)", mmc_type);
+-#endif
+ 	}
+ 
+ 	printf("\n");
+@@ -435,18 +361,7 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
+ {
+ 	struct udevice *mmc_dev = dev_get_parent(bdev);
+ 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
+-#ifdef CONFIG_MMC_OCTEONTX
+-	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
+-	struct mmc *mmc = host->slots[desc->devnum].mmc;
+-
+-	/* As octeontx mmc have multiple slots, switch the slot if it
+-	 * is not current.
+-	 */
+-	if (host->cur_slotid != desc->devnum)
+-		host->cur_slotid = desc->devnum;
+-#else
+ 	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
+-#endif
+ 	if (desc->hwpart == hwpart)
+ 		return 0;
+ 
+@@ -463,14 +378,8 @@ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
+ static int mmc_blk_probe(struct udevice *dev)
+ {
+ 	struct udevice *mmc_dev = dev_get_parent(dev);
+-#ifdef CONFIG_MMC_OCTEONTX
+-	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
+-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+-	struct mmc *mmc = host->slots[desc->devnum].mmc;
+-#else
+ 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc_dev);
+ 	struct mmc *mmc = upriv->mmc;
+-#endif
+ 	int ret;
+ 
+ 	ret = mmc_init(mmc);
+-- 
+2.29.0
+

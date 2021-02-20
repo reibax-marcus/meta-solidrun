@@ -1,0 +1,65 @@
+From acc8ff5b8c182fed6921b30602ef17282f02cfd0 Mon Sep 17 00:00:00 2001
+From: Stefan Chulski <stefanc@marvell.com>
+Date: Tue, 18 Feb 2020 19:10:25 +0200
+Subject: [PATCH 1100/1239] net: phy: marvell: Fix 2210 link and speed
+ detection resolution
+
+Patch fix couple of link and speed detection resolution bugs:
+1. Waiting for PHY real time link condition.
+2. Replace PHYSTAT_SPDDONE with PHYSTAT_LINK in while loop,
+   PHYSTAT_SPDDONE could be enabled before link status changed to
+   enable.
+3. Update link status after link resolution loop.
+
+Change-Id: I67a56cf3de91b8ac3dde86e7ca49e0ab61b5e18f
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23444
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Yan Markman <ymarkman@marvell.com>
+Reviewed-by: Marcin Wojtas <marcin@marvell.com>
+---
+ drivers/net/phy/marvell.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index e340537cc1..144ff228b8 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -749,12 +749,11 @@ static uint m88e2110_parse_status(struct phy_device *phydev)
+ 
+ 	mii_reg = phy_read(phydev, 3, MIIM_88E2110_PHY_STATUS);
+ 
+-	if ((mii_reg & MIIM_88E2110_PHYSTAT_LINK) &&
+-	    !(mii_reg & MIIM_88E2110_PHYSTAT_SPDDONE)) {
++	if (!(mii_reg & MIIM_88E2110_PHYSTAT_LINK)) {
+ 		int i = 0;
+ 
+ 		puts("Waiting for PHY realtime link");
+-		while (!(mii_reg & MIIM_88E2110_PHYSTAT_SPDDONE)) {
++		while (!(mii_reg & MIIM_88E2110_PHYSTAT_LINK)) {
+ 			/* Timeout reached ? */
+ 			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
+ 				puts(" TIMEOUT !\n");
+@@ -769,13 +768,13 @@ static uint m88e2110_parse_status(struct phy_device *phydev)
+ 		}
+ 		puts(" done\n");
+ 		mdelay(500);	/* another 500 ms (results in faster booting) */
+-	} else {
+-		if (mii_reg & MIIM_88E2110_PHYSTAT_LINK)
+-			phydev->link = 1;
+-		else
+-			phydev->link = 0;
+ 	}
+ 
++	if (mii_reg & MIIM_88E2110_PHYSTAT_LINK)
++		phydev->link = 1;
++	else
++		phydev->link = 0;
++
+ 	if (mii_reg & MIIM_88E2110_PHYSTAT_DUPLEX)
+ 		phydev->duplex = DUPLEX_FULL;
+ 	else
+-- 
+2.29.0
+

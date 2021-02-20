@@ -1,0 +1,39 @@
+From 0dcafe6607b427d392bc4203292dea7c0e46b936 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 1 Jun 2016 21:50:26 -0700
+Subject: [PATCH 0490/1239] Added setenv_force to override the read only flag
+ when setting an environment variable.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ cmd/nvedit.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/cmd/nvedit.c b/cmd/nvedit.c
+index 1cb0bc1460..b8024da168 100644
+--- a/cmd/nvedit.c
++++ b/cmd/nvedit.c
+@@ -313,6 +313,20 @@ int env_set(const char *varname, const char *varvalue)
+ 		return _do_env_set(0, 3, (char * const *)argv, H_PROGRAMMATIC);
+ }
+ 
++int setenv_force(const char *varname, const char *varvalue)
++{
++	const char * const argv[5] = { "setenv", "-f", varname, varvalue, NULL };
++
++	/* before import into hashtable */
++	if (!(gd->flags & GD_FLG_ENV_READY))
++		return 1;
++
++	if (varvalue == NULL || varvalue[0] == '\0')
++		return _do_env_set(0, 3, (char * const *)argv, H_FORCE);
++	else
++		return _do_env_set(0, 4, (char * const *)argv, H_FORCE);
++}
++
+ /**
+  * Set an environment variable to an integer value
+  *
+-- 
+2.29.0
+

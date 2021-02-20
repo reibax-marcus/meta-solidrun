@@ -1,0 +1,305 @@
+From f3a0b6e886f64612b9dd695ddd0b7e2c3b32c927 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Tue, 22 Oct 2019 18:17:54 -0700
+Subject: [PATCH 0975/1239] cmd: eth_cmds: add support for mode change
+
+Add command set_mode to support changing mode of
+interface.
+
+Change-Id: I55c5ad1fea959f024f7f59267a230bdb99922e0f
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/17695
+Reviewed-by: Felix Manlunas <Felix.Manlunas@cavium.com>
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ cmd/marvell/eth_cmds.c           |  26 ++++++-
+ drivers/net/octeontx2/cgx_intf.c | 116 ++++++++++++++++++++++++++++++-
+ drivers/net/octeontx2/cgx_intf.h |  53 +++++++++++++-
+ 3 files changed, 190 insertions(+), 5 deletions(-)
+
+diff --git a/cmd/marvell/eth_cmds.c b/cmd/marvell/eth_cmds.c
+index 79f45b84b8..e594de2e8a 100644
+--- a/cmd/marvell/eth_cmds.c
++++ b/cmd/marvell/eth_cmds.c
+@@ -15,6 +15,7 @@ extern int cgx_intf_set_fec(struct udevice *ethdev, int type);
+ extern int cgx_intf_get_fec(struct udevice *ethdev);
+ extern int cgx_intf_get_phy_mod_type(struct udevice *ethdev);
+ extern int cgx_intf_set_phy_mod_type(struct udevice *ethdev, int type);
++extern int cgx_intf_set_mode(struct udevice *ethdev, int mode);
+ extern void nix_print_mac_info(struct udevice *dev);
+ 
+ static int do_ethlist(cmd_tbl_t *cmdtp, int flag, int argc,
+@@ -44,7 +45,7 @@ static int do_ethparam_common(cmd_tbl_t *cmdtp, int flag, int argc,
+ 	const char *cmd;
+ 	char *endp;
+ 	const char *devname;
+-	int ret = -1, type;
++	int ret = -1, type, mode;
+ 	struct udevice *dev;
+ 
+ 	if (argc < 2)
+@@ -80,6 +81,13 @@ static int do_ethparam_common(cmd_tbl_t *cmdtp, int flag, int argc,
+ 		ret = cgx_intf_set_phy_mod_type(dev, type);
+ 	} else if (strcmp(cmd, "get_phymod") == 0) {
+ 		ret = cgx_intf_get_phy_mod_type(dev);
++	} else if (strcmp(cmd, "set_mode") == 0) {
++		if (argc < 3)
++			return CMD_RET_FAILURE;
++		mode = simple_strtol(argv[2], &endp, 0);
++		if (mode < 0 || mode > 6)
++			return CMD_RET_USAGE;
++		ret = cgx_intf_set_mode(dev, mode);
+ 	}
+ 	return (ret == 0) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+ }
+@@ -118,3 +126,19 @@ U_BOOT_CMD(
+ 	"Use 'ethlist' command to display network interface names\n"
+ );
+ 
++U_BOOT_CMD(set_mode, 3, 1, do_ethparam_common,
++	   "Modify Interface mode for selected ethernet interface",
++	   "Example - set_mode <ethX> [mode]\n"
++	   "Change mode of selected network interface\n"
++	   "\n"
++	   "mode encoding -\n"
++	   "	0 - 10G_C2C\n"
++	   "	1 - 10G_C2M\n"
++	   "	2 - 10G_KR\n"
++	   "	3 - 25G_C2C\n"
++	   "	4 - 25G_2_C2C\n"
++	   "	5 - 50G_C2C\n"
++	   "	6 - 50G_4_C2C\n"
++	   "Use 'ethlist' command to display network interface names\n"
++);
++
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index 94ab0646ff..dfbb057035 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -241,7 +241,7 @@ int cgx_intf_link_up_dwn(u8 cgx, u8 lmac, u8 up_dwn, u64 *lnk_sts)
+ 	int ret;
+ 	union cgx_cmd_s cmd;
+ 
+-	cmd.cmd.id  = up_dwn ? CGX_CMD_LINK_BRING_UP : CGX_CMD_LINK_BRING_DOWN;
++	cmd.cmd.id = up_dwn ? CGX_CMD_LINK_BRING_UP : CGX_CMD_LINK_BRING_DOWN;
+ 
+ 	ret = cgx_intf_req(cgx, lmac, cmd, &scr0.u, 1);
+ 	if (ret)
+@@ -284,6 +284,120 @@ int cgx_intf_prbs(u8 qlm, u8 mode, u32 time)
+ 	return 0;
+ }
+ 
++enum cgx_mode {
++	MODE_10G_C2C,
++	MODE_10G_C2M,
++	MODE_10G_KR,
++	MODE_25G_C2C,
++	MODE_25G_2_C2C,
++	MODE_50G_C2C,
++	MODE_50G_4_C2C
++};
++
++static char intf_speed_to_str[][8] = {
++	"10M",
++	"100M",
++	"1G",
++	"2.5G",
++	"5G",
++	"10G",
++	"20G",
++	"25G",
++	"40G",
++	"50G",
++	"80G",
++	"100G",
++};
++
++static void mode_to_args(int mode, struct cgx_mode_change_args *args)
++{
++	args->an = 0;
++	args->duplex = 0;
++	args->port = 0;
++
++	switch (mode) {
++	case MODE_10G_C2C:
++		args->speed = CGX_LINK_10G;
++		args->mode = BIT_ULL(CGX_MODE_10G_C2C_BIT);
++		break;
++	case MODE_10G_C2M:
++		args->speed = CGX_LINK_10G;
++		args->mode = BIT_ULL(CGX_MODE_10G_C2M_BIT);
++		break;
++	case MODE_10G_KR:
++		args->speed = CGX_LINK_10G;
++		args->mode = BIT_ULL(CGX_MODE_10G_KR_BIT);
++		args->an = 1;
++		break;
++	case MODE_25G_C2C:
++		args->speed = CGX_LINK_25G;
++		args->mode = BIT_ULL(CGX_MODE_25G_C2C_BIT);
++		break;
++	case MODE_25G_2_C2C:
++		args->speed = CGX_LINK_25G;
++		args->mode = BIT_ULL(CGX_MODE_25G_2_C2C_BIT);
++		break;
++	case MODE_50G_C2C:
++		args->speed = CGX_LINK_50G;
++		args->mode = BIT_ULL(CGX_MODE_50G_C2C_BIT);
++		break;
++	case MODE_50G_4_C2C:
++		args->speed = CGX_LINK_50G;
++		args->mode = BIT_ULL(CGX_MODE_50G_4_C2C_BIT);
++	}
++}
++
++int cgx_intf_set_mode(struct udevice *ethdev, int mode)
++{
++	struct rvu_pf *rvu = dev_get_priv(ethdev);
++	struct nix *nix = rvu->nix;
++	union cgx_scratchx0 scr0;
++	int ret;
++	union cgx_cmd_s cmd;
++
++	cmd.cmd.id = CGX_CMD_MODE_CHANGE;
++
++	mode_to_args(mode, &cmd.mode_change_args);
++
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   cmd, &scr0.u, 0);
++	if (ret) {
++		printf("Mode change command failed for %s\n", ethdev->name);
++		return -1;
++	}
++
++	cmd.cmd.id = CGX_CMD_GET_LINK_STS;
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   cmd, &scr0.u, 1);
++	if (ret) {
++		printf("Get Link Status failed for %s\n", ethdev->name);
++		return -1;
++	}
++
++	printf("Current Link Status: ");
++	if (scr0.s.link_sts.speed) {
++		printf("%s\n", intf_speed_to_str[scr0.s.link_sts.speed]);
++		switch (scr0.s.link_sts.fec) {
++		case 0:
++			printf("FEC_NONE\n");
++			break;
++		case 1:
++			printf("FEC_BASE_R\n");
++			break;
++		case 2:
++			printf("FEC_RS\n");
++			break;
++		}
++		printf("Auto Negotiation %sabled\n",
++		       scr0.s.link_sts.an ? "En" : "Dis");
++		printf("%s Duplex\n",
++		       scr0.s.link_sts.full_duplex ? "Full" : "Half");
++	} else {
++		printf("Down\n");
++	}
++	return 0;
++}
++
+ int cgx_intf_get_fec(struct udevice *ethdev)
+ {
+ 	struct rvu_pf *rvu = dev_get_priv(ethdev);
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index f4f2676749..3a5ae227b2 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -48,7 +48,8 @@ enum cgx_error_type {
+ 	CGX_ERR_SET_FEC_INVALID,
+ 	CGX_ERR_SET_FEC_FAIL,
+ 	CGX_ERR_MODULE_INVALID,
+-	CGX_ERR_MODULE_NOT_PRESENT,	/* = 27 */
++	CGX_ERR_MODULE_NOT_PRESENT,
++	CGX_ERR_SPEED_CHANGE_INVALID,	/* = 28 */
+ 	/* FIXME : add more error types when adding support for new modes */
+ };
+ 
+@@ -99,7 +100,7 @@ enum cgx_cmd_id {
+ 	CGX_CMD_GET_PHY_MOD_TYPE, /* line-side modulation type: NRZ or PAM4 */
+ 	CGX_CMD_SET_PHY_MOD_TYPE,
+ 	CGX_CMD_PRBS,
+-	CGX_CMD_DISPLAY_EYE,
++	CGX_CMD_DISPLAY_EYE, /* = 27 */
+ };
+ 
+ /* async event ids */
+@@ -126,6 +127,41 @@ enum cgx_cmd_own {
+ 	CGX_OWN_FIRMWARE,
+ };
+ 
++/* Supported LINK MODE enums
++ * Each link mode is a bit mask of these
++ * enums which are represented as bits
++ */
++typedef enum {
++	CGX_MODE_SGMII_BIT = 0,
++	CGX_MODE_1000_BASEX_BIT,
++	CGX_MODE_QSGMII_BIT,
++	CGX_MODE_10G_C2C_BIT,
++	CGX_MODE_10G_C2M_BIT,
++	CGX_MODE_10G_KR_BIT,
++	CGX_MODE_20G_C2C_BIT,
++	CGX_MODE_25G_C2C_BIT,
++	CGX_MODE_25G_C2M_BIT,
++	CGX_MODE_25G_2_C2C_BIT,
++	CGX_MODE_25G_CR_BIT,
++	CGX_MODE_25G_KR_BIT,
++	CGX_MODE_40G_C2C_BIT,
++	CGX_MODE_40G_C2M_BIT,
++	CGX_MODE_40G_CR4_BIT,
++	CGX_MODE_40G_KR4_BIT,
++	CGX_MODE_40GAUI_C2C_BIT,
++	CGX_MODE_50G_C2C_BIT,
++	CGX_MODE_50G_C2M_BIT,
++	CGX_MODE_50G_4_C2C_BIT,
++	CGX_MODE_50G_CR_BIT,
++	CGX_MODE_50G_KR_BIT,
++	CGX_MODE_80GAUI_C2C_BIT,
++	CGX_MODE_100G_C2C_BIT,
++	CGX_MODE_100G_C2M_BIT,
++	CGX_MODE_100G_CR4_BIT,
++	CGX_MODE_100G_KR4_BIT,
++	CGX_MODE_MAX_BIT /* = 29 */
++} cgx_mode_t;
++
+ /* scratchx(0) CSR used for ATF->non-secure SW communication.
+  * This acts as the status register
+  * Provides details on command ack/status, link status, error details
+@@ -305,6 +341,16 @@ struct cgx_mtu_args {
+ 	u64 reserved2:40;
+ };
+ 
++/* command argument to be passed for cmd ID - CGX_CMD_MODE_CHANGE */
++struct cgx_mode_change_args {
++	uint64_t reserved1:8;
++	uint64_t speed:4; /* cgx_link_speed enum */
++	uint64_t duplex:1; /* 0 - full duplex, 1 - half duplex */
++	uint64_t an:1;	/* 0 - disable AN, 1 - enable AN */
++	uint64_t port:8; /* device port */
++	uint64_t mode:42;
++};
++
+ /* command argument to be passed for cmd ID - CGX_CMD_LINK_CHANGE */
+ struct cgx_link_change_args {		/* start from bit 8 */
+ 	u64 reserved1:8;
+@@ -353,8 +399,9 @@ union cgx_cmd_s {
+ 	struct cgx_cmd cmd;
+ 	struct cgx_ctl_args cmd_args;
+ 	struct cgx_mtu_args mtu_size;
+-	struct cgx_link_change_args lnk_args; /* Input CGX_CMD_LINK_CHANGE */
++	struct cgx_link_change_args lnk_args; /* Input to CGX_CMD_LINK_CHANGE */
+ 	struct cgx_set_mode_args mode_args;
++	struct cgx_mode_change_args mode_change_args;
+ 	struct cgx_set_fec_args fec_args;
+ 	struct cgx_set_phy_mod_args phy_mod_args;
+ 	/* any other arg for command id * like : mtu, dmac filtering control */
+-- 
+2.29.0
+

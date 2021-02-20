@@ -1,0 +1,24 @@
+From 439e6c5273fb06f68b69c3eb0e61337d99a2f610 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
+Date: Fri, 13 Mar 2015 14:04:35 +0300
+Subject: [PATCH 0305/1239] Added FDT pre-boot setup
+
+---
+ include/configs/thunderx_88xx.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 77bf502c3f..69609ac3f6 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -23,6 +23,7 @@
+ 
+ /* Flat Device Tree Definitions */
+ #define CONFIG_OF_LIBFDT
++#define CONFIG_OF_BOARD_SETUP
+ 
+ /* SMP Spin Table Definitions */
+ #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+-- 
+2.29.0
+

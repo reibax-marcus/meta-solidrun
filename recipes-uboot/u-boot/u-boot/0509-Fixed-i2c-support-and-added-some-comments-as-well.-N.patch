@@ -1,0 +1,1399 @@
+From 0b50315e39a02524a1daae2a7233de31e2a0dafa Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 22 Jun 2016 13:55:38 -0700
+Subject: [PATCH 0509/1239] Fixed i2c support and added some comments as well.
+ Note that the i2c support is still not complete and it will likely fail when
+ multiple masters are active.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ drivers/i2c/thunderx_i2c.c      | 734 +++++++++++++++++++++++++++++---
+ include/configs/thunderx_81xx.h | 199 ++++++++-
+ 2 files changed, 842 insertions(+), 91 deletions(-)
+
+diff --git a/drivers/i2c/thunderx_i2c.c b/drivers/i2c/thunderx_i2c.c
+index 3c23e48f00..1046c0f2ea 100644
+--- a/drivers/i2c/thunderx_i2c.c
++++ b/drivers/i2c/thunderx_i2c.c
+@@ -1,19 +1,85 @@
++/*
++ * (C) Copyright 2016
++ * Cavium, Inc. <support@cavium.com>
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ */
+ 
+ #include <common.h>
+-#include <dm.h>
+ #include <i2c.h>
++#include <dm.h>
+ #include <asm/io.h>
+-#include <cavium/thunderx.h>
++
++/**
++ * Slave address to use for Thunder when accessed by another master
++ */
++#ifndef CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR
++# define CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR	0x77
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_0
++# ifdef CONFIG_SYS_I2C_SPEED
++#  define CONFIG_SYS_I2C_THUNDERX_SPEED_0	CONFIG_SYS_I2C_SPEED
++# else
++#  define CONFIG_SYS_I2C_SPEED			100000
++#  define CONFIG_SYS_I2C_THUNDERX_SPEED_0	CONFIG_SYS_I2C_SPEED
++# endif
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_1
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_1	CONFIG_SYS_I2C_THUNDERX_SPEED_0
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_2
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_2	CONFIG_SYS_I2C_THUNDERX_SPEED_1
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_3
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_3	CONFIG_SYS_I2C_THUNDERX_SPEED_2
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_4
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_4	CONFIG_SYS_I2C_THUNDERX_SPEED_3
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_5
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_5	CONFIG_SYS_I2C_THUNDERX_SPEED_4
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_6
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_6	CONFIG_SYS_I2C_THUNDERX_SPEED_5
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_7
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_7	CONFIG_SYS_I2C_THUNDERX_SPEED_6
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_8
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_8	CONFIG_SYS_I2C_THUNDERX_SPEED_7
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_9
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_9	CONFIG_SYS_I2C_THUNDERX_SPEED_8
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_10
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_10	CONFIG_SYS_I2C_THUNDERX_SPEED_9
++#endif
++
++#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_11
++# define CONFIG_SYS_I2C_THUNDERX_SPEED_11	CONFIG_SYS_I2C_THUNDERX_SPEED_10
++#endif
++
++#define RST_BOOT	0x87e006001600ll
+ 
+ #define PCI_DEVICE_ID_THUNDER_TWSI	0xa012
+ 
+-#define TWSI_BUS_FREQ	100000
+-#define TWSI_THP	24
++#define TWSI_THP		24
+ 
+-#define TWSI_SW_TWSI		0x0
+-#define TWSI_TWSI_SW		0x8
+-#define TWSI_INT		0x10
+-#define TWSI_SW_TWSI_EXT	0x18
++#define TWSI_SW_TWSI		0x1000
++#define TWSI_TWSI_SW		0x1008
++#define TWSI_INT		0x1010
++#define TWSI_SW_TWSI_EXT	0x1018
+ 
+ union rst_boot {
+ 	u64 u;
+@@ -62,11 +128,26 @@ union twsx_sw_twsi {
+ union twsx_sw_twsi_ext {
+ 	u64 u;
+ 	struct {
+-		int data:32;
+-		int ia:8;
++		u64	data:32;
++		u64	ia:8;
++		u64	:24;
+ 	} s;
+ };
+ 
++union twsx_int {
++	u64 u;
++	struct {
++		u64	st_int:1;	/** TWSX_SW_TWSI register update int */
++		u64	ts_int:1;	/** TWSX_TWSI_SW register update int */
++		u64	core_int:1;	/** TWSI core interrupt, ignored for HLC */
++		u64	:5;		/** Reserved */
++		u64	sda_ovr:1;	/** SDA testing override */
++		u64	scl_ovr:1;	/** SCL testing override */
++		u64	sda:1;		/** SDA signal */
++		u64	scl:1;		/** SCL signal */
++		u64	:52;		/** Reserved */
++	} s;
++};
+ 
+ enum {
+ 	TWSI_OP_WRITE	= 0,
+@@ -74,6 +155,7 @@ enum {
+ };
+ 
+ enum {
++	TWSI_EOP_SLAVE_ADDR = 0,
+ 	TWSI_EOP_CLK_CTL = 3,
+ 	TWSI_SW_EOP_IA   = 6,
+ };
+@@ -97,50 +179,307 @@ enum {
+ 	TWSI_CTL_CE	= BIT(7),
+ };
+ 
++enum {
++	/** Bus error */
++	TWSI_STAT_BUS_ERROR		= 0x00,
++	/** Start condition transmitted */
++	TWSI_STAT_START			= 0x08,
++	/** Repeat start condition transmitted */
++	TWSI_STAT_RSTART		= 0x10,
++	/** Address + write bit transmitted, ACK received */
++	TWSI_STAT_TXADDR_ACK		= 0x18,
++	/** Address + write bit transmitted, /ACK received */
++	TWSI_STAT_TXADDR_NAK		= 0x20,
++	/** Data byte transmitted in master mode, ACK received */
++	TWSI_STAT_TXDATA_ACK		= 0x28,
++	/** Data byte transmitted in master mode, ACK received */
++	TWSI_STAT_TXDATA_NAK		= 0x30,
++	/** Arbitration lost in address or data byte */
++	TWSI_STAT_TX_ARB_LOST		= 0x38,
++	/** Address + read bit transmitted, ACK received */
++	TWSI_STAT_RXADDR_ACK		= 0x40,
++	/** Address + read bit transmitted, /ACK received */
++	TWSI_STAT_RXADDR_NAK		= 0x48,
++	/** Data byte received in master mode, ACK transmitted */
++	TWSI_STAT_RXDATA_ACK_SENT	= 0x50,
++	/** Data byte received, NACK transmitted */
++	TWSI_STAT_RXDATA_NAK_SENT	= 0x58,
++	/** Slave address received, sent ACK */
++	TWSI_STAT_SLAVE_RXADDR_ACK	= 0x60,
++	/**
++	 * Arbitration lost in address as master, slave address + write bit
++	 * received, ACK transmitted
++	 */
++	TWSI_STAT_TX_ACK_ARB_LOST	= 0x68,
++	/** General call address received, ACK transmitted */
++	TWSI_STAT_RX_GEN_ADDR_ACK	= 0x70,
++	/**
++	 * Arbitration lost in address as master, general call address
++	 * received, ACK transmitted
++	 */
++	TWSI_STAT_RX_GEN_ADDR_ARB_LOST	= 0x78,
++	/** Data byte received after slave address received, ACK transmitted */
++	TWSI_STAT_SLAVE_RXDATA_ACK	= 0x80,
++	/** Data byte received after slave address received, /ACK transmitted */
++	TWSI_STAT_SLAVE_RXDATA_NAK	= 0x88,
++	/**
++	 * Data byte received after general call address received, ACK
++	 * transmitted
++	 */
++	TWSI_STAT_GEN_RXADDR_ACK	= 0x90,
++	/**
++	 * Data byte received after general call address received, /ACK
++	 * transmitted
++	 */
++	TWSI_STAT_GEN_RXADDR_NAK	= 0x98,
++	/** STOP or repeated START condition received in slave mode */
++	TWSI_STAT_STOP_MULTI_START	= 0xA0,
++	/** Slave address + read bit received, ACK transmitted */
++	TWSI_STAT_SLAVE_RXADDR2_ACK	= 0xA8,
++	/**
++	 * Arbitration lost in address as master, slave address + read bit
++	 * received, ACK transmitted
++	 */
++	TWSI_STAT_RXDATA_ACK_ARB_LOST	= 0xB0,
++	/** Data byte transmitted in slave mode, ACK received */
++	TWSI_STAT_SLAVE_TXDATA_ACK	= 0xB8,
++	/** Data byte transmitted in slave mode, /ACK received */
++	TWSI_STAT_SLAVE_TXDATA_NAK	= 0xC0,
++	/** Last byte transmitted in slave mode, ACK received */
++	TWSI_STAT_SLAVE_TXDATA_END_ACK	= 0xC8,
++	/** Second address byte + write bit transmitted, ACK received */
++	TWSI_STAT_TXADDR2DATA_ACK	= 0xD0,
++	/** Second address byte + write bit transmitted, /ACK received */
++	TWSI_STAT_TXADDR2DATA_NAK	= 0xD8,
++	/** No relevant status information */
++	TWSI_STAT_IDLE		= 0xF8
++};
++
+ struct thunderx_twsi {
+ 	int			id;
+ 	int			speed;
+ 	void			*baseaddr;
+ };
+ 
+-#define RST_BOOT_PNR_MUL(Val)  ((Val >> 33) & 0x1F)
++/** Array of bus speeds */
++static unsigned speeds[] = {
++	CONFIG_SYS_I2C_THUNDERX_SPEED_0,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_1,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_2,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_3,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_4,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_5,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_6,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_7,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_8,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_9,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_10,
++	CONFIG_SYS_I2C_THUNDERX_SPEED_11,
++};
++
++/** Last i2c id assigned */
++static int last_id = 0;
++
++static void twsi_unblock(void *baseaddr);
++static int twsi_stop(void *baseaddr);
+ 
+-static u64 twsi_write_sw(void *baseaddr, union twsx_sw_twsi twsi_sw)
++
++/**
++ * Converts the i2c status to a meaningful string
++ *
++ * @param	status	status to convert
++ *
++ * @return	string representation of the status
++ */
++static const char *twsi_i2c_status_str(uint8_t status)
+ {
+-	unsigned long timeout = 50000;
++	switch (status) {
++	case TWSI_STAT_BUS_ERROR:
++		return "Bus error";
++	case TWSI_STAT_START:
++		return "START condition transmitted";
++	case TWSI_STAT_RSTART:
++		return "Repeated START condition transmitted";
++	case TWSI_STAT_TXADDR_ACK:
++		return "Address + write bit transmitted, ACK received";
++	case TWSI_STAT_TXADDR_NAK:
++		return "Address + write bit transmitted, NAK received";
++	case TWSI_STAT_TXDATA_ACK:
++		return "Data byte transmitted in master mode, ACK received";
++	case TWSI_STAT_TXDATA_NAK:
++		return "Data byte transmitted in master mode, NAK received";
++	case TWSI_STAT_TX_ARB_LOST:
++		return "Arbitration lost in address or data byte";
++	case TWSI_STAT_RXADDR_ACK:
++		return "Address + read bit transmitted, ACK received";
++	case TWSI_STAT_RXADDR_NAK:
++		return "Address + read bit transmitted, NAK received";
++	case TWSI_STAT_RXDATA_ACK_SENT:
++		return "Data byte received in master mode, ACK transmitted";
++	case TWSI_STAT_RXDATA_NAK_SENT:
++		return "Data byte received in master mode, NAK transmitted";
++	case TWSI_STAT_SLAVE_RXADDR_ACK:
++		return "Slave address + write bit received, ACK transmitted";
++	case TWSI_STAT_TX_ACK_ARB_LOST:
++		return "Arbitration lost in address as master, slave address + write bit received, ACK transmitted";
++	case TWSI_STAT_RX_GEN_ADDR_ACK:
++		return "General call address received, ACK transmitted";
++	case TWSI_STAT_RX_GEN_ADDR_ARB_LOST:
++		return "Arbitration lost in address as master, general call address received, ACK transmitted";
++	case TWSI_STAT_SLAVE_RXDATA_ACK:
++		return "Data byte received after slave address received, ACK transmitted";
++	case TWSI_STAT_SLAVE_RXDATA_NAK:
++		return "Data byte received after slave address received, NAK transmitted";
++	case TWSI_STAT_GEN_RXADDR_ACK:
++		return "Data byte received after general call address received, ACK transmitted";
++	case TWSI_STAT_GEN_RXADDR_NAK:
++		return "Data byte received after general call address received, NAK transmitted";
++	case TWSI_STAT_STOP_MULTI_START:
++		return "STOP or repeated START condition received in slave mode";
++	case TWSI_STAT_SLAVE_RXADDR2_ACK:
++		return "Slave address + read bit received, ACK transmitted";
++	case TWSI_STAT_RXDATA_ACK_ARB_LOST:
++		return "Arbitration lost in address as master, slave address + read bit received, ACK transmitted";
++	case TWSI_STAT_SLAVE_TXDATA_ACK:
++		return "Data byte transmitted in slave mode, ACK received";
++	case TWSI_STAT_SLAVE_TXDATA_NAK:
++		return "Data byte transmitted in slave mode, NAK received";
++	case TWSI_STAT_SLAVE_TXDATA_END_ACK:
++		return "Last byte transmitted in slave mode, ACK received";
++	case TWSI_STAT_TXADDR2DATA_ACK:
++		return "Second address byte + write bit transmitted, ACK received";
++	case TWSI_STAT_TXADDR2DATA_NAK:
++		return "Second address byte + write bit transmitted, NAK received";
++	case TWSI_STAT_IDLE:
++		return "Idle";
++	default:
++		return "Unknown status code";
++	}
++}
+ 
+-	twsi_sw.s.r = 0;
+-	twsi_sw.s.v = 1;
++/**
++ * Returns true if we lost arbitration
++ *
++ * @param	code		status code
++ * @param	final_read	true if this is the final read operation
++ *
++ * @return	true if arbitration has been lost, false if it hasn't been lost.
++ */
++static int twsi_i2c_lost_arb(u8 code, int final_read)
++{
++	switch (code) {
++	/* Arbitration lost */
++	case TWSI_STAT_TX_ARB_LOST:
++	case TWSI_STAT_TX_ACK_ARB_LOST:
++	case TWSI_STAT_RX_GEN_ADDR_ARB_LOST:
++	case TWSI_STAT_RXDATA_ACK_ARB_LOST:
++		return -EAGAIN;
++
++	/* Being addressed as slave, should back off and listen */
++	case TWSI_STAT_SLAVE_RXADDR_ACK:
++	case TWSI_STAT_RX_GEN_ADDR_ACK:
++	case TWSI_STAT_GEN_RXADDR_ACK:
++	case TWSI_STAT_GEN_RXADDR_NAK:
++		return -EIO;
++
++	/* Core busy as slave */
++	case TWSI_STAT_SLAVE_RXDATA_ACK:
++	case TWSI_STAT_SLAVE_RXDATA_NAK:
++	case TWSI_STAT_STOP_MULTI_START:
++	case TWSI_STAT_SLAVE_RXADDR2_ACK:
++	case TWSI_STAT_SLAVE_TXDATA_ACK:
++	case TWSI_STAT_SLAVE_TXDATA_NAK:
++	case TWSI_STAT_SLAVE_TXDATA_END_ACK:
++		return  -EIO;
++
++	/* Ack allowed on pre-terminal bytes only */
++	case TWSI_STAT_RXDATA_ACK_SENT:
++		if (!final_read)
++			return 0;
++		return -EAGAIN;
++
++	/* NAK allowed on terminal byte only */
++	case TWSI_STAT_RXDATA_NAK_SENT:
++		if (!final_read)
++			return 0;
++		return -EAGAIN;
++
++	case TWSI_STAT_TXDATA_NAK:
++	case TWSI_STAT_TXADDR_NAK:
++	case TWSI_STAT_RXADDR_NAK:
++	case TWSI_STAT_TXADDR2DATA_NAK:
++		return -EAGAIN;
++	}
++	return 0;
++}
++
++#define RST_BOOT_PNR_MUL(Val)  ((Val >> 33) & 0x1F)
++
++/**
++ * Writes to the MIO_TWS(0..5)_SW_TWSI register
++ *
++ * @param	baseaddr	Base address of i2c registers
++ * @param	sw_twsi		value to write
++ *
++ * @return	0 for success, otherwise error
++ */
++static u64 twsi_write_sw(void *baseaddr, union twsx_sw_twsi sw_twsi)
++{
++	unsigned long start = get_timer(0);
+ 
+-	writeq(twsi_sw.u, baseaddr + TWSI_SW_TWSI);
++	sw_twsi.s.r = 0;
++	sw_twsi.s.v = 1;
+ 
++	debug("%s(%p, 0x%llx)\n", __func__, baseaddr, sw_twsi.u);
++	writeq(sw_twsi.u, baseaddr + TWSI_SW_TWSI);
+ 	do {
+-		twsi_sw.u = readq(baseaddr + TWSI_SW_TWSI);
+-	} while (twsi_sw.s.v != 0 && timeout--);
++		sw_twsi.u = readq(baseaddr + TWSI_SW_TWSI);
++	} while (sw_twsi.s.v != 0 && get_timer(start) < 50);
+ 
+-	return twsi_sw.u;
++	if (sw_twsi.s.v)
++		debug("%s: timed out\n", __func__);
++	return sw_twsi.u;
+ }
+ 
+-static u64 twsi_read_sw(void *baseaddr, union twsx_sw_twsi twsi_sw)
++/**
++ * Reads the MIO_TWS(0..5)_SW_TWSI register
++ *
++ * @param	baseaddr	Base address of i2c registers
++ * @param	sw_twsi		value for eia and op, etc. to read
++ *
++ * @return	value of the register
++ */
++static u64 twsi_read_sw(void *baseaddr, union twsx_sw_twsi sw_twsi)
+ {
+-	unsigned long timeout = 50000;
+-
+-	twsi_sw.s.r = 1;
+-	twsi_sw.s.v = 1;
++	unsigned long start = get_timer(0);
++	sw_twsi.s.r = 1;
++	sw_twsi.s.v = 1;
+ 
+-	writeq(twsi_sw.u, baseaddr + TWSI_SW_TWSI);
++	debug("%s(%p, 0x%llx)\n", __func__, baseaddr, sw_twsi.u);
++	writeq(sw_twsi.u, baseaddr + TWSI_SW_TWSI);
+ 
+ 	do {
+-		twsi_sw.u = readq(baseaddr + TWSI_SW_TWSI);
+-	} while (twsi_sw.s.v != 0 && timeout--);
++		sw_twsi.u = readq(baseaddr + TWSI_SW_TWSI);
++	} while (sw_twsi.s.v != 0 && get_timer(start) < 50);
++
++	if (sw_twsi.s.v)
++		debug("%s: Error writing 0x%llx\n", __func__, sw_twsi.u);
+ 
+-	return twsi_sw.u;
++	debug("%s: Returning 0x%llx\n", __func__, sw_twsi.u);
++	return sw_twsi.u;
+ }
+ 
++/**
++ * Write control register
++ *
++ * @param	baseaddr	Base address for i2c registers
++ * @param	data		data to write
++ */
+ static void twsi_write_ctl(void *baseaddr, u8 data)
+ {
+ 	union twsx_sw_twsi twsi_sw;
+ 
++	debug("%s(%p, 0x%x)\n", __func__, baseaddr, data);
+ 	twsi_sw.u = 0;
+ 
+ 	twsi_sw.s.op	 = TWSI_SW_EOP_IA;
+@@ -150,49 +489,156 @@ static void twsi_write_ctl(void *baseaddr, u8 data)
+ 	twsi_write_sw(baseaddr, twsi_sw);
+ }
+ 
+-static u8 twsi_read_ctl(void *baseaddr)
++/**
++ * Reads the TWSI Control Register
++ *
++ * @param[in]	baseaddr	Base address for i2c
++ *
++ * @return	8-bit TWSI control register
++ */
++static u32 twsi_read_ctl(void *baseaddr)
++{
++	union twsx_sw_twsi sw_twsi;
++
++	sw_twsi.u	 = 0;
++	sw_twsi.s.op	 = TWSI_SW_EOP_IA;
++	sw_twsi.s.eop_ia = TWSI_CTL;
++
++	sw_twsi.u = twsi_read_sw(baseaddr, sw_twsi);
++	debug("%s(%p): 0x%x\n", __func__, baseaddr, sw_twsi.s.data);
++	return sw_twsi.s.data;
++}
++
++/**
++ * Read i2c status register
++ *
++ * @param	baseaddr	Base address of i2c registers
++ *
++ * @return	value of status register
++ */
++static u8 twsi_read_status(void *baseaddr)
+ {
+ 	union twsx_sw_twsi twsi_sw;
+ 
+-	twsi_sw.u	 = 0;
+-	twsi_sw.s.op	 = TWSI_SW_EOP_IA;
+-	twsi_sw.s.eop_ia = TWSI_CTL;
++	twsi_sw.u	= 0;
++	twsi_sw.s.op	= TWSI_SW_EOP_IA;
++	twsi_sw.s.eop_ia = TWSI_STAT;
+ 
+ 	return twsi_read_sw(baseaddr, twsi_sw);
+ }
+ 
++/**
++ * Waits for an i2c operation to complete
++ *
++ * @param	baseaddr	Base address of registers
++ *
++ * @return	0 for success, 1 if timeout
++ */
+ static int twsi_wait(void *baseaddr)
+ {
+-	unsigned int timeout = 50000;
+-
++	unsigned long start = get_timer(0);
+ 	u8 twsi_ctl;
+ 
++	debug("%s(%p)\n", __func__, baseaddr);
+ 	do {
+ 		twsi_ctl = twsi_read_ctl(baseaddr);
+ 		twsi_ctl &= TWSI_CTL_IFLG;
+-	} while (timeout-- && !twsi_ctl);
++	} while (!twsi_ctl && get_timer(start) < 50);
+ 
+-	return timeout;
++	debug("  return: %u\n", !twsi_ctl);
++	return !twsi_ctl;
+ }
+ 
+-static void twsi_start(void *baseaddr)
++/**
++ * Unsticks the i2c bus
++ *
++ * @param	baseaddr	base address of registers
++ */
++static int twsi_start_unstick(void *baseaddr)
+ {
++	twsi_stop(baseaddr);
++
++	twsi_unblock(baseaddr);
++
++	return 0;
++}
++
++/**
++ * Sends an i2c start condition
++ *
++ * @param	baseaddr	base address of registers
++ *
++ * @return	0 for success, otherwise error
++ */
++static int twsi_start(void *baseaddr)
++{
++	int result;
++	u8 stat;
++
++	debug("%s(%p)\n", __func__, baseaddr);
+ 	twsi_write_ctl(baseaddr, TWSI_CTL_STA | TWSI_CTL_ENAB);
++	result = twsi_wait(baseaddr);
++	if (result) {
++		stat = twsi_read_status(baseaddr);
++		debug("%s: result: 0x%x, status: 0x%x\n", __func__,
++		      result, stat);
++		switch (stat) {
++		case TWSI_STAT_START:
++		case TWSI_STAT_RSTART:
++			return 0;
++		case TWSI_STAT_RXADDR_ACK:
++		default:
++			return twsi_start_unstick(baseaddr);
++		}
++	}
++	debug("%s: success\n", __func__);
++	return 0;
+ }
+ 
+-static void twsi_stop(void *baseaddr)
++/**
++ * Sends an i2c stop condition
++ *
++ * @param	baseaddr	register base address
++ *
++ * @return	0 for success, -1 if error
++ */
++static int twsi_stop(void *baseaddr)
+ {
++	u8 stat;
+ 	twsi_write_ctl(baseaddr, TWSI_CTL_STP | TWSI_CTL_ENAB);
++
++	stat = twsi_read_status(baseaddr);
++	if (stat != TWSI_STAT_IDLE) {
++		debug("%s: Bad status on bus@%p\n", __func__, baseaddr);
++		return -1;
++	}
++	return 0;
+ }
+ 
++/**
++ * Writes data to the i2c bus
++ *
++ * @param	baseraddr	register base address
++ * @param	slave_addr	address of slave to write to
++ * @param	buffer		Pointer to buffer to write
++ * @param	length		Number of bytes in buffer to write
++ *
++ * @return	0 for success, otherwise error
++ */
+ static int twsi_write_data(void *baseaddr, u8  slave_addr,
+ 			   u8 *buffer, unsigned int length)
+ {
+ 	union twsx_sw_twsi twsi_sw;
+ 	unsigned int curr = 0;
+-
+-	twsi_start(baseaddr);
+-	twsi_wait(baseaddr);
++	int result;
++
++	debug("%s(%p, 0x%x, %p, 0x%x)\n", __func__, baseaddr, slave_addr,
++	      buffer, length);
++	result = twsi_start(baseaddr);
++	if (result) {
++		debug("%s: Could not start BUS transaction\n", __func__);
++		return -1;
++	}
+ 
+ 	twsi_sw.u	 = 0;
+ 	twsi_sw.s.op	 = TWSI_SW_EOP_IA;
+@@ -202,7 +648,18 @@ static int twsi_write_data(void *baseaddr, u8  slave_addr,
+ 	twsi_write_sw(baseaddr, twsi_sw);
+ 	twsi_write_ctl(baseaddr, TWSI_CTL_ENAB);
+ 
+-	twsi_wait(baseaddr);
++	debug("%s: Waiting\n", __func__);
++	result = twsi_wait(baseaddr);
++	if (result) {
++		debug("%s: Timed out writing slave address 0x%x to target\n",
++		      __func__, slave_addr);
++		return result;
++	}
++	if ((result = twsi_read_status(baseaddr)) != TWSI_STAT_TXADDR_ACK) {
++		debug("%s: status: (%d) %s\n", __func__, result,
++		      twsi_i2c_status_str(result));
++		return twsi_i2c_lost_arb(result, 0);
++	}
+ 
+ 	while (curr < length) {
+ 		twsi_sw.u	 = 0;
+@@ -213,23 +670,84 @@ static int twsi_write_data(void *baseaddr, u8  slave_addr,
+ 		twsi_write_sw(baseaddr, twsi_sw);
+ 		twsi_write_ctl(baseaddr, TWSI_CTL_ENAB);
+ 
+-		twsi_wait(baseaddr);
++		debug("%s: Writing 0x%x\n", __func__, twsi_sw.s.data);
++
++		result = twsi_wait(baseaddr);
++		if (result) {
++			debug("%s: Timed out writing data to 0x%x\n",
++			      __func__, slave_addr);
++			return result;
++		}
++		result = twsi_read_status(baseaddr);
++		debug("%s: status: (%d) %s\n", __func__, result,
++		      twsi_i2c_status_str(result));
+ 	}
+ 
+-	twsi_stop(baseaddr);
++	debug("%s: Stopping\n", __func__);
++	return twsi_stop(baseaddr);
++}
+ 
+-	return 0;
++/**
++ * Manually clear the I2C bus and send a stop
++ */
++static void twsi_unblock(void *baseaddr)
++{
++	int i;
++	union twsx_int	int_reg;
++
++	int_reg.u = 0;
++	for (i = 0; i < 9; i++) {
++		int_reg.s.scl_ovr = 0;
++		writeq(int_reg.u, baseaddr + TWSI_INT);
++		udelay(5);
++		int_reg.s.scl_ovr = 1;
++		writeq(int_reg.u, baseaddr + TWSI_INT);
++		udelay(5);
++	}
++	int_reg.s.sda_ovr = 1;
++	writeq(int_reg.u, baseaddr + TWSI_INT);
++	udelay(5);
++	int_reg.s.scl_ovr = 0;
++	writeq(int_reg.u, baseaddr + TWSI_INT);
++	udelay(5);
++	int_reg.u = 0;
++	writeq(int_reg.u, baseaddr + TWSI_INT);
++	udelay(5);
+ }
+ 
++/**
++ * Performs a read transaction on the i2c bus
++ *
++ * @param	baseaddr	Base address of twsi registers
++ * @param	slave_addr	i2c bus address to read from
++ * @param	buffer		buffer to read into
++ * @param	length		number of bytes to read
++ *
++ * @return	0 for success, otherwise error
++ */
+ static int twsi_read_data(void *baseaddr, u8 slave_addr,
+-		   u8 *buffer, unsigned int length)
++			  u8 *buffer, unsigned int length)
+ {
+ 	union twsx_sw_twsi twsi_sw;
+ 	unsigned int curr = 0;
++	int result;
+ 
++	if (length < 1)
++		return -EINVAL;
++
++	debug("%s(%p, 0x%x, %p, %u)\n", __func__, baseaddr, slave_addr,
++	      buffer, length);
++	result = twsi_start(baseaddr);
++	if (result) {
++		debug("%s: start failed\n", __func__);
++		return result;
++	}
+ 
+-	twsi_start(baseaddr);
+-	twsi_wait(baseaddr);
++	result = twsi_wait(baseaddr);
++	if (result) {
++		debug("%s: wait failed\n", __func__);
++		return result;
++	}
+ 
+ 	twsi_sw.u	 = 0;
+ 	twsi_sw.s.op	 = TWSI_SW_EOP_IA;
+@@ -240,13 +758,21 @@ static int twsi_read_data(void *baseaddr, u8 slave_addr,
+ 	twsi_write_sw(baseaddr, twsi_sw);
+ 	twsi_write_ctl(baseaddr, TWSI_CTL_ENAB);
+ 
+-	twsi_wait(baseaddr);
++	result = twsi_wait(baseaddr);
++	if (result) {
++		debug("%s: waiting for sending addr failed\n", __func__);
++		return result;
++	}
+ 
+ 	while (curr < length) {
+ 		twsi_write_ctl(baseaddr, TWSI_CTL_ENAB |
+ 				(curr < length - 1) ? TWSI_CTL_AAK : 0);
+ 
+-		twsi_wait(baseaddr);
++		result = twsi_wait(baseaddr);
++		if (result) {
++			debug("%s: waiting for data failed\n", __func__);
++			return result;
++		}
+ 
+ 		twsi_sw.u = twsi_read_sw(baseaddr, twsi_sw);
+ 		buffer[curr++] = twsi_sw.s.data;
+@@ -257,7 +783,7 @@ static int twsi_read_data(void *baseaddr, u8 slave_addr,
+ 	return 0;
+ }
+ 
+-static int twsi_init(void *baseaddr, unsigned int speed)
++static int twsi_init(void *baseaddr, unsigned int speed, int slaveaddr)
+ {
+ 	int io_clock_hz;
+ 	int n_div;
+@@ -265,14 +791,16 @@ static int twsi_init(void *baseaddr, unsigned int speed)
+ 	union twsx_sw_twsi sw_twsi;
+ 	union rst_boot rst_boot;
+ 
+-	rst_boot.u = readl(RST_BOOT);
++	debug("%s(%p, %u, 0x%x)\n", __func__, baseaddr, speed, slaveaddr);
++	rst_boot.u = readq(RST_BOOT);
+ 
+ 	io_clock_hz = rst_boot.s.pnr_mul * PLL_REF_CLK;
+ 
+ 	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.  Compute the
+ 	 * clocks M divider based on the SCLK.
+ 	 * TWSI freq = (core freq) / (20 x (M+1) x (thp+1) x 2^N)
+-	 * M = ((core freq) / (20 x (TWSI freq) x (thp+1) x 2^N)) - 1 */
++	 * M = ((core freq) / (20 x (TWSI freq) x (thp+1) x 2^N)) - 1
++	 */
+ 	for (n_div = 0; n_div < 8; n_div++) {
+ 		m_div = io_clock_hz / (20 * speed * (TWSI_THP + 1));
+ 		m_div /= 1 << n_div;
+@@ -282,36 +810,68 @@ static int twsi_init(void *baseaddr, unsigned int speed)
+ 	}
+ 
+ 	sw_twsi.u = 0;
+-	sw_twsi.s.v = 1;		/* Clear valid bit */
+-	sw_twsi.s.op = 0x6;		/* See EOP field */
+-	sw_twsi.s.r = 0;		/* Select CLKCTL when R = 0 */
++	sw_twsi.s.v = 1;	/* Clear valid bit */
++	sw_twsi.s.op = 0x6;	/* See EOP field */
++	sw_twsi.s.r = 0;	/* Select CLKCTL when R = 0 */
+ 	sw_twsi.s.eop_ia = 3;	/* R=0 selects CLKCTL, R=1 selects STAT */
+ 	sw_twsi.s.data = ((m_div & 0xf) << 3) | ((n_div & 0x7) << 0);
+ 
++	twsi_write_sw(baseaddr, sw_twsi);
+ 	/* Only init non-slave ports */
+-	writeq(sw_twsi.u, baseaddr + TWSI_SW_TWSI);
++	debug("%s: Writing 0x%llx to sw_twsi, m_div: 0x%x, n_div: 0x%x\n",
++	      __func__, sw_twsi.u, m_div, n_div);
++
++
++	sw_twsi.u = 0;
++	sw_twsi.s.v = 1;
++	sw_twsi.s.op = TWSI_SW_EOP_IA;
++	sw_twsi.s.r = 0;
++	sw_twsi.s.eop_ia = 0;
++	sw_twsi.s.data = slaveaddr << 1;
++
++	twsi_write_sw(baseaddr, sw_twsi);
++
++	/* Set slave address */
++	sw_twsi.u = 0;
++	sw_twsi.s.v = 1;
++	sw_twsi.s.op = TWSI_SW_EOP_IA;
++	sw_twsi.s.r = 0;
++	sw_twsi.s.eop_ia = TWSI_EOP_SLAVE_ADDR;
++	sw_twsi.s.data = slaveaddr;
++	twsi_write_sw(baseaddr, sw_twsi);
+ 
+ 	return 0;
+ }
+ 
++/**
++ * Transfers data over the i2c bus
++ *
++ * @param	bus	i2c bus to transfer data over
++ * @param	msg	Array of i2c messages
++ * @param	nmsgs	Number of messages to send/receive
++ *
++ * @return	0 for success, otherwise error
++ */
+ static int thunderx_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+ 			     int nmsgs)
+ {
+ 	struct thunderx_twsi *twsi = dev_get_priv(bus);
+-	int ret;
++	int result;
+ 
+ 	debug("thunderx_i2c_xfer: %d messages\n", nmsgs);
+ 	for (; nmsgs > 0; nmsgs--, msg++) {
+ 		debug("thunderx_i2c_xfer: chip=0x%x, len=0x%x\n",
+ 		      msg->addr, msg->len);
+ 		if (msg->flags & I2C_M_RD) {
+-			ret = twsi_read_data(twsi->baseaddr, msg->addr,
++			debug("%s: Reading data\n", __func__);
++			result = twsi_read_data(twsi->baseaddr, msg->addr,
+ 					     msg->buf, msg->len);
+ 		} else {
+-			ret = twsi_write_data(twsi->baseaddr, msg->addr,
++			debug("%s: Writing data\n", __func__);
++			result = twsi_write_data(twsi->baseaddr, msg->addr,
+ 					      msg->buf, msg->len);
+ 		}
+-		if (ret) {
++		if (result) {
+ 			debug("thunderx_i2c_xfer: error sending\n");
+ 			return -EREMOTEIO;
+ 		}
+@@ -320,17 +880,49 @@ static int thunderx_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+ 	return 0;
+ }
+ 
+-static int thunderx_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
++static int thunderx_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
+ {
+-	struct thunderx_twsi *twsi = dev_get_priv(dev);
++	struct thunderx_twsi *twsi = dev_get_priv(bus);
++	int m_div, n_div;
++	unsigned io_clock_hz;
++	union twsx_sw_twsi sw_twsi;
++	union rst_boot rst_boot;
++	void *baseaddr = twsi->baseaddr;
++
++	rst_boot.u = readq(RST_BOOT);
++
++	io_clock_hz = rst_boot.s.pnr_mul * PLL_REF_CLK;
++	debug("%s(%p, %u) io clock: %u\n", __func__, bus, speed, io_clock_hz);
++
++	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.  Compute the
++	 * clocks M divider based on the SCLK.
++	 * TWSI freq = (core freq) / (20 x (M+1) x (thp+1) x 2^N)
++	 * M = ((core freq) / (20 x (TWSI freq) x (thp+1) x 2^N)) - 1 */
++	for (n_div = 0; n_div < 8; n_div++) {
++		m_div = io_clock_hz / (20 * speed * (TWSI_THP + 1));
++		m_div /= 1 << n_div;
++		m_div -= 1;
++		if (m_div < 16)
++			break;
++	}
++	if (m_div >= 16)
++		return -1;
+ 
+-	twsi->speed = speed;
+-	twsi_init(twsi->baseaddr, twsi->speed);
++	sw_twsi.u = 0;
++	sw_twsi.s.v = 1;		/* Clear valid bit */
++	sw_twsi.s.op = TWSI_SW_EOP_IA;	/* See EOP field */
++	sw_twsi.s.r = 0;		/* Select CLKCTL when R = 0 */
++	sw_twsi.s.eop_ia = TWSI_CLKCTL;	/* R=0 selects CLKCTL, R=1 selects STAT */
++	sw_twsi.s.data = ((m_div & 0xf) << 3) | ((n_div & 0x7) << 0);
+ 
++	/* Only init non-slave ports */
++	writeq(sw_twsi.u, baseaddr + TWSI_SW_TWSI);
++
++	debug("%s: Wrote 0x%llx to sw_twsi\n", __func__, sw_twsi.u);
+ 	return 0;
+ }
+ 
+-static int thunderx_i2c_probe(struct udevice *dev)
++static int thunderx_pci_i2c_probe(struct udevice *dev)
+ {
+ 	struct thunderx_twsi *twsi = dev_get_priv(dev);
+ 	pci_dev_t bdf = dm_pci_get_bdf(dev);
+@@ -340,12 +932,14 @@ static int thunderx_i2c_probe(struct udevice *dev)
+ 	dev->req_seq = PCI_FUNC(bdf);
+ 
+ 	twsi->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	twsi->id = last_id++;
+ 
+ 	debug("TWSI bus %d at %p\n",dev->seq, twsi->baseaddr);
+ 
+-	twsi_init(twsi->baseaddr, TWSI_BUS_FREQ);
+-
+-	return 0;
++	return twsi_init(twsi->baseaddr,
++			 twsi->id < ARRAY_SIZE(speeds) ?
++			 speeds[twsi->id] : CONFIG_SYS_I2C_SPEED,
++			 CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR);
+ }
+ 
+ static const struct dm_i2c_ops thunderx_i2c_ops = {
+@@ -362,7 +956,7 @@ U_BOOT_DRIVER(thunderx_pci_twsi) = {
+ 	.name	= "i2c_thunderx",
+ 	.id	= UCLASS_I2C,
+ 	.of_match = thunderx_i2c_ids,
+-	.probe	= thunderx_i2c_probe,
++	.probe	= thunderx_pci_i2c_probe,
+ 	.priv_auto_alloc_size = sizeof(struct thunderx_twsi),
+ 	.ops	= &thunderx_i2c_ops,
+ };
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 5021d01d69..56910f6ae7 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -7,6 +7,8 @@
+ #ifndef __THUNDERX_81XX_H__
+ #define __THUNDERX_81XX_H__
+ 
++#define CONFIG_SYS_VENDOR	"cavium"
++
+ #define CONFIG_SPECIAL_SYNC_HANDLER
+ 
+ /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
+@@ -14,26 +16,36 @@
+ 
+ #define CONFIG_SYS_64BIT
+ 
++/** Thunder 81xx does not support NOR flash */
+ #define CONFIG_SYS_NO_FLASH
+ 
+ #define CONFIG_SUPPORT_RAW_INITRD
+ 
+ #define CONFIG_SYS_BOOTM_LEN (16 << 20)
+ 
++/** Enable vsnprintf support */
+ #define CONFIG_SYS_VSNPRINTF
+ 
++/** Identification string */
+ #define CONFIG_IDENT_STRING	\
+ 	" for Cavium OcteonTX CN81XX ARM v8 Core"
++
+ #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
+ 
+ #define MEM_BASE			0x00500000
+ 
+ #define CONFIG_COREID_MASK             0xffffff
+ 
++/** Enable full virtual address support */
+ #define CONFIG_SYS_FULL_VA
+ 
++/** Low memory base address */
+ #define CONFIG_SYS_LOWMEM_BASE		MEM_BASE
+ 
++/**
++ * Memory map for virtual memory.  See arch/arm/include/asm/armv8/mmu.h
++ * base:64, size:64, attributes:64
++ */
+ #define CONFIG_SYS_MEM_MAP		{{0x000000000000UL, 0x40000000000UL, \
+ 					  PTL2_MEMTYPE(MT_NORMAL) |	     \
+ 					  PTL2_BLOCK_NON_SHARE},	     \
+@@ -51,35 +63,63 @@
+ 					  PTL2_BLOCK_NON_SHARE},	     \
+ 					}
+ 
++/** Number of entries in CONFIG_SYS_MEM_MAP */
+ #define CONFIG_SYS_MEM_MAP_SIZE		4
+ 
+ #define CONFIG_COREID_MASK		0xffffff
+-#define CONFIG_SYS_FULL_VA
+ 
++/** Number of virtual address bits */
+ #define CONFIG_SYS_VA_BITS		48
++
++/** Number of bits addressed by second level */
+ #define CONFIG_SYS_PTL2_BITS		42
++
++/** Number of bits addressed by a single block entry from L2 page tables */
+ #define CONFIG_SYS_BLOCK_SHIFT		29
++
++/** Number of 1st level page table entries */
+ #define CONFIG_SYS_PTL1_ENTRIES		64
++
++/** Number of 2nd level page table entries */
+ #define CONFIG_SYS_PTL2_ENTRIES		8192
+ 
++/** Total size of page table */
+ #define CONFIG_SYS_PGTABLE_SIZE		\
+ 	((CONFIG_SYS_PTL1_ENTRIES + \
+ 	  CONFIG_SYS_MEM_MAP_SIZE * CONFIG_SYS_PTL2_ENTRIES) * 8)
++
++/** IPS field of TCR_EL1 */
+ #define CONFIG_SYS_TCR_EL1_IPS_BITS	(5UL << 32)
++
++/** IPS field of TCR_EL2 */
+ #define CONFIG_SYS_TCR_EL2_IPS_BITS	(5 << 16)
++
++/** IPS field of TCR_EL3 */
+ #define CONFIG_SYS_TCR_EL3_IPS_BITS	(5 << 16)
+ 
+ #define CONFIG_SLT
+ 
+ /* Link Definitions */
++
++/** Code start address */
+ #define CONFIG_SYS_TEXT_BASE		0x00500000
++
++/** Stack starting address */
+ #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+ 
+ #define CONFIG_BOARD_LATE_INIT
+ 
+ /* Flat Device Tree Definitions */
++
++/** Enable flat device tree support */
+ #define CONFIG_OF_LIBFDT
+ 
++/**
++ * The board code has additional modification that it wants to make to the flat
++ * device tree before handing it off to the Linux kernel.
++ */
++#define CONFIG_OF_BOARD_SETUP
++
+ /* SMP Spin Table Definitions */
+ #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+ 
+@@ -87,110 +127,212 @@
+ /* Generic Timer Definitions */
+ #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
+ 
+-
++/** Memory test starting address */
+ #define CONFIG_SYS_MEMTEST_START	MEM_BASE
++
++/** Memory test end address */
+ #define CONFIG_SYS_MEMTEST_END		(MEM_BASE + PHYS_SDRAM_1_SIZE)
+ 
+ /* Size of malloc() pool */
+ 
++/** Heap size for U-Boot */
+ #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 64 * 1024 * 1024)
++
++/**
++ * This is defined in the board config header.  This specified memory area will
++ * get subtracted from the top (end) of memory and won't get "touched" at all
++ * by U-Boot.  By fixing up gd->ram_size the Linux kernel should get passed the
++ * now "corrected" memory size and won't touch it either.
++ */
+ #define CONFIG_SYS_MEM_TOP_HIDE		0x1000000
+ 
++/** Stack size for PSCI calls */
+ #define CONFIG_AP_STACK_SIZE		65536
++
++/** Stack alignment for PSCI calls */
+ #define CONFIG_AP_STACK_ALIGN		16
+ 
+ /* PL011 Serial Configuration */
+-
++/** Enable PL011 serial driver */
+ #define CONFIG_PL01X_SERIAL
++
++/** PL011 serial clock speed */
+ #define CONFIG_PL011_CLOCK		24000000
++
++/** Console serial port number */
+ #define CONFIG_CONS_INDEX		1
+ 
+ /* Generic Interrupt Controller Definitions */
++
++/** Base address of Global Interrupt Controller GICD registers */
+ #define GICD_BASE			(0x801000000000)
+ #define GICR_BASE			(0x801000002000)
++
++/** Base address of UART0 registers */
+ #define CONFIG_SYS_SERIAL0		0x87e028000000
++
++/** Base address of UART1 registers */
+ #define CONFIG_SYS_SERIAL1		0x87e029000000
+ 
+ #define CONFIG_BAUDRATE			115200
+ 
+ /* Net */
++/** Enable ThunderX BGX networking support */
+ #define CONFIG_THUNDERX_BGX
+ /* #define CONFIG_THUNDERX_XCV */
++
++/** Enable ThunderX SMI MDIO driver */
+ #define CONFIG_THUNDERX_SMI
++
++/** Enable ThunderX VNIC driver support */
+ #define CONFIG_THUNDERX_VNIC
++
++/** Generate a random MAC address if it is not already defined */
+ #define CONFIG_RANDOM_MACADDR
+ 
+ #ifndef CONFIG_RANDOM_MACADDR
+-#define CONFIG_ETHADDR			aa:d3:31:40:11:00
++/** If no random MAC address, use this address */
++# define CONFIG_ETHADDR			aa:d3:31:40:11:00
+ #endif
++
++/**
++ * Only allow the Ethernet MAC address environment variable to be overwritten
++ * once.
++ */
+ #define CONFIG_OVERWRITE_ETHADDR_ONCE
+ 
++/** Maximum number of BGX interfaces per CPU node */
+ #define CONFIG_MAX_BGX_PER_NODE		3
+-#define CONFIG_MAX_BGX			3 /* 2 BGX + 1 RGX */
+ 
++/** Maximum total number of BGX interfaces across all nodes */
++#define CONFIG_MAX_BGX			3
++
++/** Enable 10G PHY support */
+ #define CONFIG_PHYLIB_10G
+ 
+ 
+-/* Command line configuration */
++/** Command line configuration */
+ #define CONFIG_MENU
+ 
+ /*#define CONFIG_MENU_SHOW*/
++/** Enable icache and dcache commands */
+ #define CONFIG_CMD_CACHE
++
+ #define CONFIG_CMD_DIAG
++
++/** Enable env command */
+ #define CONFIG_CMD_ENV
+ #undef  CONFIG_CMD_IMLS
+ #define CONFIG_CMD_BOOTI
+ 
+ #define CONFIG_CMD_MII
++
++/** Enable tftp command */
+ #define CONFIG_CMD_TFTP
+ 
++/** Enable fatload, fatls, etc. */
+ #define CONFIG_CMD_FAT
++
++/** Enable write support to FAT partitions */
++#define CONFIG_FAT_WRITE
++
++/** Enable ext2ls, ext2load, etc. commands */
+ #define CONFIG_CMD_EXT2
++
++/** Enable ext4ls, ext4load, etc. commands */
+ #define CONFIG_CMD_EXT4
+-#define CONFIG_CMD_DIAG
++
++/** Enable part command */
+ #define CONFIG_CMD_PART
++
++/** Enable sata command */
+ #define CONFIG_CMD_SATA
+ 
++/** Enable pci command */
+ #define CONFIG_CMD_PCI
+ 
++/** Enable askenv command */
+ #define CONFIG_CMD_ASKENV
++
++/** Enable environment flags support */
+ #define CONFIG_CMD_ENV_FLAGS
++
++/** Enable grepenv command */
+ #define CONFIG_CMD_GREPENV
++
++/** Enable callback support when environment variables are set, or changed */
+ #define CONFIG_CMD_ENV_CALLBACK
+ 
++/** Enable date command */
+ #define CONFIG_CMD_DATE
+ 
+ #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
+ 
+ /* AHCI support Definitions */
+ #ifdef CONFIG_CMD_SATA
+-  #define CONFIG_SATA_AHCI
+-  #define CONFIG_SYS_SATA_MAX_DEVICE	2
+-  #define CONFIG_LBA48
+-  #define CONFIG_LIBATA
+-  #define CONFIG_SYS_64BIT_LBA
++/** Enable AHCI SATA driver */
++# define CONFIG_SATA_AHCI
++/** Maximum number of SATA devices */
++# define CONFIG_SYS_SATA_MAX_DEVICE	2
++/** Enable 48-bit SATA addressing */
++# define CONFIG_LBA48
++/** Enable libata, required for SATA */
++# define CONFIG_LIBATA
++/** Enable 64-bit addressing */
++# define CONFIG_SYS_64BIT_LBA
+ #endif
+ 
+ /* Partition systems */
++/** Enable old DOS partitioning for drives under 3TB */
+ #define CONFIG_DOS_PARTITION
++/** Enable EFI partition support */
+ #define CONFIG_EFI_PARTITION
++/** Enable UUIDs for drives >= 3TB */
+ #define CONFIG_PARTITION_UUIDS
+ 
+ /* PCIe */
++/** Enable PCI support */
+ #define CONFIG_PCI
++/** Enable 64-bit PCI addressing support */
+ #define CONFIG_SYS_PCI_64BIT
++/** Show devices found on PCI bus */
+ #define CONFIG_PCI_SCAN_SHOW
+ #undef CONFIG_PCI_ENUM_ONLY
++/** Enable PCI plug-and-play support */
+ #define CONFIG_PCI_PNP
+ #define CONFIG_SYS_PCI_ARI
++/** Enable ThunderX ECAMS PCIE support */
+ #define CONFIG_THUNDERX_ECAMS 1
+ #define CONFIG_THUNDERX_RCS 3
+ 
++/** Define the cacheline size */
+ #define CONFIG_SYS_CACHELINE_SIZE 128
+ 
++/** Number of I2C buses */
++#define CONFIG_SYS_MAX_I2C_BUS	2
++
++/** Enable ThunderX I2C support */
+ #define CONFIG_SYS_I2C_THUNDERX
++
++/** I2C slave address */
++#define CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR	0x77
++
++/** I2C bus speed */
++#define CONFIG_SYS_I2C_SPEED			100000
++
++/** Speed for bus 0 */
++#define CONFIG_SYS_I2C_THUNDERX_SPEED_0		100000
++
++/** Speed for bus 1 */
++#define CONFIG_SYS_I2C_THUNDERX_SPEED_1		100000
++
++/** I2C bus real-time clock resides on */
+ #define CONFIG_SYS_RTC_BUS_NUM 0
++
++/** I2C address of real-time clcok */
+ #define CONFIG_SYS_I2C_RTC_ADDR 0x68
++
++/** Enable Dallas or compabile DS1337 driver */
+ #define CONFIG_RTC_DS1337
+ 
+ #define CONFIG_DDR_SPD
+@@ -199,13 +341,6 @@
+ 
+ #define CONFIG_CMD_SAVES
+ 
+-/* Partition systems */
+-#define CONFIG_DOS_PARTITION
+-#define CONFIG_EFI_PARTITION
+-#define CONFIG_PARTITION_UUIDS
+-
+-#define CONFIG_SYS_CACHELINE_SIZE 128
+-
+ /* BOOTP options */
+ #define CONFIG_BOOTP_BOOTFILESIZE
+ #define CONFIG_BOOTP_BOOTPATH
+@@ -223,23 +358,30 @@
+ #define PHYS_SDRAM_1_SIZE		(0x80000000-MEM_BASE)	/* 2048 MB */
+ #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+ 
++/** Enable XHCI PCI driver */
+ #define CONFIG_USB_XHCI_PCI
++/** Maximum root ports for XHCI */
+ #define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
+ 
+ 
+ 
+ /* PCIe network controller drivers */
++/** Intel E1000 network card */
+ #define CONFIG_E1000
+ #define CONFIG_E1000_SPI
++/** Enable command for E1000 card */
+ #define CONFIG_CMD_E1000
+ 
+ /* #define E1000_DEBUG */
+ 
++/** Enable driver for Real-Tec RTL8169 card */
+ #define CONFIG_RTL8169
+ 
+ /* Initial environment variables */
+ #define UBOOT_IMG_HEAD_SIZE		0x40
+ /* C80000 - 0x40 */
++
++/** Extra environment settings */
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+ 					"kernel_addr=04007ffc0\0"	\
+ 					"fdt_addr=0x54C00000\0"		\
+@@ -253,28 +395,43 @@
+ 					"earlycon=pl011,0x87e028000000 " \
+ 					"debug maxcpus=4 rootwait rw "\
+ 					"root=/dev/sda2 coherent_pool=16M"
++
++/** Store U-Boot version in "ver" environment variable */
++#define CONFIG_VERSION_VARIABLE
++
++/** How long to delay before booting */
+ #define CONFIG_BOOTDELAY		5
+ 
++/** Where the environment is located */
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
++/** Size of environment in bytes */
+ #define CONFIG_ENV_SIZE			0x80000
++/** Starting offset of the environment */
+ #define CONFIG_ENV_OFFSET		0xf00000
+ 
++/** Maximum size of the BDK flat device-tree */
+ #define CONFIG_BDK_FDT_SIZE		0x20000
+ 
+ /* Monitor Command Prompt */
+-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
++#define CONFIG_SYS_CBSIZE		512	/** Console I/O Buffer Size */
+ #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
+ 					 sizeof(CONFIG_SYS_PROMPT) + 16)
+ #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+ #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
++/** Enable long help support */
+ #define CONFIG_SYS_LONGHELP
++/** Enable editing of the command line */
+ #define CONFIG_CMDLINE_EDITING
++/** Enable tab autocomplete on command line */
+ #define CONFIG_AUTO_COMPLETE
+ #define CONFIG_FEATURE_COMMAND_EDITING
+-#define CONFIG_SYS_MAXARGS		64		/* max command args */
++#define CONFIG_SYS_MAXARGS		64		/** max command args */
+ #define CONFIG_NO_RELOCATION		1
++
++/** System PLL reference clock */
+ #define PLL_REF_CLK			50000000	/* 50 MHz */
++
+ #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
+ 
+ #endif /* __THUNDERX_81XX_H__ */
+-- 
+2.29.0
+

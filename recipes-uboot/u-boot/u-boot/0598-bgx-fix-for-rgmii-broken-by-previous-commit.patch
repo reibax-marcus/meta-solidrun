@@ -1,0 +1,29 @@
+From 97717a44ffe5bd6fba674e1bc483ac2c4b3c4216 Mon Sep 17 00:00:00 2001
+From: Nithya <nithya.mani@caviumnetworks.com>
+Date: Tue, 17 Jan 2017 15:24:32 -0800
+Subject: [PATCH 0598/1239] bgx: fix for rgmii broken by previous commit
+
+commit #a83c7d7 broke rgmii and this patch fixes it
+
+Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 6f7d50acb5..762a2eecb9 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -839,7 +839,8 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 			last speed 0x%x, duplex 0x%x\n",
+ 			lmac->qlm_mode, lmac->link_up, lmac->last_speed, lmac->last_duplex);
+ 
+-		bgx_lmac_sgmii_set_link_speed(lmac);
++		if (lmac->qlm_mode != QLM_MODE_RGMII)
++			bgx_lmac_sgmii_set_link_speed(lmac);
+ 
+ 	} else {
+ 		u64 status1;
+-- 
+2.29.0
+

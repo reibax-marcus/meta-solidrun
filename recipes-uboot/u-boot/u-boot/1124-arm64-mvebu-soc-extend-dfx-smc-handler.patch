@@ -1,0 +1,119 @@
+From e2c138991ac8ad18f3490bf634c9c95ca3e66dbf Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Sun, 16 Feb 2020 23:28:14 +0100
+Subject: [PATCH 1124/1239] arm64: mvebu: soc: extend dfx smc handler
+
+Since the dfx register set is going to be marked as secure, more drivers
+are going to use smc for accessing some dfx registers. Therefore the dfx
+smc routine need to be extended. Additionally macro definitions which
+use common dfx smc in a different way are added for further use.
+
+This patch is a preparation for upcoming changes and will prevent mixing
+soc and thermal driver changes with upcoming drivers rework.
+
+At the occasion fix naming of first argument passed via smc call which
+refers to sub-fid.
+
+Change-Id: I5cf8ac596412c8eecdb13cf7200222c369c636da
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/25050
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/mach-mvebu/armada8k/soc.c       |  9 +++++++--
+ arch/arm/mach-mvebu/include/mach/soc.h   | 12 +++++++++++-
+ drivers/thermal/mvebu_ext_thermal_28nm.c |  6 +++---
+ 3 files changed, 21 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/mach-mvebu/armada8k/soc.c b/arch/arm/mach-mvebu/armada8k/soc.c
+index 4accabe20c..6ace53a9dd 100644
+--- a/arch/arm/mach-mvebu/armada8k/soc.c
++++ b/arch/arm/mach-mvebu/armada8k/soc.c
+@@ -69,18 +69,23 @@ static struct soc_info soc_info_table[] = {
+ 	{ {0x8045, 0}, "Armada8040-B0", {0x806, 2}, {0x115, 0}, 1, 2, 0},
+ };
+ 
+-int mvebu_dfx_smc(u32 addr, u32 *reg)
++int mvebu_dfx_smc(u32 subfid, u32 *reg, u32 addr, u32 val)
+ {
+ 	struct pt_regs pregs = {0};
+ 
+ 	pregs.regs[0] = MV_SIP_DFX;
+-	pregs.regs[1] = addr;
++	pregs.regs[1] = subfid;
++	pregs.regs[2] = addr;
++	pregs.regs[3] = val;
+ 
+ 	smc_call(&pregs);
+ 
+ 	if (pregs.regs[0] == 0 && reg)
+ 		*reg = pregs.regs[1];
+ 
++	debug("%s: sub-fid %d, reg_val 0x%x, addr 0x%x, val 0x%x, ret %ld\n",
++	      __func__, subfid, reg ? *reg : -1, addr, val, pregs.regs[0]);
++
+ 	return pregs.regs[0];
+ }
+ 
+diff --git a/arch/arm/mach-mvebu/include/mach/soc.h b/arch/arm/mach-mvebu/include/mach/soc.h
+index a6cebeff54..56ad6aa059 100644
+--- a/arch/arm/mach-mvebu/include/mach/soc.h
++++ b/arch/arm/mach-mvebu/include/mach/soc.h
+@@ -239,12 +239,22 @@
+ #define MV_SIP_DFX_THERMAL_READ		2
+ #define MV_SIP_DFX_THERMAL_IS_VALID	3
+ 
++#define MV_SIP_DFX_SREAD		20
++#define MV_SIP_DFX_SWRITE		21
++
+ #ifndef __ASSEMBLY__
+ #include <asm/types.h>
+ 
+-int mvebu_dfx_smc(u32 addr, u32 *reg);
++int mvebu_dfx_smc(u32 subfid, u32 *reg, u32 addr, u32 val);
+ void soc_print_device_info(void);
+ int soc_get_ap_cp_num(void *ap_num, void *cp_num);
+ void soc_print_system_cache_info(void);
++
++#define mvebu_dfx_smc_thermal(subfid, preg)	\
++				mvebu_dfx_smc(subfid, preg, 0, 0)
++#define mvebu_dfx_sread(preg, addr)		\
++				mvebu_dfx_smc(MV_SIP_DFX_SREAD, preg, addr, 0)
++#define mvebu_dfx_swrite(addr, val)		\
++				mvebu_dfx_smc(MV_SIP_DFX_SWRITE, 0, addr, val)
+ #endif /* __ASSEMBLY__ */
+ #endif /* _MVEBU_SOC_H */
+diff --git a/drivers/thermal/mvebu_ext_thermal_28nm.c b/drivers/thermal/mvebu_ext_thermal_28nm.c
+index 97fa5977b1..62801d7ba0 100644
+--- a/drivers/thermal/mvebu_ext_thermal_28nm.c
++++ b/drivers/thermal/mvebu_ext_thermal_28nm.c
+@@ -45,7 +45,7 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
+ 	}
+ 
+ 	if (tsen->fw_smc_support) {
+-		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_READ, &reg);
++		ret = mvebu_dfx_smc_thermal(MV_SIP_DFX_THERMAL_READ, &reg);
+ 		if (ret)
+ 			return ret;
+ 
+@@ -84,7 +84,7 @@ static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
+ 	while (reg == 0 && timeout < THERMAL_TIMEOUT &&
+ 	       ret == SMCCC_RET_SUCCESS) {
+ 		udelay(10);
+-		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
++		ret = mvebu_dfx_smc_thermal(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
+ 		timeout++;
+ 	}
+ 
+@@ -108,7 +108,7 @@ u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *tsen)
+ 	      (uintptr_t)tsen->regs_base);
+ 
+ 	/* Try init thermal sensor via firmware, if fails try legacy */
+-	ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_INIT, 0x0);
++	ret = mvebu_dfx_smc_thermal(MV_SIP_DFX_THERMAL_INIT, 0x0);
+ 	if (ret == SMCCC_RET_SUCCESS)
+ 		return mvebu_thermal_ext_fw_validation(tsen);
+ 
+-- 
+2.29.0
+

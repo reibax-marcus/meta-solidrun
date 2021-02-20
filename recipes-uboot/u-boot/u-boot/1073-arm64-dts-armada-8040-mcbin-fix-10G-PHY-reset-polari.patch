@@ -1,0 +1,46 @@
+From b1cedb5f56b8379081c8f2706961313f2bde752c Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Sun, 26 Jan 2020 22:59:55 +0100
+Subject: [PATCH 1073/1239] arm64: dts: armada-8040-mcbin: fix 10G PHY reset
+ polarity
+
+The mvpp2 driver issues the PHY reset according to the
+DT-defined polarity. Because of a bad definition
+88E3310 PHYs on the MacchiatoBin board remained
+permanently in a reset state. Fix that.
+
+Change-Id: Ic0ce17889699c431870fbd88d926d56b6357efe3
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/22337
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ arch/arm/dts/armada-8040-mcbin.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index 9c23b04210..d5ec4fba7c 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -237,7 +237,7 @@
+ 	status = "okay";
+ 	phy-mode = "sfi";
+ 	phy = <&sfi_phy0>;
+-	phy-reset-gpios = <&cp1_gpio0 31 GPIO_ACTIVE_HIGH>;
++	phy-reset-gpios = <&cp1_gpio0 31 GPIO_ACTIVE_LOW>;
+ 	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 29 GPIO_ACTIVE_HIGH>;
+ };
+ 
+@@ -264,7 +264,7 @@
+ 	status = "okay";
+ 	phy-mode = "sfi";
+ 	phy = <&sfi_phy8>;
+-	phy-reset-gpios = <&cp1_gpio0 9 GPIO_ACTIVE_HIGH>;
++	phy-reset-gpios = <&cp1_gpio0 9 GPIO_ACTIVE_LOW>;
+ 	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 10 GPIO_ACTIVE_HIGH>;
+ };
+ 
+-- 
+2.29.0
+

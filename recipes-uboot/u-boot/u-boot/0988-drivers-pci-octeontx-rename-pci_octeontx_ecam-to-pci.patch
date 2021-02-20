@@ -1,0 +1,74 @@
+From 56b76ff3d1e35a1d29d96ea0e4cf4aa11b437466 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 8 Nov 2019 16:51:14 -0800
+Subject: [PATCH 0988/1239] drivers: pci: octeontx: rename pci_octeontx_ecam to
+ pci_octeontx
+
+Change-Id: Ic0a0a859b6fe0a2668f4a313663c83eb7f05b0e0
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+---
+ drivers/pci/Kconfig                                 | 6 +++---
+ drivers/pci/Makefile                                | 2 +-
+ drivers/pci/{pci_octeontx_ecam.c => pci_octeontx.c} | 6 +++---
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+ rename drivers/pci/{pci_octeontx_ecam.c => pci_octeontx.c} (98%)
+
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index 4a123f7c10..4fadc8cc84 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -106,11 +106,11 @@ config PCI_TEGRA
+ 	  with a total of 5 lanes. Some boards require this for Ethernet
+ 	  support to work (e.g. beaver, jetson-tk1).
+ 
+-config PCI_OCTEONTX_ECAM
+-	bool "OcteonTX ECAM support"
++config PCI_OCTEONTX
++	bool "OcteonTX PCI support"
+ 	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+ 	help
+-	  Enable support for the OcteonTX/TX2 SoC family ECAM controllers.
++	  Enable support for the OcteonTX/TX2 SoC family ECAM/PEM controllers.
+ 	  These controllers provide PCI configuration access to all on-board
+ 	  peripherals so it should only be disabled for testing purposes
+ 
+diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
+index 773186715f..615c3ca724 100644
+--- a/drivers/pci/Makefile
++++ b/drivers/pci/Makefile
+@@ -39,4 +39,4 @@ obj-$(CONFIG_PCIE_LAYERSCAPE_GEN4) += pcie_layerscape_gen4.o \
+ obj-$(CONFIG_PCI_XILINX) += pcie_xilinx.o
+ obj-$(CONFIG_PCIE_INTEL_FPGA) += pcie_intel_fpga.o
+ obj-$(CONFIG_PCI_KEYSTONE) += pcie_dw_ti.o
+-obj-$(CONFIG_PCI_OCTEONTX_ECAM) += pci_octeontx_ecam.o
++obj-$(CONFIG_PCI_OCTEONTX) += pci_octeontx.o
+diff --git a/drivers/pci/pci_octeontx_ecam.c b/drivers/pci/pci_octeontx.c
+similarity index 98%
+rename from drivers/pci/pci_octeontx_ecam.c
+rename to drivers/pci/pci_octeontx.c
+index 9a90e5d591..d754f98bbd 100644
+--- a/drivers/pci/pci_octeontx_ecam.c
++++ b/drivers/pci/pci_octeontx.c
+@@ -261,8 +261,8 @@ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
+ 	return 0;
+ }
+ 
+-static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
+-				     enum pci_size_t size)
++static void pci_octeontx2_pem_workaround(struct udevice *bus, uint offset,
++					 enum pci_size_t size)
+ {
+ #if defined(CONFIG_ARCH_OCTEONTX2)
+ 	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+@@ -406,7 +406,7 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
+ 	}
+ 	debug("tmp long %lx %lx\n", addr, value);
+ 
+-	pci_octeontx2_pem_errata(bus, offset, size);
++	pci_octeontx2_pem_workaround(bus, offset, size);
+ 
+ 	switch (size) {
+ 	case PCI_SIZE_8:
+-- 
+2.29.0
+

@@ -1,0 +1,33 @@
+From 0311b57cba4f6af3d9deaed1333a3a9b5453789e Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Wed, 25 Jul 2018 17:19:28 +0300
+Subject: [PATCH 0164/1239] mmc: xenon-sdhci: correct the host speed
+ configuration
+
+Remove double assignment to maximum clock frequency of
+SDHCI host and fix the zero clock value in call to
+sdhci_setup_cfg() function.
+
+Change-Id: Icd1ebf6bacaf963f1bc71db2a36109b89e741984
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ drivers/mmc/xenon_sdhci.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/mmc/xenon_sdhci.c b/drivers/mmc/xenon_sdhci.c
+index 87f7f39a1e..e6a83e5947 100644
+--- a/drivers/mmc/xenon_sdhci.c
++++ b/drivers/mmc/xenon_sdhci.c
+@@ -501,8 +501,7 @@ static int xenon_sdhci_probe(struct udevice *dev)
+ 	host->ops = &xenon_sdhci_ops;
+ 	host->max_clk = XENON_MMC_MAX_CLK;
+ 
+-	host->max_clk = XENON_MMC_MAX_CLK;
+-	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
++	ret = sdhci_setup_cfg(&plat->cfg, host, XENON_MMC_MAX_CLK, 0);
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.29.0
+

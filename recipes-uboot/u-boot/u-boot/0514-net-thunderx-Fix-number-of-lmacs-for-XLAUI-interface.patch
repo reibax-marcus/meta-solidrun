@@ -1,0 +1,37 @@
+From fd223d74c69131faef750446b847ab3795bbdf42 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 18 Jul 2016 10:50:11 -0700
+Subject: [PATCH 0514/1239] net:thunderx: Fix number of lmacs for XLAUI
+ interface.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 00c017d2f4..9d43840255 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -1002,13 +1002,16 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 			}
+ 			break;
+ 		case 4:
+-			if (((lmacid < 2) && (train_en & (1 << lmacid))) ||
+-			    (train_en & (1 << (lmacid - 2)))) {
++			if (train_en) {
+ 				lmac->qlm_mode = QLM_MODE_40G_KR4;
++				if (lmacid != 0)
++					break;
+ 				printf("BGX%d QLM%d LMAC%d mode: 40G_KR4\n",
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+ 			} else {
+ 				lmac->qlm_mode = QLM_MODE_XLAUI;
++				if (lmacid != 0)
++					break;
+ 				printf("BGX%d QLM%d LMAC%d mode: XLAUI\n",
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+ 			}
+-- 
+2.29.0
+

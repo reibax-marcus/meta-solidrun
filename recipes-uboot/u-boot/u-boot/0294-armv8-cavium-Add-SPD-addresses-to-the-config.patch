@@ -1,0 +1,45 @@
+From a7ac2ad14fc58cb0d460816c02bd538c98fa2126 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
+Date: Thu, 12 Mar 2015 19:14:53 +0300
+Subject: [PATCH 0294/1239] armv8: cavium: Add SPD addresses to the config
+
+---
+ include/configs/thunderx_88xx.h | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 9dd6480a4c..2faae2046b 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -34,7 +34,9 @@
+ #define CONFIG_SYS_MEMTEST_END		(MEM_BASE + PHYS_SDRAM_1_SIZE)
+ 
+ /* Size of malloc() pool */
+-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 4 * 1024 * 1024)
++
++#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 64 * 1024 * 1024)
++#define CONFIG_SYS_MEM_TOP_HIDE		0x1000000
+ 
+ #define CONFIG_AP_STACK_SIZE		65536
+ #define CONFIG_AP_STACK_ALIGN		16
+@@ -68,6 +70,17 @@
+ #define CONFIG_CMD_SOURCE
+ #define CONFIG_CMD_ATF
+ 
++#define CONFIG_SYS_I2C
++#define CONFIG_SYS_I2C_THUNDERX
++#define CONFIG_SYS_I2C_THUNDERX_SPEED_0 100000
++#define CONFIG_SYS_I2C_THUNDERX_SLAVE_0 0
++#define CONFIG_SYS_I2C_THUNDERX_SPEED_1 100000
++#define CONFIG_SYS_I2C_THUNDERX_SLAVE_1 0
++
++#define CONFIG_DDR_SPD
++#define CONFIG_SYS_SPD_ADDR_LIST {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}
++#define CONFIG_SYS_SPD_I2C_BUS 1
++
+ #define CONFIG_CMD_LOADB
+ #define CONFIG_CMD_LOADS
+ #define CONFIG_CMD_SAVES
+-- 
+2.29.0
+

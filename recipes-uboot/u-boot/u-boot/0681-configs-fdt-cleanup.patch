@@ -1,0 +1,111 @@
+From 54b21b0af26e0e05457d32b3a27a718ccbc26b34 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 2 Aug 2017 15:01:55 -0700
+Subject: [PATCH 0681/1239] configs: fdt cleanup
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/t81_defconfig           |  4 ++++
+ configs/t93_defconfig           |  1 +
+ include/configs/thunderx_81xx.h |  8 --------
+ include/configs/thunderx_83xx.h |  2 --
+ include/configs/thunderx_93xx.h | 10 ----------
+ 5 files changed, 5 insertions(+), 20 deletions(-)
+
+diff --git a/configs/t81_defconfig b/configs/t81_defconfig
+index 50f880c1a2..b23f223ae5 100644
+--- a/configs/t81_defconfig
++++ b/configs/t81_defconfig
+@@ -6,6 +6,10 @@ CONFIG_TARGET_THUNDERX_81XX=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DEFAULT_DEVICE_TREE="thunder-81xx"
++CONFIG_DEBUG_UART=y
++CONFIG_FIT=y
++CONFIG_FIT_SIGNATURE=y
++CONFIG_OF_BOARD_SETUP=y
+ CONFIG_SYS_EXTRA_OPTIONS="ARM64"
+ CONFIG_BOOTDELAY=5
+ # CONFIG_DISPLAY_CPUINFO is not set
+diff --git a/configs/t93_defconfig b/configs/t93_defconfig
+index c2ae1bf213..9f0fc27613 100644
+--- a/configs/t93_defconfig
++++ b/configs/t93_defconfig
+@@ -6,6 +6,7 @@ CONFIG_DEFAULT_DEVICE_TREE="thunder-93xx"
+ CONFIG_DEBUG_UART=y
+ CONFIG_FIT=y
+ CONFIG_FIT_SIGNATURE=y
++CONFIG_OF_BOARD_SETUP=y
+ CONFIG_SYS_EXTRA_OPTIONS="ARM64"
+ CONFIG_BOOTDELAY=5
+ # CONFIG_DISPLAY_CPUINFO is not set
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 270e2309ac..4de11c6589 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -61,12 +61,6 @@
+ 
+ /* Flat Device Tree Definitions */
+ 
+-/**
+- * The board code has additional modification that it wants to make to the
+- * flat device tree before handing it off to the Linux kernel.
+- */
+-#define CONFIG_OF_BOARD_SETUP
+-
+ /* SMP Spin Table Definitions */
+ /*#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)*/
+ #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+@@ -273,8 +267,6 @@
+ /** Extra environment settings */
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+ 					"kernel_addr=040080000\0"	\
+-					"fdt_addr=0x54C00000\0"		\
+-					"fdt_high=0x5fffffff\0"		\
+ 					"smi0mode=0.0.0\0"		\
+ 					"smi1mode=0.0.0\0"		\
+ 					"autoload=0\0"
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index ed0de60b75..f25fd7a2b4 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -259,8 +259,6 @@
+ /** Extra environment settings */
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+ 					"kernel_addr=0x40080000\0"	\
+-					"fdt_addr=0x54C00000\0"		\
+-					"fdt_high=0x5fffffff\0"		\
+ 					"smi0mode=0.0.0\0"		\
+ 					"smi1mode=0.0.0\0"		\
+ 					"autoload=0\0"
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index c6abbb07a0..87b4d169a2 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -47,14 +47,6 @@
+ 
+ #define CONFIG_BOARD_LATE_INIT
+ 
+-/* Flat Device Tree Definitions */
+-
+-/**
+- * The board code has additional modification that it wants to make to the
+- * flat device tree before handing it off to the Linux kernel.
+- */
+-#define CONFIG_OF_BOARD_SETUP
+-
+ /* SMP Spin Table Definitions */
+ #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+ 
+@@ -254,8 +246,6 @@
+ /** Extra environment settings */
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+ 					"kernel_addr=0x40080000\0"	\
+-					"fdt_addr=0x54C00000\0"		\
+-					"fdt_high=0x5fffffff\0"		\
+ 					"smi0mode=0.0.0\0"		\
+ 					"smi1mode=0.0.0\0"		\
+ 					"autoload=0\0"
+-- 
+2.29.0
+

@@ -1,0 +1,125 @@
+From 0162a30b95d962b67b758a90d2f2806db1bdaeb0 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 11 Dec 2018 11:25:06 -0800
+Subject: [PATCH 0842/1239] mmc: fix the config name of octeontx driver
+
+Replace _CAVIUM with _OCTEONTX to fix build error.
+
+Change-Id: Ic3e1683616f50c626d53cad914be9a54437381d2
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ cmd/mmc.c                | 10 +++++-----
+ drivers/mmc/mmc-uclass.c |  2 +-
+ env/mmc.c                |  6 +++---
+ include/mmc.h            |  2 +-
+ 4 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/cmd/mmc.c b/cmd/mmc.c
+index 1048bc495b..e6e7fffa19 100644
+--- a/cmd/mmc.c
++++ b/cmd/mmc.c
+@@ -284,7 +284,7 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
+ #ifndef CONFIG_BLK
+ 	original_part = mmc->block_dev.hwpart;
+ #else
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ 	original_part = mmc_get_blk_desc(mmc, curr_device)->hwpart;
+ #else
+ 	original_part = mmc_get_blk_desc(mmc)->hwpart;
+@@ -324,7 +324,7 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
+ 	printf("\nMMC read: dev # %d, block # %d, count %d ... ",
+ 	       curr_device, blk, cnt);
+ 
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ 	n = blk_dread(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
+ #else
+ 	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, addr);
+@@ -425,7 +425,7 @@ static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
+ 		printf("Error: card is write protected!\n");
+ 		return CMD_RET_FAILURE;
+ 	}
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ 	n = blk_dwrite(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
+ #else
+ 	n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, addr);
+@@ -457,7 +457,7 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
+ 		printf("Error: card is write protected!\n");
+ 		return CMD_RET_FAILURE;
+ 	}
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ 	n = blk_derase(mmc_get_blk_desc(mmc, curr_device), blk, cnt);
+ #else
+ 	n = blk_derase(mmc_get_blk_desc(mmc), blk, cnt);
+@@ -536,7 +536,7 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
+ 	else
+ 		printf("mmc%d(part %d) is current device\n",
+ 		       curr_device,
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ 		       mmc_get_blk_desc(mmc, curr_device)->hwpart);
+ #else
+ 		       mmc_get_blk_desc(mmc)->hwpart);
+diff --git a/drivers/mmc/mmc-uclass.c b/drivers/mmc/mmc-uclass.c
+index 37253830af..b21843ef1b 100644
+--- a/drivers/mmc/mmc-uclass.c
++++ b/drivers/mmc/mmc-uclass.c
+@@ -256,7 +256,7 @@ int mmc_get_next_devnum(void)
+ 	return blk_find_max_devnum(IF_TYPE_MMC);
+ }
+ 
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum)
+ {
+ 	struct blk_desc *desc;
+diff --git a/env/mmc.c b/env/mmc.c
+index fe26dab09e..4b97e11cce 100644
+--- a/env/mmc.c
++++ b/env/mmc.c
+@@ -143,7 +143,7 @@ static int mmc_set_env_part(struct mmc *mmc)
+ 	int ret = 0;
+ 
+ 	env_mmc_orig_hwpart =
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ 		mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV)->hwpart;
+ #else
+ 		mmc_get_blk_desc(mmc)->hwpart;
+@@ -192,7 +192,7 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
+ 			    unsigned long offset, const void *buffer)
+ {
+ 	uint blk_start, blk_cnt, n;
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ 	struct blk_desc *desc = mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV);
+ #else
+ 	struct blk_desc *desc = mmc_get_blk_desc(mmc);
+@@ -305,7 +305,7 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
+ 			   unsigned long offset, const void *buffer)
+ {
+ 	uint blk_start, blk_cnt, n;
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ 	struct blk_desc *desc = mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV);
+ #else
+ 	struct blk_desc *desc = mmc_get_blk_desc(mmc);
+diff --git a/include/mmc.h b/include/mmc.h
+index f37bc3057b..289fe810e5 100644
+--- a/include/mmc.h
++++ b/include/mmc.h
+@@ -888,7 +888,7 @@ int mmc_get_env_dev(void);
+  * @devnum:	device number
+  * @return block device if found, else NULL
+  */
+-#ifdef CONFIG_MMC_CAVIUM
++#ifdef CONFIG_MMC_OCTEONTX
+ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum);
+ #else
+ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
+-- 
+2.29.0
+

@@ -1,0 +1,124 @@
+From 89732f1cb5566d38971cf06716a2a51c0fd91a7b Mon Sep 17 00:00:00 2001
+From: David Sniatkiwicz <davidsn@marvell.com>
+Date: Sun, 7 May 2017 10:48:47 +0300
+Subject: [PATCH 0047/1239] arm64: dts: a70x0: a80x0: Add VBUS regulator supply
+ to USB3
+
+- The USB device should linked to VBUS regulator through
+"vbus-supply" DTS property.
+- This patch adds the "fixed-regulator" node for the USB VBUS regulator.
+- This patch adds handling for "vbus-supply" property inside the USB3
+  node in armada-70x0/80x0-db device trees for turning on/off
+  the VBUS regulator.
+
+Change-Id: I3ed712f96d3deb2a81a97e7dd8d993d301eaf3fe
+Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+---
+ arch/arm/dts/armada-70x0-db.dtsi | 28 ++++++++++++++++++
+ arch/arm/dts/armada-80x0-db.dtsi | 50 ++++++++++++++++++++++++++++++++
+ 2 files changed, 78 insertions(+)
+
+diff --git a/arch/arm/dts/armada-70x0-db.dtsi b/arch/arm/dts/armada-70x0-db.dtsi
+index 0cb72424d0..7788f130f3 100644
+--- a/arch/arm/dts/armada-70x0-db.dtsi
++++ b/arch/arm/dts/armada-70x0-db.dtsi
+@@ -19,6 +19,34 @@
+ 					status = "okay";
+ 				};
+ 			};
++
++			cpm_reg_usb3_vbus0:cpm_usb3_vbus@0 {
++				compatible = "regulator-fixed";
++				regulator-min-microvolt = <5000000>;
++				regulator-max-microvolt = <5000000>;
++				startup-delay-us = <100000>;
++				regulator-force-boot-off;
++				gpio = <&expander0 0 GPIO_ACTIVE_HIGH>;
++			};
++
++			cpm_reg_usb3_vbus1: cpm_usb3_vbus@1 {
++				compatible = "regulator-fixed";
++				regulator-min-microvolt = <5000000>;
++				regulator-max-microvolt = <5000000>;
++				startup-delay-us = <100000>;
++				regulator-force-boot-off;
++				gpio = <&expander0 1 GPIO_ACTIVE_HIGH>;
++			};
++
++			cpm_usb3_0: usb3@500000 {
++				vbus-supply = <&cpm_reg_usb3_vbus0>;
++				vbus-disable-delay = <500>;
++			};
++
++			cpm_usb3_1: usb3@510000 {
++				vbus-supply = <&cpm_reg_usb3_vbus1>;
++				vbus-disable-delay = <500>;
++			};
+ 		};
+ 	};
+ };
+diff --git a/arch/arm/dts/armada-80x0-db.dtsi b/arch/arm/dts/armada-80x0-db.dtsi
+index da2925c565..f6b03508cc 100644
+--- a/arch/arm/dts/armada-80x0-db.dtsi
++++ b/arch/arm/dts/armada-80x0-db.dtsi
+@@ -25,7 +25,57 @@
+ 					status = "okay";
+ 				};
+ 			};
++
++			cpm_reg_usb3_vbus0:cpm_usb3_vbus@0 {
++				compatible = "regulator-fixed";
++				regulator-min-microvolt = <5000000>;
++				regulator-max-microvolt = <5000000>;
++				startup-delay-us = <100000>;
++				regulator-force-boot-off;
++				gpio = <&expander0 0 GPIO_ACTIVE_HIGH>;
++			};
++
++			cpm_reg_usb3_vbus1: cpm_usb3_vbus@1 {
++				compatible = "regulator-fixed";
++				regulator-min-microvolt = <5000000>;
++				regulator-max-microvolt = <5000000>;
++				startup-delay-us = <100000>;
++				regulator-force-boot-off;
++				gpio = <&expander0 1 GPIO_ACTIVE_HIGH>;
++			};
++
++			/*
++			 * Even though this node used for enable/disable
++			 * cps usb vbus-supply, we use "cpm" prefix since
++			 * the expander is connected to cpm.
++			 */
++			cpm_reg_usb3_vbus2: cpm_usb3_vbus@2 {
++				compatible = "regulator-fixed";
++				regulator-min-microvolt = <5000000>;
++				regulator-max-microvolt = <5000000>;
++				startup-delay-us = <100000>;
++				regulator-force-boot-off;
++				gpio = <&expander1 0 GPIO_ACTIVE_HIGH>;
++			};
++
++			cpm_usb3_0: usb3@500000 {
++				vbus-supply = <&cpm_reg_usb3_vbus0>;
++				vbus-disable-delay = <500>;
++			};
++			cpm_usb3_1: usb3@510000 {
++				vbus-supply = <&cpm_reg_usb3_vbus1>;
++				vbus-disable-delay = <500>;
++			};
+ 		};
+ 	};
+ 
++	cp110-slave {
++		config-space {
++
++			cps_usb3_0: usb3@500000 {
++				vbus-supply = <&cpm_reg_usb3_vbus2>;
++				vbus-disable-delay = <500>;
++			};
++		};
++	};
+ };
+-- 
+2.29.0
+

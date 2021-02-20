@@ -1,0 +1,27 @@
+From 42237f2719bb29cbed4bf52cd8d9ea6cc5584374 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 10 Jan 2017 12:21:39 -0800
+Subject: [PATCH 0592/1239] sata: Cast to proper size, to read SATA disks
+ greater than 4TB.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/block/sata_ahci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/block/sata_ahci.c b/drivers/block/sata_ahci.c
+index 84c6a17da1..26d165ee88 100644
+--- a/drivers/block/sata_ahci.c
++++ b/drivers/block/sata_ahci.c
+@@ -984,7 +984,7 @@ int scan_sata(int dev)
+ 
+ 	/* Totoal sectors */
+ 	n_sectors = ata_id_n_sectors(id);
+-	pdev->lba = (u32)n_sectors;
++	pdev->lba = (lbaint_t)n_sectors;
+ 
+ 	pdev->type = DEV_TYPE_HARDDISK;
+ 	pdev->blksz = ATA_SECT_SIZE;
+-- 
+2.29.0
+

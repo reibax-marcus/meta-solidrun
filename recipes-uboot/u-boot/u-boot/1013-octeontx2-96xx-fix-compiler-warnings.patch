@@ -1,0 +1,32 @@
+From b0c91177318f29a716325b37f6fd759071a77559 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 22 Nov 2019 15:05:03 -0800
+Subject: [PATCH 1013/1239] octeontx2: 96xx: fix compiler warnings
+
+Change-Id: I24051851753c32f2cff493f299ab8671d4ef1939
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19147
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+(cherry picked from commit 083f8a8d8620f802f50188dacccaab4be7f42874)
+Reviewed-on: https://sj1git1.cavium.com/19370
+---
+ board/Marvell/octeontx2/board-fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/Marvell/octeontx2/board-fdt.c b/board/Marvell/octeontx2/board-fdt.c
+index d2bb8abaf3..5e7f6a6ce6 100644
+--- a/board/Marvell/octeontx2/board-fdt.c
++++ b/board/Marvell/octeontx2/board-fdt.c
+@@ -147,7 +147,7 @@ int arch_fixup_memory_node(void *blob)
+ 
+ int ft_board_setup(void *blob, bd_t *bd)
+ {
+-	int nodeoff, node, bdk_node, ret;
++	int nodeoff, node, ret;
+ 	const char *board_model, *board_rev;
+ 	const char *board_mac_addr, *board_serial;
+ 	char temp_brd_mdl[32], temp_brd_mac[32];
+-- 
+2.29.0
+

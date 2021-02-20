@@ -1,0 +1,54 @@
+From b51e183c51ef1585e244db37d441cce1e4ca66a7 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Thu, 12 May 2016 06:49:30 -0700
+Subject: [PATCH 0425/1239] Fix the link status checks for 10G/40G interfaces.
+
+Writing BGXX_SPUX_STATUS1.rcv_lnk forces the link to be up. Instead read
+appropriate bits to check if link is up or not. If link is not up,
+keep checking for link to be up.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 361d5c6b18..305cf4db14 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -502,7 +502,6 @@ static int bgx_xaui_check_link(struct lmac *lmac)
+ 
+ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ {
+-	u64 link;
+ 	int ret;
+ 	struct lmac *lmac = bgx_get_lmac(node, bgx_idx, lmacid);
+ 
+@@ -528,7 +527,12 @@ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 				lmac->netdev.name, lmac->phydev->dev->name);
+ 		}
+ 	} else {
+-		link = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
++		u64 status1;
++		u64 tx_ctl;
++		u64 rx_ctl;
++		status1 = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
++		tx_ctl = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_TX_CTL);
++		rx_ctl = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_RX_CTL);
+ 
+ 		debug("BGX%d LMAC%d BGX_SPUX_STATUS1: %lx\n",
+ 		      bgx_idx, lmacid,
+@@ -540,7 +544,9 @@ void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 		      bgx_idx, lmacid,
+ 		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_TX_CTL));
+ 
+-		if (link & SPU_STATUS1_RCV_LNK) {
++		if ((status1 & SPU_STATUS1_RCV_LNK) &&
++		    ((tx_ctl & SMU_TX_CTL_LNK_STATUS) == 0) &&
++		    ((rx_ctl & SMU_RX_CTL_STATUS) == 0)) {
+ 			lmac->link_up = 1;
+ 			if (lmac->lmac_type == 4)
+ 				lmac->last_speed = 40000;
+-- 
+2.29.0
+

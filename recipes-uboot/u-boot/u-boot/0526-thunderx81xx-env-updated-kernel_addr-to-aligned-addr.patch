@@ -1,0 +1,31 @@
+From 46f66e6999360f0d60da8772d8d01c4a3300edee Mon Sep 17 00:00:00 2001
+From: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
+Date: Thu, 15 Sep 2016 00:51:45 +0530
+Subject: [PATCH 0526/1239] thunderx81xx, env: updated kernel_addr to aligned
+ address.
+
+default kernel load address (kernel_addr) was not aligned
+and FAT was taking lot of time to load to
+unalined address.
+
+Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
+---
+ include/configs/thunderx_81xx.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 958c172a3a..24476ca54f 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -335,7 +335,7 @@
+ 
+ /** Extra environment settings */
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+-					"kernel_addr=04007ffc0\0"	\
++					"kernel_addr=040080000\0"	\
+ 					"fdt_addr=0x54C00000\0"		\
+ 					"fdt_high=0x5fffffff\0"		\
+ 					"smi0mode=0.0.0\0"		\
+-- 
+2.29.0
+

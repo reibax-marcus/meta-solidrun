@@ -1,0 +1,48 @@
+From 5f2aaae1f15810e381f916132cfc47439eca31f7 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 19 May 2017 17:33:32 +0200
+Subject: [PATCH 0058/1239] net: mvpp2: Allow to support 802.3ap Backplane
+ Auto-Negotiation
+
+When this mode is chosen all mac/pcs/serdes related configuration should be
+skipped, since the dedicated co-processor (MG's CM3) runs auto-negotiation
+firmware and configures all relevant registers.
+
+The co-processor has access to all network related registers like: MG, AP,
+MAC, PCS, Serdes etc. and during auto-neg process it accesses them.
+Therefore the mvpp2.c driver should not interfere and stay away from
+accessing mac related registers.
+
+Change-Id: Ia31aaa22607c31bd3ab24a078f0c60e1d95296a0
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ drivers/net/mvpp2.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/net/mvpp2.c b/drivers/net/mvpp2.c
+index 21169efc29..0bbaa6e7e7 100644
+--- a/drivers/net/mvpp2.c
++++ b/drivers/net/mvpp2.c
+@@ -3404,6 +3404,9 @@ static int gop_port_init(struct mvpp2_port *port)
+ 		gop_xlg_mac_reset(port, 0);
+ 		break;
+ 
++	case PHY_INTERFACE_MODE_AP:
++		break;
++
+ 	default:
+ 		netdev_err(NULL, "%s: Requested port mode (%d) not supported\n",
+ 			   __func__, port->phy_interface);
+@@ -3444,6 +3447,8 @@ static void gop_port_enable(struct mvpp2_port *port, int enable)
+ 	case PHY_INTERFACE_MODE_SFI:
+ 		gop_xlg_mac_port_enable(port, enable);
+ 
++		break;
++	case PHY_INTERFACE_MODE_AP:
+ 		break;
+ 	default:
+ 		netdev_err(NULL, "%s: Wrong port mode (%d)\n", __func__,
+-- 
+2.29.0
+

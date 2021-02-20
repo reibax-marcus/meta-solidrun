@@ -1,0 +1,48 @@
+From cc828e446d1b9a8160f6f7838b2f821fb2bff7a5 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Mon, 31 Dec 2018 09:31:33 +0100
+Subject: [PATCH 0233/1239] arm64: mvebu: dts: a37xx: add SD slot power supply
+ regulator
+
+SD slot on Armada 3720 DB is supplied by fixed 3.3V regulator.
+Add appropriate description in the DT. This patch fixes problems
+with the card discovery, in case the power supply was disabled
+by the OS.
+
+Change-Id: I04fd7cd854cd4f86406ca82cefbf4d64fd2cdb16
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+---
+ arch/arm/dts/armada-3720-db.dts | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm/dts/armada-3720-db.dts b/arch/arm/dts/armada-3720-db.dts
+index 8ee3bdf533..adba9ead48 100644
+--- a/arch/arm/dts/armada-3720-db.dts
++++ b/arch/arm/dts/armada-3720-db.dts
+@@ -97,6 +97,15 @@
+ 				  3300000 0x0>;
+ 		gpios = <&gpiosb 23 GPIO_ACTIVE_HIGH>;
+ 	};
++
++	vcc_sd_reg1: regulator@1 {
++		compatible = "regulator-fixed";
++		regulator-name = "vcc_sd1";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		shutdown-delay-us = <1000000>;
++		gpio = <&expander0 4 GPIO_ACTIVE_HIGH>;
++	};
+ };
+ 
+ &comphy {
+@@ -147,6 +156,7 @@
+ &sdhci0 {
+ 	bus-width = <4>;
+ 	vqmmc-supply = <&vcc_sd_reg0>;
++	vmmc-supply = <&vcc_sd_reg1>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&sdio_pins>;
+ 	status = "okay";
+-- 
+2.29.0
+

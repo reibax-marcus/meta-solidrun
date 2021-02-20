@@ -1,0 +1,35 @@
+From f580677c16d6dbe37b344c8e63058eecb168c5ca Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Thu, 13 Feb 2020 16:47:58 +0100
+Subject: [PATCH 1096/1239] arm64: dts: cn9130-crb: fix eth2 description
+
+In order to use the SGMII@2.5GHz, it is required to set the
+serdes lane to according mode/speed and also inform the
+network mvpp2k driver about it via DT mode. Because now
+an explicit "sgmii-2500" is needed, update the CN9130-CRB
+description accordingly.
+
+Change-Id: I0cb9cd31abfc568960e03d21e9284e2183a648b1
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/23306
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ arch/arm/dts/cn9130-crb.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/cn9130-crb.dtsi b/arch/arm/dts/cn9130-crb.dtsi
+index c892811c79..41906511ab 100644
+--- a/arch/arm/dts/cn9130-crb.dtsi
++++ b/arch/arm/dts/cn9130-crb.dtsi
+@@ -225,5 +225,5 @@
+ &cp0_eth2 {
+ 	status = "okay";
+ 	phy = <&nbaset_phy0>;
+-	phy-mode = "sgmii";
++	phy-mode = "sgmii-2500";
+ };
+-- 
+2.29.0
+

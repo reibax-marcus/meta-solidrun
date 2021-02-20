@@ -1,0 +1,58 @@
+From 40ef3a7a977fb87ddc07450cacff440d968aba09 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 23 Feb 2018 15:26:49 -0800
+Subject: [PATCH 0760/1239] configs: replace kernel_addr with loadaddr env
+ variable
+
+kernel_addr is relevant for flash location, kernel_addr_r should
+be defined for ram location. loadaddr is relevant for tftp commands.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/thunderx_81xx.h | 2 +-
+ include/configs/thunderx_83xx.h | 2 +-
+ include/configs/thunderx_93xx.h | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index aae1eedeaa..3ae99a22f2 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -81,7 +81,7 @@
+ 
+ /** Extra environment settings */
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+-					"kernel_addr=040080000\0"	\
++					"loadaddr=040080000\0"	\
+ 					"autoload=0\0"
+ 
+ /** Environment defines */
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 68346ac646..a7c1e7f818 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -81,7 +81,7 @@
+ 
+ /** Extra environment settings */
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+-					"kernel_addr=040080000\0"	\
++					"loadaddr=040080000\0"	\
+ 					"autoload=0\0"
+ 
+ /** Environment defines */
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index 0a4f723206..8bbfe3f8fc 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -75,7 +75,7 @@
+ 
+ /** Extra environment settings */
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+-					"kernel_addr=040080000\0"	\
++					"loadaddr=040080000\0"	\
+ 					"autoload=0\0"
+ 
+ /** Environment defines */
+-- 
+2.29.0
+

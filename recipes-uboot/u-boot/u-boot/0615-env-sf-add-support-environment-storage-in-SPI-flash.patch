@@ -1,0 +1,116 @@
+From c4da76348bd15009c9e6e5d1e92cc31c2e71fb92 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Tue, 21 Feb 2017 12:05:08 -0800
+Subject: [PATCH 0615/1239] env: sf: add support environment storage in SPI
+ flash
+
+adds support for storage of environment in Serial Flash.
+One of macro's CONFIG_ATF or CONFIG_SPI_ENV needs to be
+enabled to choose ATF or SF commands.
+Temporarily fixed crash in env_relocate_spec due to
+device_probe by invoking initr_env after eth_init,
+need to revisit after device_probe is fixed.
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ common/board_r.c                | 11 ++++++++++-
+ include/configs/thunderx_81xx.h | 18 ++++++++++++++++++
+ include/configs/thunderx_83xx.h | 18 ++++++++++++++++++
+ 3 files changed, 46 insertions(+), 1 deletion(-)
+
+diff --git a/common/board_r.c b/common/board_r.c
+index ce8b12c071..7101ec97f5 100644
+--- a/common/board_r.c
++++ b/common/board_r.c
+@@ -448,8 +448,15 @@ static int should_load_env(void)
+ 
+ static int initr_env(void)
+ {
++#ifdef CONFIG_SPI_ENV
++	static int first_time = 0;
++
++	/* initialize environment */
++	if (should_load_env() && first_time == 1)
++#else
+ 	/* initialize environment */
+ 	if (should_load_env())
++#endif
+ 		env_relocate();
+ 	else
+ 		env_set_default(NULL, 0);
+@@ -457,7 +464,9 @@ static int initr_env(void)
+ 	env_set_hex("fdtcontroladdr",
+ 		    (unsigned long)map_to_sysmem(gd->fdt_blob));
+ #endif
+-
++#ifdef CONFIG_SPI_ENV
++	first_time = 1;
++#endif
+ 	/* Initialize from environment */
+ 	load_addr = env_get_ulong("loadaddr", 16, load_addr);
+ 
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index bba9840d6f..d6a2f7f383 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -376,8 +376,26 @@
+ #define CONFIG_BOOTDELAY		5
+ 
+ /** Where the environment is located */
++
++/* Use ATF based calls for env variables */
++#define CONFIG_ATF
++
++/* Use uboot SPI APIs for env variables */
++//#define CONFIG_SPI_ENV
++
++#define CONFIG_ATF
++#if defined(CONFIG_ATF)
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
++#elif defined(CONFIG_SPI_ENV)
++#define CONFIG_ENV_IS_IN_SPI_FLASH
++#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
++#define CONFIG_ENV_SPI_MAX_HZ		12500000
++#define CONFIG_ENV_SPI_MODE		0
++#define CONFIG_ENV_SPI_BUS		0
++#define CONFIG_ENV_SPI_CS		0
++#endif
++
+ /** Size of environment in bytes */
+ #define CONFIG_ENV_SIZE			0x8000
+ /** Starting offset of the environment */
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index baf5085b0f..31889fd4f1 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -377,8 +377,26 @@
+ #define CONFIG_BOOTDELAY		5
+ 
+ /** Where the environment is located */
++
++/* Use ATF based calls for env variables */
++#define CONFIG_ATF
++
++/* Use uboot SPI APIs for env variables */
++//#define CONFIG_SPI_ENV
++
++#define CONFIG_ATF
++#if defined(CONFIG_ATF)
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
++#elif defined(CONFIG_SPI_ENV)
++#define CONFIG_ENV_IS_IN_SPI_FLASH
++#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
++#define CONFIG_ENV_SPI_MAX_HZ		12500000
++#define CONFIG_ENV_SPI_MODE		0
++#define CONFIG_ENV_SPI_BUS		0
++#define CONFIG_ENV_SPI_CS		0
++#endif
++
+ /** Size of environment in bytes */
+ #define CONFIG_ENV_SIZE			0x8000
+ /** Starting offset of the environment */
+-- 
+2.29.0
+

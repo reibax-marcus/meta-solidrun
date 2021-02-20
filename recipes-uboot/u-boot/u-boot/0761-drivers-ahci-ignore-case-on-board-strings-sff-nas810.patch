@@ -1,0 +1,29 @@
+From 9ea19384cff2887f396980ccb589461868459f1c Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 26 Feb 2018 16:07:46 -0800
+Subject: [PATCH 0761/1239] drivers: ahci: ignore case on board strings
+ sff/nas8104
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/ata/ahci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 56cfd8dbcd..60ab841382 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -616,8 +616,8 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
+ 	 * have port multiplier and device is always present
+ 	 * U-boot lacks port multiplier support hence this ugly hack.
+ 	 */
+-	if ((strcmp(boardtype, "sff8104") == 0) ||
+-		(strcmp(boardtype, "nas8104") == 0))
++	if ((strcasecmp(boardtype, "sff8104") == 0) ||
++		(strcasecmp(boardtype, "nas8104") == 0))
+ 		return 0;
+ 	/*
+ 	 * Make sure interface is not busy based on error and status
+-- 
+2.29.0
+

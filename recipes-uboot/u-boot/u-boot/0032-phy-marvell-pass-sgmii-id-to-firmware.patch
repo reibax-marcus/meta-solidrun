@@ -1,0 +1,73 @@
+From 1ac9d9aaf3c0d188fad14b5122049f015a5458e8 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Wed, 9 May 2018 18:50:29 +0300
+Subject: [PATCH 0032/1239] phy: marvell: pass sgmii id to firmware
+
+Currently, we don't pass id for SGMII 0/1.
+A bug in comphy selector configuration was found (in comphy
+firmware), after fixing it, SGMII0/1 have different configuration,
+so we need to pass the ID the firmware.
+
+Change-Id: Idcff4029cc9cf018278e493221b64b33574e0d38
+Signed-off-by: Igal Liberman <igall@marvell.com>
+Reviewed-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ drivers/phy/marvell/comphy_cp110.c | 27 +++++----------------------
+ 1 file changed, 5 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/phy/marvell/comphy_cp110.c b/drivers/phy/marvell/comphy_cp110.c
+index 5d458b8dac..c59e76a1f7 100644
+--- a/drivers/phy/marvell/comphy_cp110.c
++++ b/drivers/phy/marvell/comphy_cp110.c
+@@ -518,7 +518,7 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
+ {
+ 	struct comphy_map *ptr_comphy_map;
+ 	void __iomem *comphy_base_addr, *hpipe_base_addr;
+-	u32 comphy_max_count, lane, ret = 0;
++	u32 comphy_max_count, lane, id, ret = 0;
+ 	u32 pcie_width = 0;
+ 	u32 mode;
+ 
+@@ -587,26 +587,10 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
+ 			break;
+ 		case COMPHY_TYPE_SGMII0:
+ 		case COMPHY_TYPE_SGMII1:
+-			if (ptr_comphy_map->speed == COMPHY_SPEED_INVALID) {
+-				debug("Warning: ");
+-				debug("SGMII PHY speed in lane %d is invalid,",
+-				      lane);
+-				debug(" set PHY speed to 1.25G\n");
+-				ptr_comphy_map->speed = COMPHY_SPEED_1_25G;
+-			}
+-
+-			/*
+-			 * UINIT_ID not relevant for SGMII0 and SGMII1 - will be
+-			 * ignored by firmware
+-			 */
+-			mode = COMPHY_FW_FORMAT(COMPHY_SGMII_MODE,
+-						COMPHY_UNIT_ID0,
+-						ptr_comphy_map->speed);
+-			ret = comphy_smc(MV_SIP_COMPHY_POWER_ON,
+-					 ptr_chip_cfg->comphy_base_addr, lane,
+-					 mode);
+-			break;
+ 		case COMPHY_TYPE_SGMII2:
++			/* Calculate SGMII ID */
++			id = ptr_comphy_map->type - COMPHY_TYPE_SGMII0;
++
+ 			if (ptr_comphy_map->speed == COMPHY_SPEED_INVALID) {
+ 				debug("Warning: ");
+ 				debug("SGMII PHY speed in lane %d is invalid,",
+@@ -615,8 +599,7 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
+ 				ptr_comphy_map->speed = COMPHY_SPEED_1_25G;
+ 			}
+ 
+-			mode = COMPHY_FW_FORMAT(COMPHY_SGMII_MODE,
+-						COMPHY_UNIT_ID2,
++			mode = COMPHY_FW_FORMAT(COMPHY_SGMII_MODE, id,
+ 						ptr_comphy_map->speed);
+ 			ret = comphy_smc(MV_SIP_COMPHY_POWER_ON,
+ 					 ptr_chip_cfg->comphy_base_addr, lane,
+-- 
+2.29.0
+

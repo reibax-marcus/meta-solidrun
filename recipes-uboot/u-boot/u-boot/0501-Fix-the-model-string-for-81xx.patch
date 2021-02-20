@@ -1,0 +1,26 @@
+From 6d01bbc494730d2a81137aa19ecf7ba76169a057 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 7 Jun 2016 14:43:04 -0700
+Subject: [PATCH 0501/1239] Fix the model string for 81xx.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ include/configs/thunderx_81xx.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 9d2fc72c27..fe73b6784f 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -23,7 +23,7 @@
+ #define CONFIG_SYS_VSNPRINTF
+ 
+ #define CONFIG_IDENT_STRING	\
+-	" for Cavium Thunder CN81XX ARM v8 Core"
++	" for Cavium OcteonTX CN81XX ARM v8 Core"
+ #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
+ 
+ #define MEM_BASE			0x00500000
+-- 
+2.29.0
+

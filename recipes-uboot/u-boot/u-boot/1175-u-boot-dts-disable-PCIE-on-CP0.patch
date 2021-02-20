@@ -1,0 +1,35 @@
+From ca2c8cafd1ce34a070383f26d236855bc5a3384f Mon Sep 17 00:00:00 2001
+From: Alex Leibovich <alexl@marvell.com>
+Date: Tue, 16 Jun 2020 13:58:25 +0300
+Subject: [PATCH 1175/1239] u-boot: dts: disable PCIE on CP0
+
+Disabling CP0 PCIE interface
+since it is used in EP mode.
+
+Signed-off-by: Alex Leibovich <alexl@marvell.com>
+Change-Id: Ie9c6f41594c7266157baedbe55ac2b8aa9dcc874
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29988
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/cn9131-db-C.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/dts/cn9131-db-C.dts b/arch/arm/dts/cn9131-db-C.dts
+index c31819ab3f..7365479f4d 100644
+--- a/arch/arm/dts/cn9131-db-C.dts
++++ b/arch/arm/dts/cn9131-db-C.dts
+@@ -39,6 +39,10 @@
+ 	};
+ };
+ 
++&cp0_pcie0{
++	status = "disabled";
++};
++
+ &cp1_ethernet {
+ 	status = "okay";
+ };
+-- 
+2.29.0
+

@@ -1,0 +1,30 @@
+From d07b7d1be64860226b57c9b1af1e6ba24d41a19d Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Fri, 10 Feb 2017 15:58:35 -0800
+Subject: [PATCH 0612/1239] cmd: bootimgup: update fat entry of boot image
+
+update mmc device partition table with fat partition
+entry of image.
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ cmd/bootimgup.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/cmd/bootimgup.c b/cmd/bootimgup.c
+index ac9a65b014..9b326517e8 100644
+--- a/cmd/bootimgup.c
++++ b/cmd/bootimgup.c
+@@ -416,6 +416,9 @@ static int do_bootu_mmc(int argc, char * const argv[])
+ 	if (n != len)
+ 		return CMD_RET_FAILURE;
+ 
++	/* Update partition table with FAT entry of boot image */
++	memcpy(&buffer[446], (void *) (addr + 446), 16);
++
+ 	/* Update partition table with read boot sector */
+ 	n = mmc->block_dev.block_write(&mmc->block_dev, 0, 1, (void *)buffer);
+ 	printf("%ld blocks written: %s\n", n, (n == 1) ? "OK" : "ERROR");
+-- 
+2.29.0
+

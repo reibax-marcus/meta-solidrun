@@ -1,0 +1,29 @@
+From 1ce90b07192d8ebb721c59d98ad4f33ad5eb3ed0 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Wed, 11 May 2016 13:11:11 -0700
+Subject: [PATCH 0420/1239] Enable hw_tso for 81xx
+
+Need to debug why driver is crashing when hw_tso is disabled for now
+enable by default.
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/nicvf_main.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/cavium/nicvf_main.c
+index fb28801c84..d6ffca265c 100644
+--- a/drivers/net/cavium/nicvf_main.c
++++ b/drivers/net/cavium/nicvf_main.c
+@@ -478,6 +478,9 @@ int nicvf_initialize(struct nicpf *nicpf, int vf_num, unsigned int node)
+ 
+ 	nic->rev_id = 3;
+ 
++	/* Enable TSO support */
++	nic->hw_tso = true;
++
+ 	/* MAP VF's configuration registers */
+ 	nic->reg_base = CSR_PA(node, NIC_VFX_BAR0(vf_num));
+ 	if (!nic->reg_base) {
+-- 
+2.29.0
+

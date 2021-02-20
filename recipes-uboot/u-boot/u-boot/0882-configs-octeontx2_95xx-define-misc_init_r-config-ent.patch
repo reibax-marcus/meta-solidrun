@@ -1,0 +1,34 @@
+From 78cca86af346a44f627aae5307d4bb2215973144 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 15 Feb 2019 14:16:00 -0800
+Subject: [PATCH 0882/1239] configs: octeontx2_95xx: define misc_init_r config
+ entry
+
+This is needed for CGX/AF driver probe before PF devices.
+
+Change-Id: Ie34afde0cd207d1dd7d001068661f39d4cecb9f3
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reported-by: RadhaMohan Chintakuntla <radhac@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/4170
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/octeontx2_95xx.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/configs/octeontx2_95xx.h b/include/configs/octeontx2_95xx.h
+index 7c1149a221..a55f50a0ea 100644
+--- a/include/configs/octeontx2_95xx.h
++++ b/include/configs/octeontx2_95xx.h
+@@ -40,6 +40,8 @@
+ 
+ #define CONFIG_NR_DRAM_BANKS		1
+ 
++#define CONFIG_MISC_INIT_R
++
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+  * overwritten once.
+-- 
+2.29.0
+

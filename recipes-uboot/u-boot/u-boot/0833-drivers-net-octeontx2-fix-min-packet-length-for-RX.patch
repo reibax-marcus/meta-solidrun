@@ -1,0 +1,45 @@
+From eb4f6aebda046abf93254967aff8fdfa6d5bbd0e Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 20 Sep 2018 12:26:46 -0700
+Subject: [PATCH 0833/1239] drivers: net: octeontx2: fix min packet length for
+ RX
+
+With HW minlen value of 60byte, HW will treat ARP pkts
+received as undersize and report them to SW as error pkts,
+hence set it to 40 bytes.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/octeontx2/nix.h    | 2 +-
+ drivers/net/octeontx2/nix_af.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/octeontx2/nix.h b/drivers/net/octeontx2/nix.h
+index 27791b5668..8bbf1a4990 100644
+--- a/drivers/net/octeontx2/nix.h
++++ b/drivers/net/octeontx2/nix.h
+@@ -36,7 +36,7 @@
+ #define NIX_INTF_TYPE_CGX		0
+ #define NIX_INTF_TYPE_LBK		1
+ #define NIX_MAX_HW_MTU			9212
+-#define NIX_MIN_HW_MTU			60
++#define NIX_MIN_HW_MTU			40
+ #define MAX_MTU				1536
+ 
+ #define NPA_POOL_COUNT			2
+diff --git a/drivers/net/octeontx2/nix_af.c b/drivers/net/octeontx2/nix_af.c
+index 7cb2c19b8e..8506e2ee38 100644
+--- a/drivers/net/octeontx2/nix_af.c
++++ b/drivers/net/octeontx2/nix_af.c
+@@ -429,7 +429,7 @@ static int nix_af_setup_sq(struct nix *nix)
+ 	link_cfg.s.maxlen = NIX_MAX_HW_MTU;
+ 	link_cfg.s.minlen = NIX_MIN_HW_MTU;
+ 	nix_af_reg_write(nix->nix_af,
+-			 CAVM_NIXX_AF_RX_LINKX_CFG(nix->lmac->lmac_id),
++			 CAVM_NIXX_AF_RX_LINKX_CFG(nix->lmac->link_num),
+ 			 link_cfg.u);
+ 
+ 	return 0;
+-- 
+2.29.0
+

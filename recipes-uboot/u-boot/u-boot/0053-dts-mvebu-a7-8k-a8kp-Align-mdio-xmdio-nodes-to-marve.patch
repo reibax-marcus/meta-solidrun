@@ -1,0 +1,76 @@
+From 9b152b19520a4fc0fc27f3a7233d65152b59e9be Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Fri, 8 Dec 2017 15:33:15 +0800
+Subject: [PATCH 0053/1239] dts: mvebu: a7/8k/a8kp: Align mdio/xmdio nodes to
+ marvell mdio driver
+
+- Add name for mdio;
+- Add xmdio node;
+- Disable mdio/xmdio in armada-cp110.dtsi and enable them in armada
+  70x0 and 80x0 board dts files.
+
+Change-Id: I0703144c87696e699963bac321e5db92f2becfaf
+Signed-off-by: Ken Ma <make@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-7040-db.dts |  1 +
+ arch/arm/dts/armada-8040-db.dts |  2 ++
+ arch/arm/dts/armada-cp110.dtsi  | 11 +++++++++++
+ 3 files changed, 14 insertions(+)
+
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index e134300238..7c6a582ceb 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -212,6 +212,7 @@
+ };
+ 
+ &cp0_mdio {
++	status = "okay";
+ 	phy0: ethernet-phy@0 {
+ 		reg = <0>;
+ 	};
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index 2ea4aa64e0..9699b72f7b 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -307,12 +307,14 @@
+ };
+ 
+ &cp0_mdio {
++	status = "okay";
+ 	phy1: ethernet-phy@1 {
+ 		reg = <1>;
+ 	};
+ };
+ 
+ &cp1_mdio {
++	status = "okay";
+ 	phy0: ethernet-phy@0 {
+ 		reg = <0>;
+ 	};
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index 24e83047ec..b180710ad8 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -33,6 +33,17 @@
+ 				#size-cells = <0>;
+ 				compatible = "marvell,orion-mdio";
+ 				reg = <0x12a200 0x10>;
++				mdio-name = CP110_STRING_LABEL(mdio);
++				status = "disabled";
++			};
++
++			CP110_LABEL(xmdio): mdio@12a600 {
++				#address-cells = <1>;
++				#size-cells = <0>;
++				compatible = "marvell,xmdio";
++				reg = <0x12a600 0x200>;
++				mdio-name = CP110_STRING_LABEL(xmdio);
++				status = "disabled";
+ 			};
+ 
+ 			CP110_LABEL(pinctl): pinctl@440000 {
+-- 
+2.29.0
+

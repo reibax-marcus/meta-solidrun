@@ -1,0 +1,294 @@
+From c9da528d6be6cd520f0168e068dae18c218f5a13 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Tue, 3 Dec 2019 17:35:56 -0800
+Subject: [PATCH 1028/1239] otx2: Added initial f95mm support
+
+Change-Id: I93e70e4ede2275bb2093ce508e8724b4f9926f5d
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/19772
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/soc.h |   1 +
+ arch/arm/mach-octeontx2/Kconfig           |   3 +
+ board/Marvell/octeontx2/Kconfig           |   3 +-
+ board/Marvell/octeontx2/board.c           |   4 +-
+ configs/octeontx2_95mm_defconfig          | 108 ++++++++++++++++++++++
+ include/configs/octeontx2_95mm.h          |  85 +++++++++++++++++
+ 6 files changed, 202 insertions(+), 2 deletions(-)
+ create mode 100644 configs/octeontx2_95mm_defconfig
+ create mode 100644 include/configs/octeontx2_95mm.h
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/soc.h b/arch/arm/include/asm/arch-octeontx2/soc.h
+index 775f742f3b..9dd1384c0f 100644
+--- a/arch/arm/include/asm/arch-octeontx2/soc.h
++++ b/arch/arm/include/asm/arch-octeontx2/soc.h
+@@ -13,6 +13,7 @@
+ #define CN96XX	0xB2
+ #define CN95XX	0xB3
+ #define LOKI	0xB4
++#define F95MM	0xB5
+ 
+ /* Register defines */
+ 
+diff --git a/arch/arm/mach-octeontx2/Kconfig b/arch/arm/mach-octeontx2/Kconfig
+index dcb50dbadf..951dec72f6 100644
+--- a/arch/arm/mach-octeontx2/Kconfig
++++ b/arch/arm/mach-octeontx2/Kconfig
+@@ -16,6 +16,9 @@ config TARGET_OCTEONTX2_LOKI
+ config TARGET_OCTEONTX2_98XX
+ 	bool "Marvell OcteonTX2 CN98XX"
+ 
++config TARGET_OCTEONTX2_95MM
++	bool "Marvell OcteonTX2 CN95MM"
++
+ endchoice
+ 
+ config SYS_SOC
+diff --git a/board/Marvell/octeontx2/Kconfig b/board/Marvell/octeontx2/Kconfig
+index 9eeb8501e0..ff09050f5a 100644
+--- a/board/Marvell/octeontx2/Kconfig
++++ b/board/Marvell/octeontx2/Kconfig
+@@ -1,4 +1,4 @@
+-if TARGET_OCTEONTX2_95XX || TARGET_OCTEONTX2_96XX || TARGET_OCTEONTX2_LOKI || TARGET_OCTEONTX2_98XX
++if TARGET_OCTEONTX2_95XX || TARGET_OCTEONTX2_96XX || TARGET_OCTEONTX2_LOKI || TARGET_OCTEONTX2_98XX || TARGET_OCTEONTX2_95MM
+ 
+ config SYS_VENDOR
+ 	string
+@@ -13,5 +13,6 @@ config SYS_CONFIG_NAME
+ 	default "octeontx2_95xx" if TARGET_OCTEONTX2_95XX
+ 	default "octeontx2_loki" if TARGET_OCTEONTX2_LOKI
+ 	default "octeontx2_98xx" if TARGET_OCTEONTX2_98XX
++	default "octeontx2_95mm" if TARGET_OCTEONTX2_95MM
+ 
+ endif
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 63a6cd442b..c15e970479 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -151,7 +151,7 @@ void board_late_probe_devices(void)
+ 	int err, cgx_cnt, i;
+ 
+ 	/* Probe MAC(CGX) and NIC AF devices before Network stack init */
+-	cgx_cnt = otx_is_soc(CN98XX) ? 5 : 3;
++	cgx_cnt = otx_is_soc(CN98XX) ? 5 : otx_is_soc(F95MM) ? 2 : 3;
+ 	for (i = 0; i < cgx_cnt; i++) {
+ 		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA059, i,
+ 					 &dev);
+@@ -391,6 +391,8 @@ int show_board_info(void)
+ 		str = "LOKI";
+ 	if (otx_is_soc(CN98XX))
+ 		str = "CN98XX";
++	if (otx_is_soc(F95MM))
++		str = "F95MM";
+ 	printf("OcteonTX2 %s ARM V8 Core\n", str);
+ 
+ 	printf("Board: %s\n", fdt_get_board_model());
+diff --git a/configs/octeontx2_95mm_defconfig b/configs/octeontx2_95mm_defconfig
+new file mode 100644
+index 0000000000..545f05b18c
+--- /dev/null
++++ b/configs/octeontx2_95mm_defconfig
+@@ -0,0 +1,108 @@
++CONFIG_ARM=y
++# CONFIG_ARM64_SUPPORT_AARCH32 is not set
++CONFIG_ARCH_OCTEONTX2=y
++CONFIG_SYS_TEXT_BASE=0x04000000
++CONFIG_SYS_MALLOC_F_LEN=0x4000
++CONFIG_TARGET_OCTEONTX2_95MM=y
++CONFIG_NR_DRAM_BANKS=1
++CONFIG_DEBUG_UART_BASE=0x87e028000000
++CONFIG_DEBUG_UART_CLOCK=24000000
++CONFIG_DEBUG_UART=y
++CONFIG_FIT=y
++CONFIG_FIT_SIGNATURE=y
++CONFIG_OF_BOARD_SETUP=y
++CONFIG_BOOTDELAY=5
++CONFIG_USE_BOOTARGS=y
++CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 maxcpus=6 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
++CONFIG_VERSION_VARIABLE=y
++# CONFIG_DISPLAY_CPUINFO is not set
++CONFIG_BOARD_EARLY_INIT_R=y
++CONFIG_HUSH_PARSER=y
++CONFIG_SYS_PROMPT="Marvell> "
++# CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
++CONFIG_CMD_MD5SUM=y
++CONFIG_MD5SUM_VERIFY=y
++CONFIG_CMD_MEMTEST=y
++CONFIG_CMD_MX_CYCLIC=y
++CONFIG_CMD_SHA1SUM=y
++CONFIG_SHA1SUM_VERIFY=y
++CONFIG_CMD_DM=y
++# CONFIG_CMD_FLASH is not set
++CONFIG_CMD_GPIO=y
++CONFIG_CMD_I2C=y
++CONFIG_CMD_MMC=y
++CONFIG_CMD_PART=y
++CONFIG_CMD_PCI=y
++CONFIG_CMD_SF=y
++CONFIG_CMD_SF_TEST=y
++CONFIG_CMD_DHCP=y
++CONFIG_CMD_TFTPPUT=y
++CONFIG_CMD_TFTPSRV=y
++CONFIG_CMD_RARP=y
++CONFIG_CMD_MII=y
++CONFIG_CMD_PING=y
++CONFIG_CMD_CDP=y
++CONFIG_CMD_SNTP=y
++CONFIG_CMD_DNS=y
++CONFIG_CMD_LINK_LOCAL=y
++CONFIG_CMD_PXE=y
++CONFIG_CMD_BOOTIMGUP=y
++CONFIG_CMD_TIME=y
++CONFIG_CMD_FAILSAFE=y
++CONFIG_CMD_ETH=y
++CONFIG_CMD_EXT2=y
++CONFIG_CMD_EXT4=y
++CONFIG_CMD_EXT4_WRITE=y
++CONFIG_CMD_FAT=y
++CONFIG_CMD_FS_GENERIC=y
++CONFIG_EFI_PARTITION=y
++CONFIG_PARTITION_TYPE_GUID=y
++CONFIG_OF_BOARD=y
++CONFIG_ENV_IS_IN_SPI_FLASH=y
++CONFIG_USE_ENV_SPI_BUS=y
++CONFIG_ENV_SPI_BUS=0
++CONFIG_USE_ENV_SPI_CS=y
++CONFIG_ENV_SPI_CS=0
++CONFIG_USE_ENV_SPI_MAX_HZ=y
++CONFIG_ENV_SPI_MAX_HZ=125000000
++CONFIG_USE_ENV_SPI_MODE=y
++CONFIG_ENV_SPI_MODE=0x0
++CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_DM_GPIO=y
++CONFIG_I2C_GPIO=y
++CONFIG_DM_I2C=y
++CONFIG_MISC=y
++CONFIG_DM_MMC=y
++CONFIG_MMC_HS400_SUPPORT=y
++CONFIG_MMC_OCTEONTX=y
++CONFIG_MTD=y
++CONFIG_DM_SPI_FLASH=y
++CONFIG_SPI_FLASH=y
++CONFIG_SF_DEFAULT_MODE=0x0
++CONFIG_SF_DEFAULT_SPEED=125000000
++CONFIG_SPI_FLASH_SFDP_SUPPORT=y
++CONFIG_SPI_FLASH_MACRONIX=y
++CONFIG_SPI_FLASH_SPANSION=y
++CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_DM_ETH=y
++CONFIG_NET_OCTEONTX2=y
++CONFIG_PCI=y
++CONFIG_DM_PCI=y
++CONFIG_DM_PCI_COMPAT=y
++CONFIG_PCI_REGION_MULTI_ENTRY=y
++CONFIG_PCI_OCTEONTX=y
++CONFIG_DM_REGULATOR=y
++CONFIG_DM_REGULATOR_FIXED=y
++CONFIG_DM_REGULATOR_GPIO=y
++CONFIG_DM_RTC=y
++CONFIG_RTC_DS1337=y
++CONFIG_DM_SERIAL=y
++CONFIG_DEBUG_UART_PL011=y
++CONFIG_DEBUG_UART_SKIP_INIT=y
++CONFIG_PL01X_SERIAL=y
++CONFIG_SPI=y
++CONFIG_DM_SPI=y
++CONFIG_OCTEONTX_SPI=y
++CONFIG_WDT=y
++CONFIG_FAT_WRITE=y
++CONFIG_ERRNO_STR=y
+diff --git a/include/configs/octeontx2_95mm.h b/include/configs/octeontx2_95mm.h
+new file mode 100644
+index 0000000000..4377d27a75
+--- /dev/null
++++ b/include/configs/octeontx2_95mm.h
+@@ -0,0 +1,85 @@
++/* SPDX-License-Identifier:    GPL-2.0
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ * https://spdx.org/licenses
++ */
++
++#ifndef __OCTEONTX2_95MM_H__
++#define __OCTEONTX2_95MM_H__
++
++/* Generic Timer Definitions */
++#define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
++
++#define CONFIG_SUPPORT_RAW_INITRD
++
++/** Maximum size of image supported for bootm (and bootable FIT images) */
++#define CONFIG_SYS_BOOTM_LEN		(256 << 20)
++
++/** Memory base address */
++#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_TEXT_BASE
++
++/** Stack starting address */
++#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
++
++/** Memory test starting address */
++#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
++
++/** Memory test end address */
++#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0xf0000)
++
++/** Heap size for U-Boot */
++#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 64 * 1024 * 1024)
++
++#define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
++
++#define CONFIG_LAST_STAGE_INIT
++/* #define CONFIG_CMD_MDIO_DBG */
++
++/* Allow environment variable to be overwritten */
++#define CONFIG_ENV_OVERWRITE
++
++/** Reduce hashes printed out */
++#define CONFIG_TFTP_TSIZE
++
++/* Autoboot options */
++#define CONFIG_RESET_TO_RETRY
++#define CONFIG_BOOT_RETRY_TIME		-1
++#define CONFIG_BOOT_RETRY_MIN		30
++
++/* BOOTP options */
++#define CONFIG_BOOTP_BOOTFILESIZE
++
++/** Extra environment settings */
++#define CONFIG_EXTRA_ENV_SETTINGS	\
++					"loadaddr=040080000\0"	\
++					"autoload=0\0"
++
++/** Environment defines */
++#define CONFIG_ENV_SIZE			0x8000
++#define CONFIG_ENV_OFFSET		0xf00000
++#if defined(CONFIG_ENV_IS_IN_MMC)
++#define CONFIG_SYS_MMC_ENV_DEV		0
++#elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
++#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
++#endif
++
++/* Monitor Command Prompt */
++#define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
++#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
++
++#define CONFIG_SYS_MAXARGS		64	/** max command args */
++
++#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
++
++#undef CONFIG_SYS_PROMPT
++#define CONFIG_SYS_PROMPT		env_get("prompt")
++
++#define CONFIG_CMD_BKOPS_ENABLE
++#define CONFIG_SUPPORT_EMMC_RPMB
++#define CONFIG_SUPPORT_EMMC_BOOT
++
++#if defined(CONFIG_MMC_OCTEONTX)
++#define MMC_SUPPORTS_TUNING
++#endif
++
++#endif /* __OCTEONTX2_95MM_H__ */
+-- 
+2.29.0
+

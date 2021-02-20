@@ -1,0 +1,39 @@
+From 37b28f162e1a0fad667898bdac239a05c03440e5 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 20 Jan 2020 14:43:44 +0200
+Subject: [PATCH 1060/1239] drivers/pci_endpoint: fix bar type in mvebu_ep_uio
+ driver
+
+Set BAR mapping to 64-bit for the first 4 bar slots (BAR0, BAR2)
+and 32-bit for the rest 2 slots (BAR4, BAR5)
+
+Change-Id: I8077cfb3dcd3c5abf4c1643d048f141f7c9b822f
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/21900
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ drivers/pci_endpoint/pcie_mvebu_ep_uio.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c b/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+index e711ea29e8..beb707aece 100644
+--- a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
++++ b/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+@@ -103,8 +103,11 @@ static int uio_pci_ep_probe(struct udevice *dev)
+ 		}
+ 
+ 		/* Now create the BAR to match the memory region */
+-		bar.flags = PCI_BASE_ADDRESS_SPACE_MEMORY |
+-			    PCI_BASE_ADDRESS_MEM_TYPE_32;
++		bar.flags = PCI_BASE_ADDRESS_SPACE_MEMORY;
++		if (bar_id < 4)
++			bar.flags |= PCI_BASE_ADDRESS_MEM_TYPE_64;
++		else
++			bar.flags |= PCI_BASE_ADDRESS_MEM_TYPE_32;
+ 		pci_ep_set_bar(uio_pci->ep, 0, &bar);
+ 
+ 		/* First 2 BARs in HW are 64 bit BARs and consume 2 BAR slots */
+-- 
+2.29.0
+

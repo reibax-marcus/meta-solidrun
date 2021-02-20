@@ -1,0 +1,72 @@
+From db49ea4c31cb50dd2b77e32f400f30bf3d44c15b Mon Sep 17 00:00:00 2001
+From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+Date: Mon, 3 Apr 2017 15:13:10 +0200
+Subject: [PATCH 0652/1239] build: t93: Add default config for t93
+
+This commit adds initial support for t93 build.
+
+Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+---
+ configs/t93_defconfig | 50 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
+ create mode 100644 configs/t93_defconfig
+
+diff --git a/configs/t93_defconfig b/configs/t93_defconfig
+new file mode 100644
+index 0000000000..a4bdf8f30b
+--- /dev/null
++++ b/configs/t93_defconfig
+@@ -0,0 +1,50 @@
++CONFIG_ARM=y
++CONFIG_THUNDERX_COMMON=y
++#CONFIG_SYS_SOC="thunderx"
++CONFIG_ARCH_THUNDERX=y
++CONFIG_TARGET_THUNDERX_81XX=y
++CONFIG_DM_I2C=y
++CONFIG_DM_GPIO=y
++CONFIG_DEFAULT_DEVICE_TREE="thunder-93xx"
++CONFIG_SYS_EXTRA_OPTIONS="ARM64"
++CONFIG_HUSH_PARSER=y
++CONFIG_SYS_PROMPT="ThunderX_93XX> "
++CONFIG_CMD_MEMTEST=y
++CONFIG_CMD_MX_CYCLIC=y
++# CONFIG_CMD_FLASH is not set
++CONFIG_CMD_I2C=y
++CONFIG_CMD_USB=y
++# CONFIG_CMD_FPGA is not set
++CONFIG_CMD_GPIO=y
++CONFIG_CMD_TFTPPUT=y
++CONFIG_CMD_TFTPSRV=y
++CONFIG_CMD_RARP=y
++CONFIG_CMD_DHCP=y
++CONFIG_CMD_PING=y
++CONFIG_CMD_CDP=y
++CONFIG_CMD_SNTP=y
++CONFIG_CMD_DNS=y
++CONFIG_CMD_LINK_LOCAL=y
++CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_DM_I2C_COMPAT=y
++CONFIG_MISC=y
++CONFIG_PHYLIB=y
++CONFIG_NETDEVICES=y
++CONFIG_PCI=y
++CONFIG_PCI_PNP=y
++CONFIG_PCI_THUNDERX_ECAM=y
++CONFIG_DEBUG_UART=y
++CONFIG_DEBUG_UART_PL011=y
++CONFIG_DEBUG_UART_BASE=0x87e028000000
++CONFIG_DEBUG_UART_CLOCK=24000000
++CONFIG_DEBUG_UART_SKIP_INIT=y
++CONFIG_USB=y
++CONFIG_DM_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_STORAGE=y
++CONFIG_SYS_CONFIG_NAME="thunder_93xx"
++CONFIG_DM_RTC=y
++CONFIG_ERRNO_STR=y
++CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR=0x77
++CONFIG_ENV_VARS_UBOOT_CONFIG=y
++CONFIG_OF_LIBFDT=y
+-- 
+2.29.0
+

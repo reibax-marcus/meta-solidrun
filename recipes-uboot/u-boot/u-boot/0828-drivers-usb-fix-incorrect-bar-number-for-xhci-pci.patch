@@ -1,0 +1,28 @@
+From 0289150e6e1d9557d03f27b0be92b32c4a3ba3e6 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 14 Sep 2018 17:22:47 -0700
+Subject: [PATCH 0828/1239] drivers: usb: fix incorrect bar number for xhci-pci
+
+Must have slipped through upgrade.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/usb/host/xhci-pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 9bfff94f3b..4c2e576251 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -20,7 +20,7 @@ static void xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
+ 	size_t size;
+ 
+ 	hccr = (struct xhci_hccr *)dm_pci_map_bar(dev,
+-			PCI_BASE_ADDRESS_0, &size, PCI_REGION_MEM);
++			0, &size, PCI_REGION_MEM);
+ 	hcor = (struct xhci_hcor *)((uintptr_t) hccr +
+ 			HC_LENGTH(xhci_readl(&hccr->cr_capbase)));
+ 
+-- 
+2.29.0
+

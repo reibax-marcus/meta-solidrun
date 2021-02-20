@@ -1,0 +1,37 @@
+From 58d1ecb9236623ab985621f7ae22549ff54c7ce9 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Fri, 1 Dec 2017 07:52:18 +0100
+Subject: [PATCH 0125/1239] arm64: mvebu: configs: use distro compatible
+ 'fdt_addr_r'
+
+Change-Id: I1ba4bdc9d1162682bf41effd1efdecac39c03065
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ include/configs/mvebu_armada-common.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index b2d2cb162e..d598eeb84d 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -29,7 +29,7 @@
+ #define CONFIG_EXTRA_ENV_SETTINGS	"kernel_addr=0x5000000\0"	\
+ 					"initrd_addr=0xa00000\0"	\
+ 					"initrd_size=0x2000000\0"	\
+-					"fdt_addr=0x4f00000\0"		\
++					"fdt_addr_r=0x4f00000\0"	\
+ 					"loadaddr=0x5000000\0"		\
+ 					"fdt_high=0xffffffffffffffff\0"	\
+ 					"hostname=marvell\0"		\
+@@ -50,7 +50,7 @@
+ 						"ramfs_addr -;fi\0"	\
+ 					"get_images=tftpboot $kernel_addr " \
+ 						"$image_name; tftpboot " \
+-						"$fdt_addr $fdt_name; " \
++						"$fdt_addr_r $fdt_name; " \
+ 						"run get_ramfs\0"	\
+ 					"console=" CONFIG_DEFAULT_CONSOLE "\0"\
+ 					"root=root=/dev/nfs rw\0"	\
+-- 
+2.29.0
+

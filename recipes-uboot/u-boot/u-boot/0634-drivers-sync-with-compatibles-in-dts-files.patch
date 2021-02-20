@@ -1,0 +1,68 @@
+From d93b2fcd24cb7972e722d8431d1583bd75fbfe6a Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 27 Apr 2017 11:40:32 -0700
+Subject: [PATCH 0634/1239] drivers: sync with compatibles in dts files
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/i2c/thunderx_i2c.c        | 2 +-
+ drivers/net/cavium/thunder_bgx.c  | 2 +-
+ drivers/net/cavium/thunderx_smi.c | 2 +-
+ drivers/spi/cavium_spi.c          | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/thunderx_i2c.c b/drivers/i2c/thunderx_i2c.c
+index 8643a33750..a5bb30d9a0 100644
+--- a/drivers/i2c/thunderx_i2c.c
++++ b/drivers/i2c/thunderx_i2c.c
+@@ -946,7 +946,7 @@ static const struct dm_i2c_ops thunderx_i2c_ops = {
+ };
+ 
+ static const struct udevice_id thunderx_i2c_ids[] = {
+-	{ .compatible = "cavium,thunderx-i2c" },
++	{ .compatible = "cavium,thunder-8890-twsi" },
+ 	{ }
+ };
+ 
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 1bba1e005e..6bbc2736b5 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -1406,7 +1406,7 @@ static const struct misc_ops thunderx_bgx_ops = {
+ };
+ 
+ static const struct udevice_id thunderx_bgx_ids[] = {
+-	{ .compatible = "cavium,thunderx-bgx" },
++	{ .compatible = "cavium,thunder-8890-bgx" },
+ 	{}
+ };
+ 
+diff --git a/drivers/net/cavium/thunderx_smi.c b/drivers/net/cavium/thunderx_smi.c
+index 87fd762fbb..8ca532d731 100644
+--- a/drivers/net/cavium/thunderx_smi.c
++++ b/drivers/net/cavium/thunderx_smi.c
+@@ -366,7 +366,7 @@ static const struct misc_ops thunderx_smi_ops = {
+ };
+ 
+ static const struct udevice_id thunderx_smi_ids[] = {
+-	{ .compatible = "cavium,thunderx-smi" },
++	{ .compatible = "cavium,thunder-8890-mdio-nexus" },
+ 	{}
+ };
+ 
+diff --git a/drivers/spi/cavium_spi.c b/drivers/spi/cavium_spi.c
+index 026a8f8e14..c6dca0ee3e 100755
+--- a/drivers/spi/cavium_spi.c
++++ b/drivers/spi/cavium_spi.c
+@@ -432,7 +432,7 @@ static const struct dm_spi_ops thunderx_spi_ops = {
+ 
+ static const struct udevice_id thunderx_spi_ids[] = {
+ 	{ .compatible	= "cavium,thunder-8890-spi" },
+-	{ .compatible	= "cavium,thunderx-spi" },
++	{ .compatible	= "cavium,thunder-8190-spi" },
+ 	{ }
+ };
+ 
+-- 
+2.29.0
+

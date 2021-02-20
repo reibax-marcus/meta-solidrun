@@ -1,0 +1,27 @@
+From a158589b5b139475ba5e4e31b7020ceeeb9f2c14 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 24 May 2019 13:11:34 +0200
+Subject: [PATCH 0260/1239] arm: mvebu: config: db-88f6820-gp: enable support
+ for Intel e1000
+
+Change-Id: I9482b07b09ae38aadef11b86480018f7530d2e2e
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ configs/db-88f6820-gp_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/db-88f6820-gp_defconfig b/configs/db-88f6820-gp_defconfig
+index b968b3e87e..5e14940f01 100644
+--- a/configs/db-88f6820-gp_defconfig
++++ b/configs/db-88f6820-gp_defconfig
+@@ -58,6 +58,7 @@ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_GIGE=y
++CONFIG_E1000=y
+ CONFIG_MVNETA=y
+ CONFIG_MII=y
+ CONFIG_PCI=y
+-- 
+2.29.0
+

@@ -1,0 +1,101 @@
+From 9ad491e7cea28b253285379b3503b8c71e071058 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Wed, 1 Jan 2020 18:05:19 +0200
+Subject: [PATCH 1053/1239] arch/arm/dts: increase BAR2 size to 16MB for PCIe
+ EP platforms
+
+PCIe console is supported on systems running SoC in PCIe EP (device)
+mode and requires the following changes in DTS:
+- removal of the default PCIe entries in CP0 DTS for PCI0 (RC, host mode)
+	cp0 {
+		/delete-node/ pcie@600000;
+		/delete-node/ pcie@620000;
+		/delete-node/ pcie@640000;
+	};
+- reserving part of the local RAM for the console buffers usage
+	/* The PCI console memory must be reserved */
+	console_reserved: pci-console-nexus@7f000000 {
+		compatible = "marvell,pci-console-nexus-memory";
+		reg = <0 0x7f000000 0 0x20000>;
+		no-map;
+	};
+- enabling PCIe EP and UIO drivers
+	&cp0_pcie_ep {
+		...
+		status = "okay";
+	};
+
+	&cp0_pci_ep_uio {
+		...
+		status = "okay";
+	};
+- addition of second BAR (BAR2) to UIO driver setup.
+	&cp0_pci_ep_uio {
+		reg = <0 0 0 0x100000>,
+		      <0 0x7f000000 0 0x100000>,
+		      <0x80 0x00000000 0x8 0x000000000>;
+		reg-names = "bar0", "bar2", "host-map";
+		status = "okay";
+	};
+The device BAR0 is reserved for usage by the system, while BAR2
+is added for other host applications willing to access the device memory.
+The PCIe console driver will use BAR2 for sharing the console buffer
+between the PCIe EP device driver and the RC host system application.
+
+Change-Id: I9fdf36284888a3b4557f407a5db1a6a3685991b4
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20999
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+---
+ arch/arm/dts/armada-8040-ocp.dts | 4 ++++
+ arch/arm/dts/cn9130-crb-C.dts    | 3 ++-
+ arch/arm/dts/cn9130-db-C.dts     | 3 ++-
+ 3 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/dts/armada-8040-ocp.dts b/arch/arm/dts/armada-8040-ocp.dts
+index 7a489f29c3..96cf3fbe9e 100644
+--- a/arch/arm/dts/armada-8040-ocp.dts
++++ b/arch/arm/dts/armada-8040-ocp.dts
+@@ -97,6 +97,10 @@
+ };
+ 
+ &cp0_pci_ep_uio {
++	reg = <0 0 0 0x100000>,
++	      <0 0x7f000000 0 0x1000000>,
++	      <0x80 0x00000000 0x8 0x000000000>;
++	reg-names = "bar0", "bar2", "host-map";
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm/dts/cn9130-crb-C.dts b/arch/arm/dts/cn9130-crb-C.dts
+index ccb19c382b..eb20e4c65a 100644
+--- a/arch/arm/dts/cn9130-crb-C.dts
++++ b/arch/arm/dts/cn9130-crb-C.dts
+@@ -55,7 +55,8 @@
+ };
+ 
+ &cp0_pci_ep_uio {
+-	reg = <0 0 0 0x100000>, <0 0x7f000000 0 0x100000>,
++	reg = <0 0 0 0x100000>,
++	      <0 0x7f000000 0 0x1000000>,
+ 	      <0x80 0x00000000 0x8 0x000000000>;
+ 	reg-names = "bar0", "bar2", "host-map";
+ 	status = "okay";
+diff --git a/arch/arm/dts/cn9130-db-C.dts b/arch/arm/dts/cn9130-db-C.dts
+index 2efe5901a9..519108de89 100644
+--- a/arch/arm/dts/cn9130-db-C.dts
++++ b/arch/arm/dts/cn9130-db-C.dts
+@@ -101,7 +101,8 @@
+ };
+ 
+ &cp0_pci_ep_uio {
+-	reg = <0 0 0 0x100000>, <0 0x7f000000 0 0x100000>,
++	reg = <0 0 0 0x100000>,
++	      <0 0x7f000000 0 0x1000000>,
+ 	      <0x80 0x00000000 0x8 0x000000000>;
+ 	reg-names = "bar0", "bar2", "host-map";
+ 	status = "okay";
+-- 
+2.29.0
+

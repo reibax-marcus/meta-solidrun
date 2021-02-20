@@ -1,0 +1,43 @@
+From 3dbadfc2e2b3b38c8e6f4398d66e76c337a07ac8 Mon Sep 17 00:00:00 2001
+From: Rick Farrington <Ricardo.Farrington@cavium.com>
+Date: Tue, 19 Nov 2019 15:03:34 -0500
+Subject: [PATCH 1010/1239] octeontx: pcie-console: Fix nexus header version
+ number initialization.
+
+When initializing the nexus header, place version number, flags and
+num_consoles in correct locations.  This also requires a change in
+remote console client apps.
+
+Change-Id: Iaaea7da02e6431c8f5296c4837ef491949310480
+Signed-off-by: Rick Farrington <Ricardo.Farrington@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/18971
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+(cherry picked from commit 5c90bf5e9c5fb3a3364ceff5070ed78626d64733)
+Reviewed-on: https://sj1git1.cavium.com/19364
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/serial/serial_octeontx_pcie_console.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/serial/serial_octeontx_pcie_console.c b/drivers/serial/serial_octeontx_pcie_console.c
+index fe3ce4088e..48665eced8 100644
+--- a/drivers/serial/serial_octeontx_pcie_console.c
++++ b/drivers/serial/serial_octeontx_pcie_console.c
+@@ -920,8 +920,10 @@ int octeontx_pcie_console_init_nexus(struct udevice *dev)
+ 	new_hi = cpu_to_le64(OCTEONTX_PCIE_CONSOLE_NEXUS_MAGIC);
+ 	new_lo = ((u64)OCTEONTX_PCIE_CONSOLE_MAJOR << 56) |
+ 		  (u64)OCTEONTX_PCIE_CONSOLE_MINOR << 48 |
++		  (u64)0 /*i.e. flags */ << 40 |
+ 		  (u64)num_consoles << 32;
+-	new_lo = cpu_to_le64(new_lo);
++	/* these struct fields are declared as bytes, which corresponds to BE */
++	new_lo = cpu_to_be64(new_lo);
+ 
+ 	debug("%s: Writing %#llx %#llx to %p\n", __func__, new_hi, new_lo, pcd);
+ 	/* Now fill in the header atomically */
+-- 
+2.29.0
+

@@ -1,0 +1,74 @@
+From c6e2a3cd95513568778560541a6db952a7cf1cdd Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 19 May 2016 18:36:28 -0400
+Subject: [PATCH 0480/1239] net: e1000: dm: Fix DM_NET build for e1000
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/net/e1000.c     | 7 ++++++-
+ drivers/net/e1000_spi.c | 4 ++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/e1000.c b/drivers/net/e1000.c
+index 65fe63c8ce..a764c91be2 100644
+--- a/drivers/net/e1000.c
++++ b/drivers/net/e1000.c
+@@ -5508,6 +5508,8 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
+ 
+ 	/* Assign the passed-in values */
+ #ifdef CONFIG_DM_ETH
++	size_t size;
++
+ 	hw->pdev = devno;
+ #else
+ 	hw->pdev = devno;
+@@ -5555,7 +5557,7 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
+ 	hw->eeprom_semaphore_present = true;
+ #endif
+ #ifdef CONFIG_DM_ETH
+-	hw->hw_addr = dm_pci_map_bar(devno, 0, PCI_REGION_MEM);
++	hw->hw_addr = dm_pci_map_bar(devno, 0, &size, PCI_REGION_MEM);
+ #else
+ 	hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
+ 						PCI_REGION_MEM);
+@@ -5773,6 +5775,8 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
+ #if !defined(CONFIG_DM_ETH) || defined(CONFIG_E1000_SPI)
+ 	struct e1000_hw *hw;
+ #endif
++	struct e1000_hw *hw;
++
+ 	int cardnum;
+ 
+ 	if (argc < 3) {
+@@ -5789,6 +5793,7 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
+ 		plat = dev_get_platdata(dev);
+ 		mac = plat->enetaddr;
+ 	}
++	hw = dev_get_priv(dev);
+ #else
+ 	hw = e1000_find_card(cardnum);
+ 	if (hw)
+diff --git a/drivers/net/e1000_spi.c b/drivers/net/e1000_spi.c
+index aecd290d72..f6ae3c4d07 100644
+--- a/drivers/net/e1000_spi.c
++++ b/drivers/net/e1000_spi.c
+@@ -104,14 +104,14 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+ 	}
+ 
+ 	/* TODO: Use max_hz somehow */
+-	E1000_DBG(hw->nic, "EEPROM SPI access requested\n");
++	E1000_DBG(hw, "EEPROM SPI access requested\n");
+ 	return &hw->spi;
+ }
+ 
+ void spi_free_slave(struct spi_slave *spi)
+ {
+ 	__maybe_unused struct e1000_hw *hw = e1000_hw_from_spi(spi);
+-	E1000_DBG(hw->nic, "EEPROM SPI access released\n");
++	E1000_DBG(hw, "EEPROM SPI access released\n");
+ }
+ 
+ int spi_claim_bus(struct spi_slave *spi)
+-- 
+2.29.0
+

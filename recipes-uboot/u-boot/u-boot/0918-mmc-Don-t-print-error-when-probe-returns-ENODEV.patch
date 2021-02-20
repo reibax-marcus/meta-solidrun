@@ -1,0 +1,43 @@
+From 5cffbbef01b4d95d8e324486b2d9980377d9b5a0 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 22 May 2019 01:37:19 -0700
+Subject: [PATCH 0918/1239] mmc: Don't print error when probe returns -ENODEV
+
+It is possible for the probe to return -ENODEV or -ENXIO
+if the mmc device is not present.  Do not print an error
+message in this case.  This matches the Linux kernel
+behavior.
+
+Change-Id: I1c527207872f8ce5b8dc79aba54153c7dea89855
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/9718
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mmc/mmc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index c8f71cd0c1..c8f0a2bf95 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -2957,8 +2957,14 @@ static int mmc_probe(bd_t *bis)
+ 	}
+ 	uclass_foreach_dev(dev, uc) {
+ 		ret = device_probe(dev);
+-		if (ret)
+-			pr_err("%s - probe failed: %d\n", dev->name, ret);
++		if (ret) {
++			if (ret == -ENODEV || ret == -ENXIO)
++				pr_debug("%s: probe of %s rejects match %d\n",
++					 __func__, dev->name, ret);
++			else
++				pr_err("%s - probe failed: %d\n",
++				       dev->name, ret);
++		}
+ 	}
+ 
+ 	return 0;
+-- 
+2.29.0
+

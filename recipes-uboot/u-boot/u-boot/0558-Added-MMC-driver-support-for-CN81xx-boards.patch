@@ -1,0 +1,106 @@
+From 52efa6b01573781c8e3c7f098986c2d2cf80394e Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 8 Nov 2016 20:04:04 -0800
+Subject: [PATCH 0558/1239] Added MMC driver support for CN81xx boards.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ arch/arm/mach-thunderx/Kconfig  | 27 +++++++++++++++++++++++++++
+ configs/t83_defconfig           |  2 ++
+ include/configs/thunderx_81xx.h | 10 ++++++++++
+ 3 files changed, 39 insertions(+)
+
+diff --git a/arch/arm/mach-thunderx/Kconfig b/arch/arm/mach-thunderx/Kconfig
+index ce997e5e41..ddaf5ee083 100644
+--- a/arch/arm/mach-thunderx/Kconfig
++++ b/arch/arm/mach-thunderx/Kconfig
+@@ -11,6 +11,7 @@ config	THUNDERX_COMMON
+ 	select DM_PCI_COMPAT
+ 	select DM_SERIAL
+ 	select DM_USB
++	select DM_MMC
+ 	select OF_CONTROL
+ 	select OF_EMBED
+ 	select OF_LIBFDT
+@@ -23,6 +24,8 @@ config	THUNDERX_COMMON
+ 	select SYS_PCI_64BIT
+ 	select PCI_PNP
+ 	select PCI_AUTO
++	select CAVIUM_MMC
++	select MMC
+ 
+ choice
+ 	prompt "Choose target processor"
+@@ -147,6 +150,30 @@ config DM_GPIO
+ 	bool
+ 	default y
+ 
++config DM_MMC
++	bool
++	default y
++
++config DM
++	bool
++	default y
++
++
++config MMC
++	bool
++	default y
++
++config CAVIUM_MMC
++	bool
++	default y
++	select DM_MMC
++	select MMC
++	select FS_EXT4
++
++config OF_CONTROL
++	bool
++	default y
++
+ config CMD_ATF
+ 	bool "Enable ATF query commands"
+ 	default y
+diff --git a/configs/t83_defconfig b/configs/t83_defconfig
+index cfd4fc3f3e..47533595c6 100644
+--- a/configs/t83_defconfig
++++ b/configs/t83_defconfig
+@@ -40,6 +40,8 @@ CONFIG_DEBUG_UART_CLOCK=24000000
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+ CONFIG_USB=y
+ CONFIG_DM_USB=y
++CONFIG_DM_MMC=y
++CONFIG_DM=y
+ CONFIG_USB_XHCI_HCD=y
+ CONFIG_USB_STORAGE=y
+ CONFIG_SYS_CONFIG_NAME="thunder_83xx"
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 27fddd9ca2..6434d1a26d 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -267,6 +267,9 @@
+ /** Enable UUIDs for drives >= 3TB */
+ #define CONFIG_PARTITION_UUIDS
+ 
++/** Enable EXT4 filesystem support */
++#define CONFIG_FS_EXT4
++
+ /* PCIe */
+ /** Show devices found on PCI bus */
+ #define CONFIG_PCI_SCAN_SHOW
+@@ -395,4 +398,11 @@
+ 
+ #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
+ 
++#define CONFIG_OCTEON_MMC
++#define CONFIG_CMD_MMC
++#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
++#define CONFIG_SYS_MMC_SET_DEV
++
++#define CONFIG_CMD_TIME
++
+ #endif /* __THUNDERX_81XX_H__ */
+-- 
+2.29.0
+

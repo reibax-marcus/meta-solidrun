@@ -1,0 +1,35 @@
+From adb0372d8ac591edc0ff2bce39de23879b62813e Mon Sep 17 00:00:00 2001
+From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+Date: Thu, 6 Jul 2017 15:01:56 -0700
+Subject: [PATCH 0646/1239] arm: config: Enable alignment of FDT base address
+
+This commit enables build-time dependency whether if the build was
+performed with encryption support or not.
+Note that this commit is part of workaround performed on FDT.
+This should be reverted as soon as the solution will be performed in U-Boot.
+
+Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+---
+ arch/arm/config.mk | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm/config.mk b/arch/arm/config.mk
+index f25603109e..bafebbfcee 100644
+--- a/arch/arm/config.mk
++++ b/arch/arm/config.mk
+@@ -46,6 +46,12 @@ PF_CPPFLAGS_ARM := $(call cc-option,-marm,) \
+ 		$(call cc-option,-mno-thumb-interwork,)
+ endif
+ 
++ifdef ENCRYPT_UBOOT
++ifeq ($(ENCRYPT_UBOOT), 1)
++    PLATFORM_CPPFLAGS += -DENCRYPT_UBOOT=1
++endif
++endif
++
+ # Only test once
+ ifeq ($(CONFIG_$(SPL_)SYS_THUMB_BUILD),y)
+ archprepare: checkthumb checkgcc6
+-- 
+2.29.0
+

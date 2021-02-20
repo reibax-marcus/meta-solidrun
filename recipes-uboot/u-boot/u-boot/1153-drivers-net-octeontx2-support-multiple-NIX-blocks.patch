@@ -1,0 +1,433 @@
+From 9e45efaa0f7f0fa831360d84105551c1c379f70b Mon Sep 17 00:00:00 2001
+From: Rick Farrington <rfarrington@marvell.com>
+Date: Wed, 13 May 2020 18:36:35 -0400
+Subject: [PATCH 1153/1239] drivers: net: octeontx2: support multiple NIX
+ blocks
+
+Support up to 2 NIX blocks (MAX_RVU_NIX) by instanciating a
+'struct nix_af' for each in 'struct rvu_af.nix_af[]'.
+Although multiple instances of 'struct nix_af' exist, some
+of the member elements are shared amongst them, as only a
+single instance of these AF elements exists in hardware.
+
+For each RVU PF LMAC, retrieve the associated NIX ID via
+the CGX LMAC context structure (new element p2x_sel).
+
+Use appropriate NIX ID when addressing each NIX block's regs.
+
+Change-Id: Id7b924459606da345686ba076c58e03577ad65a3
+Signed-off-by: Rick Farrington <rfarrington@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28578
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/net/octeontx2/cgx.c    |   1 +
+ drivers/net/octeontx2/cgx.h    |   6 ++
+ drivers/net/octeontx2/nix.c    |   9 ++-
+ drivers/net/octeontx2/nix.h    |   2 +-
+ drivers/net/octeontx2/nix_af.c |   3 +-
+ drivers/net/octeontx2/rvu.h    |  21 ++++++-
+ drivers/net/octeontx2/rvu_af.c | 107 ++++++++++++++++++++++++---------
+ drivers/net/octeontx2/rvu_pf.c |  34 ++++++++---
+ 8 files changed, 139 insertions(+), 44 deletions(-)
+
+diff --git a/drivers/net/octeontx2/cgx.c b/drivers/net/octeontx2/cgx.c
+index ea25a1b968..d25fc8c16c 100644
+--- a/drivers/net/octeontx2/cgx.c
++++ b/drivers/net/octeontx2/cgx.c
+@@ -231,6 +231,7 @@ static int cgx_lmac_init(struct cgx *cgx)
+ 		/* Get LMAC type */
+ 		cmrx_cfg.u = cgx_read(cgx, i, CGXX_CMRX_CONFIG(0));
+ 		lmac->lmac_type = cmrx_cfg.s.lmac_type;
++		lmac->p2x_sel = cmrx_cfg.s.p2x_select;
+ 
+ 		lmac->lmac_id = i;
+ 		lmac->cgx = cgx;
+diff --git a/drivers/net/octeontx2/cgx.h b/drivers/net/octeontx2/cgx.h
+index fdb039e09b..e1b80abe86 100644
+--- a/drivers/net/octeontx2/cgx.h
++++ b/drivers/net/octeontx2/cgx.h
+@@ -28,6 +28,11 @@ enum lmac_type {
+ 	LMAC_MODE_USXGMII	= 10,
+ };
+ 
++enum p2x_select {
++	P2X1_NIX0 = 1,
++	P2X2_NIX1 = 2,
++};
++
+ extern char lmac_type_to_str[][8];
+ 
+ extern char lmac_speed_to_str[][8];
+@@ -50,6 +55,7 @@ struct lmac {
+ 	struct nix	*nix;
+ 	char		name[16];
+ 	enum lmac_type	lmac_type;
++	enum p2x_select p2x_sel;
+ 	bool		init_pend;
+ 	u8		instance;
+ 	u8		lmac_id;
+diff --git a/drivers/net/octeontx2/nix.c b/drivers/net/octeontx2/nix.c
+index 683ebe63cc..9de8d67e9a 100644
+--- a/drivers/net/octeontx2/nix.c
++++ b/drivers/net/octeontx2/nix.c
+@@ -373,7 +373,7 @@ int nix_lf_shutdown(struct nix *nix)
+ 	return 0;
+ }
+ 
+-struct nix *nix_lf_alloc(struct udevice *dev)
++struct nix *nix_lf_alloc(struct udevice *dev, int nix_id)
+ {
+ 	union rvu_func_addr_s block_addr;
+ 	struct nix *nix;
+@@ -389,10 +389,10 @@ struct nix *nix_lf_alloc(struct udevice *dev)
+ 		printf("%s: Out of memory for nix instance\n", __func__);
+ 		return NULL;
+ 	}
+-	nix->nix_af = rvu_af->nix_af;
++	nix->nix_af = rvu_af->nix_af[nix_id];
+ 
+ 	block_addr.u = 0;
+-	block_addr.s.block = RVU_BLOCK_ADDR_E_NIXX(0);
++	block_addr.s.block = RVU_BLOCK_ADDR_E_NIXX(nix_id);
+ 	nix->nix_base = rvu->pf_base + block_addr.u;
+ 	block_addr.u = 0;
+ 	block_addr.s.block = RVU_BLOCK_ADDR_E_NPC;
+@@ -413,6 +413,9 @@ struct nix *nix_lf_alloc(struct udevice *dev)
+ 	nix->cq_cnt = 2;
+ 	nix->xqe_sz = NIX_CQE_SIZE_W16;
+ 
++	debug("NIX%d lf %d nix_base %p pf_func 0x%x nix_af %p\n", nix_id,
++	      nix->lf, nix->nix_base, nix->pf_func, nix->nix_af);
++
+ 	nix->lmac = nix_get_cgx_lmac(nix->pf);
+ 	if (!nix->lmac) {
+ 		printf("%s: Error: could not find lmac for pf %d\n",
+diff --git a/drivers/net/octeontx2/nix.h b/drivers/net/octeontx2/nix.h
+index a742b3cb3d..00fa5d59dd 100644
+--- a/drivers/net/octeontx2/nix.h
++++ b/drivers/net/octeontx2/nix.h
+@@ -339,7 +339,7 @@ int nix_af_setup(struct nix_af *nix_af);
+ int nix_af_shutdown(struct nix_af *nix_af);
+ int nix_lf_setup(struct nix *nix);
+ int nix_lf_shutdown(struct nix *nix);
+-struct nix *nix_lf_alloc(struct udevice *dev);
++struct nix *nix_lf_alloc(struct udevice *dev, int nix_id);
+ int nix_lf_admin_setup(struct nix *nix);
+ int nix_lf_admin_shutdown(struct nix_af *nix_af, int lf,
+ 			  u32 cq_count, u32 rq_count, u32 sq_count);
+diff --git a/drivers/net/octeontx2/nix_af.c b/drivers/net/octeontx2/nix_af.c
+index fe437ce0f7..f84d1613fe 100644
+--- a/drivers/net/octeontx2/nix_af.c
++++ b/drivers/net/octeontx2/nix_af.c
+@@ -42,7 +42,8 @@ int npa_attach_aura(struct nix_af *nix_af, int lf,
+ 	u64 head;
+ 	ulong start;
+ 
+-	debug("%s(%p, %d, %p, %u)\n", __func__, nix_af, lf, desc, aura_id);
++	debug("%s(%p, lf %d, %p, aura id %u)\n", __func__, nix_af, lf, desc,
++	      aura_id);
+ 	aq_stat.u = npa_af_reg_read(npa, NPA_AF_AQ_STATUS());
+ 	head = aq_stat.s.head_ptr;
+ 	inst = (union npa_aq_inst_s *)(npa->aq.inst.base) + head;
+diff --git a/drivers/net/octeontx2/rvu.h b/drivers/net/octeontx2/rvu.h
+index b08a747db5..2fdf2764eb 100644
+--- a/drivers/net/octeontx2/rvu.h
++++ b/drivers/net/octeontx2/rvu.h
+@@ -18,6 +18,9 @@
+ #define	PCI_DEVID_OCTEONTX2_RVU_PF		0xA063
+ #define	PCI_DEVID_OCTEONTX2_RVU_VF		0xA064
+ 
++/* Maximum number of NIX blocks supported */
++#define MAX_RVU_NIX             2
++
+ #define Q_SIZE_16		0ULL /* 16 entries */
+ #define Q_SIZE_64		1ULL /* 64 entries */
+ #define Q_SIZE_256		2ULL
+@@ -58,7 +61,7 @@ struct admin_queue {
+ struct rvu_af {
+ 	struct udevice *dev;
+ 	void __iomem *af_base;
+-	struct nix_af *nix_af;
++	struct nix_af *nix_af[MAX_RVU_NIX];
+ };
+ 
+ struct rvu_pf {
+@@ -121,7 +124,21 @@ int rvu_aq_alloc(struct admin_queue *aq, unsigned int qsize,
+  */
+ void rvu_aq_free(struct admin_queue *aq);
+ 
+-void rvu_get_lfid_for_pf(int pf, int *nixid, int *npaid);
++void rvu_get_lfid_for_pf(int pf, int nix_id, int *nix_lfid, int *npa_lfid);
++
++/**
++ * Reads an RVU PF (BAR2) register.
++ *
++ * @param       base    RVU PF BAR2 base
++ * @param       offset  register address to read (offset into RVU PF BAR2)
++ */
++static inline u64 rvu_bar2_reg_read(void __iomem *bar2_base, u64 offset)
++{
++	u64 val = readq(bar2_base + offset);
++
++	debug("%s reg %p val %llx\n", __func__, bar2_base + offset, val);
++	return val;
++}
+ 
+ #endif /* __RVU_H__ */
+ 
+diff --git a/drivers/net/octeontx2/rvu_af.c b/drivers/net/octeontx2/rvu_af.c
+index e8c9d12939..96c2c2b530 100644
+--- a/drivers/net/octeontx2/rvu_af.c
++++ b/drivers/net/octeontx2/rvu_af.c
+@@ -24,13 +24,13 @@ inline struct rvu_af *get_af(void)
+ 	return rvu_af_dev ? dev_get_priv(rvu_af_dev) : NULL;
+ }
+ 
+-void rvu_get_lfid_for_pf(int pf, int *nixid, int *npaid)
++void rvu_get_lfid_for_pf(int pf, int nix_id, int *nix_lfid, int *npa_lfid)
+ {
+ 	union nixx_af_rvu_lf_cfg_debug nix_lf_dbg;
+ 	union npa_af_rvu_lf_cfg_debug npa_lf_dbg;
+ 	union rvu_pf_func_s pf_func;
+ 	struct rvu_af *af = dev_get_priv(rvu_af_dev);
+-	struct nix_af *nix_af = af->nix_af;
++	struct nix_af *nix_af = af->nix_af[nix_id];
+ 
+ 	pf_func.u = 0;
+ 	pf_func.s.pf = pf;
+@@ -46,10 +46,10 @@ void rvu_get_lfid_for_pf(int pf, int *nixid, int *npaid)
+ 	} while (nix_lf_dbg.s.exec);
+ 
+ 	if (nix_lf_dbg.s.lf_valid)
+-		*nixid = nix_lf_dbg.s.lf;
++		*nix_lfid = nix_lf_dbg.s.lf;
+ 
+-	debug("%s: nix lf_valid %d lf %d nixid %d\n", __func__,
+-	      nix_lf_dbg.s.lf_valid, nix_lf_dbg.s.lf, *nixid);
++	debug("%s: NIX%d lf_valid %d lf %d\n", __func__, nix_id,
++	      nix_lf_dbg.s.lf_valid, nix_lf_dbg.s.lf);
+ 
+ 	npa_lf_dbg.u = 0;
+ 	npa_lf_dbg.s.pf_func = pf_func.u & 0xFFFF;
+@@ -62,12 +62,12 @@ void rvu_get_lfid_for_pf(int pf, int *nixid, int *npaid)
+ 	} while (npa_lf_dbg.s.exec);
+ 
+ 	if (npa_lf_dbg.s.lf_valid)
+-		*npaid = npa_lf_dbg.s.lf;
+-	debug("%s: npa lf_valid %d lf %d npaid %d\n", __func__,
+-	      npa_lf_dbg.s.lf_valid, npa_lf_dbg.s.lf, *npaid);
++		*npa_lfid = npa_lf_dbg.s.lf;
++	debug("%s: npa lf_valid %d lf %d\n", __func__,
++	      npa_lf_dbg.s.lf_valid, npa_lf_dbg.s.lf);
+ }
+ 
+-struct nix_af *rvu_af_init(struct rvu_af *rvu_af)
++struct nix_af *rvu_af_init(struct rvu_af *rvu_af, int nix_id)
+ {
+ 	struct nix_af *nix_af;
+ 	union rvu_af_addr_s block_addr;
+@@ -82,10 +82,19 @@ struct nix_af *rvu_af_init(struct rvu_af *rvu_af)
+ 	nix_af->dev = rvu_af->dev;
+ 
+ 	block_addr.u = 0;
+-	block_addr.s.block = RVU_BLOCK_ADDR_E_NIXX(0);
++	block_addr.s.block = RVU_BLOCK_ADDR_E_NIXX(nix_id);
+ 	nix_af->nix_af_base = rvu_af->af_base + block_addr.u;
+ 
+-	nix_af->npa_af = (struct npa_af *)calloc(1, sizeof(struct npa_af));
++	/* Allocate an NPA_AF structure for the first NIX_AF.
++	 * Share this NPA_AF pointer amongst all subsequent NIX_AFs
++	 * as only a single NPA AF exists in hardware.
++	 */
++	if (nix_id == 0) {
++		nix_af->npa_af = (struct npa_af *)
++				calloc(1, sizeof(struct npa_af));
++	} else {
++		nix_af->npa_af = rvu_af->nix_af[0]->npa_af;
++	}
+ 	if (!nix_af->npa_af) {
+ 		printf("%s: out of memory\n", __func__);
+ 		goto error;
+@@ -99,25 +108,36 @@ struct nix_af *rvu_af_init(struct rvu_af *rvu_af)
+ 	block_addr.s.block = RVU_BLOCK_ADDR_E_NPC;
+ 	nix_af->npc_af_base = rvu_af->af_base + block_addr.u;
+ 
+-	debug("%s: Setting up npa admin\n", __func__);
+-	err = npa_af_setup(nix_af->npa_af);
+-	if (err) {
+-		printf("%s: Error %d setting up NPA admin\n", __func__, err);
+-		goto error;
++	/* Only initialize NPA_AF for first NIX_AF instance.
++	 * It is shared amongst all NIX_AF instances (see allocation above).
++	 */
++	if (nix_id == 0) {
++		debug("%s: Setting up npa admin\n", __func__);
++		err = npa_af_setup(nix_af->npa_af);
++		if (err) {
++			printf("%s: Error %d setting up NPA admin\n",
++			       __func__, err);
++			goto error;
++		}
+ 	}
++
+ 	debug("%s: Setting up nix af\n", __func__);
+ 	err = nix_af_setup(nix_af);
+ 	if (err) {
+-		printf("%s: Error %d setting up NIX admin\n", __func__, err);
++		printf("%s: Error %d setting up NIX%d admin\n",
++		       __func__, err, nix_id);
+ 		goto error;
+ 	}
+-	debug("%s: nix_af: %p\n", __func__, nix_af);
++	debug("%s: NIX%d nix_af: %p\n", __func__, nix_id, nix_af);
+ 	return nix_af;
+ 
+ error:
+ 	if (nix_af->npa_af) {
+-		free(nix_af->npa_af);
+-		memset(nix_af, 0, sizeof(*nix_af));
++		/* only free the actual allocation (i.e. first one) */
++		if (nix_id == 0) {
++			free(nix_af->npa_af);
++			memset(nix_af, 0, sizeof(*nix_af));
++		}
+ 	}
+ 	if (nix_af)
+ 		free(nix_af);
+@@ -127,19 +147,35 @@ error:
+ int rvu_af_probe(struct udevice *dev)
+ {
+ 	struct rvu_af *af_ptr = dev_get_priv(dev);
++	union rvu_pf_block_addrx_disc addr_disc;
++	void __iomem *bar2_base;
++	int nix_id, blk;
+ 
+ 	af_ptr->af_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+ 					 PCI_REGION_MEM);
+-	debug("%s RVU AF BAR %p\n", __func__, af_ptr->af_base);
++	bar2_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2,
++				   PCI_REGION_MEM);
++	debug("%s RVU AF BAR0 %p, BAR2 %p\n", __func__, af_ptr->af_base,
++	      bar2_base);
+ 	af_ptr->dev = dev;
+ 	rvu_af_dev = dev;
+ 
+-	af_ptr->nix_af = rvu_af_init(af_ptr);
+-	if (!af_ptr->nix_af) {
+-		printf("%s: Error: could not initialize NIX AF\n", __func__);
+-		return -1;
++	for (nix_id = 0; nix_id < MAX_RVU_NIX; nix_id++) {
++		/* Verify that this NIX block is implemented in h/w. */
++		blk = RVU_BLOCK_ADDR_E_NIXX(nix_id);
++		addr_disc.u = rvu_bar2_reg_read(bar2_base,
++						RVU_PF_BLOCK_ADDRX_DISC(blk));
++		if (!addr_disc.s.imp)
++			break;
++
++		af_ptr->nix_af[nix_id] = rvu_af_init(af_ptr, nix_id);
++		if (!af_ptr->nix_af) {
++			printf("%s: Error: could not initialize NIX%d AF\n",
++			       __func__, nix_id);
++			return -1;
++		}
++		debug("%s: Initialized NIX%d\n", __func__, nix_id);
+ 	}
+-	debug("%s: Done\n", __func__);
+ 
+ 	return 0;
+ }
+@@ -147,10 +183,21 @@ int rvu_af_probe(struct udevice *dev)
+ int rvu_af_remove(struct udevice *dev)
+ {
+ 	struct rvu_af *rvu_af = dev_get_priv(dev);
+-
+-	nix_af_shutdown(rvu_af->nix_af);
+-	npa_af_shutdown(rvu_af->nix_af->npa_af);
+-	npc_af_shutdown(rvu_af->nix_af);
++	struct nix_af *nix_af;
++	int i;
++
++	for (i = MAX_RVU_NIX - 1; (int)i >= 0; i--) {
++		nix_af = rvu_af->nix_af[i];
++		if (!nix_af)
++			continue;
++		nix_af_shutdown(nix_af);
++
++		/* Only a single instance of NPA & NPC exists in h/w. */
++		if (i != 0)
++			continue;
++		npa_af_shutdown(nix_af->npa_af);
++		npc_af_shutdown(nix_af);
++	}
+ 
+ 	debug("%s: rvu af down --\n", __func__);
+ 	return 0;
+diff --git a/drivers/net/octeontx2/rvu_pf.c b/drivers/net/octeontx2/rvu_pf.c
+index 36755f75ed..02241d9a5e 100644
+--- a/drivers/net/octeontx2/rvu_pf.c
++++ b/drivers/net/octeontx2/rvu_pf.c
+@@ -19,13 +19,13 @@
+ 
+ extern struct udevice *rvu_af_dev;
+ 
+-int rvu_pf_init(struct rvu_pf *rvu)
++int rvu_pf_init(struct rvu_pf *rvu, int nix_id)
+ {
+ 	struct nix *nix;
+ 	struct eth_pdata *pdata = dev_get_platdata(rvu->dev);
+ 
+-	debug("%s: Allocating nix lf\n", __func__);
+-	nix = nix_lf_alloc(rvu->dev);
++	debug("%s: Allocating nix%d lf\n", __func__, nix_id);
++	nix = nix_lf_alloc(rvu->dev, nix_id);
+ 	if (!nix) {
+ 		printf("%s: Error allocating lf for pf %d\n",
+ 		       __func__, rvu->pfid);
+@@ -55,7 +55,8 @@ static const struct eth_ops nix_eth_ops = {
+ int rvu_pf_probe(struct udevice *dev)
+ {
+ 	struct rvu_pf *rvu = dev_get_priv(dev);
+-	int err;
++	struct lmac *cgx_lmac;
++	int err, nix_id;
+ 	char name[16];
+ 
+ 	debug("%s: name: %s\n", __func__, dev->name);
+@@ -70,11 +71,30 @@ int rvu_pf_probe(struct udevice *dev)
+ 	}
+ 	rvu->afdev = rvu_af_dev;
+ 
+-	debug("RVU PF %u BAR2 %p\n", rvu->pfid, rvu->pf_base);
++	/* Retrieve the NIX ID from the LMAC pointer. */
++	cgx_lmac = nix_get_cgx_lmac(rvu->pfid);
++	if (!cgx_lmac) {
++		printf("RVU PF%d: cannot locate LMAC, unknown NIX ID\n",
++		       rvu->pfid);
++		return -1;
++	}
++
++	switch (cgx_lmac->p2x_sel) {
++	case P2X1_NIX0:
++	case P2X2_NIX1:
++		nix_id = cgx_lmac->p2x_sel - P2X1_NIX0;
++		break;
++	default:
++		printf("RVU PF%d: invalid LMAC P2X_SEL %d, unknown NIX ID\n",
++		       rvu->pfid, (int)cgx_lmac->p2x_sel);
++		return -1;
++	}
++
++	debug("RVU PF%d: using NIX%d\n", rvu->pfid, nix_id);
+ 
+-	rvu_get_lfid_for_pf(rvu->pfid, &rvu->nix_lfid, &rvu->npa_lfid);
++	rvu_get_lfid_for_pf(rvu->pfid, nix_id, &rvu->nix_lfid, &rvu->npa_lfid);
+ 
+-	err = rvu_pf_init(rvu);
++	err = rvu_pf_init(rvu, nix_id);
+ 	if (err)
+ 		printf("%s: Error %d adding nix\n", __func__, err);
+ 
+-- 
+2.29.0
+

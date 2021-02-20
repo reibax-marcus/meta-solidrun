@@ -1,0 +1,41 @@
+From a99b7f07d6709539e7c9878f5494e580d9a35248 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Tue, 17 Dec 2019 20:53:44 -0800
+Subject: [PATCH 1036/1239] Fix crash in PCI console
+
+It seems the behavior of dev_get_parent_platdata is not the same as
+getting the parent's platform data.  I believe this behavior change
+may be recent with the move to 2019.10.  This fixes it to do what
+is expected.
+
+Change-Id: Ie33b2072fb2131211d3d987ae8f3f29517f78437
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20466
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/serial/serial_octeontx_pcie_console.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/serial/serial_octeontx_pcie_console.c b/drivers/serial/serial_octeontx_pcie_console.c
+index e80f9cf3d4..c6257d38cd 100644
+--- a/drivers/serial/serial_octeontx_pcie_console.c
++++ b/drivers/serial/serial_octeontx_pcie_console.c
+@@ -806,8 +806,12 @@ int octeontx_pcie_console_ofdata_to_platdata(struct udevice *dev)
+ 		dev_err(dev, "Address and/or size not found in reg field\n");
+ 		return -EINVAL;
+ 	}
+-	pplat = dev_get_parent_platdata(dev);
+-
++	pplat = dev_get_platdata(dev_get_parent(dev));
++	if (!pplat) {
++		dev_err(dev, "%s(%s): Error: parent platdata is NULL!\n",
++			__func__, dev->name);
++		return -EINVAL;
++	}
+ 	plat->nexus = pplat->nexus;
+ 	plat->addr = ofnode_get_addr_size_index(node, 0, &plat->size);
+ 	plat->base = (void *)plat->addr;
+-- 
+2.29.0
+

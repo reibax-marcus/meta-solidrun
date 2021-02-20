@@ -1,0 +1,49 @@
+From 3c93854fd90b13cdd8f881db5dbe6652e611a9dd Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 9 Nov 2015 14:28:53 -0800
+Subject: [PATCH 0366/1239] cavium: Add Node1 memory ranges
+
+---
+ include/configs/thunderx_88xx.h | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 164b68d2b6..24bc7d4954 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -42,13 +42,21 @@
+ 					 {0x880000000000UL, 0x40000000000UL, \
+ 					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
+ 					  PTL2_BLOCK_NON_SHARE},	     \
+-					  MT_DEVICE_NGNRNE}, 		     \
++					 {0x900000000000UL, 0x40000000000UL, \
++					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
++					  PTL2_BLOCK_NON_SHARE},	     \
++					 {0x940000000000UL, 0x40000000000UL, \
++					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
++					  PTL2_BLOCK_NON_SHARE},	     \
++					 {0x980000000000UL, 0x40000000000UL, \
++					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
++					  PTL2_BLOCK_NON_SHARE},	     \
+ 					 {0xffffffffffffUL, 0xfffffffffffUL, \
+ 					  PTL2_MEMTYPE(MT_DEVICE_NGNRNE) |   \
+ 					  PTL2_BLOCK_NON_SHARE},	     \
+ 					}
+ 
+-#define CONFIG_SYS_MEM_MAP_SIZE		4
++#define CONFIG_SYS_MEM_MAP_SIZE		7
+ 
+ #define CONFIG_COREID_MASK		0xffffff
+ #define CONFIG_SYS_FULL_VA
+@@ -246,6 +254,8 @@
+ #define CONFIG_E1000
+ #define CONFIG_E1000_SPI
+ #define CONFIG_CMD_E1000
++
++#define E1000_DEBUG
+ //#define CONFIG_RTL8169
+ 
+ /* Initial environment variables */
+-- 
+2.29.0
+

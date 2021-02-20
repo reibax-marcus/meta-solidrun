@@ -1,0 +1,544 @@
+From 1e17d930f1fecdd4bb5eb3c1f139b0ecd80fb3b5 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Mon, 21 Aug 2017 17:03:23 +0300
+Subject: [PATCH 0018/1239] phy: marvell: add RX training command
+
+This patch adds support for running RX training using new command called
+"rx_training"
+Usage:
+rx_training - rx_training <cp id> <comphy id>
+
+RX training allows to improve link quality (for SFI mode)
+by running training sequence between us and the link partner,
+this allows to reach better link quality then using static configuration.
+
+Change-Id: I818fe67ccaf19a87af50d4c34a9db7d6802049a5
+Signed-off-by: Igal Liberman <igall@marvell.com>
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+---
+ cmd/mvebu/Kconfig                   |   7 +
+ cmd/mvebu/Makefile                  |   1 +
+ cmd/mvebu/rx_training.c             |  57 +++++++++
+ configs/mvebu_db_armada8k_defconfig |   1 +
+ drivers/phy/marvell/comphy_core.c   |  18 ++-
+ drivers/phy/marvell/comphy_core.h   |  14 ++
+ drivers/phy/marvell/comphy_cp110.c  | 190 ++++++++++++++++++++++++++++
+ drivers/phy/marvell/comphy_hpipe.h  |  62 ++++++++-
+ include/mvebu/comphy.h              |   2 +-
+ 9 files changed, 348 insertions(+), 4 deletions(-)
+ create mode 100644 cmd/mvebu/rx_training.c
+
+diff --git a/cmd/mvebu/Kconfig b/cmd/mvebu/Kconfig
+index ad10a572a3..18cb32b735 100644
+--- a/cmd/mvebu/Kconfig
++++ b/cmd/mvebu/Kconfig
+@@ -49,4 +49,11 @@ config MVEBU_UBOOT_DFLT_NAME
+ 	  This option should contain a default file name to be used with
+ 	  MVEBU "bubt" command if the source file name is omitted
+ 
++config CMD_MVEBU_RX_TRAINING
++	bool "rx_training"
++	depends on TARGET_MVEBU_ARMADA_8K
++	default n
++	help
++	  Perform RX training sequence
++
+ endmenu
+diff --git a/cmd/mvebu/Makefile b/cmd/mvebu/Makefile
+index 96829c48eb..b9831a73a7 100644
+--- a/cmd/mvebu/Makefile
++++ b/cmd/mvebu/Makefile
+@@ -6,3 +6,4 @@
+ 
+ 
+ obj-$(CONFIG_CMD_MVEBU_BUBT) += bubt.o
++obj-$(CONFIG_CMD_MVEBU_RX_TRAINING) += rx_training.o
+diff --git a/cmd/mvebu/rx_training.c b/cmd/mvebu/rx_training.c
+new file mode 100644
+index 0000000000..913ad32ae1
+--- /dev/null
++++ b/cmd/mvebu/rx_training.c
+@@ -0,0 +1,57 @@
++/*
++ * Copyright (C) 2017 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:	GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <command.h>
++#include <console.h>
++#include <dm.h>
++#include <fdtdec.h>
++#include <dm/device-internal.h>
++#include <mvebu/comphy.h>
++
++int rx_training_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	struct udevice *dev;
++	struct uclass *uc;
++	int ret, cp_index, comphy_index, i = 0;
++
++	if (argc != 3) {
++		printf("missing arguments\n");
++		return -1;
++	}
++
++	cp_index = simple_strtoul(argv[1], NULL, 16);
++	comphy_index = simple_strtoul(argv[2], NULL, 16);
++
++	ret = uclass_get(UCLASS_MISC, &uc);
++	if (ret) {
++		printf("Couldn't find UCLASS_MISC\n");
++		return ret;
++	}
++
++	uclass_foreach_dev(dev, uc) {
++		if (!(memcmp(dev->name, "comphy", 5))) {
++			if (i == cp_index) {
++				comphy_rx_training(dev, comphy_index);
++				return 0;
++			}
++
++			i++;
++		}
++	}
++
++	printf("Coudn't find comphy %d\n", cp_index);
++
++	return 0;
++}
++
++U_BOOT_CMD(
++	rx_training, 3, 0, rx_training_cmd,
++	"rx_training <cp id> <comphy id>\n",
++	"\n\tRun RX training sequence, the user must state CP index (0/1) and comphy ID (0/5)"
++);
++
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index f07ec8aa3a..b727d2668c 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -36,6 +36,7 @@ CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
++CONFIG_CMD_MVEBU_RX_TRAINING=y
+ CONFIG_CMD_REGULATOR=y
+ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_MAC_PARTITION=y
+diff --git a/drivers/phy/marvell/comphy_core.c b/drivers/phy/marvell/comphy_core.c
+index 902238d79f..6f79c4c02b 100644
+--- a/drivers/phy/marvell/comphy_core.c
++++ b/drivers/phy/marvell/comphy_core.c
+@@ -67,6 +67,16 @@ void comphy_print(struct chip_serdes_phy_config *chip_cfg,
+ 	}
+ }
+ 
++int comphy_rx_training(struct udevice *dev, u32 lane)
++{
++	struct chip_serdes_phy_config *chip_cfg = dev_get_priv(dev);
++
++	if (chip_cfg->rx_training)
++		return chip_cfg->rx_training(chip_cfg, lane);
++
++	return 0;
++}
++
+ __weak int comphy_update_map(struct comphy_map *serdes_map, int count)
+ {
+ 	return 0;
+@@ -110,11 +120,15 @@ static int comphy_probe(struct udevice *dev)
+ 		fdtdec_locate_array(blob, node, "mux-lane-order",
+ 				    chip_cfg->comphy_lanes_count);
+ 
+-	if (device_is_compatible(dev, "marvell,comphy-armada-3700"))
++	if (device_is_compatible(dev, "marvell,comphy-armada-3700")) {
+ 		chip_cfg->ptr_comphy_chip_init = comphy_a3700_init;
++		chip_cfg->rx_training = NULL;
++	}
+ 
+-	if (device_is_compatible(dev, "marvell,comphy-cp110"))
++	if (device_is_compatible(dev, "marvell,comphy-cp110")) {
+ 		chip_cfg->ptr_comphy_chip_init = comphy_cp110_init;
++		chip_cfg->rx_training = comphy_cp110_sfi_rx_training;
++	}
+ 
+ 	/*
+ 	 * Bail out if no chip_init function is defined, e.g. no
+diff --git a/drivers/phy/marvell/comphy_core.h b/drivers/phy/marvell/comphy_core.h
+index c08677e56d..32895dc4aa 100644
+--- a/drivers/phy/marvell/comphy_core.h
++++ b/drivers/phy/marvell/comphy_core.h
+@@ -84,6 +84,7 @@ struct chip_serdes_phy_config {
+ 	struct comphy_mux_data *mux_data;
+ 	int (*ptr_comphy_chip_init)(struct chip_serdes_phy_config *,
+ 				    struct comphy_map *);
++	int (*rx_training)(struct chip_serdes_phy_config *, u32);
+ 	void __iomem *comphy_base_addr;
+ 	void __iomem *hpipe3_base_addr;
+ 	u32 comphy_lanes_count;
+@@ -151,6 +152,8 @@ static inline int comphy_a3700_init(struct chip_serdes_phy_config *ptr_chip_cfg,
+ #ifdef CONFIG_ARMADA_8K
+ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
+ 		      struct comphy_map *serdes_map);
++int comphy_cp110_sfi_rx_training(struct chip_serdes_phy_config *ptr_chip_cfg,
++				 u32 lane);
+ #else
+ static inline int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
+ 		      struct comphy_map *serdes_map)
+@@ -161,6 +164,17 @@ static inline int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
+ 	 */
+ 	return -1;
+ }
++
++static inline int comphy_cp110_sfi_rx_training(
++	struct chip_serdes_phy_config *ptr_chip_cfg,
++	u32 lane)
++{
++	/*
++	 * This function should never be called in this configuration, so
++	 * lets return an error here.
++	 */
++	return -1;
++}
+ #endif
+ 
+ void comphy_dedicated_phys_init(void);
+diff --git a/drivers/phy/marvell/comphy_cp110.c b/drivers/phy/marvell/comphy_cp110.c
+index c1af0a08fc..bc18e39601 100644
+--- a/drivers/phy/marvell/comphy_cp110.c
++++ b/drivers/phy/marvell/comphy_cp110.c
+@@ -1158,6 +1158,196 @@ static int comphy_sgmii_power_up(u32 lane, u32 sgmii_speed,
+ 	return ret;
+ }
+ 
++/* This function performs RX training for single FFE value.
++ * The result of the RX training is located in:
++ *	Saved DFE values Register[10:15].
++ *
++ * The result is returned to the caller using *result
++ *
++ * Return '1' on succsess.
++ * Return '0' on failure.
++ */
++static int comphy_cp110_test_single_ffe(
++			struct chip_serdes_phy_config *ptr_chip_cfg,
++			u32 lane, u32 ffe, u32 *result)
++{
++	u32 mask, data, timeout;
++	void __iomem *hpipe_base_addr = ptr_chip_cfg->hpipe3_base_addr;
++	void __iomem *hpipe_addr = HPIPE_ADDR(hpipe_base_addr, lane);
++	void __iomem *sd_ip_addr = SD_ADDR(hpipe_base_addr, lane);
++
++	/* Configure PRBS counters */
++	mask = HPIPE_PHY_TEST_PATTERN_SEL_MASK;
++	data = 0xe << HPIPE_PHY_TEST_PATTERN_SEL_OFFSET;
++	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
++
++	mask = HPIPE_PHY_TEST_DATA_MASK;
++	data = 0x64 << HPIPE_PHY_TEST_DATA_OFFSET;
++	reg_set(hpipe_addr + HPIPE_PHY_TEST_DATA_REG, data, mask);
++
++	mask = HPIPE_PHY_TEST_EN_MASK;
++	data = 0x1 << HPIPE_PHY_TEST_EN_OFFSET;
++	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
++
++	mdelay(50);
++
++	/* Set the FFE value */
++	mask = HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_MASK;
++	data = ffe << HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_OFFSET;
++	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
++
++	/* Start RX training */
++	mask = SD_EXTERNAL_STATUS_START_RX_TRAINING_MASK;
++	data = 1 << SD_EXTERNAL_STATUS_START_RX_TRAINING_OFFSET;
++	reg_set(sd_ip_addr + SD_EXTERNAL_STATUS_REG, data, mask);
++
++	/* Check the result of RX training */
++	timeout = RX_TRAINING_TIMEOUT;
++	while (timeout) {
++		data = readl(sd_ip_addr + SD_EXTERNAL_STATUS1_REG);
++		if (data & SD_EXTERNAL_STATUS1_REG_RX_TRAIN_COMP_MASK)
++			break;
++		mdelay(1);
++		timeout--;
++	}
++
++	if (timeout == 0)
++		return 0;
++
++	if (data & SD_EXTERNAL_STATUS1_REG_RX_TRAIN_FAILED_MASK)
++		return 0;
++
++	/* Stop RX training */
++	mask = SD_EXTERNAL_STATUS_START_RX_TRAINING_MASK;
++	data = 0 << SD_EXTERNAL_STATUS_START_RX_TRAINING_OFFSET;
++	reg_set(sd_ip_addr + SD_EXTERNAL_STATUS_REG, data, mask);
++
++	/* Read the result */
++	data = readl(hpipe_addr + HPIPE_SAVED_DFE_VALUES_REG);
++	data &= HPIPE_SAVED_DFE_VALUES_SAV_F0D_MASK;
++	data >>= HPIPE_SAVED_DFE_VALUES_SAV_F0D_OFFSET;
++	*result = data;
++
++	printf("FFE = %d, result = 0x%x\n", ffe, *result);
++
++	/* Clear the PRBS counters */
++	mask = HPIPE_PHY_TEST_RESET_MASK;
++	data = 0x1 << HPIPE_PHY_TEST_RESET_OFFSET;
++	mask |= HPIPE_PHY_TEST_EN_MASK;
++	data |= 0x0 << HPIPE_PHY_TEST_EN_OFFSET;
++	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
++
++	mask = HPIPE_PHY_TEST_RESET_MASK;
++	data = 0x0 << HPIPE_PHY_TEST_RESET_OFFSET;
++	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
++
++	return 1;
++}
++
++/* This function performs RX training for all FFE possible values.
++ * We get the result for each FFE and eventually the best FFE will
++ * be used and set to the HW.
++ *
++ * Return '1' on succsess.
++ * Return '0' on failure.
++ */
++int comphy_cp110_sfi_rx_training(struct chip_serdes_phy_config *ptr_chip_cfg,
++				 u32 lane)
++{
++	u32 mask, data, i, rx_train_result;
++	u32 max_rx_train = 0, max_rx_train_index = 0;
++	void __iomem *hpipe_base_addr = ptr_chip_cfg->hpipe3_base_addr;
++	void __iomem *hpipe_addr = HPIPE_ADDR(hpipe_base_addr, lane);
++	int ret;
++
++	debug_enter();
++
++	if (ptr_chip_cfg->comphy_map_data[lane].type != COMPHY_TYPE_SFI) {
++		pr_err("Comphy %d isn't configured to SFI\n", lane);
++		return 0;
++	}
++
++	/* Configure SQ threshold and CDR lock */
++	mask = HPIPE_SQUELCH_THRESH_IN_MASK;
++	data = 0xc << HPIPE_SQUELCH_THRESH_IN_OFFSET;
++	reg_set(hpipe_addr + HPIPE_SQUELCH_FFE_SETTING_REG, data, mask);
++
++	mask = HPIPE_SQ_DEGLITCH_WIDTH_P_MASK;
++	data = 0xf << HPIPE_SQ_DEGLITCH_WIDTH_P_OFFSET;
++	mask |= HPIPE_SQ_DEGLITCH_WIDTH_N_MASK;
++	data |= 0xf << HPIPE_SQ_DEGLITCH_WIDTH_N_OFFSET;
++	mask |= HPIPE_SQ_DEGLITCH_EN_MASK;
++	data |= 0x1 << HPIPE_SQ_DEGLITCH_EN_OFFSET;
++	reg_set(hpipe_addr + HPIPE_SQ_GLITCH_FILTER_CTRL, data, mask);
++
++	mask = HPIPE_CDR_LOCK_DET_EN_MASK;
++	data = 0x1 << HPIPE_CDR_LOCK_DET_EN_OFFSET;
++	reg_set(hpipe_addr + HPIPE_LOOPBACK_REG, data, mask);
++
++	udelay(100);
++
++	/* Determine if we have a cable attached to this comphy, if not,
++	 * we can't perform RX training.
++	 */
++	data = readl(hpipe_addr + HPIPE_SQUELCH_FFE_SETTING_REG);
++	if (data & HPIPE_SQUELCH_DETECTED_MASK) {
++		pr_err("Squelsh is not detected, can't perform RX training\n");
++		return 0;
++	}
++
++	data = readl(hpipe_addr + HPIPE_LOOPBACK_REG);
++	if (!(data & HPIPE_CDR_LOCK_MASK)) {
++		pr_err("CDR is not locked, can't perform RX training\n");
++		return 0;
++	}
++
++	/* Do preparations for RX training */
++	mask = HPIPE_DFE_RES_FORCE_MASK;
++	data = 0x0 << HPIPE_DFE_RES_FORCE_OFFSET;
++	reg_set(hpipe_addr + HPIPE_DFE_REG0, data, mask);
++
++	mask = HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_MASK;
++	data = 0xf << HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_OFFSET;
++	mask |= HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_MASK;
++	data |= 1 << HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_OFFSET;
++	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
++
++	/* Performs RX training for all possible FFE (Feed Forward
++	 * Equalization, possible values are 0-7).
++	 * We update the best value reached and the FFE which gave this value.
++	 */
++	for (i = 0; i < MAX_NUM_OF_FFE; i++) {
++		rx_train_result = 0;
++		ret = comphy_cp110_test_single_ffe(ptr_chip_cfg, lane,
++						   i, &rx_train_result);
++
++		if (ret && (rx_train_result > max_rx_train)) {
++			max_rx_train = rx_train_result;
++			max_rx_train_index = i;
++		}
++	}
++
++	/* If we were able to determine which FFE gives the best value,
++	 * now we need to set it and run RX training again (only for this
++	 * FFE).
++	 */
++	if (max_rx_train) {
++		ret = comphy_cp110_test_single_ffe(ptr_chip_cfg, lane,
++						   max_rx_train_index,
++						   &rx_train_result);
++		if (ret == 1)
++			printf("RX Training passed(FFE = %d, result = 0x%x)\n",
++			       max_rx_train_index, rx_train_result);
++	} else {
++		pr_err("RX training failed\n");
++		ret = 0;
++	}
++
++	debug_exit();
++
++	return ret;
++}
++
+ static int comphy_sfi_power_up(u32 lane, void __iomem *hpipe_base,
+ 			       void __iomem *comphy_base, u32 speed)
+ {
+diff --git a/drivers/phy/marvell/comphy_hpipe.h b/drivers/phy/marvell/comphy_hpipe.h
+index a692035c94..cf2f986281 100644
+--- a/drivers/phy/marvell/comphy_hpipe.h
++++ b/drivers/phy/marvell/comphy_hpipe.h
+@@ -6,6 +6,9 @@
+ #ifndef _COMPHY_HPIPE_H_
+ #define _COMPHY_HPIPE_H_
+ 
++#define MAX_NUM_OF_FFE				8
++#define RX_TRAINING_TIMEOUT			500
++
+ /* SerDes IP register */
+ #define SD_EXTERNAL_CONFIG0_REG			0
+ #define SD_EXTERNAL_CONFIG0_SD_PU_PLL_OFFSET	1
+@@ -52,6 +55,11 @@
+ #define SD_EXTERNAL_CONFIG2_SSC_ENABLE_MASK	\
+ 	(0x1 << SD_EXTERNAL_CONFIG2_SSC_ENABLE_OFFSET)
+ 
++#define SD_EXTERNAL_STATUS_REG				0xc
++#define SD_EXTERNAL_STATUS_START_RX_TRAINING_OFFSET	7
++#define SD_EXTERNAL_STATUS_START_RX_TRAINING_MASK	\
++	(1 << SD_EXTERNAL_STATUS_START_RX_TRAINING_OFFSET)
++
+ #define SD_EXTERNAL_STATUS0_REG			0x18
+ #define SD_EXTERNAL_STATUS0_PLL_TX_OFFSET	2
+ #define SD_EXTERNAL_STATUS0_PLL_TX_MASK		\
+@@ -66,6 +74,14 @@
+ #define SD_EXTERNAL_STATUS0_RF_RESET_IN_MASK	\
+ 	(0x1 << SD_EXTERNAL_STATUS0_RF_RESET_IN_OFFSET)
+ 
++#define SD_EXTERNAL_STATUS1_REG			0x1c
++#define SD_EXTERNAL_STATUS1_REG_RX_TRAIN_COMP_OFFSET	0
++#define SD_EXTERNAL_STATUS1_REG_RX_TRAIN_COMP_MASK	\
++	(1 << SD_EXTERNAL_STATUS1_REG_RX_TRAIN_COMP_OFFSET)
++#define SD_EXTERNAL_STATUS1_REG_RX_TRAIN_FAILED_OFFSET	1
++#define SD_EXTERNAL_STATUS1_REG_RX_TRAIN_FAILED_MASK	\
++	(1 << SD_EXTERNAL_STATUS1_REG_RX_TRAIN_FAILED_OFFSET)
++
+ /* HPIPE register */
+ #define HPIPE_PWR_PLL_REG			0x4
+ #define HPIPE_PWR_PLL_REF_FREQ_OFFSET		0
+@@ -88,7 +104,13 @@
+ #define HPIPE_CAL_REG_1_EXT_TXIMP_EN_MASK	\
+ 	(0x1 << HPIPE_CAL_REG_1_EXT_TXIMP_EN_OFFSET)
+ 
+-#define HPIPE_SQUELCH_FFE_SETTING_REG           0x018
++#define HPIPE_SQUELCH_FFE_SETTING_REG           0x18
++#define HPIPE_SQUELCH_THRESH_IN_OFFSET		8
++#define HPIPE_SQUELCH_THRESH_IN_MASK		\
++	(0xf << HPIPE_SQUELCH_THRESH_IN_OFFSET)
++#define HPIPE_SQUELCH_DETECTED_OFFSET		14
++#define HPIPE_SQUELCH_DETECTED_MASK		\
++	(0x1 << HPIPE_SQUELCH_DETECTED_OFFSET)
+ 
+ #define HPIPE_DFE_REG0				0x01C
+ #define HPIPE_DFE_RES_FORCE_OFFSET		15
+@@ -215,10 +237,32 @@
+ #define HPIPE_G3_SET_1_G3_SAMPLER_INPAIRX2_EN_MASK	\
+ 	(0x1 << HPIPE_G3_SET_1_G3_SAMPLER_INPAIRX2_EN_OFFSET)
+ 
++#define HPIPE_PHY_TEST_CONTROL_REG		0x54
++#define HPIPE_PHY_TEST_PATTERN_SEL_OFFSET	4
++#define HPIPE_PHY_TEST_PATTERN_SEL_MASK		\
++	(0xf << HPIPE_PHY_TEST_PATTERN_SEL_OFFSET)
++#define HPIPE_PHY_TEST_RESET_OFFSET		14
++#define HPIPE_PHY_TEST_RESET_MASK		\
++	(0x1 << HPIPE_PHY_TEST_RESET_OFFSET)
++#define HPIPE_PHY_TEST_EN_OFFSET		15
++#define HPIPE_PHY_TEST_EN_MASK			\
++	(0x1 << HPIPE_PHY_TEST_EN_OFFSET)
++
++#define HPIPE_PHY_TEST_DATA_REG			0x6c
++#define HPIPE_PHY_TEST_DATA_OFFSET		0
++#define HPIPE_PHY_TEST_DATA_MASK		\
++	(0xffff << HPIPE_PHY_TEST_DATA_OFFSET)
++
+ #define HPIPE_LOOPBACK_REG			0x08c
+ #define HPIPE_LOOPBACK_SEL_OFFSET		1
+ #define HPIPE_LOOPBACK_SEL_MASK			\
+ 	(0x7 << HPIPE_LOOPBACK_SEL_OFFSET)
++#define HPIPE_CDR_LOCK_OFFSET			7
++#define HPIPE_CDR_LOCK_MASK			\
++	(0x1 << HPIPE_CDR_LOCK_OFFSET)
++#define HPIPE_CDR_LOCK_DET_EN_OFFSET		8
++#define HPIPE_CDR_LOCK_DET_EN_MASK		\
++	(0x1 << HPIPE_CDR_LOCK_DET_EN_OFFSET)
+ 
+ #define HPIPE_SYNC_PATTERN_REG                  0x090
+ #define HPIPE_SYNC_PATTERN_TXD_SWAP_OFFSET	10
+@@ -382,6 +426,17 @@
+ #define HPIPE_OS_PH_VALID_MASK			\
+ 	(0x1 << HPIPE_OS_PH_VALID_OFFSET)
+ 
++#define HPIPE_SQ_GLITCH_FILTER_CTRL		0x1c8
++#define HPIPE_SQ_DEGLITCH_WIDTH_P_OFFSET	0
++#define HPIPE_SQ_DEGLITCH_WIDTH_P_MASK		\
++	(0xf << HPIPE_SQ_DEGLITCH_WIDTH_P_OFFSET)
++#define HPIPE_SQ_DEGLITCH_WIDTH_N_OFFSET	4
++#define HPIPE_SQ_DEGLITCH_WIDTH_N_MASK		\
++	(0xf << HPIPE_SQ_DEGLITCH_WIDTH_N_OFFSET)
++#define HPIPE_SQ_DEGLITCH_EN_OFFSET		8
++#define HPIPE_SQ_DEGLITCH_EN_MASK		\
++	(0x1 << HPIPE_SQ_DEGLITCH_EN_OFFSET)
++
+ #define HPIPE_FRAME_DETECT_CTRL_0_REG			0x214
+ #define HPIPE_TRAIN_PAT_NUM_OFFSET			0x7
+ #define HPIPE_TRAIN_PAT_NUM_MASK			\
+@@ -452,6 +507,11 @@
+ #define HPIPE_TX_TRAIN_PAT_SEL_MASK		\
+ 	(0x1 << HPIPE_TX_TRAIN_PAT_SEL_OFFSET)
+ 
++#define HPIPE_SAVED_DFE_VALUES_REG             0x328
++#define HPIPE_SAVED_DFE_VALUES_SAV_F0D_OFFSET  10
++#define HPIPE_SAVED_DFE_VALUES_SAV_F0D_MASK	\
++	(0x3f << HPIPE_SAVED_DFE_VALUES_SAV_F0D_OFFSET)
++
+ #define HPIPE_CDR_CONTROL_REG			0x418
+ #define HPIPE_CDR_RX_MAX_DFE_ADAPT_1_OFFSET	12
+ #define HPIPE_CDR_RX_MAX_DFE_ADAPT_1_MASK	\
+diff --git a/include/mvebu/comphy.h b/include/mvebu/comphy.h
+index cde7a022af..4d1b70393b 100644
+--- a/include/mvebu/comphy.h
++++ b/include/mvebu/comphy.h
+@@ -16,7 +16,7 @@ struct comphy_map {
+ 	bool end_point;
+ };
+ 
++int comphy_rx_training(struct udevice *dev, u32 lane);
+ int comphy_update_map(struct comphy_map *serdes_map, int count);
+ 
+ #endif /* _MVEBU_COMPHY_H_ */
+-
+-- 
+2.29.0
+

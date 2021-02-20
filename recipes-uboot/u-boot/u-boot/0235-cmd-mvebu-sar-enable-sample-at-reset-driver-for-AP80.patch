@@ -1,0 +1,91 @@
+From de87695bdf88872cb8a7139cc2e5f6f1070b2b67 Mon Sep 17 00:00:00 2001
+From: Christine Gharzuzi <chrisg@marvell.com>
+Date: Mon, 25 Jun 2018 20:44:33 +0300
+Subject: [PATCH 0235/1239] cmd: mvebu: sar: enable sample-at-reset driver for
+ AP807
+
+This patch enables the sampled-at-reset driver for AP807
+by adding the driver's compatible to AP807 SoC level DT
+
+Change-Id: I77392bc42b214a8b1a3205df9fce9f96e5d97ef7
+Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-ap806.dtsi  | 9 +++++++++
+ arch/arm/dts/armada-ap807.dtsi  | 8 ++++++++
+ arch/arm/dts/armada-ap80x.dtsi  | 9 ---------
+ drivers/misc/mvebu_sar/Makefile | 1 +
+ 4 files changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/arch/arm/dts/armada-ap806.dtsi b/arch/arm/dts/armada-ap806.dtsi
+index ec86fdc24f..6a8eced524 100644
+--- a/arch/arm/dts/armada-ap806.dtsi
++++ b/arch/arm/dts/armada-ap806.dtsi
+@@ -54,6 +54,15 @@
+ 
+ 	AP_NAME {
+ 		config-space {
++			sar-reg {
++				compatible = "marvell,sample-at-reset-common",
++					     "marvell,sample-at-reset-ap806";
++				reg = <0x6F8200 0x8>;
++				sar-driver = "ap806_sar";
++				sar-name = "ap806_sar";
++				status = "okay";
++			};
++
+ 			thermal: thermal@6f8084 {
+ 				compatible = "marvell,mvebu-thermal", "marvell,thermal-ext-sensor";
+ 				reg = <0x6f8084 0x12>;
+diff --git a/arch/arm/dts/armada-ap807.dtsi b/arch/arm/dts/armada-ap807.dtsi
+index 8c603c5602..848e3fb363 100644
+--- a/arch/arm/dts/armada-ap807.dtsi
++++ b/arch/arm/dts/armada-ap807.dtsi
+@@ -19,6 +19,14 @@
+ 
+ 	AP_NAME {
+ 		config-space {
++			sar-reg {
++				compatible = "marvell,sample-at-reset-common",
++					     "marvell,sample-at-reset-ap807";
++				reg = <0x6F8200 0x8>;
++				sar-driver = "ap807_sar";
++				sar-name = "ap807_sar";
++				status = "okay";
++			};
+ 
+ 			thermal: thermal@6f8084 {
+ 				compatible = "marvell,mvebu-thermal",
+diff --git a/arch/arm/dts/armada-ap80x.dtsi b/arch/arm/dts/armada-ap80x.dtsi
+index 282fa16fd7..bb7fca1e2f 100644
+--- a/arch/arm/dts/armada-ap80x.dtsi
++++ b/arch/arm/dts/armada-ap80x.dtsi
+@@ -74,15 +74,6 @@
+ 				#gpio-cells = <2>;
+ 			};
+ 
+-			sar-reg {
+-				compatible = "marvell,sample-at-reset-common",
+-					     "marvell,sample-at-reset-ap806";
+-				reg = <0x6F8200 0x8>;
+-				sar-driver = "ap806_sar";
+-				sar-name = "ap806_sar";
+-				status = "okay";
+-			};
+-
+ 			ap_spi0: spi@510600 {
+ 				compatible = "marvell,armada-380-spi";
+ 				reg = <0x510600 0x50>;
+diff --git a/drivers/misc/mvebu_sar/Makefile b/drivers/misc/mvebu_sar/Makefile
+index d0f73dd981..03086b88d8 100644
+--- a/drivers/misc/mvebu_sar/Makefile
++++ b/drivers/misc/mvebu_sar/Makefile
+@@ -1,4 +1,5 @@
+ 
+ obj-$(CONFIG_MVEBU_SAR) += sar-uclass.o
+ obj-$(CONFIG_TARGET_MVEBU_ARMADA_8K) += ap806_sar.o
++obj-$(CONFIG_TARGET_MVEBU_ARMADA_8K) += ap807_sar.o
+ obj-$(CONFIG_TARGET_MVEBU_ARMADA_8K) += cp110_sar.o
+-- 
+2.29.0
+

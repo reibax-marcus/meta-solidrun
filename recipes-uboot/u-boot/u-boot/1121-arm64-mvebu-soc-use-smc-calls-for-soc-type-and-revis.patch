@@ -1,0 +1,57 @@
+From 6dea8ef076f1459f5bcb7c6112444b448f8c8461 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Sun, 16 Feb 2020 23:24:48 +0100
+Subject: [PATCH 1121/1239] arm64: mvebu: soc: use smc calls for soc type and
+ revision id reading
+
+This change will be needed after dfx register set will be secured by the
+trusted firmware.
+
+Change-Id: I1cc38a3cfcf84bf343a7043ee1e499d9117bd307
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/25051
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/mach-mvebu/armada8k/soc.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/mach-mvebu/armada8k/soc.c b/arch/arm/mach-mvebu/armada8k/soc.c
+index a3f3fa93bb..4accabe20c 100644
+--- a/arch/arm/mach-mvebu/armada8k/soc.c
++++ b/arch/arm/mach-mvebu/armada8k/soc.c
+@@ -95,15 +95,28 @@ static int get_soc_type_rev(u32 *type, u32 *rev)
+ 
+ static int get_ap_soc_type(u32 *type)
+ {
+-	*type = readl(AP_DEV_ID_STATUS_REG) & AP_DEV_ID_STATUS_MASK;
++	int ret;
++
++	/* Try read it with firmware use, if fails try legacy */
++	ret = mvebu_dfx_sread(type, AP_DEV_ID_STATUS_REG);
++	if (ret != SMCCC_RET_SUCCESS)
++		*type = readl(AP_DEV_ID_STATUS_REG);
++
++	*type &= AP_DEV_ID_STATUS_MASK;
+ 
+ 	return 0;
+ }
+ 
+ static int get_ap_soc_rev(u32 *rev)
+ {
+-	*rev = (readl(JTAG_DEV_ID_STATUS_REG) & AP_DEV_REV_ID_STATUS_MASK)
+-					>> AP_REV_STATUS_OFFSET;
++	int ret;
++
++	/* Try read it with firmware use, if fails try legacy */
++	ret = mvebu_dfx_sread(rev, JTAG_DEV_ID_STATUS_REG);
++	if (ret != SMCCC_RET_SUCCESS)
++		*rev = readl(JTAG_DEV_ID_STATUS_REG);
++
++	*rev = (*rev & AP_DEV_REV_ID_STATUS_MASK) >> AP_REV_STATUS_OFFSET;
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

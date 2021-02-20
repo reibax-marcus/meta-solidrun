@@ -1,0 +1,59 @@
+From db6fbf9d8dbca3a785049842776a6f29a95b1091 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 27 Jul 2017 15:41:18 +0300
+Subject: [PATCH 0669/1239] ahci: Alias SCSI and SATA for AHCI
+
+Alias SCSI and SATA commands and interface types in case
+when CONFIG_SCSI_AHCI is enabled and CONFIG_CMD_SATA is
+disabled
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ cmd/scsi.c                 | 16 ++++++++++++++++
+ drivers/block/blk-uclass.c |  3 +++
+ 2 files changed, 19 insertions(+)
+
+diff --git a/cmd/scsi.c b/cmd/scsi.c
+index 67de1a3bdc..aa98e929c6 100644
+--- a/cmd/scsi.c
++++ b/cmd/scsi.c
+@@ -64,6 +64,22 @@ U_BOOT_CMD(
+ 	"     `blk#' from memory address `addr'"
+ );
+ 
++#if !defined(CONFIG_CMD_SATA) && defined(CONFIG_SCSI_AHCI)
++U_BOOT_CMD(
++	sata, 5, 1, do_scsi,
++	"SATA sub-system",
++	"reset - reset SATA controller\n"
++	"sata info  - show available SATA devices\n"
++	"sata scan  - (re-)scan SATA bus\n"
++	"sata device [dev] - show or set current device\n"
++	"sata part [dev] - print partition table of one or all SATA devices\n"
++	"sata read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
++	"     to memory address `addr'\n"
++	"sata write addr blk# cnt - write `cnt' blocks starting at block\n"
++	"     `blk#' from memory address `addr'"
++);
++#endif
++
+ U_BOOT_CMD(
+ 	scsiboot, 3, 1, do_scsiboot,
+ 	"boot from SCSI device",
+diff --git a/drivers/block/blk-uclass.c b/drivers/block/blk-uclass.c
+index 077a843700..607509271f 100644
+--- a/drivers/block/blk-uclass.c
++++ b/drivers/block/blk-uclass.c
+@@ -13,6 +13,9 @@
+ static const char *if_typename_str[IF_TYPE_COUNT] = {
+ 	[IF_TYPE_IDE]		= "ide",
+ 	[IF_TYPE_SCSI]		= "scsi",
++#if !defined(CONFIG_CMD_SATA) && defined(CONFIG_SCSI_AHCI)
++	[IF_TYPE_SCSI]		= "sata",
++#endif
+ 	[IF_TYPE_ATAPI]		= "atapi",
+ 	[IF_TYPE_USB]		= "usb",
+ 	[IF_TYPE_DOC]		= "doc",
+-- 
+2.29.0
+

@@ -1,0 +1,33 @@
+From 28b73efe380cd7d660d57d75f7a9b28b68060892 Mon Sep 17 00:00:00 2001
+From: Alex Leibovich <alexl@marvell.com>
+Date: Wed, 17 Jun 2020 12:37:43 +0300
+Subject: [PATCH 1176/1239] u-boot: defconfig: cn9131-db-ep-C: added PCIE
+ CONFIG
+
+Added PCIE config in order related
+PCIE changes will take affect.
+
+Signed-off-by: Alex Leibovich <alexl@marvell.com>
+Change-Id: I8da8a6c87cbac792d4d44f37f4aed97349d9e02c
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/30098
+Tested-by: Nadav Haklai <nadavh@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+---
+ configs/mvebu_db_ep_cn91xx_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/mvebu_db_ep_cn91xx_defconfig b/configs/mvebu_db_ep_cn91xx_defconfig
+index 9a6cd1fd40..72756724ab 100644
+--- a/configs/mvebu_db_ep_cn91xx_defconfig
++++ b/configs/mvebu_db_ep_cn91xx_defconfig
+@@ -75,6 +75,7 @@ CONFIG_E1000=y
+ CONFIG_MVPP2=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
++CONFIG_PCIE_DW_MVEBU=y
+ CONFIG_MVEBU_COMPHY_SUPPORT=y
+ CONFIG_PINCTRL=y
+ CONFIG_PINCTRL_ARMADA_8K=y
+-- 
+2.29.0
+

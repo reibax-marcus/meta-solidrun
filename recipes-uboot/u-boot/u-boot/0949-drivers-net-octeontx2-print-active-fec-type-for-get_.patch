@@ -1,0 +1,60 @@
+From 27d17dcf28f3e8dad742095666d293c089caf030 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Thu, 1 Aug 2019 15:14:57 -0700
+Subject: [PATCH 0949/1239] drivers: net: octeontx2: print active fec type for
+ get_fec command
+
+Use CMD_GET_LINK_STS to fetch current active fec type set for
+LMAC interface whenever user requests GET_FEC command.
+
+Change-Id: I0f2611e1dfa38ceb4710a22bffcfa382abcafb3a
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/13513
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/net/octeontx2/cgx_intf.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index 0a6d109c78..c87d7c7321 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -264,7 +264,7 @@ int cgx_intf_get_fec(struct udevice *ethdev)
+ 	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
+ 			   CGX_CMD_GET_SUPPORTED_FEC, 0, &scr0.u);
+ 	if (ret) {
+-		printf("Get FEC type failed for %s\n", ethdev->name);
++		printf("Get supported FEC failed for %s\n", ethdev->name);
+ 		return -1;
+ 	}
+ 
+@@ -283,6 +283,24 @@ int cgx_intf_get_fec(struct udevice *ethdev)
+ 		printf("FEC_BASE_R FEC_RS\n");
+ 		break;
+ 	}
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   CGX_CMD_GET_LINK_STS, 0, &scr0.u);
++	if (ret) {
++		printf("Get active fec failed for %s\n", ethdev->name);
++		return -1;
++	}
++	printf("Active FEC type: ");
++	switch (scr0.s.link_sts.fec) {
++	case 0:
++		printf("FEC_NONE\n");
++		break;
++	case 1:
++		printf("FEC_BASE_R\n");
++		break;
++	case 2:
++		printf("FEC_RS\n");
++		break;
++	}
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

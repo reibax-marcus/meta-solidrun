@@ -1,0 +1,51 @@
+From 9c7fd5bed828982056e7c52932de9c2eb80e6528 Mon Sep 17 00:00:00 2001
+From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+Date: Tue, 18 Oct 2016 23:17:52 +0530
+Subject: [PATCH 0529/1239] tx83xx: update 83xx config header file.
+
+increase bgx to 4
+undef rgmii/xcv
+increase maxcpu to 24
+
+Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+---
+ include/configs/thunderx_83xx.h | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index c68b825f69..10d6eabab8 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -149,7 +149,6 @@
+ /* Net */
+ /** Enable ThunderX BGX networking support */
+ #define CONFIG_THUNDERX_BGX
+-#define CONFIG_THUNDERX_XCV
+ 
+ /** Enable ThunderX SMI MDIO driver */
+ #define CONFIG_THUNDERX_SMI
+@@ -172,10 +171,10 @@
+ #define CONFIG_OVERWRITE_ETHADDR_ONCE
+ 
+ /** Maximum number of BGX interfaces per CPU node */
+-#define CONFIG_MAX_BGX_PER_NODE		3
++#define CONFIG_MAX_BGX_PER_NODE		4
+ 
+ /** Maximum total number of BGX interfaces across all nodes */
+-#define CONFIG_MAX_BGX			3
++#define CONFIG_MAX_BGX			4
+ 
+ /** Enable 10G PHY support */
+ #define CONFIG_PHYLIB_10G
+@@ -345,7 +344,7 @@
+ #define CONFIG_BOOTARGS			\
+ 					"console=ttyAMA0,115200n8 " \
+ 					"earlycon=pl011,0x87e028000000 " \
+-					"debug maxcpus=4 rootwait rw "\
++					"debug maxcpus=24 rootwait rw "\
+ 					"root=/dev/sda2 coherent_pool=16M"
+ 
+ /** Store U-Boot version in "ver" environment variable */
+-- 
+2.29.0
+

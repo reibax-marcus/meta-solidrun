@@ -1,0 +1,116 @@
+From 2d472707bfdc88f0bdde3da28f748f9c61bef572 Mon Sep 17 00:00:00 2001
+From: Yan Markman <ymarkman@marvell.com>
+Date: Wed, 9 Jan 2019 18:48:15 +0200
+Subject: [PATCH 0239/1239] arm64: mvebu: dts: a37xx description with B/C board
+ type
+
+There are 3 kind of armada-3720-** board-variants:
+"A" (default), "B", "C". All of them have different U-boots.
+To distinct U-boots, add an appropriated "B" or "C" into description.
+
+Change-Id: Iaa1a7cdafced971b5ab35139d88e0b545487a718
+Signed-off-by: Yan Markman <ymarkman@marvell.com>
+---
+ arch/arm/dts/armada-3720-ddr3-db-v1-B.dts | 2 +-
+ arch/arm/dts/armada-3720-ddr3-db-v1-C.dts | 2 +-
+ arch/arm/dts/armada-3720-ddr3-db-v2-B.dts | 2 +-
+ arch/arm/dts/armada-3720-ddr3-db-v2-C.dts | 2 +-
+ arch/arm/dts/armada-3720-ddr4-db-v1-B.dts | 2 +-
+ arch/arm/dts/armada-3720-ddr4-db-v3-B.dts | 2 +-
+ arch/arm/dts/armada-3720-ddr4-db-v3-C.dts | 2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/dts/armada-3720-ddr3-db-v1-B.dts b/arch/arm/dts/armada-3720-ddr3-db-v1-B.dts
+index c8e043ccd9..11122f9189 100644
+--- a/arch/arm/dts/armada-3720-ddr3-db-v1-B.dts
++++ b/arch/arm/dts/armada-3720-ddr3-db-v1-B.dts
+@@ -25,7 +25,7 @@
+  */
+ 
+ / {
+-	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V1";
++	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V1-B";
+ 	compatible = "marvell,armada-3720-db-v1",
+ 		     "marvell,armada3720",
+ 		     "marvell,armada3710";
+diff --git a/arch/arm/dts/armada-3720-ddr3-db-v1-C.dts b/arch/arm/dts/armada-3720-ddr3-db-v1-C.dts
+index c078c0702c..e17d5c2714 100644
+--- a/arch/arm/dts/armada-3720-ddr3-db-v1-C.dts
++++ b/arch/arm/dts/armada-3720-ddr3-db-v1-C.dts
+@@ -25,7 +25,7 @@
+  */
+ 
+ / {
+-	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V1";
++	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V1-C";
+ 	compatible = "marvell,armada-3720-db-v1",
+ 		     "marvell,armada3720",
+ 		     "marvell,armada3710";
+diff --git a/arch/arm/dts/armada-3720-ddr3-db-v2-B.dts b/arch/arm/dts/armada-3720-ddr3-db-v2-B.dts
+index 5ab4525501..6f16c82491 100644
+--- a/arch/arm/dts/armada-3720-ddr3-db-v2-B.dts
++++ b/arch/arm/dts/armada-3720-ddr3-db-v2-B.dts
+@@ -25,7 +25,7 @@
+  */
+ 
+ / {
+-	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V2";
++	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V2-B";
+ 	compatible = "marvell,armada-3720-db-v2",
+ 		     "marvell,armada3720",
+ 		     "marvell,armada3710";
+diff --git a/arch/arm/dts/armada-3720-ddr3-db-v2-C.dts b/arch/arm/dts/armada-3720-ddr3-db-v2-C.dts
+index 283cabcd25..3b5b764748 100644
+--- a/arch/arm/dts/armada-3720-ddr3-db-v2-C.dts
++++ b/arch/arm/dts/armada-3720-ddr3-db-v2-C.dts
+@@ -25,7 +25,7 @@
+ */
+ 
+ / {
+-	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V2";
++	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V2-C";
+ 	compatible = "marvell,armada-3720-db-v2",
+ 		     "marvell,armada3720",
+ 		     "marvell,armada3710";
+diff --git a/arch/arm/dts/armada-3720-ddr4-db-v1-B.dts b/arch/arm/dts/armada-3720-ddr4-db-v1-B.dts
+index dccacdca2f..2e73878aae 100644
+--- a/arch/arm/dts/armada-3720-ddr4-db-v1-B.dts
++++ b/arch/arm/dts/armada-3720-ddr4-db-v1-B.dts
+@@ -25,7 +25,7 @@
+  */
+ 
+ / {
+-	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR4-V1";
++	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR4-V1-B";
+ 	compatible = "marvell,armada-3720-db-v2",
+ 		     "marvell,armada3720",
+ 		     "marvell,armada3710";
+diff --git a/arch/arm/dts/armada-3720-ddr4-db-v3-B.dts b/arch/arm/dts/armada-3720-ddr4-db-v3-B.dts
+index 882151a96a..85530f78b3 100644
+--- a/arch/arm/dts/armada-3720-ddr4-db-v3-B.dts
++++ b/arch/arm/dts/armada-3720-ddr4-db-v3-B.dts
+@@ -25,7 +25,7 @@
+  */
+ 
+ / {
+-	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR4-V3";
++	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR4-V3-B";
+ 	compatible = "marvell,armada-3720-db-v3",
+ 		     "marvell,armada3720",
+ 		     "marvell,armada3710";
+diff --git a/arch/arm/dts/armada-3720-ddr4-db-v3-C.dts b/arch/arm/dts/armada-3720-ddr4-db-v3-C.dts
+index e4ae11c6a4..1fa8b5409d 100644
+--- a/arch/arm/dts/armada-3720-ddr4-db-v3-C.dts
++++ b/arch/arm/dts/armada-3720-ddr4-db-v3-C.dts
+@@ -25,7 +25,7 @@
+  */
+ 
+ / {
+-	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR4-V3";
++	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR4-V3-C";
+ 	compatible = "marvell,armada-3720-db-v3",
+ 		     "marvell,armada3720",
+ 		     "marvell,armada3710";
+-- 
+2.29.0
+

@@ -1,0 +1,67 @@
+From 93755a0854421c215211674c73056e95d54a7b61 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 6 Feb 2017 11:05:29 -0800
+Subject: [PATCH 0606/1239] Disable RTL8169 define till driver is fixed.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ include/configs/thunderx_81xx.h | 14 +++++++++-----
+ include/configs/thunderx_83xx.h |  3 ---
+ 2 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 4ee4a74aed..32d03250d6 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -11,8 +11,14 @@
+ 
+ #define CONFIG_SPECIAL_SYNC_HANDLER
+ 
+-/** Thunder 81xx does not support NOR flash */
+-#define CONFIG_SYS_NO_FLASH
++/** Thunder 81xx support NOR flash */
++#define CONFIG_MTD
++#define CONFIG_CMD_FLASH
++#define CONFIG_CFI_FLASH
++#define CONFIG_FLASH_CFI_DRIVER
++#define CONFIG_FLASH_CFI_MTD
++#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 1
++#define CONFIG_SYS_FLASH_CFI
+ 
+ #define CONFIG_SUPPORT_RAW_INITRD
+ 
+@@ -98,6 +104,7 @@
+ 
+ /** Code start address */
+ #define CONFIG_SYS_TEXT_BASE		0x00500000
++#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
+ 
+ /** Stack starting address */
+ /*#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)*/
+@@ -350,9 +357,6 @@
+ 
+ /* #define E1000_DEBUG */
+ 
+-/** Enable driver for Real-Tec RTL8169 card */
+-#define CONFIG_RTL8169
+-
+ /* Initial environment variables */
+ #define UBOOT_IMG_HEAD_SIZE		0x40
+ /* C80000 - 0x40 */
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 1bcc5b84ab..baf5085b0f 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -351,9 +351,6 @@
+ 
+ /* #define E1000_DEBUG */
+ 
+-/** Enable driver for Real-Tec RTL8169 card */
+-#define CONFIG_RTL8169
+-
+ /* Initial environment variables */
+ #define UBOOT_IMG_HEAD_SIZE		0x40
+ /* C80000 - 0x40 */
+-- 
+2.29.0
+

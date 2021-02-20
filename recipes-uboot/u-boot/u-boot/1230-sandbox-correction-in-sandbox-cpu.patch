@@ -1,0 +1,33 @@
+From be30da7429640cbc3a3766b66b126c0ed5792126 Mon Sep 17 00:00:00 2001
+From: Sujeet Baranwal <sbaranwal@marvell.com>
+Date: Fri, 2 Oct 2020 14:35:32 -0700
+Subject: [PATCH 1230/1239] sandbox: correction in sandbox cpu
+
+Sandbox cpu needs to be set at sandbox testing.
+
+Signed-off-by: Sujeet Baranwal <sbaranwal@marvell.com>
+Change-Id: Iacc3171432da5066438f89165a3615599b0faba8
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/37254
+Reviewed-by: Sujeet Kumar Baranwal <Sujeet.Baranwal@cavium.com>
+Reviewed-by: Jia Ma <jiam@marvell.com>
+Tested-by: Jia Ma <jiam@marvell.com>
+---
+ drivers/cpu/cpu_sandbox.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/cpu/cpu_sandbox.c b/drivers/cpu/cpu_sandbox.c
+index 946c8d09b0..ff87e8adca 100644
+--- a/drivers/cpu/cpu_sandbox.c
++++ b/drivers/cpu/cpu_sandbox.c
+@@ -48,7 +48,7 @@ int cpu_sandbox_probe(struct udevice *dev)
+ }
+ 
+ static const struct udevice_id cpu_sandbox_ids[] = {
+-	{ .compatible = "arm,cortex-a72" },
++	{ .compatible = "sandbox,cpu_sandbox" },
+ 	{ }
+ };
+ 
+-- 
+2.29.0
+

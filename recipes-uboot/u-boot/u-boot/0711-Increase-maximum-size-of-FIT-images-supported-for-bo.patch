@@ -1,0 +1,39 @@
+From 7356b02df0f9e1f63ad5fdef7a1604992c7244b9 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Sat, 16 Sep 2017 20:42:21 -0700
+Subject: [PATCH 0711/1239] Increase maximum size of FIT images supported for
+ bootm.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 3 +++
+ include/configs/thunderx_93xx.h | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 26892c40e3..b41e9714cf 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -346,4 +346,7 @@
+ 
+ #define CONFIG_CMD_TIME
+ 
++/** Maximum size of image supported for bootm (and bootable FIT images) */
++#define CONFIG_SYS_BOOTM_LEN		0x10000000	/* 256MiB */
++
+ #endif /* __THUNDERX_81XX_H__ */
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index 09d0232c26..fc6d15d87c 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -320,4 +320,7 @@
+ 
+ #define CONFIG_CMD_TIME
+ 
++/** Maximum size of image supported for bootm (and bootable FIT images) */
++#define CONFIG_SYS_BOOTM_LEN		0x10000000	/* 256MiB */
++
+ #endif /* __THUNDERX_93XX_H__ */
+-- 
+2.29.0
+

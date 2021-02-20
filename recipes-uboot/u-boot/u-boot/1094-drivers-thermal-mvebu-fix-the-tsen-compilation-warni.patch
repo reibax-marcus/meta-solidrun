@@ -1,0 +1,63 @@
+From 63ee73de3d7569d56f468aadeb5778a06b28b73f Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 10 Feb 2020 13:20:47 +0200
+Subject: [PATCH 1094/1239] drivers/thermal/mvebu: fix the tsen compilation
+ warning
+
+Change-Id: I80495a0e30d227a471611b9bb8df7e9b9305d8e9
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23167
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ drivers/thermal/mvebu_ext_thermal_28nm.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/thermal/mvebu_ext_thermal_28nm.c b/drivers/thermal/mvebu_ext_thermal_28nm.c
+index 980de4cf3b..00093b4ca6 100644
+--- a/drivers/thermal/mvebu_ext_thermal_28nm.c
++++ b/drivers/thermal/mvebu_ext_thermal_28nm.c
+@@ -45,11 +45,11 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
+ 	}
+ 
+ 	if (tsen->fw_smc_support) {
+-		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_READ, temp);
++		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_READ, &reg);
+ 		if (ret)
+ 			return ret;
+ 
+-		*temp = *temp / tsen->tsen_divisor;
++		*temp = reg / tsen->tsen_divisor;
+ 
+ 		return ret;
+ 	}
+@@ -75,7 +75,6 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
+ static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
+ {
+ 	u32 reg = 0, timeout = 0;
+-	int ret;
+ 
+ 	debug("%s: fw smc support\n", __func__);
+ 
+@@ -83,7 +82,7 @@ static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
+ 
+ 	while ((reg) == 0 && timeout < THERMAL_TIMEOUT) {
+ 		udelay(10);
+-		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
++		mvebu_dfx_smc(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
+ 		timeout++;
+ 	}
+ 
+@@ -95,7 +94,7 @@ static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
+ 
+ 	debug("thermal.%lx: Initialization done\n", (uintptr_t)tsen->regs_base);
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *tsen)
+-- 
+2.29.0
+

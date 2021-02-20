@@ -1,0 +1,47 @@
+From cb9a4ed0f18d27262fa1ef3a8f053f03803b5316 Mon Sep 17 00:00:00 2001
+From: Stefan Chulski <stefanc@marvell.com>
+Date: Thu, 13 Jul 2017 17:28:26 +0300
+Subject: [PATCH 0065/1239] phy: net: Increase autoneg timeout from 4 to 8
+ seconds
+
+Time of link auto negation depend on link partner and could take
+more than 4 seconds.
+This patch increases the timeout, avoiding possible auto negotiation
+timeouts.
+
+Change-Id: Id36d08d9db24f645d44b66582d2de8fe9ca36967
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+---
+ drivers/net/phy/phy.c | 2 +-
+ include/phy.h         | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+index ae37dd6c1e..192ae5aa0f 100644
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -256,7 +256,7 @@ int genphy_update_link(struct phy_device *phydev)
+ 				return -EINTR;
+ 			}
+ 
+-			if ((i++ % 500) == 0)
++			if ((i++ % 1000) == 0)
+ 				printf(".");
+ 
+ 			udelay(1000);	/* 1 ms */
+diff --git a/include/phy.h b/include/phy.h
+index f4530faeb9..480d2890d4 100644
+--- a/include/phy.h
++++ b/include/phy.h
+@@ -46,7 +46,7 @@
+ 				SUPPORTED_10000baseT_Full)
+ 
+ #ifndef PHY_ANEG_TIMEOUT
+-#define PHY_ANEG_TIMEOUT	4000
++#define PHY_ANEG_TIMEOUT	8000
+ #endif
+ 
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,206 @@
+From 504c1ad53295feed6028b299670c4e64710742ae Mon Sep 17 00:00:00 2001
+From: Christine Gharzuzi <chrisg@marvell.com>
+Date: Sun, 25 Jun 2017 20:34:08 +0300
+Subject: [PATCH 0042/1239] arm64: dts: a70x0: a80x0: create a shared dtsi file
+ for all common nodes in DB device-trees
+
+This patch adds a shared dtsi file for the coming common HW
+configurations of all DB boards.
+This patch also renames Armada-7040 dtsi to 70x0 for both Armada 7040
+and the soon coming 7020 SoCs/boards.
+Soon the common HW configurations such as USB VBUS will be added.
+
+Change-Id: I3c5a1ff8a05783ea5f6127923e0092994233aedd
+Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-7040-db-nand.dts |  2 +-
+ arch/arm/dts/armada-7040-db.dts      |  2 +-
+ arch/arm/dts/armada-7040.dtsi        | 56 ----------------------------
+ arch/arm/dts/armada-70x0-db.dtsi     | 11 ++++++
+ arch/arm/dts/armada-70x0.dtsi        | 19 ++++++++++
+ arch/arm/dts/armada-8040-db.dts      |  2 +-
+ arch/arm/dts/armada-8040-mcbin.dts   |  2 +-
+ arch/arm/dts/armada-80x0-db.dtsi     | 11 ++++++
+ 8 files changed, 45 insertions(+), 60 deletions(-)
+ delete mode 100644 arch/arm/dts/armada-7040.dtsi
+ create mode 100644 arch/arm/dts/armada-70x0-db.dtsi
+ create mode 100644 arch/arm/dts/armada-70x0.dtsi
+ create mode 100644 arch/arm/dts/armada-80x0-db.dtsi
+
+diff --git a/arch/arm/dts/armada-7040-db-nand.dts b/arch/arm/dts/armada-7040-db-nand.dts
+index 2ca85a4f6d..af4ae911b7 100644
+--- a/arch/arm/dts/armada-7040-db-nand.dts
++++ b/arch/arm/dts/armada-7040-db-nand.dts
+@@ -45,7 +45,7 @@
+  * Boot device: NAND, 0xE (SW3)
+  */
+ 
+-#include "armada-7040.dtsi"
++#include "armada-70x0-db.dtsi"
+ 
+ / {
+ 	model = "Marvell Armada 7040 Development Board DB-88FA7040 with NAND";
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index e095f42797..79c70e358a 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -45,7 +45,7 @@
+  * Boot device: SPI NOR, 0x32 (SW3)
+  */
+ 
+-#include "armada-7040.dtsi"
++#include "armada-70x0-db.dtsi"
+ 
+ / {
+ 	model = "Marvell Armada 7040 Development Board DB-88FA7040";
+diff --git a/arch/arm/dts/armada-7040.dtsi b/arch/arm/dts/armada-7040.dtsi
+deleted file mode 100644
+index b5be0c4652..0000000000
+--- a/arch/arm/dts/armada-7040.dtsi
++++ /dev/null
+@@ -1,56 +0,0 @@
+-/*
+- * Copyright (C) 2016 Marvell Technology Group Ltd.
+- *
+- * This file is dual-licensed: you can use it either under the terms
+- * of the GPLv2 or the X11 license, at your option. Note that this dual
+- * licensing only applies to this file, and not this project as a
+- * whole.
+- *
+- *  a) This library is free software; you can redistribute it and/or
+- *     modify it under the terms of the GNU General Public License as
+- *     published by the Free Software Foundation; either version 2 of the
+- *     License, or (at your option) any later version.
+- *
+- *     This library is distributed in the hope that it will be useful,
+- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *     GNU General Public License for more details.
+- *
+- * Or, alternatively,
+- *
+- *  b) Permission is hereby granted, free of charge, to any person
+- *     obtaining a copy of this software and associated documentation
+- *     files (the "Software"), to deal in the Software without
+- *     restriction, including without limitation the rights to use,
+- *     copy, modify, merge, publish, distribute, sublicense, and/or
+- *     sell copies of the Software, and to permit persons to whom the
+- *     Software is furnished to do so, subject to the following
+- *     conditions:
+- *
+- *     The above copyright notice and this permission notice shall be
+- *     included in all copies or substantial portions of the Software.
+- *
+- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+- *     OTHER DEALINGS IN THE SOFTWARE.
+- */
+-
+-/*
+- * Device Tree file for the Armada 7040 SoC, made of an AP806 Quad and
+- * one CP110.
+- */
+-
+-#include <dt-bindings/gpio/gpio.h>
+-#include "armada-ap806-quad.dtsi"
+-#include "armada-cp110-master.dtsi"
+-
+-/ {
+-	model = "Marvell Armada 7040";
+-	compatible = "marvell,armada7040", "marvell,armada-ap806-quad",
+-		     "marvell,armada-ap806";
+-};
+diff --git a/arch/arm/dts/armada-70x0-db.dtsi b/arch/arm/dts/armada-70x0-db.dtsi
+new file mode 100644
+index 0000000000..0f4f0c9298
+--- /dev/null
++++ b/arch/arm/dts/armada-70x0-db.dtsi
+@@ -0,0 +1,11 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++#include "armada-70x0.dtsi" /* include SoC device tree */
++
++/ {
++	model = "DB-ARMADA-70x0";
++	compatible = "marvell,armada-70x0-db", "marvell,armada-70x0";
++};
+diff --git a/arch/arm/dts/armada-70x0.dtsi b/arch/arm/dts/armada-70x0.dtsi
+new file mode 100644
+index 0000000000..e70328d425
+--- /dev/null
++++ b/arch/arm/dts/armada-70x0.dtsi
+@@ -0,0 +1,19 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++/*
++ * Device Tree file for the Armada 7040 SoC, made of an AP806 Quad and
++ * one CP110.
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++#include "armada-ap806-quad.dtsi"
++#include "armada-cp110-master.dtsi"
++
++/ {
++	model = "Marvell Armada 7040";
++	compatible = "marvell,armada7040", "marvell,armada-ap806-quad",
++		     "marvell,armada-ap806";
++};
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index e7169cb8d2..e334ace566 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -44,7 +44,7 @@
+  * Device Tree file for Marvell Armada 8040 Development board platform
+  */
+ 
+-#include "armada-8040.dtsi"
++#include "armada-80x0-db.dtsi"
+ 
+ / {
+ 	model = "Marvell Armada 8040 Development Board DB-88F8040";
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index 22e0b5cb87..c482124029 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -3,7 +3,7 @@
+  * Copyright (C) 2016 Marvell International Ltd.
+  */
+ 
+-#include "armada-8040.dtsi" /* include SoC device tree */
++#include "armada-80x0-db.dtsi" /* include SoC device tree */
+ 
+ / {
+ 	model = "Marvell Armada 8040 MACHIATOBin";
+diff --git a/arch/arm/dts/armada-80x0-db.dtsi b/arch/arm/dts/armada-80x0-db.dtsi
+new file mode 100644
+index 0000000000..00027e10d0
+--- /dev/null
++++ b/arch/arm/dts/armada-80x0-db.dtsi
+@@ -0,0 +1,11 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++#include "armada-8040.dtsi" /* include SoC device tree */
++
++/ {
++	compatible = "marvell,armada-80x0-db", "marvell,armada-8040";
++	model = "DB-ARMADA-80x0";
++};
+-- 
+2.29.0
+

@@ -1,0 +1,132 @@
+From 83ac1c92c9c30efc6f8d657dae0627769042104f Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Mon, 3 Feb 2020 15:18:12 -0800
+Subject: [PATCH 1089/1239] octeontx: Add support to set individual lmac mac
+ address
+
+Enable support to update devicetree with user provided MAC
+address for the specific BGX LMAC based on selected ethXaddr
+environment variable. This code is included only with config
+option ALLOW_USER_MAC_ADDR
+
+Change-Id: I438b32e0f36abdacb5bd21c3798cb3231d6a36ea
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/22959
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx/board.h |  4 ++-
+ board/Marvell/octeontx/board-fdt.c         | 33 ++++++++++++++++++++++
+ drivers/net/octeontx/bgx.c                 |  4 +++
+ drivers/net/octeontx/nicvf_main.c          |  6 ++++
+ 4 files changed, 46 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx/board.h b/arch/arm/include/asm/arch-octeontx/board.h
+index 174d7fbbfb..dde2206deb 100644
+--- a/arch/arm/include/asm/arch-octeontx/board.h
++++ b/arch/arm/include/asm/arch-octeontx/board.h
+@@ -116,7 +116,9 @@ const char *fdt_get_board_serial(void);
+ const char *fdt_get_board_revision(void);
+ void fdt_parse_phy_info(void);
+ void fdt_board_get_ethaddr(int bgx, int lmac, unsigned char *eth);
+-
++#ifdef ALLOW_USER_MAC_ADDR
++void fdt_board_update_macaddr(int bgx_idx, int lmacid, char *mac);
++#endif
+ void bgx_set_board_info(int bgx_id, int *mdio_bus, int *phy_addr,
+ 			bool *autoneg_dis, bool *lmac_reg, bool *lmac_enable);
+ u64 fdt_get_preserved_mem_size(unsigned int node);
+diff --git a/board/Marvell/octeontx/board-fdt.c b/board/Marvell/octeontx/board-fdt.c
+index 05217bff44..2344b3258d 100644
+--- a/board/Marvell/octeontx/board-fdt.c
++++ b/board/Marvell/octeontx/board-fdt.c
+@@ -294,6 +294,39 @@ void fdt_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
+ 	}
+ }
+ 
++#ifdef ALLOW_USER_MAC_ADDR
++void fdt_board_update_macaddr(int bgxid, int lmacid, char *mac)
++{
++	void *fdt = (void *)gd->fdt_blob;
++	int offset = 0, node;
++	int subnode, i = 0;
++	char bgxname[24], macaddr[ARP_HLEN];
++
++	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
++	if (offset < 0) {
++		printf("%s couldn't find mrml bridge node in fdt\n",
++		       __func__);
++		return;
++	}
++	if (bgxid == 2 && otx_is_soc(CN81XX)) {
++		snprintf(bgxname, sizeof(bgxname), "rgx%d", 0);
++		lmacid = 0;
++	} else {
++		snprintf(bgxname, sizeof(bgxname), "bgx%d", bgxid);
++	}
++
++	node = fdt_subnode_offset(fdt, offset, bgxname);
++
++	memcpy(macaddr, mac, ARP_HLEN);
++	fdt_for_each_subnode(subnode, fdt, node) {
++		/* update lmac node's local-mac-address */
++		if (i++ == lmacid)
++			fdt_setprop(fdt, subnode, "local-mac-address",
++				    (void *)macaddr, sizeof(macaddr));
++	}
++}
++#endif
++
+ int arch_fixup_memory_node(void *blob)
+ {
+ 	return 0;
+diff --git a/drivers/net/octeontx/bgx.c b/drivers/net/octeontx/bgx.c
+index d885b2a8c9..15bb82e895 100644
+--- a/drivers/net/octeontx/bgx.c
++++ b/drivers/net/octeontx/bgx.c
+@@ -16,6 +16,7 @@
+ #include <malloc.h>
+ #include <miiphy.h>
+ #include <asm/io.h>
++#include <asm/arch/board.h>
+ 
+ #ifdef CONFIG_OF_LIBFDT
+  #include <linux/libfdt.h>
+@@ -173,6 +174,9 @@ void bgx_set_lmac_mac(int node, int bgx_idx, int lmacid, const u8 *mac)
+ 		return;
+ 
+ 	memcpy(bgx->lmac[lmacid].mac, mac, 6);
++#ifdef ALLOW_USER_MAC_ADDR
++	fdt_board_update_macaddr(bgx_idx, lmacid, (char *)mac);
++#endif
+ }
+ 
+ /* Return number of BGX present in HW */
+diff --git a/drivers/net/octeontx/nicvf_main.c b/drivers/net/octeontx/nicvf_main.c
+index 775bbc515f..a0d7b38921 100644
+--- a/drivers/net/octeontx/nicvf_main.c
++++ b/drivers/net/octeontx/nicvf_main.c
+@@ -447,6 +447,7 @@ int nicvf_write_hwaddr(struct udevice *dev)
+ {
+ 	unsigned char ethaddr[ARP_HLEN];
+ 	struct eth_pdata *pdata = dev_get_platdata(dev);
++	struct nicvf *nic = dev_get_priv(dev);
+ 
+ 	/* If lower level firmware fails to set proper MAC
+ 	 * u-boot framework updates MAC to random address.
+@@ -456,6 +457,11 @@ int nicvf_write_hwaddr(struct udevice *dev)
+ 		eth_env_set_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
+ 		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
+ 	}
++	eth_env_get_enetaddr_by_index("eth", dev->seq, ethaddr);
++	if (memcmp(ethaddr, pdata->enetaddr, ARP_HLEN)) {
++		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
++		nicvf_hw_set_mac_addr(nic, dev);
++	}
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

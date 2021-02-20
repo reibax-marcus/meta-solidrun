@@ -1,0 +1,41 @@
+From 3cea13b9c19c899b3cbf3e32d62c23e49d58a0d8 Mon Sep 17 00:00:00 2001
+From: Stefan Chulski <stefanc@marvell.com>
+Date: Tue, 21 May 2019 16:10:47 +0300
+Subject: [PATCH 0062/1239] net: mvpp2: terminate RX pause frames in GoP
+
+This patch disable feature that forward RX pause frames
+to CPU.
+RX flow control is MAC level feature and TX traffic is paused by
+MAC. So this frames should be terminate by MAC.
+
+Change-Id: Ib16abb5a16110c84333847ad6a5a2374f76720c0
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+---
+ drivers/net/mvpp2.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/drivers/net/mvpp2.c b/drivers/net/mvpp2.c
+index 293cee7c95..a4a992a57e 100644
+--- a/drivers/net/mvpp2.c
++++ b/drivers/net/mvpp2.c
+@@ -413,8 +413,6 @@ do {									\
+ #define      MVPP22_XLG_CTRL3_MACMODESELECT_10GMAC	(1 << 13)
+ /* Port Mac Control4 */
+ #define MVPP22_XLG_CTRL4_REG			0x184
+-#define      MVPP22_XLG_FORWARD_802_3X_FC_EN	BIT(5)
+-#define      MVPP22_XLG_FORWARD_PFC_EN		BIT(6)
+ #define      MVPP22_XLG_MODE_DMA_1G		BIT(12)
+ #define      MVPP22_XLG_EN_IDLE_CHECK_FOR_LINK	BIT(14)
+ 
+@@ -3260,8 +3258,6 @@ static int gop_xlg_mac_mode_cfg(struct mvpp2_port *port, int num_of_act_lanes)
+ 	/* read - modify - write */
+ 	val = readl(port->base + MVPP22_XLG_CTRL4_REG);
+ 	val &= ~MVPP22_XLG_MODE_DMA_1G;
+-	val |= MVPP22_XLG_FORWARD_PFC_EN;
+-	val |= MVPP22_XLG_FORWARD_802_3X_FC_EN;
+ 	val &= ~MVPP22_XLG_EN_IDLE_CHECK_FOR_LINK;
+ 	writel(val, port->base + MVPP22_XLG_CTRL4_REG);
+ 
+-- 
+2.29.0
+

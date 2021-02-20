@@ -1,0 +1,37 @@
+From 4f4b606721b8aaf7d4cd1f9e50b61d7d4633c79c Mon Sep 17 00:00:00 2001
+From: Rick Farrington <Ricardo.Farrington@cavium.com>
+Date: Wed, 18 Sep 2019 22:34:05 -0400
+Subject: [PATCH 0958/1239] Renamed module octeontx2_cmds.c ->
+ octeontx2_failsafe_cmds.c and updated Makefile accordingly.
+
+Change-Id: I956e4008b86b4c26fc1d637f0c51114c8b62bf3b
+Signed-off-by: Rick Farrington <Ricardo.Farrington@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/16055
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ cmd/marvell/Makefile                                        | 2 +-
+ cmd/marvell/{octeontx2_cmds.c => octeontx2_failsafe_cmds.c} | 0
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+ rename cmd/marvell/{octeontx2_cmds.c => octeontx2_failsafe_cmds.c} (100%)
+
+diff --git a/cmd/marvell/Makefile b/cmd/marvell/Makefile
+index 95ca1ff43a..b2f99a7e0a 100644
+--- a/cmd/marvell/Makefile
++++ b/cmd/marvell/Makefile
+@@ -4,7 +4,7 @@
+ #
+ 
+ ifdef CONFIG_ARCH_OCTEONTX2
+-obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_cmds.o
++obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_failsafe_cmds.o
+ obj-$(CONFIG_CMD_ETH) += eth_cmds.o
+ obj-$(CONFIG_CMD_MDIO_DBG) += mdio_dbg.o
+ obj-$(CONFIG_OCTEONTX2_CGX_INTF) += octeontx2_qlm_cmds.o
+diff --git a/cmd/marvell/octeontx2_cmds.c b/cmd/marvell/octeontx2_failsafe_cmds.c
+similarity index 100%
+rename from cmd/marvell/octeontx2_cmds.c
+rename to cmd/marvell/octeontx2_failsafe_cmds.c
+-- 
+2.29.0
+

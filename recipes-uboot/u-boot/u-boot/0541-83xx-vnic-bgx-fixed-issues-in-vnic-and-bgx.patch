@@ -1,0 +1,156 @@
+From df3e995f7f894c0301eee689e505b593f97ef985 Mon Sep 17 00:00:00 2001
+From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+Date: Fri, 11 Nov 2016 09:14:56 +0530
+Subject: [PATCH 0541/1239] 83xx, vnic,bgx: fixed issues in vnic and bgx
+
+- removed hard coding specific to 81xx
+- added function pci_sriov_get_totalvfs
+- using MAX_SQS_PER_VF_SINGLE_NODE
+
+Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+---
+ drivers/net/cavium/nic_main.c    | 18 ++++++------------
+ drivers/net/cavium/nicvf_main.c  |  2 +-
+ drivers/net/cavium/thunder_bgx.c | 24 ++----------------------
+ drivers/pci/pci-uclass.c         | 16 ++++++++++++++++
+ 4 files changed, 25 insertions(+), 35 deletions(-)
+
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index 1eeaf81805..36cd3d6a33 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -428,14 +428,6 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
+ 		for (; lmac < lmac_cnt + (bgx * MAX_LMAC_PER_BGX); lmac++)
+ 			nic_reg_write(nic,
+ 				NIC_PF_LMAC_0_7_CREDIT + (lmac * 8), lmac_credit);
+-
+-		/* On CN81XX there are only 8 VFs but max possible no of
+-		 * interfaces are 9.
+-		 */
+-		if (nic->num_vf_en >= 8) {
+-			nic->num_vf_en = 8;
+-			break;
+-		}
+ 	}
+ }
+ 
+@@ -490,7 +482,8 @@ static void nic_get_hw_info(struct nicpf *nic)
+ 		hw->model_id = 0x83;
+ 		break;
+ 	}
+-	hw->tl4_cnt = MAX_QUEUES_PER_QSET * /*pci_sriov_get_totalvfs(nic->pdev)*/ 8;
++
++	hw->tl4_cnt = MAX_QUEUES_PER_QSET * pci_sriov_get_totalvfs(nic->udev);
+ }
+ 
+ static void nic_init_hw(struct nicpf *nic)
+@@ -663,12 +656,12 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
+ 		if (!sq->sqs_mode) {
+ 			tl4 += (lmac * MAX_QUEUES_PER_QSET);
+ 		} else {
+-			for (svf = 0; svf < MAX_SQS_PER_VF; svf++) {
++			for (svf = 0; svf < MAX_SQS_PER_VF_SINGLE_NODE; svf++) {
+ 				if (nic->vf_sqs[pqs_vnic][svf] == vnic)
+ 					break;
+ 			}
+ 			tl4 += (MAX_LMAC_PER_BGX * MAX_QUEUES_PER_QSET);
+-			tl4 += (lmac * MAX_QUEUES_PER_QSET * MAX_SQS_PER_VF);
++			tl4 += (lmac * MAX_QUEUES_PER_QSET * MAX_SQS_PER_VF_SINGLE_NODE);
+ 			tl4 += (svf * MAX_QUEUES_PER_QSET);
+ 		}
+ 	} else {
+@@ -768,7 +761,8 @@ int thunderx_nic_probe(struct udevice *dev)
+ 	nicpf = dev_get_priv(dev);
+ 
+ 	ret = pci_sriov_init(dev, nicpf->num_vf_en);
+-	if(ret < 0) {
++
++	if (ret < 0) {
+ 		printf("enabling SRIOV failed for num VFs %d",nicpf->num_vf_en);
+ 		return ret;
+ 	}
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/cavium/nicvf_main.c
+index 71421a7aef..63e02d1f2b 100644
+--- a/drivers/net/cavium/nicvf_main.c
++++ b/drivers/net/cavium/nicvf_main.c
+@@ -322,7 +322,7 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
+ 
+ 	asm volatile ("dsb sy");
+ 
+-	return processed_sq_cqe;
++	return (processed_sq_cqe | processed_rq_cqe)  ;
+ }
+ 
+ /* Qset error interrupt handler
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index ecd5b9f1e6..ad9925478a 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -795,17 +795,7 @@ static void bgx_init_hw(struct bgx *bgx)
+ 
+ 		switch (lmac->qlm_mode) {
+ 		case QLM_MODE_SGMII:
+-			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
+-			   lane_to_sds for 2nd port in BGX0 to DLM1, lane0. */
+-			if ((bgx->bgx_id == 0) && is_altpkg) {
+-				if (lmacid >= 2)
+-					continue;
+-				else if (lmacid == 1)
+-					lmac->lane_to_sds = lmacid + 1;
+-				else
+-					lmac->lane_to_sds = lmacid;
+-			} else
+-				lmac->lane_to_sds = lmacid;
++			lmac->lane_to_sds = lmacid;
+ 			lmac->lmac_type = 0;
+ 			lmac_count++;
+ 			break;
+@@ -834,17 +824,7 @@ static void bgx_init_hw(struct bgx *bgx)
+ 				continue;
+ 			break;
+ 		case QLM_MODE_XFI:
+-			/* On EBB800, DLM0 and DLM1 has only one lane, so adjust the
+-			   lane_to_sds for 2nd port in BGX0 to DLM1 lane0. */
+-			if ((bgx->bgx_id == 0) && is_altpkg) {
+-				if (lmacid >= 2)
+-					continue;
+-				else if (lmacid == 1)
+-					lmac->lane_to_sds = lmacid + 1;
+-				else
+-					lmac->lane_to_sds = lmacid;
+-			} else
+-				lmac->lane_to_sds = lmacid;
++			lmac->lane_to_sds = lmacid;
+ 			lmac->lmac_type = 3;
+ 			lmac_count++;
+ 			break;
+diff --git a/drivers/pci/pci-uclass.c b/drivers/pci/pci-uclass.c
+index f60a6cc637..2bfea83e01 100644
+--- a/drivers/pci/pci-uclass.c
++++ b/drivers/pci/pci-uclass.c
+@@ -863,6 +863,22 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
+ 
+ }
+ 
++int pci_sriov_get_totalvfs(struct udevice *pdev)
++{
++	u16 total_vf;
++	int pos;
++
++	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
++	if (!pos) {
++		printf("Error: SRIOV capability not found\n");
++		return -ENODEV;
++	}
++
++	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
++
++	return total_vf;
++}
++
+ int pci_bind_bus_devices(struct udevice *bus)
+ {
+ 	ulong vendor, device;
+-- 
+2.29.0
+

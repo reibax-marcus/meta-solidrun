@@ -1,0 +1,93 @@
+From 80a3802a1e9da83593fddddb8639739dd0c38db8 Mon Sep 17 00:00:00 2001
+From: Christine Gharzuzi <chrisg@marvell.com>
+Date: Mon, 24 Apr 2017 18:24:32 +0300
+Subject: [PATCH 0037/1239] arm64: dts: a70x0: align a7040-db to board setup A
+
+A7040 DB board is a modular board,
+which supports multiple possible configurations.
+
+topology for setup A:
+SerDes:
+	- lane0: SGMII2
+	- lane1: USB0
+	- lane2: SFI (10G)
+	- lane3: SATA1
+	- lane4: USB1
+	- lane5: PCIe1
+AP-MPPs:
+	- SDIO, UART
+CP-MPPs:
+	- RGMII1, SPI, SDIO
+
+Change-Id: I610dcda225eb196f4d1269c916fb8d170c8c7da8
+Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-7040-db.dts       | 13 +++++++------
+ arch/arm/dts/armada-cp110-master.dtsi |  7 ++++++-
+ 2 files changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index ca92f45a41..b76014a503 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -95,24 +95,24 @@
+ 
+ &cpm_pinctl {
+ 		/* MPP Bus:
+-		 * TDM	 [0-11]
+ 		 * SPI   [13-16]
+ 		 * SATA1 [28]
+ 		 * UART0 [29-30]
+ 		 * SMI	 [32,34]
+ 		 * XSMI  [35-36]
+ 		 * I2C	 [37-38]
+-		 * RGMII1[44-55]
+-		 * SD	 [56-62]
++		 * RGMII [44-55]
++		 * SD	 [56-61]
++		 * GPIO  [62]
+ 		 */
+ 		/*   0   1   2   3   4   5   6   7   8   9 */
+-	pin-func = < 4   4   4   4   4   4   4   4   4   4
+-		     4   4   0   3   3   3   3   0   0   0
++	pin-func = < 0   0   0   0   0   0   0   0   0   0
++		     0   0   0   3   3   3   3   0   0   0
+ 		     0   0   0   0   0   0   0   0   9   0xA
+ 		     0xA 0   7   0   7   7   7   2   2   0
+ 		     0   0   0   0   1   1   1   1   1   1
+ 		     1   1   1   1   1   1   0xE 0xE 0xE 0xE
+-		     0xE 0xE 0xE >;
++		     0xE 0xE 0>;
+ };
+ 
+ &cpm_spi1 {
+@@ -170,6 +170,7 @@
+ 
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SFI>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 
+ 	phy3 {
+diff --git a/arch/arm/dts/armada-cp110-master.dtsi b/arch/arm/dts/armada-cp110-master.dtsi
+index e4c17e9f4b..ade7141347 100644
+--- a/arch/arm/dts/armada-cp110-master.dtsi
++++ b/arch/arm/dts/armada-cp110-master.dtsi
+@@ -136,7 +136,12 @@
+ 					marvell,pins = < 35 36 >;
+ 					marvell,function = <2>;
+ 				};
+-				cpm_ge2_rgmii_pins: cpm-ge-rgmii-pins-0 {
++				cpm_ge1_rgmii_pins: cpm-ge-rgmii-pins-0 {
++					marvell,pins = < 0 1 2 3 4 5 6 7
++							 8 9 10 11>;
++					marvell,function = <3>;
++				};
++				cpm_ge2_rgmii_pins: cpm-ge-rgmii-pins-1 {
+ 					marvell,pins = < 44 45 46 47 48 49 50 51
+ 							 52 53 54 55 >;
+ 					marvell,function = <1>;
+-- 
+2.29.0
+

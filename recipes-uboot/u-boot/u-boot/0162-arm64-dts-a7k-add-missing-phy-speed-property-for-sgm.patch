@@ -1,0 +1,27 @@
+From 7e980d2c1430e2496c5bfb92e28ed5d8c569d351 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Sun, 22 Jul 2018 17:44:50 +0300
+Subject: [PATCH 0162/1239] arm64: dts: a7k: add missing phy-speed property for
+ sgmii comphy
+
+Change-Id: I1a0705885c10027e495b15ffeb562640a8af9dc9
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-7040-db-E.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/dts/armada-7040-db-E.dts b/arch/arm/dts/armada-7040-db-E.dts
+index 65926bc747..87a24ed707 100644
+--- a/arch/arm/dts/armada-7040-db-E.dts
++++ b/arch/arm/dts/armada-7040-db-E.dts
+@@ -174,6 +174,7 @@
+ 
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SGMII0>;
++		phy-speed = <COMPHY_SPEED_1_25G>;
+ 	};
+ 
+ 	phy3 {
+-- 
+2.29.0
+

@@ -1,0 +1,37 @@
+From 866f059028bd4868dbb8c95a9f185daaf54d7859 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 5 Nov 2015 20:40:58 -0800
+Subject: [PATCH 0354/1239] pci: Rework Pass 1.0 workarounds
+
+---
+ board/cavium/thunderx/pcie.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/board/cavium/thunderx/pcie.c b/board/cavium/thunderx/pcie.c
+index 8384f5dec3..07af5b3d73 100644
+--- a/board/cavium/thunderx/pcie.c
++++ b/board/cavium/thunderx/pcie.c
+@@ -69,14 +69,15 @@ void do_sync(struct pt_regs *pt_regs, unsigned int esr)
+ 
+ 	/* get faulting address */
+ 
+-	for (ecam = 0; ecam < CONFIG_THUNDERX_ECAMS; ecam++) {
+-		node = thunderx_ecam[ecam].node;
+-		ecam = thunderx_ecam[ecam].ecam;
++#ifdef DEBUG
++	show_regs(pt_regs);
++#endif
+ 
++	for (ecam = 0; ecam < CONFIG_THUNDERX_ECAMS; ecam++) {
+ 		if (!thunderx_ecam[ecam].present)
+-			continue;
++			break;
+ 
+-		baseaddr = CSR_PA(node, ECAMX_PF_BAR2(ecam));
++		baseaddr = thunderx_ecam[ecam].baseaddr;
+ 		endaddr = baseaddr + ECAMX_PF_BAR2_SIZE;
+ 		if (far >= baseaddr && far < endaddr) {
+ 			opcode = readl(pt_regs->elr);
+-- 
+2.29.0
+

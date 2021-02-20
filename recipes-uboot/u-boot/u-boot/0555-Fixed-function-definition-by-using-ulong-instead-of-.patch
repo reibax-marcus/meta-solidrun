@@ -1,0 +1,45 @@
+From d900b0ce4aac20306b3e3663dce53f810bf2c7b9 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 8 Nov 2016 20:00:44 -0800
+Subject: [PATCH 0555/1239] Fixed function definition by using ulong instead of
+ u32.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ board/cavium/common/env_atf.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/board/cavium/common/env_atf.c b/board/cavium/common/env_atf.c
+index 23cf0d3134..0f1766256c 100755
+--- a/board/cavium/common/env_atf.c
++++ b/board/cavium/common/env_atf.c
+@@ -46,7 +46,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ #define CONFIG_ENV_OFFSET 0
+ #endif
+ 
+-__weak int atf_get_env_addr(int copy, u32 *env_addr)
++__weak int atf_get_env_addr(int copy, ulong *env_addr)
+ {
+ 	s64 offset;
+ 
+@@ -171,7 +171,7 @@ static inline int read_env(unsigned long offset, void *buffer, unsigned long siz
+ void env_relocate_spec(void)
+ {
+ #if !defined(ENV_IS_EMBEDDED)
+-	u32 offset1, offset2;
++	ulong offset1, offset2;
+ 	int read1_fail = 0, read2_fail = 0;
+ 	int crc1_ok = 0, crc2_ok = 0;
+ 	env_t *ep;
+@@ -249,7 +249,7 @@ void env_relocate_spec(void)
+ {
+ #if !defined(ENV_IS_EMBEDDED)
+ 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
+-	u32 offset;
++	ulong offset;
+ 	int ret;
+ 
+ 	if (atf_get_env_addr(0, &offset)) {
+-- 
+2.29.0
+

@@ -1,0 +1,38 @@
+From b1d91f59412aa5f7bbe5d142ee16a461b5aa5cca Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 9 May 2016 17:38:16 -0700
+Subject: [PATCH 0417/1239] net: thunderx: Add VNIC's PCI devid on future chips
+
+This patch adds PCI device IDs of VNIC on newer chips and also
+registers VF driver with them. Device id remains same for all
+versions of chips but subsystem device id changes.
+
+Signed-off-by: Sunil Goutham <sgoutham@cavium.com>
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/net/cavium/nic.h | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index fd99888ac4..59870c9fb3 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -24,7 +24,14 @@
+ #define	PCI_DEVICE_ID_THUNDER_BGX	0xA026
+ 
+ /* Subsystem device IDs */
+-#define PCI_SUBSYS_DEVID_88XX_NIC_PF	0xA11E
++#define PCI_SUBSYS_DEVID_88XX_NIC_PF		0xA11E
++#define PCI_SUBSYS_DEVID_81XX_NIC_PF		0xA21E
++#define PCI_SUBSYS_DEVID_83XX_NIC_PF		0xA31E
++
++#define PCI_SUBSYS_DEVID_88XX_PASS1_NIC_VF	0xA11E
++#define PCI_SUBSYS_DEVID_88XX_NIC_VF		0xA134
++#define PCI_SUBSYS_DEVID_81XX_NIC_VF		0xA234
++#define PCI_SUBSYS_DEVID_83XX_NIC_VF		0xA334
+ 
+ #define	NIC_INTF_COUNT			2  /* Interfaces btw VNIC and TNS/BGX */
+ #define	NIC_CHANS_PER_INF		128
+-- 
+2.29.0
+

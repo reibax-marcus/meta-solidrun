@@ -1,0 +1,2228 @@
+From 2916afe84b50d093ece3335c3f5ef36826a20fe1 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 1 Oct 2019 23:03:20 -0700
+Subject: [PATCH 0964/1239] octeontx: octeontx2: cleanup pci code for upstream
+
+- cleanup pci sriov and ea code
+- cleanup config files
+- cleanup miscellaneous init for octeontx
+
+Change-Id: Ic0dc76eb70611732869dd65a8674e0698f8b9932
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/17190
+Reviewed-by: Aaron Williams <awilliams@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ board/Marvell/octeontx/octeontx.c    |  39 +-
+ board/Marvell/octeontx2/octeontx2.c  |   6 +-
+ configs/octeontx_81xx_defconfig      |   6 +-
+ drivers/ata/ahci.c                   |  13 +-
+ drivers/gpio/octeontx_gpio.c         |  18 +-
+ drivers/i2c/octeontx_i2c.c           |   4 +-
+ drivers/mmc/octeontx_hsmmc.c         |   4 +-
+ drivers/mtd/nand/Kconfig             |   1 +
+ drivers/mtd/nand/octeontx_bch.c      |   9 +-
+ drivers/mtd/nand/octeontx_bch.h      |   5 +-
+ drivers/mtd/nand/octeontx_bch_regs.h |   6 +-
+ drivers/mtd/nand/octeontx_nand.c     |  47 ++-
+ drivers/mtd/nand/raw/Kconfig         |  11 +-
+ drivers/mtd/nand/raw/Makefile        |   2 +-
+ drivers/net/e1000.c                  |   4 +-
+ drivers/net/octeontx/nic_main.c      |  19 +-
+ drivers/net/octeontx/nicvf_main.c    |  77 ++--
+ drivers/net/octeontx/octeontx_bgx.c  | 121 +++---
+ drivers/net/octeontx/octeontx_bgx.h  |   4 +
+ drivers/net/octeontx/octeontx_smi.c  |  17 +-
+ drivers/net/octeontx/octeontx_xcv.c  |  37 --
+ drivers/net/octeontx2/cgx.c          |   4 +-
+ drivers/net/octeontx2/rvu_af.c       |   4 +-
+ drivers/net/octeontx2/rvu_pf.c       |   3 +-
+ drivers/nvme/nvme.c                  |   4 +-
+ drivers/pci/pci-uclass.c             | 558 +++++++++++----------------
+ drivers/pci/pci_auto.c               |   4 +-
+ drivers/spi/octeontx_spi.c           |   4 +-
+ drivers/usb/host/xhci-pci.c          |   3 +-
+ include/configs/octeontx_common.h    |   9 +-
+ include/pci.h                        | 199 +---------
+ net/eth-uclass.c                     |   3 +-
+ 32 files changed, 468 insertions(+), 777 deletions(-)
+
+diff --git a/board/Marvell/octeontx/octeontx.c b/board/Marvell/octeontx/octeontx.c
+index 7a24134f88..c5f1ceac7c 100644
+--- a/board/Marvell/octeontx/octeontx.c
++++ b/board/Marvell/octeontx/octeontx.c
+@@ -137,24 +137,6 @@ int board_early_init_r(void)
+ 	return 0;
+ }
+ 
+-int misc_init_r(void)
+-{
+-	struct udevice *bus;
+-
+-	eth_common_init();
+-
+-	/*
+-	 * Enumerate all miscellaneous devices.
+-	 * So BGX/NIC/vNIC devices will be enumerated too.
+-	 */
+-	for (uclass_first_device_check(UCLASS_MISC, &bus);
+-	     bus;
+-	     uclass_next_device_check(&bus)) {
+-		;
+-	}
+-	return 0;
+-}
+-
+ int board_init(void)
+ {
+ 	octeontx_parse_phy_info();
+@@ -182,7 +164,9 @@ int dram_init(void)
+  */
+ int board_late_init(void)
+ {
++	struct udevice *dev;
+ 	char boardname[20];
++	int err, bgx_cnt, i;
+ 
+ 	debug("%s()\n", __func__);
+ 
+@@ -197,6 +181,25 @@ int board_late_init(void)
+ 	snprintf(boardname, sizeof(boardname), "%s> ", g_cavm_bdt.type);
+ 	env_set("prompt", boardname);
+ 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
++
++	/* Probe MAC(BGX) and NIC PF devices before Network stack init */
++	bgx_cnt = is_board_model(CN81XX) ? 2 : 4;
++	for (i = 0; i < bgx_cnt; i++) {
++		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA026, i,
++					 &dev);
++		if (err)
++			debug("%s BGX%d device not found\n", __func__, i);
++	}
++	if (is_board_model(CN81XX)) {
++		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA054, 0,
++					 &dev);
++		if (err)
++			debug("%s RGX device not found\n", __func__);
++	}
++	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA01E, 0, &dev);
++	if (err)
++		debug("NIC PF device not found\n");
++
+ 	return 0;
+ }
+ 
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index 5de4e35bf0..9645a53bc3 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -220,11 +220,9 @@ int misc_init_r(void)
+ {
+ 	struct udevice *bus;
+ 
+-	eth_common_init();
+ 	/*
+-	 * Enumerate all known miscellaneous devices.
+-	 * Enumeration has the side-effect of probing them,
+-	 * so CGX and RVU AF devices will get enumerated.
++	 * Enumerate all known miscellaneous devices
++	 * so CGX and RVU AF devices will be probed.
+ 	 */
+ 	for (uclass_first_device_check(UCLASS_MISC, &bus);
+ 	     bus;
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index b8f3285521..58cd316b44 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -65,10 +65,8 @@ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
+ CONFIG_MMC_OCTEONTX=y
+ CONFIG_MTD=y
+-CONFIG_MTD_PARTITIONS=y
+-CONFIG_CMD_MTDPARTS=y
+-CONFIG_MTDPARTS_DEFAULT="mtdparts=octeontx_nor0:6m@0(boot)ro,9m@0x600000(data),64k@0xf00000(env)ro\0"
+-CONFIG_MTDIDS_DEFAULT="nor0=octeontx_nor0"
++CONFIG_NAND=y
++CONFIG_NAND_OCTEONTX=y
+ CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH=y
+ CONFIG_SPI_FLASH_4BAIS=y
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 3d2bd2c7cc..ada045305e 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -1232,18 +1232,17 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
+ int ahci_probe_scsi_pci(struct udevice *ahci_dev)
+ {
+ 	ulong base;
+-	int bar = 5;
+-	size_t size;
+ 	u16 vendor, device;
+ 
++	base = (uintptr_t)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_5,
++					 PCI_REGION_MEM);
++
+ 	dm_pci_read_config16(ahci_dev, PCI_VENDOR_ID, &vendor);
+ 	dm_pci_read_config16(ahci_dev, PCI_DEVICE_ID, &device);
+ 
+-	debug("AHCI device %04x:%04x\n", vendor, device);
+-	if ((vendor == 0x177d) && (device == 0xa01c))
+-		bar = 0;
+-	base = (uintptr_t)dm_pci_map_bar(ahci_dev, bar, &size, PCI_REGION_MEM);
+-
++	if (vendor == 0x177d && device == 0xa01c)
++		base = (uintptr_t)dm_pci_map_bar(ahci_dev, PCI_BASE_ADDRESS_0,
++						 PCI_REGION_MEM);
+ 	return ahci_probe_scsi(ahci_dev, base);
+ }
+ #endif
+diff --git a/drivers/gpio/octeontx_gpio.c b/drivers/gpio/octeontx_gpio.c
+index fa72c747a9..d012044c47 100644
+--- a/drivers/gpio/octeontx_gpio.c
++++ b/drivers/gpio/octeontx_gpio.c
+@@ -51,7 +51,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ #define GPIO_BIT_CFG_RX_DAT(x)	((x) & 0x1)
+ 
+ /** PCI ID on NCB bus */
+-#define PCI_DEVICE_ID_CAVIUM_GPIO	0xa00a
++#define PCI_DEVICE_ID_OCTEONTX_GPIO	0xa00a
+ 
+ union gpio_const {
+ 	u64 u;
+@@ -159,7 +159,6 @@ static int octeontx_gpio_probe(struct udevice *dev)
+ 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+ 	struct octeontx_gpio *priv = dev_get_priv(dev);
+ 	union gpio_const gpio_const;
+-	size_t size;
+ 	char *end;
+ 	const char *status;
+ 
+@@ -172,7 +171,8 @@ static int octeontx_gpio_probe(struct udevice *dev)
+ 	}
+ 
+ 	dev->req_seq = PCI_FUNC(bdf);
+-	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	priv->baseaddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
++					PCI_REGION_MEM);
+ 
+ 	if (!priv->baseaddr) {
+ 		debug("%s(%s): Could not get base address\n",
+@@ -197,13 +197,11 @@ static int octeontx_gpio_probe(struct udevice *dev)
+ 
+ static const struct udevice_id octeontx_gpio_ids[] = {
+ 	{ .compatible = "cavium,thunder-8890-gpio" },
+-	{ .compatible = "cavium,gpio" },
+-	{ .compatible = "cavium,thunderx-gpio" },
+ 	{ }
+ };
+ 
+-U_BOOT_DRIVER(cavium_pci_gpio) = {
+-	.name	= "gpio_cavium",
++U_BOOT_DRIVER(octeontx_gpio) = {
++	.name	= "octeontx_gpio",
+ 	.id	= UCLASS_GPIO,
+ 	.of_match = of_match_ptr(octeontx_gpio_ids),
+ 	.probe = octeontx_gpio_probe,
+@@ -212,9 +210,9 @@ U_BOOT_DRIVER(cavium_pci_gpio) = {
+ 	.flags	= DM_FLAG_PRE_RELOC,
+ };
+ 
+-static struct pci_device_id cavium_pci_gpio_supported[] = {
+-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_CAVIUM_GPIO) },
++static struct pci_device_id octeontx_gpio_supported[] = {
++	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_GPIO) },
+ 	{ },
+ };
+ 
+-U_BOOT_PCI_DEVICE(cavium_pci_gpio, cavium_pci_gpio_supported);
++U_BOOT_PCI_DEVICE(octeontx_gpio, octeontx_gpio_supported);
+diff --git a/drivers/i2c/octeontx_i2c.c b/drivers/i2c/octeontx_i2c.c
+index 2fecbd01b5..7c090057d6 100644
+--- a/drivers/i2c/octeontx_i2c.c
++++ b/drivers/i2c/octeontx_i2c.c
+@@ -925,12 +925,12 @@ static int octeontx_pci_i2c_probe(struct udevice *dev)
+ {
+ 	struct octeontx_twsi *twsi = dev_get_priv(dev);
+ 	pci_dev_t bdf = dm_pci_get_bdf(dev);
+-	size_t size;
+ 
+ 	debug("TWSI PCI device: %x\n", bdf);
+ 	dev->req_seq = PCI_FUNC(bdf);
+ 
+-	twsi->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	twsi->baseaddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
++					PCI_REGION_MEM);
+ 	twsi->id = last_id++;
+ 
+ 	debug("TWSI bus %d at %p\n", dev->seq, twsi->baseaddr);
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index 7fd5c130c0..fcdcd854cb 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -3087,7 +3087,6 @@ U_BOOT_DRIVER(octeontx_hsmmc_slot) = {
+  */
+ static int octeontx_mmc_host_probe(struct udevice *dev)
+ {
+-	size_t size;
+ 	pci_dev_t bdf = dm_pci_get_bdf(dev);
+ 	struct octeontx_mmc_host *host = dev_get_priv(dev);
+ 	union mio_emm_int emm_int;
+@@ -3104,7 +3103,8 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
+ 		return -ENODEV;
+ 	}
+ 	memset(host, 0, sizeof(*host));
+-	host->base_addr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	host->base_addr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
++					 PCI_REGION_MEM);
+ 	if (!host->base_addr) {
+ 		pr_err("%s: Error: MMC base address not found\n", __func__);
+ 		return -1;
+diff --git a/drivers/mtd/nand/Kconfig b/drivers/mtd/nand/Kconfig
+index 78ae04bdcb..5111200718 100644
+--- a/drivers/mtd/nand/Kconfig
++++ b/drivers/mtd/nand/Kconfig
+@@ -4,3 +4,4 @@ config MTD_NAND_CORE
+ source "drivers/mtd/nand/raw/Kconfig"
+ 
+ source "drivers/mtd/nand/spi/Kconfig"
++
+diff --git a/drivers/mtd/nand/octeontx_bch.c b/drivers/mtd/nand/octeontx_bch.c
+index e890188be4..62b180074f 100644
+--- a/drivers/mtd/nand/octeontx_bch.c
++++ b/drivers/mtd/nand/octeontx_bch.c
+@@ -1,11 +1,10 @@
++// SPDX-License-Identifier:    GPL-2.0
+ /*
+  * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:    GPL-2.0
+  * https://spdx.org/licenses
+  */
+ 
+-
+ #include <common.h>
+ #include <malloc.h>
+ #include <memalign.h>
+@@ -170,7 +169,6 @@ exit:
+ static int octeontx_pci_bchpf_probe(struct udevice *dev)
+ {
+ 	struct bch_device *bch;
+-	size_t size;
+ 	int ret;
+ 
+ 	debug("%s(%s)\n", __func__, dev->name);
+@@ -178,7 +176,7 @@ static int octeontx_pci_bchpf_probe(struct udevice *dev)
+ 	if (!bch)
+ 		return -ENOMEM;
+ 
+-	bch->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	bch->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+ 	bch->dev = dev;
+ 
+ 	debug("%s: base address: %p\n", __func__, bch->reg_base);
+@@ -359,7 +357,6 @@ static int octeontx_pci_bchvf_probe(struct udevice *dev)
+ 	union bch_vqx_ctl ctl;
+ 	union bch_vqx_cmd_buf cbuf;
+ 	int err;
+-	size_t size;
+ 
+ 	debug("%s(%s)\n", __func__, dev->name);
+ 	vf = dev_get_priv(dev);
+@@ -369,7 +366,7 @@ static int octeontx_pci_bchvf_probe(struct udevice *dev)
+ 	vf->dev = dev;
+ 
+ 	/* Map PF's configuration registers */
+-	vf->reg_base = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
++	vf->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+ 	debug("%s: reg base: %p\n", __func__, vf->reg_base);
+ 
+ 	err = octeontx_cmd_queue_initialize(dev, QID_BCH, QDEPTH - 1, 0,
+diff --git a/drivers/mtd/nand/octeontx_bch.h b/drivers/mtd/nand/octeontx_bch.h
+index 3e4c9c0210..e752896104 100644
+--- a/drivers/mtd/nand/octeontx_bch.h
++++ b/drivers/mtd/nand/octeontx_bch.h
+@@ -1,11 +1,10 @@
+-/*
++/* SPDX-License-Identifier:    GPL-2.0
++ *
+  * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:    GPL-2.0
+  * https://spdx.org/licenses
+  */
+ 
+-
+ #ifndef __OCTEONTX_BCH_H__
+ #define __OCTEONTX_BCH_H__
+ 
+diff --git a/drivers/mtd/nand/octeontx_bch_regs.h b/drivers/mtd/nand/octeontx_bch_regs.h
+index ddd1949b8d..d8f8432690 100644
+--- a/drivers/mtd/nand/octeontx_bch_regs.h
++++ b/drivers/mtd/nand/octeontx_bch_regs.h
+@@ -1,7 +1,7 @@
+-/*
++/* SPDX-License-Identifier:    GPL-2.0
++ *
+  * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:    GPL-2.0
+  * https://spdx.org/licenses
+  */
+ 
+@@ -143,7 +143,7 @@ static inline int octeontx_cmd_queue_write(int queue_id, bool use_locking,
+ 	u64 *cmd_ptr;
+ 	struct bch_q *qptr = &octeontx_bch_q[queue_id];
+ 
+-	if (unlikely((cmd_count < 1) || (cmd_count > 32)))
++	if (unlikely(cmd_count < 1 || cmd_count > 32))
+ 		return -EINVAL;
+ 	if (unlikely(!cmds))
+ 		return -EINVAL;
+diff --git a/drivers/mtd/nand/octeontx_nand.c b/drivers/mtd/nand/octeontx_nand.c
+index a411f3f0bf..d457604bd7 100644
+--- a/drivers/mtd/nand/octeontx_nand.c
++++ b/drivers/mtd/nand/octeontx_nand.c
+@@ -1,7 +1,7 @@
++// SPDX-License-Identifier:    GPL-2.0
+ /*
+  * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * SPDX-License-Identifier:    GPL-2.0
+  * https://spdx.org/licenses
+  */
+ 
+@@ -349,12 +349,13 @@ enum tm_idx {
+ 	t1, t2, t3, t4, t5, t6, t7, /* settable per ONFI-timing mode */
+ };
+ 
+-#ifdef CONFIG_OCTEONTX_BCH
++#ifdef CONFIG_NAND_OCTEONTX_HW_ECC
+ struct octeontx_probe_device {
+ 	struct list_head list;
+ 	struct udevice *dev;
+ };
+ 
++static struct bch_vf *bch_vf;
+ /** Deferred devices due to BCH not being ready */
+ LIST_HEAD(octeontx_pci_nand_deferred_devices);
+ #endif
+@@ -436,8 +437,6 @@ static const struct mtd_ooblayout_ops nand_ooblayout_lp_ops = {
+ 	.free = nand_ooblayout_free_lp,
+ };
+ 
+-static struct bch_vf *bch_vf;
+-
+ static inline struct octeontx_nand_chip *to_otx_nand(struct nand_chip *nand)
+ {
+ 	return container_of(nand, struct octeontx_nand_chip, nand);
+@@ -462,6 +461,7 @@ static inline void nand_set_flash_node(struct nand_chip *chip,
+ 	chip->flash_node = ofnode_to_offset(node);
+ }
+ 
++#if defined(CONFIG_NAND_OCTEONTX_HW_ECC)
+ static int octeontx_nand_calc_ecc_layout(struct nand_chip *nand)
+ {
+ 	struct nand_ecclayout *layout = nand->ecc.layout;
+@@ -498,6 +498,7 @@ fail:
+ 		kfree(layout);
+ 	return -1;
+ }
++#endif
+ 
+ /*
+  * Read a single byte from the temporary buffer. Used after READID
+@@ -1384,8 +1385,8 @@ static int octeontx_nand_waitfunc(struct mtd_info *mtd, struct nand_chip *chip)
+ 
+ /* check compatibility with ONFI timing mode#N, and optionally apply */
+ /* TODO: Implement chipnr support? */
+-static int octeontx_nand_setup_data_interface(struct mtd_info *mtd, int chipnr,
+-	const struct nand_data_interface *conf)
++static int octeontx_nand_setup_dat_intf(struct mtd_info *mtd, int chipnr,
++					const struct nand_data_interface *conf)
+ {
+ 	static const bool check_only;
+ 	struct nand_chip *nand = mtd_to_nand(mtd);
+@@ -1440,7 +1441,7 @@ static int octeontx_nand_setup_data_interface(struct mtd_info *mtd, int chipnr,
+ 	return rc;
+ }
+ 
+-#if defined(CONFIG_OCTEONTX_BCH)
++#if defined(CONFIG_NAND_OCTEONTX_HW_ECC)
+ 
+ static void octeontx_bch_reset(void)
+ {
+@@ -1456,8 +1457,8 @@ static void octeontx_bch_reset(void)
+  * Return 0 on success or -1 on failure
+  */
+ static int octeontx_nand_bch_calculate_ecc_internal(struct mtd_info *mtd,
+-						   dma_addr_t ihandle,
+-						   u8 *code)
++						    dma_addr_t ihandle,
++						    u8 *code)
+ {
+ 	struct nand_chip *nand = mtd_to_nand(mtd);
+ 	struct octeontx_nfc *tn = to_otx_nfc(nand->controller);
+@@ -1522,8 +1523,8 @@ static int octeontx_nand_bch_calculate(struct mtd_info *mtd,
+ 					   nand->ecc.size, DMA_TO_DEVICE);
+ 	int ret;
+ 
+-	ret = octeontx_nand_bch_calculate_ecc_internal(
+-			mtd, handle, (void *)ecc_code);
++	ret = octeontx_nand_bch_calculate_ecc_internal(mtd, handle,
++						       (void *)ecc_code);
+ 
+ 	return ret;
+ }
+@@ -1566,8 +1567,7 @@ static int octeontx_nand_bch_correct(struct mtd_info *mtd, u_char *dat,
+ 	}
+ 
+ 	memcpy(data_buffer, dat, nand->ecc.size);
+-	memcpy(data_buffer + nand->ecc.size,
+-			read_ecc, nand->ecc.bytes);
++	memcpy(data_buffer + nand->ecc.size, read_ecc, nand->ecc.bytes);
+ 
+ 	for (i = 0; i < nand->ecc.bytes; i++)
+ 		data_buffer[nand->ecc.size + i] ^= tn->eccmask[i];
+@@ -1800,7 +1800,7 @@ static int octeontx_nand_calc_bch_ecc_strength(struct nand_chip *nand)
+ 	int need;
+ 
+ 	while (index > 0 && !(ecc->options & NAND_ECC_MAXIMIZE) &&
+-			strengths[index - 1] >= ecc->strength)
++	       strengths[index - 1] >= ecc->strength)
+ 		index--;
+ 
+ 	do {
+@@ -1857,7 +1857,7 @@ static int octeontx_bch_save_empty_eccmask(struct nand_chip *nand)
+ 
+ 	return rc;
+ }
+-#endif /*CONFIG_OCTEONTX_BCH*/
++#endif /*CONFIG_NAND_OCTEONTX_HW_ECC*/
+ 
+ static void octeontx_nfc_chip_sizing(struct nand_chip *nand)
+ {
+@@ -1889,7 +1889,7 @@ static void octeontx_nfc_chip_sizing(struct nand_chip *nand)
+ 		if (ecc->size && ecc->size != mtd->writesize)
+ 			nsteps = mtd->writesize / ecc->size;
+ 		else if (mtd->writesize > def_ecc_size &&
+-				!(mtd->writesize & (def_ecc_size - 1)))
++			 !(mtd->writesize & (def_ecc_size - 1)))
+ 			nsteps = mtd->writesize / def_ecc_size;
+ 		ecc->steps = nsteps;
+ 		ecc->size = mtd->writesize / nsteps;
+@@ -1906,7 +1906,7 @@ static void octeontx_nfc_chip_sizing(struct nand_chip *nand)
+ 		if (!mtd->subpage_sft && !(ecc->steps & (ecc->steps - 1)))
+ 			mtd->subpage_sft = fls(ecc->steps) - 1;
+ 
+-#if defined(CONFIG_OCTEONTX_BCH)
++#if defined(CONFIG_NAND_OCTEONTX_HW_ECC)
+ 		debug("%s: ecc mode: %d\n", __func__, ecc->mode);
+ 		if (ecc->mode != NAND_ECC_SOFT &&
+ 		    !octeontx_nand_calc_bch_ecc_strength(nand)) {
+@@ -1934,7 +1934,7 @@ static void octeontx_nfc_chip_sizing(struct nand_chip *nand)
+ 			octeontx_nand_calc_ecc_layout(nand);
+ 			octeontx_bch_save_empty_eccmask(nand);
+ 		}
+-#endif /*CONFIG_OCTEONTX_BCH*/
++#endif /*CONFIG_NAND_OCTEONTX_HW_ECC*/
+ 	}
+ }
+ 
+@@ -1979,7 +1979,7 @@ static int octeontx_nfc_chip_init(struct octeontx_nfc *tn, struct udevice *dev,
+ 	nand->write_buf = octeontx_nand_write_buf;
+ 	nand->onfi_set_features = octeontx_nand_set_features;
+ 	nand->onfi_get_features = octeontx_nand_get_features;
+-	nand->setup_data_interface = octeontx_nand_setup_data_interface;
++	nand->setup_data_interface = octeontx_nand_setup_dat_intf;
+ 
+ 	mtd = nand_to_mtd(nand);
+ 	debug("%s: mtd: %p\n", __func__, mtd);
+@@ -2082,14 +2082,13 @@ static int octeontx_pci_nand_probe(struct udevice *dev)
+ {
+ 	struct octeontx_nfc *tn = dev_get_priv(dev);
+ 	int ret;
+-	size_t size;
+ 	static bool probe_done;
+ 
+ 	debug("%s(%s) tn: %p\n", __func__, dev->name, tn);
+ 	if (probe_done)
+ 		return 0;
+ 
+-#ifdef CONFIG_OCTEONTX_BCH
++#ifdef CONFIG_NAND_OCTEONTX_HW_ECC
+ 	bch_vf = octeontx_bch_getv();
+ 	if (!bch_vf) {
+ 		struct octeontx_probe_device *probe_dev;
+@@ -2113,7 +2112,7 @@ static int octeontx_pci_nand_probe(struct udevice *dev)
+ 	tn->dev = dev;
+ 	INIT_LIST_HEAD(&tn->chips);
+ 
+-	tn->base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	tn->base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+ 	if (!tn->base) {
+ 		ret = -EINVAL;
+ 		goto release;
+@@ -2187,7 +2186,7 @@ int octeontx_pci_nand_disable(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_OCTEONTX_BCH
++#ifdef CONFIG_NAND_OCTEONTX_HW_ECC
+ /**
+  * Since it's possible (and even likely) that the NAND device will be probed
+  * before the BCH device has been probed, we may need to defer the probing.
+@@ -2250,7 +2249,7 @@ void board_nand_init(void)
+ 	struct udevice *dev;
+ 	int ret;
+ 
+-#ifdef CONFIG_OCTEONTX_BCH
++#ifdef CONFIG_NAND_OCTEONTX_HW_ECC
+ 	ret = uclass_get_device_by_driver(UCLASS_MISC,
+ 					  DM_GET_DRIVER(octeontx_pci_bchpf),
+ 					  &dev);
+diff --git a/drivers/mtd/nand/raw/Kconfig b/drivers/mtd/nand/raw/Kconfig
+index 1d7023bd47..1c03d4365c 100644
+--- a/drivers/mtd/nand/raw/Kconfig
++++ b/drivers/mtd/nand/raw/Kconfig
+@@ -125,9 +125,18 @@ config NAND_LPC32XX_SLC
+ 
+ config NAND_OCTEONTX
+ 	bool "Support for OcteonTX NAND controller"
++	select SYS_NAND_SELF_INIT
+ 	imply CMD_NAND
+ 	help
+-	  This enables Nand flash controller found on the OcteonTX processors.
++	 This enables Nand flash controller found on the OcteonTX processors.
++
++config NAND_OCTEONTX_HW_ECC
++	bool "Support Hardware ECC for OcteonTX NAND controller"
++	depends on NAND_OCTEONTX
++	default y
++	help
++	 This enables Hardware BCH engine found on the OcteonTX processors to
++	 support ECC for NAND flash controller.
+ 
+ config NAND_OMAP_GPMC
+ 	bool "Support OMAP GPMC NAND controller"
+diff --git a/drivers/mtd/nand/raw/Makefile b/drivers/mtd/nand/raw/Makefile
+index 9bf12cd177..24c51b6924 100644
+--- a/drivers/mtd/nand/raw/Makefile
++++ b/drivers/mtd/nand/raw/Makefile
+@@ -59,7 +59,7 @@ obj-$(CONFIG_NAND_MXC) += mxc_nand.o
+ obj-$(CONFIG_NAND_MXS) += mxs_nand.o
+ obj-$(CONFIG_NAND_MXS_DT) += mxs_nand_dt.o
+ obj-$(CONFIG_NAND_OCTEONTX) += octeontx_nand.o
+-obj-$(CONFIG_OCTEONTX_BCH) += octeontx_bch.o
++obj-$(CONFIG_NAND_OCTEONTX_HW_ECC) += octeontx_bch.o
+ obj-$(CONFIG_NAND_PXA3XX) += pxa3xx_nand.o
+ obj-$(CONFIG_NAND_SPEAR) += spr_nand.o
+ obj-$(CONFIG_TEGRA_NAND) += tegra_nand.o
+diff --git a/drivers/net/e1000.c b/drivers/net/e1000.c
+index 703707edf5..ef4d71ff0d 100644
+--- a/drivers/net/e1000.c
++++ b/drivers/net/e1000.c
+@@ -5508,8 +5508,6 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
+ 
+ 	/* Assign the passed-in values */
+ #ifdef CONFIG_DM_ETH
+-	size_t size;
+-
+ 	hw->pdev = devno;
+ #else
+ 	hw->pdev = devno;
+@@ -5557,7 +5555,7 @@ static int e1000_init_one(struct e1000_hw *hw, int cardnum, pci_dev_t devno,
+ 	hw->eeprom_semaphore_present = true;
+ #endif
+ #ifdef CONFIG_DM_ETH
+-	hw->hw_addr = dm_pci_map_bar(devno, 0, &size, PCI_REGION_MEM);
++	hw->hw_addr = dm_pci_map_bar(devno, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+ #else
+ 	hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
+ 						PCI_REGION_MEM);
+diff --git a/drivers/net/octeontx/nic_main.c b/drivers/net/octeontx/nic_main.c
+index 7934f9c95f..20023ca0f4 100644
+--- a/drivers/net/octeontx/nic_main.c
++++ b/drivers/net/octeontx/nic_main.c
+@@ -713,7 +713,6 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
+ int nic_initialize(struct udevice *dev)
+ {
+ 	struct nicpf *nic = dev_get_priv(dev);
+-	size_t size;
+ 
+ 	nic->udev = dev;
+ 	nic->hw = calloc(1, sizeof(struct hw_info));
+@@ -721,7 +720,8 @@ int nic_initialize(struct udevice *dev)
+ 		return -ENOMEM;
+ 
+ 	/* MAP PF's configuration registers */
+-	nic->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	nic->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
++				       PCI_REGION_MEM);
+ 	if (!nic->reg_base) {
+ 		printf("Cannot map config register space, aborting\n");
+ 		goto exit;
+@@ -754,32 +754,23 @@ int octeontx_nic_probe(struct udevice *dev)
+ 	int ret = 0;
+ 	struct nicpf *nicpf = dev_get_priv(dev);
+ 
++	nicpf->udev = dev;
+ 	ret = nic_initialize(dev);
+ 	if (ret < 0) {
+-		printf("couldn't initialize NIC PF");
++		printf("couldn't initialize NIC PF\n");
+ 		return ret;
+ 	}
+ 	ret = pci_sriov_init(dev, nicpf->num_vf_en);
+ 	if (ret < 0)
+-		printf("enabling SRIOV failed for num VFs %d",
++		printf("enabling SRIOV failed for num VFs %d\n",
+ 		       nicpf->num_vf_en);
+ 	return ret;
+ }
+ 
+-static const struct misc_ops octeontx_nic_ops = {
+-};
+-
+-static const struct udevice_id octeontx_nic_ids[] = {
+-	{ .compatible = "cavium,nic" },
+-	{}
+-};
+-
+ U_BOOT_DRIVER(octeontx_nic) = {
+ 	.name	= "octeontx_nic",
+ 	.id	= UCLASS_MISC,
+ 	.probe	= octeontx_nic_probe,
+-	.of_match = octeontx_nic_ids,
+-	.ops	= &octeontx_nic_ops,
+ 	.priv_auto_alloc_size = sizeof(struct nicpf),
+ };
+ 
+diff --git a/drivers/net/octeontx/nicvf_main.c b/drivers/net/octeontx/nicvf_main.c
+index d7b8a7211f..7e9a700593 100644
+--- a/drivers/net/octeontx/nicvf_main.c
++++ b/drivers/net/octeontx/nicvf_main.c
+@@ -400,8 +400,6 @@ static int nicvf_recv(struct udevice *dev, int flags, uchar **packetp)
+ 			puts("\n");
+ 		}
+ #endif
+-		//net_process_received_packet(pkt, pkt_len);
+-		//nicvf_refill_rbdr(nic);
+ 		*packetp = pkt;
+ 	}
+ 
+@@ -451,44 +449,67 @@ int nicvf_open(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-struct nicpf *nicvf_get_nicpf(void)
++int nicvf_write_hwaddr(struct udevice *dev)
++{
++	unsigned char ethaddr[ARP_HLEN];
++	struct eth_pdata *pdata = dev_get_platdata(dev);
++
++	/* If lower level firmware fails to set proper MAC
++	 * u-boot framework updates MAC to random address.
++	 * Use this hook to update mac address in environment.
++	 */
++	if (!eth_env_get_enetaddr_by_index("eth", dev->seq, ethaddr)) {
++		eth_env_set_enetaddr_by_index("eth", dev->seq, pdata->enetaddr);
++		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
++	}
++	return 0;
++}
++
++static void nicvf_probe_mdio_devices(void)
+ {
+ 	struct udevice *pdev;
+ 	int err;
++	static int probed;
+ 
+-	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
+-				 PCI_DEVICE_ID_OCTEONTX_NIC_PF,
+-				 0, &pdev);
+-	if (err)
+-		printf("%s couldn't find NIC PF device..VF probe failed\n",
+-		       __func__);
++	if (probed)
++		return;
+ 
+-	return err ? NULL : dev_get_priv(pdev);
++	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA02B, 0,
++				 &pdev);
++	if (err)
++		debug("%s couldn't find SMI device\n", __func__);
++	probed = 1;
+ }
+ 
+-static int vfid;
+ int nicvf_initialize(struct udevice *dev)
+ {
+ 	struct nicvf *nicvf = dev_get_priv(dev);
+ 	struct eth_pdata *pdata = dev_get_platdata(dev);
+ 	int    ret = 0, bgx, lmac;
+-	size_t size;
+ 	char   name[16];
+ 	unsigned char ethaddr[ARP_HLEN];
+-	struct nicpf *pfptr;
++	struct udevice *pfdev;
++	struct nicpf *pf;
++	static int vfid;
+ 
+-	nicvf->nicpf = nicvf_get_nicpf();
+-	if (!nicvf->nicpf) {
+-		printf("%s couldn't get pf device\n", __func__);
++	if (dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
++			       PCI_DEVICE_ID_OCTEONTX_NIC_PF, 0, &pfdev)) {
++		printf("%s NIC PF device not found..VF probe failed\n",
++		       __func__);
+ 		return -1;
+ 	}
++	pf = dev_get_priv(pfdev);
+ 	nicvf->vf_id = vfid++;
+ 	nicvf->dev = dev;
++	nicvf->nicpf = pf;
++
++	nicvf_probe_mdio_devices();
+ 
+ 	/* Enable TSO support */
+ 	nicvf->hw_tso = true;
+ 
+-	nicvf->reg_base = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
++	nicvf->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
++					 PCI_REGION_MEM);
+ 
+ 	debug("nicvf->reg_base: %p\n", nicvf->reg_base);
+ 
+@@ -506,9 +527,8 @@ int nicvf_initialize(struct udevice *dev)
+ 	debug("%s name %s\n", __func__, name);
+ 	device_set_name(dev, name);
+ 
+-	pfptr = nicvf->nicpf;
+-	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(pfptr->vf_lmac_map[nicvf->vf_id]);
+-	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(pfptr->vf_lmac_map[nicvf->vf_id]);
++	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(pf->vf_lmac_map[nicvf->vf_id]);
++	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(pf->vf_lmac_map[nicvf->vf_id]);
+ 	debug("%s VF %d BGX %d LMAC %d\n", __func__, nicvf->vf_id, bgx, lmac);
+ 	debug("%s PF %p pfdev %p VF %p vfdev %p vf->pdata %p\n",
+ 	      __func__, nicvf->nicpf, nicvf->nicpf->udev, nicvf, nicvf->dev,
+@@ -518,10 +538,12 @@ int nicvf_initialize(struct udevice *dev)
+ 
+ 	debug("%s bgx %d lmac %d ethaddr %pM\n", __func__, bgx, lmac, ethaddr);
+ 
+-	memcpy(pdata->enetaddr, ethaddr, ARP_HLEN);
+-	debug("%s enetaddr %pM ethaddr %pM\n", __func__, pdata->enetaddr,
+-	      ethaddr);
+-	eth_env_set_enetaddr_by_index("eth", dev->seq, ethaddr);
++	if (is_valid_ethaddr(ethaddr)) {
++		memcpy(pdata->enetaddr, ethaddr, ARP_HLEN);
++		eth_env_set_enetaddr_by_index("eth", dev->seq, ethaddr);
++	}
++	debug("%s enetaddr %pM ethaddr %pM\n", __func__,
++	      pdata->enetaddr, ethaddr);
+ 
+ fail:
+ 	return ret;
+@@ -538,18 +560,13 @@ static const struct eth_ops octeontx_vnic_ops = {
+ 	.send  = nicvf_xmit,
+ 	.recv  = nicvf_recv,
+ 	.free_pkt = nicvf_free_pkt,
+-};
+-
+-static const struct udevice_id octeontx_vnic_ids[] = {
+-	{ .compatible = "cavium,vnic" },
+-	{}
++	.write_hwaddr = nicvf_write_hwaddr,
+ };
+ 
+ U_BOOT_DRIVER(octeontx_vnic) = {
+ 	.name	= "vnic",
+ 	.id	= UCLASS_ETH,
+ 	.probe	= octeontx_vnic_probe,
+-	.of_match = octeontx_vnic_ids,
+ 	.ops	= &octeontx_vnic_ops,
+ 	.priv_auto_alloc_size = sizeof(struct nicvf),
+ 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+diff --git a/drivers/net/octeontx/octeontx_bgx.c b/drivers/net/octeontx/octeontx_bgx.c
+index 952457fa51..ef3d9091d9 100644
+--- a/drivers/net/octeontx/octeontx_bgx.c
++++ b/drivers/net/octeontx/octeontx_bgx.c
+@@ -42,6 +42,7 @@ struct lmac {
+ 	int			dmac;
+ 	u8			mac[6];
+ 	bool			link_up;
++	bool			init_pend;
+ 	int			lmacid; /* ID within BGX */
+ 	int			phy_addr; /* ID on board */
+ 	struct udevice		*dev;
+@@ -73,7 +74,7 @@ struct bgx_board_info bgx_board_info[MAX_BGX_PER_NODE];
+ 
+ struct bgx *bgx_vnic[MAX_BGX_PER_NODE];
+ bool is_altpkg;
+-extern int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr);
++extern int rxaui_phy_xs_init(struct mii_dev *bus, int phy_addr);
+ 
+ /* APIs to read/write BGXX CSRs */
+ static u64 bgx_reg_read(struct bgx *bgx, uint8_t lmac, u64 offset)
+@@ -563,7 +564,7 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
+ 		debug("mii_name: %s\n", mii_name);
+ 		lmac->mii_bus = miiphy_get_dev_by_name(mii_name);
+ 		lmac->phy_addr = phy->phy_addr;
+-		__cavm_if_phy_xs_init(lmac->mii_bus, lmac->phy_addr);
++		rxaui_phy_xs_init(lmac->mii_bus, lmac->phy_addr);
+ 	}
+ 
+ 	return 0;
+@@ -849,6 +850,42 @@ static int bgx_xaui_check_link(struct lmac *lmac)
+ 	return 0;
+ }
+ 
++static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
++{
++	struct lmac *lmac;
++	u64 cfg;
++
++	lmac = &bgx->lmac[lmacid];
++
++	debug("%s: lmac: %p, lmacid = %d\n", __func__, lmac, lmacid);
++
++	if (lmac->qlm_mode == QLM_MODE_SGMII ||
++	    lmac->qlm_mode == QLM_MODE_RGMII ||
++	    lmac->qlm_mode == QLM_MODE_QSGMII) {
++		if (bgx_lmac_sgmii_init(bgx, lmacid)) {
++			debug("bgx_lmac_sgmii_init failed\n");
++			return -1;
++		}
++		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND);
++		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
++		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND, cfg);
++		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_MIN_PKT, 60 - 1);
++	} else {
++		if (bgx_lmac_xaui_init(bgx, lmacid, lmac->lmac_type))
++			return -1;
++		cfg = bgx_reg_read(bgx, lmacid, BGX_SMUX_TX_APPEND);
++		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
++		bgx_reg_modify(bgx, lmacid, BGX_SMUX_TX_APPEND, cfg);
++		bgx_reg_write(bgx, lmacid, BGX_SMUX_TX_MIN_PKT, 60 + 4);
++	}
++
++	/* Enable lmac */
++	bgx_reg_modify(bgx, lmacid, BGX_CMRX_CFG,
++		       CMR_EN | CMR_PKT_RX_EN | CMR_PKT_TX_EN);
++
++	return 0;
++}
++
+ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ {
+ 	int ret;
+@@ -865,7 +902,16 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 	debug("%s: %d, lmac: %d/%d/%d %p\n",
+ 	      __FILE__, __LINE__,
+ 	      node, bgx_idx, lmacid, lmac);
+-
++	if (lmac->init_pend) {
++		ret = bgx_lmac_enable(lmac->bgx, lmacid);
++		if (ret < 0) {
++			printf("BGX%d LMAC%d lmac_enable failed\n", bgx_idx,
++			       lmacid);
++			return ret;
++		}
++		lmac->init_pend = 0;
++		mdelay(100);
++	}
+ 	if (lmac->qlm_mode == QLM_MODE_SGMII ||
+ 	    lmac->qlm_mode == QLM_MODE_RGMII ||
+ 	    lmac->qlm_mode == QLM_MODE_QSGMII) {
+@@ -980,43 +1026,6 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 	return lmac->link_up;
+ }
+ 
+-static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
+-{
+-	struct lmac *lmac;
+-	u64 cfg;
+-
+-	lmac = &bgx->lmac[lmacid];
+-	lmac->bgx = bgx;
+-
+-	debug("%s: lmac: %p, lmacid = %d\n", __func__, lmac, lmacid);
+-
+-	if (lmac->qlm_mode == QLM_MODE_SGMII ||
+-	    lmac->qlm_mode == QLM_MODE_RGMII ||
+-	    lmac->qlm_mode == QLM_MODE_QSGMII) {
+-		if (bgx_lmac_sgmii_init(bgx, lmacid)) {
+-			debug("bgx_lmac_sgmii_init failed\n");
+-			return -1;
+-		}
+-		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND);
+-		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
+-		bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_APPEND, cfg);
+-		bgx_reg_write(bgx, lmacid, BGX_GMP_GMI_TXX_MIN_PKT, 60 - 1);
+-	} else {
+-		if (bgx_lmac_xaui_init(bgx, lmacid, lmac->lmac_type))
+-			return -1;
+-		cfg = bgx_reg_read(bgx, lmacid, BGX_SMUX_TX_APPEND);
+-		cfg |= ((1ull << 2) | (1ull << 1)); /* FCS and PAD */
+-		bgx_reg_modify(bgx, lmacid, BGX_SMUX_TX_APPEND, cfg);
+-		bgx_reg_write(bgx, lmacid, BGX_SMUX_TX_MIN_PKT, 60 + 4);
+-	}
+-
+-	/* Enable lmac */
+-	bgx_reg_modify(bgx, lmacid, BGX_CMRX_CFG,
+-		       CMR_EN | CMR_PKT_RX_EN | CMR_PKT_TX_EN);
+-
+-	return 0;
+-}
+-
+ void bgx_lmac_disable(struct bgx *bgx, uint8_t lmacid)
+ {
+ 	struct lmac *lmac;
+@@ -1436,15 +1445,14 @@ int octeontx_bgx_remove(struct udevice *dev)
+ 
+ int octeontx_bgx_probe(struct udevice *dev)
+ {
+-	int err;
+ 	struct bgx *bgx = dev_get_priv(dev);
+ 	u8 lmac = 0;
+ 	int qlm[4] = {-1, -1, -1, -1};
+ 	int bgx_idx, node;
+-	size_t size;
+ 	int inc = 1;
+ 
+-	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	bgx->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
++				       PCI_REGION_MEM);
+ 	if (!bgx->reg_base) {
+ 		debug("No PCI region found\n");
+ 		return 0;
+@@ -1472,7 +1480,6 @@ int octeontx_bgx_probe(struct udevice *dev)
+ 	node = node_id(bgx->reg_base);
+ 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 3;
+ 	bgx->bgx_id = (node * MAX_BGX_PER_NODE) + bgx_idx;
+-
+ 	if (is_board_model(CN81XX))
+ 		inc = 2;
+ 	else if (is_board_model(CN83XX) && (bgx_idx == 2))
+@@ -1513,37 +1520,31 @@ skip_qlm_config:
+ 
+ 	bgx_init_hw(bgx);
+ 
+-	/* Enable all LMACs */
++	/* Init LMACs */
+ 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
+ 		struct lmac *tlmac = &bgx->lmac[lmac];
+ 
+ 		tlmac->dev = dev;
+-		err = bgx_lmac_enable(bgx, lmac);
+-		if (err) {
+-			printf("BGX%d failed to enable lmac%d\n",
+-			       bgx->bgx_id, lmac);
+-		}
++		tlmac->init_pend = 1;
++		tlmac->bgx = bgx;
+ 	}
+ 
+ 	return 0;
+ }
+ 
+-static const struct misc_ops octeontx_bgx_ops = {
+-};
+-
+-static const struct udevice_id octeontx_bgx_ids[] = {
+-	{ .compatible = "cavium,thunder-8890-bgx" },
+-	{}
+-};
+-
+ U_BOOT_DRIVER(octeontx_bgx) = {
+ 	.name	= "octeontx_bgx",
+ 	.id	= UCLASS_MISC,
+ 	.probe	= octeontx_bgx_probe,
+ 	.remove	= octeontx_bgx_remove,
+-	.of_match = octeontx_bgx_ids,
+-	.ops	= &octeontx_bgx_ops,
+ 	.priv_auto_alloc_size = sizeof(struct bgx),
+ 	.flags  = DM_FLAG_OS_PREPARE,
+ };
+ 
++static struct pci_device_id octeontx_bgx_supported[] = {
++	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_BGX) },
++	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_RGX) },
++	{}
++};
++
++U_BOOT_PCI_DEVICE(octeontx_bgx, octeontx_bgx_supported);
+diff --git a/drivers/net/octeontx/octeontx_bgx.h b/drivers/net/octeontx/octeontx_bgx.h
+index baf149b3e0..bf05a268d0 100644
+--- a/drivers/net/octeontx/octeontx_bgx.h
++++ b/drivers/net/octeontx/octeontx_bgx.h
+@@ -10,6 +10,10 @@
+ 
+ #include <asm/arch/octeontx.h>
+ 
++/* PCI device IDs */
++#define	PCI_DEVICE_ID_OCTEONTX_BGX	0xA026
++#define	PCI_DEVICE_ID_OCTEONTX_RGX	0xA054
++
+ #define    MAX_LMAC_PER_BGX			4
+ #define    MAX_BGX_CHANS_PER_LMAC		16
+ #define    MAX_DMAC_PER_LMAC			8
+diff --git a/drivers/net/octeontx/octeontx_smi.c b/drivers/net/octeontx/octeontx_smi.c
+index fa9aca2b05..d7ef8547e6 100644
+--- a/drivers/net/octeontx/octeontx_smi.c
++++ b/drivers/net/octeontx/octeontx_smi.c
+@@ -16,6 +16,8 @@
+ #include <environment.h>
+ #include <linux/ctype.h>
+ 
++#define PCI_DEVICE_ID_OCTEONTX_SMI 0xA02B
++
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+ enum octeontx_smi_mode {
+@@ -259,7 +261,7 @@ int octeontx_smi_reset(struct mii_dev *bus)
+ /* PHY XS initialization, primarily for RXAUI
+  *
+  */
+-int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr)
++int rxaui_phy_xs_init(struct mii_dev *bus, int phy_addr)
+ {
+ 	int reg;
+ 	ulong start_time;
+@@ -313,7 +315,6 @@ read_error:
+ 
+ int octeontx_smi_probe(struct udevice *dev)
+ {
+-	size_t size;
+ 	int ret, subnode, cnt = 0, node = dev->node.of_offset;
+ 	struct mii_dev *bus;
+ 	struct octeontx_smi_priv *priv;
+@@ -321,7 +322,7 @@ int octeontx_smi_probe(struct udevice *dev)
+ 
+ 	debug("SMI PCI device: %x\n", bdf);
+ 	dev->req_seq = PCI_FUNC(bdf);
+-	if (!dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM)) {
++	if (!dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM)) {
+ 		printf("Failed to map PCI region for bdf %x\n", bdf);
+ 		return -1;
+ 	}
+@@ -361,9 +362,6 @@ int octeontx_smi_probe(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static const struct misc_ops octeontx_smi_ops = {
+-};
+-
+ static const struct udevice_id octeontx_smi_ids[] = {
+ 	{ .compatible = "cavium,thunder-8890-mdio-nexus" },
+ 	{}
+@@ -374,6 +372,11 @@ U_BOOT_DRIVER(octeontx_smi) = {
+ 	.id	= UCLASS_MISC,
+ 	.probe	= octeontx_smi_probe,
+ 	.of_match = octeontx_smi_ids,
+-	.ops	= &octeontx_smi_ops,
+ };
+ 
++static struct pci_device_id octeontx_smi_supported[] = {
++	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_SMI) },
++	{}
++};
++
++U_BOOT_PCI_DEVICE(octeontx_smi, octeontx_smi_supported);
+diff --git a/drivers/net/octeontx/octeontx_xcv.c b/drivers/net/octeontx/octeontx_xcv.c
+index 4dce07d12a..3020c85112 100644
+--- a/drivers/net/octeontx/octeontx_xcv.c
++++ b/drivers/net/octeontx/octeontx_xcv.c
+@@ -25,13 +25,6 @@
+ #include <asm/arch/octeontx_xcv.h>
+ #include <asm/arch/octeontx_vnic.h>
+ 
+-struct lxcv {
+-	void __iomem		*reg_base;
+-	struct pci_dev		*pdev;
+-};
+-
+-struct lxcv *xcv;
+-
+ /* Initialize XCV block */
+ void xcv_init_hw(void)
+ {
+@@ -133,33 +126,3 @@ void xcv_setup_link(bool link_up, int link_speed)
+ 		reset.u = readq(XCVX_BASE + XCVX_RESET(0));
+ 	}
+ }
+-
+-int octeontx_xcv_probe(struct udevice *dev)
+-{
+-	size_t size;
+-
+-	xcv = dev_get_priv(dev);
+-	if (!xcv)
+-		return -ENOMEM;
+-
+-	xcv->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+-
+-	return 0;
+-}
+-
+-static const struct misc_ops octeontx_xcv_ops = {
+-};
+-
+-static const struct udevice_id octeontx_xcv_ids[] = {
+-	{ .compatible = "cavium,xcv" },
+-	{}
+-};
+-
+-U_BOOT_DRIVER(octeontx_xcv) = {
+-	.name   = "octeontx_xcv",
+-	.id     = UCLASS_MISC,
+-	.probe  = octeontx_xcv_probe,
+-	.of_match = octeontx_xcv_ids,
+-	.ops    = &octeontx_xcv_ops,
+-	.priv_auto_alloc_size = sizeof(struct lxcv),
+-};
+diff --git a/drivers/net/octeontx2/cgx.c b/drivers/net/octeontx2/cgx.c
+index fb278ad178..f044842b51 100644
+--- a/drivers/net/octeontx2/cgx.c
++++ b/drivers/net/octeontx2/cgx.c
+@@ -252,10 +252,10 @@ static int cgx_lmac_init(struct cgx *cgx)
+ int cgx_probe(struct udevice *dev)
+ {
+ 	struct cgx *cgx = dev_get_priv(dev);
+-	size_t size;
+ 	int err;
+ 
+-	cgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	cgx->reg_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
++				       PCI_REGION_MEM);
+ 	cgx->dev = dev;
+ 	cgx->cgx_id = ((u64)(cgx->reg_base) >> 24) & 0x7;
+ 
+diff --git a/drivers/net/octeontx2/rvu_af.c b/drivers/net/octeontx2/rvu_af.c
+index 92b350a9ab..863f594b98 100644
+--- a/drivers/net/octeontx2/rvu_af.c
++++ b/drivers/net/octeontx2/rvu_af.c
+@@ -127,9 +127,9 @@ error:
+ int rvu_af_probe(struct udevice *dev)
+ {
+ 	struct rvu_af *af_ptr = dev_get_priv(dev);
+-	size_t size;
+ 
+-	af_ptr->af_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	af_ptr->af_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
++					 PCI_REGION_MEM);
+ 	debug("%s RVU AF BAR %p\n", __func__, af_ptr->af_base);
+ 	af_ptr->dev = dev;
+ 	rvu_af_dev = dev;
+diff --git a/drivers/net/octeontx2/rvu_pf.c b/drivers/net/octeontx2/rvu_pf.c
+index 00ae8be34f..4f59030793 100644
+--- a/drivers/net/octeontx2/rvu_pf.c
++++ b/drivers/net/octeontx2/rvu_pf.c
+@@ -55,13 +55,12 @@ static const struct eth_ops nix_eth_ops = {
+ int rvu_pf_probe(struct udevice *dev)
+ {
+ 	struct rvu_pf *rvu = dev_get_priv(dev);
+-	size_t size;
+ 	int err;
+ 	char name[16];
+ 
+ 	debug("%s: name: %s\n", __func__, dev->name);
+ 
+-	rvu->pf_base = dm_pci_map_bar(dev, 2, &size, PCI_REGION_MEM);
++	rvu->pf_base = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_2, PCI_REGION_MEM);
+ 	rvu->pfid = dev->seq + 1; // RVU PF's start from 1;
+ 	rvu->dev = dev;
+ 	if (!rvu_af_dev) {
+diff --git a/drivers/nvme/nvme.c b/drivers/nvme/nvme.c
+index 10b6a06d2f..4af00f4d92 100644
+--- a/drivers/nvme/nvme.c
++++ b/drivers/nvme/nvme.c
+@@ -776,13 +776,11 @@ static int nvme_probe(struct udevice *udev)
+ {
+ 	int ret;
+ 	struct nvme_dev *ndev = dev_get_priv(udev);
+-	size_t size;
+ 
+ 	ndev->instance = trailing_strtol(udev->name);
+ 
+ 	INIT_LIST_HEAD(&ndev->namespaces);
+-	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0, &size,
+-			PCI_REGION_MEM);
++	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+ 	if (readl(&ndev->bar->csts) == -1) {
+ 		ret = -ENODEV;
+ 		printf("Error: %s: Out of memory!\n", udev->name);
+diff --git a/drivers/pci/pci-uclass.c b/drivers/pci/pci-uclass.c
+index dacd5042c5..e82834ea8f 100644
+--- a/drivers/pci/pci-uclass.c
++++ b/drivers/pci/pci-uclass.c
+@@ -766,119 +766,6 @@ error:
+ 	return ret;
+ }
+ 
+-int pci_sriov_init(struct udevice *pdev, int vf_en)
+-{
+-	u16 vendor, device;
+-	struct udevice *bus;
+-	struct udevice *dev;
+-	pci_dev_t bdf;
+-	u16 ctrl;
+-	u16 num_vfs;
+-	u16 total_vf;
+-	u16 vf_offset;
+-	u16 vf_stride;
+-	int vf, ret;
+-	int pos;
+-
+-	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
+-	if (!pos) {
+-		printf("Error: SRIOV capability not found\n");
+-		return -ENODEV;
+-	}
+-
+-	dm_pci_read_config16(pdev, pos + PCI_SRIOV_CTRL, &ctrl);
+-
+-	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
+-	if (vf_en > total_vf)
+-		vf_en = total_vf;
+-	dm_pci_write_config16(pdev, pos + PCI_SRIOV_NUM_VF, vf_en);
+-
+-	ctrl |= PCI_SRIOV_CTRL_VFE | PCI_SRIOV_CTRL_MSE;
+-	dm_pci_write_config16(pdev, pos + PCI_SRIOV_CTRL, ctrl);
+-
+-	dm_pci_read_config16(pdev, pos + PCI_SRIOV_NUM_VF, &num_vfs);
+-	if (num_vfs > vf_en)
+-		num_vfs = vf_en;
+-
+-	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_OFFSET, &vf_offset);
+-	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_STRIDE, &vf_stride);
+-
+-	dm_pci_read_config16(pdev, PCI_VENDOR_ID, &vendor);
+-	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_DID, &device);
+-
+-	bdf = dm_pci_get_bdf(pdev);
+-
+-	pci_get_bus(PCI_BUS(bdf), &bus);
+-
+-	if (!bus)
+-		return -ENODEV;
+-
+-	bdf += PCI_BDF(0, 0, vf_offset);
+-
+-	for (vf = 0; vf < num_vfs; vf++) {
+-		struct pci_child_platdata *pplat;
+-		ulong class;
+-
+-		pci_bus_read_config(bus, bdf, PCI_CLASS_REVISION,
+-				    &class, PCI_SIZE_32);
+-
+-		class >>= 8;
+-
+-		debug("%s: bus %d/%s: found VF %x:%x\n", __func__,
+-		      bus->seq, bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
+-
+-		/* Find this device in the device tree */
+-		ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(bdf), &dev);
+-
+-		if (ret == -ENODEV) {
+-			struct pci_device_id find_id;
+-
+-			memset(&find_id, 0, sizeof(find_id));
+-
+-			find_id.vendor = vendor;
+-			find_id.device = device;
+-			find_id.class = class >> 8;
+-
+-			ret = pci_find_and_bind_driver(bus, &find_id,
+-						       bdf, &dev);
+-
+-			if (ret)
+-				return ret;
+-		}
+-
+-		/* Update the platform data */
+-		pplat = dev_get_parent_platdata(dev);
+-		pplat->devfn = PCI_MASK_BUS(bdf);
+-		pplat->vendor = vendor;
+-		pplat->device = device;
+-		pplat->class = class;
+-		pplat->is_phys = false;
+-		pplat->pdev = pdev;
+-		pplat->vf_id = vf * vf_stride + vf_offset;
+-
+-		bdf += PCI_BDF(0, 0, vf_stride);
+-	}
+-
+-	return 0;
+-
+-}
+-
+-int pci_sriov_get_totalvfs(struct udevice *pdev)
+-{
+-	u16 total_vf;
+-	int pos;
+-
+-	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
+-	if (!pos) {
+-		printf("Error: SRIOV capability not found\n");
+-		return -ENODEV;
+-	}
+-
+-	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
+-
+-	return total_vf;
+-}
+-
+ int pci_bind_bus_devices(struct udevice *bus)
+ {
+ 	ulong vendor, device;
+@@ -957,8 +844,6 @@ int pci_bind_bus_devices(struct udevice *bus)
+ 		pplat->vendor = vendor;
+ 		pplat->device = device;
+ 		pplat->class = class;
+-		pplat->is_phys = true;
+-
+ 	}
+ 
+ 	return 0;
+@@ -1468,60 +1353,176 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
+ 	return bus_addr;
+ }
+ 
+-int dm_pci_ea_bar_read(struct udevice *dev, int bar,
+-		       pci_addr_t *start, size_t *size);
++/* Read an Enhanced Allocation (EA) entry */
++static int dm_pci_ea_entry_read(struct udevice *dev, int offset, int *bei,
++				pci_addr_t *start, size_t *size)
++{
++	u32 base;
++	u32 max_offset;
++	u8  prop;
++	int ent_offset = offset;
++	int ent_size;
++	u32 dw0;
++
++	dm_pci_read_config32(dev, ent_offset, &dw0);
++
++	debug("%s: %d: dw0: %lx\n", __func__, __LINE__, (unsigned long)dw0);
++
++	ent_offset += sizeof(u32);
++
++	/* Entry size field indicates DWORDs after 1st */
++	ent_size = ((dw0 & PCI_EA_ES) + 1) * sizeof(u32);
++
++	if (!(dw0 & PCI_EA_ENABLE))
++		goto out;
++	*bei = PCI_EA_BEI(dw0);
++
++	prop = PCI_EA_PP(dw0);
++
++	debug("EA property: %x\n", prop);
++
++	/*
++	* If the Property is in the reserved range, try the Secondary
++	* Property instead.
++	*/
++	if (prop > PCI_EA_P_BRIDGE_IO && prop < PCI_EA_P_MEM_RESERVED)
++		prop = PCI_EA_SP(dw0);
++	if (prop > PCI_EA_P_BRIDGE_IO)
++		goto out;
++
++	debug("EA property: %x\n", prop);
++
++	/* Read Base */
++	dm_pci_read_config32(dev, ent_offset, &base);
++	ent_offset += sizeof(u32);
++	*start = (pci_addr_t)base & PCI_EA_FIELD_MASK;
++
++	/* Read MaxOffset */
++	dm_pci_read_config32(dev, ent_offset, &max_offset);
++	ent_offset += sizeof(u32);
++
++	/* Read Base MSBs (if 64-bit entry) */
++	if (base & PCI_EA_IS_64) {
++		dm_pci_read_config32(dev, ent_offset, &base);
++		ent_offset += sizeof(u32);
++
++		*start |= (pci_addr_t)base << 32;
++	}
++
++	debug("EA (%u,%u) start = %lx\n", PCI_EA_BEI(dw0), prop,
++	      (unsigned long)*start);
++
++	*size = ((size_t)max_offset | 0x03) + 1;
++
++	/* Read MaxOffset MSBs (if 64-bit entry) */
++	if (max_offset & PCI_EA_IS_64) {
++		dm_pci_read_config32(dev, ent_offset, &max_offset);
++		ent_offset += sizeof(u32);
++
++		*size |= (size_t)max_offset << 32;
++	}
++
++	debug("EA (%u,%u) size = %lx\n", PCI_EA_BEI(dw0), prop,
++	      (unsigned long)*size);
++
++	if (*start + *size < *start) {
++		*size = 0;
++		*start = 0;
++		printf("EA Entry crosses address boundary\n");
++		goto out;
++	}
++
++	if (ent_size != ent_offset - offset) {
++		printf("EA Entry Size (%d) does not match length read (%d)\n",
++			ent_size, ent_offset - offset);
++		goto out;
++	}
++
++out:
++	return offset + ent_size;
++}
++
++/* Read an Enhanced Allocation (EA) BAR */
++int dm_pci_ea_bar_read(struct udevice *dev, int bar, pci_addr_t *start,
++		       size_t *size)
++{
++	int ea;
++	int offset;
++	u8  num_ent;
++	u8  hdr_type;
++	int i, bei = -1;
++
++	ea = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
++
++	dm_pci_read_config8(dev, ea + PCI_EA_NUM_ENT, &num_ent);
++	num_ent &= PCI_EA_NUM_ENT_MASK;
++
++	offset = ea + PCI_EA_FIRST_ENT;
++
++	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &hdr_type);
++
++	/* Skip DWORD 2 for type 1 functions */
++	if (hdr_type == PCI_HEADER_TYPE_BRIDGE)
++		offset += sizeof(u32);
++
++	for (i = 0; (i < num_ent) && (bar != bei); i++) {
++		offset = dm_pci_ea_entry_read(dev, offset, &bei, start, size);
++	}
++
++	return (bar == bei);
++}
++
++static pci_addr_t dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
++				    int ea_off, size_t *size)
++{
++	pci_addr_t addr;
++
++	dm_pci_ea_bar_read(dev, bar, &addr, size);
++
++	return addr;
++}
+ 
+-void *dm_pci_map_bar(struct udevice *dev, int bar, size_t *size, int flags)
++void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
+ {
+ 	int pos;
++	int bar_id = (bar - PCI_BASE_ADDRESS_0) >> 2;
+ 	pci_addr_t pci_bus_start;
+ 	u32 bar_response;
+-	int ea_off;
++	size_t sz;
++	struct udevice *udev = dev;
+ 	struct pci_child_platdata *pdata = dev_get_parent_platdata(dev);
+ 
+-	if (!pdata->is_phys) {
+-		if (bar < 9 || bar > 14)
+-			return NULL;
+-		dev = pdata->pdev;
++	/* In case of Virtual Function devices, use PF device,
++	 * also add offset of VF BAR0
++	 */
++	if (pdata->is_virtfn) {
++		udev = pdata->pfdev;
++		bar_id += PCI_EA_BEI_VF_BAR0;
+ 	}
+ 
+-	pos = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+-
++	pos = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
+ 	if (pos) {
+-		dm_pci_ea_bar_read(dev, bar, &pci_bus_start, size);
++		pci_bus_start = dm_pci_map_ea_bar(udev, bar_id, flags, pos,
++						  &sz);
+ 	} else {
+-		/* read BAR address */
+-		if (bar >= 0 && bar <= 5) {
+-			bar = PCI_BASE_ADDRESS_0 + bar * 4;
+-		} else if (bar >= 9 && bar <= 14) {
+-			pos = dm_pci_find_ext_capability(dev, PCI_EXT_CAP_ID_SRIOV);
+-			bar = pos + PCI_SRIOV_BAR + bar * 4;
+-			//TODO: Get BAR size
+-		}
+-		dm_pci_read_config32(dev, bar,
+-				     &bar_response);
++		dm_pci_read_config32(udev, bar, &bar_response);
+ 		pci_bus_start = (pci_addr_t)(bar_response & ~0xf);
+-
+-		if ((bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
+-				PCI_BASE_ADDRESS_MEM_TYPE_64) {
+-			bar_response = 0;
+-			dm_pci_read_config32(dev, bar + 4, &bar_response);
+-		}
+-		if (!bar_response)
+-			pci_bus_start |= (pci_addr_t)bar_response << 32;
+ 	}
+ 
+-	if (!pdata->is_phys) {
+-		pci_bus_start += (pdata->vf_id - 1) * (*size);
+-	}
++	/* In case of Virtual Function devices
++	 * add VFn (1, 2...) size offset to VF BAR0
++	 * using VF BAR0 as base and size of VF BAR0 to shift to VFn index
++	 */
++	if (pdata->is_virtfn)
++		pci_bus_start += (pdata->virtid - 1) * sz;
+ 
+ 	/*
+ 	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
+-	 * isn't actualy used on any platform because u-boot assumes a static
++	 * isn't actually used on any platform because u-boot assumes a static
+ 	 * linear mapping.  In the future, this could read the BAR size
+ 	 * and pass that as the size if needed.
+ 	 */
+-	return dm_pci_bus_to_virt(dev, pci_bus_start, flags, 0, MAP_NOCACHE);
++	return dm_pci_bus_to_virt(udev, pci_bus_start, flags, 0, MAP_NOCACHE);
+ }
+ 
+ static int _dm_pci_find_next_capability(struct udevice *dev, u8 pos, int cap)
+@@ -1637,223 +1638,118 @@ int dm_pci_flr(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-/* Read an Enhanced Allocation (EA) entry */
+-static int dm_pci_ea_entry_read(struct udevice *dev, int offset, int *bei, pci_addr_t *start, size_t *size)
++int pci_sriov_init(struct udevice *pdev, int vf_en)
+ {
+-	u32 base;
+-	u32 max_offset;
+-	u8  prop;
+-	int ent_offset = offset;
+-	int ent_size;
+-	u32 dw0;
+-
+-	dm_pci_read_config32(dev, ent_offset, &dw0);
+-
+-	debug("%s: %d: dw0: %lx\n", __FUNCTION__, __LINE__, (unsigned long)dw0);
+-
+-	ent_offset += sizeof(u32);
+-
+-	/* Entry size field indicates DWORDs after 1st */
+-	ent_size = ((dw0 & PCI_EA_ES) + 1) * sizeof(u32);
+-
+-	if (!(dw0 & PCI_EA_ENABLE))
+-		goto out;
+-	*bei = PCI_EA_BEI(dw0);
+-
+-	prop = PCI_EA_PP(dw0);
+-
+-	debug("EA property: %x\n", prop);
+-
+-	/*
+-	* If the Property is in the reserved range, try the Secondary
+-	* Property instead.
+-	*/
+-	if (prop > PCI_EA_P_BRIDGE_IO && prop < PCI_EA_P_MEM_RESERVED)
+-		prop = PCI_EA_SP(dw0);
+-	if (prop > PCI_EA_P_BRIDGE_IO)
+-		goto out;
+-
+-	debug("EA property: %x\n", prop);
+-
+-	/* Read Base */
+-	dm_pci_read_config32(dev, ent_offset, &base);
+-	ent_offset += sizeof(u32);
+-	*start = (pci_addr_t)base & PCI_EA_FIELD_MASK;
+-
+-	/* Read MaxOffset */
+-	dm_pci_read_config32(dev, ent_offset, &max_offset);
+-	ent_offset += sizeof(u32);
+-
+-	/* Read Base MSBs (if 64-bit entry) */
+-	if (base & PCI_EA_IS_64) {
+-		dm_pci_read_config32(dev, ent_offset, &base);
+-		ent_offset += sizeof(u32);
++	u16 vendor, device;
++	struct udevice *bus;
++	struct udevice *dev;
++	pci_dev_t bdf;
++	u16 ctrl;
++	u16 num_vfs;
++	u16 total_vf;
++	u16 vf_offset;
++	u16 vf_stride;
++	int vf, ret;
++	int pos;
+ 
+-		*start |= (pci_addr_t)base << 32;
++	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
++	if (!pos) {
++		printf("Error: SRIOV capability not found\n");
++		return -ENODEV;
+ 	}
+ 
+-	debug("EA (%u,%u) start = %lx\n", PCI_EA_BEI(dw0), prop, (unsigned long)*start);
+-
+-	*size = ((size_t)max_offset | 0x03) + 1;
+-
+-	/* Read MaxOffset MSBs (if 64-bit entry) */
+-	if (max_offset & PCI_EA_IS_64) {
+-		dm_pci_read_config32(dev, ent_offset, &max_offset);
+-		ent_offset += sizeof(u32);
++	dm_pci_read_config16(pdev, pos + PCI_SRIOV_CTRL, &ctrl);
+ 
+-		*size |= (size_t)max_offset << 32;
+-	}
++	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
++	if (vf_en > total_vf)
++		vf_en = total_vf;
++	dm_pci_write_config16(pdev, pos + PCI_SRIOV_NUM_VF, vf_en);
+ 
+-	debug("EA (%u,%u) size = %lx\n", PCI_EA_BEI(dw0), prop, (unsigned long)*size);
++	ctrl |= PCI_SRIOV_CTRL_VFE | PCI_SRIOV_CTRL_MSE;
++	dm_pci_write_config16(pdev, pos + PCI_SRIOV_CTRL, ctrl);
+ 
+-	if (*start + *size < *start) {
+-		*size = 0;
+-		*start = 0;
+-		printf("EA Entry crosses address boundary\n");
+-		goto out;
+-	}
++	dm_pci_read_config16(pdev, pos + PCI_SRIOV_NUM_VF, &num_vfs);
++	if (num_vfs > vf_en)
++		num_vfs = vf_en;
+ 
+-	if (ent_size != ent_offset - offset) {
+-		printf("EA Entry Size (%d) does not match length read (%d)\n",
+-			ent_size, ent_offset - offset);
+-		goto out;
+-	}
++	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_OFFSET, &vf_offset);
++	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_STRIDE, &vf_stride);
+ 
+-out:
+-	return offset + ent_size;
+-}
++	dm_pci_read_config16(pdev, PCI_VENDOR_ID, &vendor);
++	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_DID, &device);
+ 
+-/* Read an Enhanced Allocation (EA) BAR */
+-int dm_pci_ea_bar_read(struct udevice *dev, int bar, pci_addr_t *start, size_t *size)
+-{
+-	int ea;
+-	int offset;
+-	u8  num_ent;
+-	u8  hdr_type;
+-	int i, bei = -1;
++	bdf = dm_pci_get_bdf(pdev);
+ 
+-	ea = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
++	pci_get_bus(PCI_BUS(bdf), &bus);
+ 
+-	dm_pci_read_config8(dev, ea + PCI_EA_NUM_ENT, &num_ent);
+-	num_ent &= PCI_EA_NUM_ENT_MASK;
++	if (!bus)
++		return -ENODEV;
+ 
+-	offset = ea + PCI_EA_FIRST_ENT;
++	bdf += PCI_BDF(0, 0, vf_offset);
+ 
+-	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &hdr_type);
++	for (vf = 0; vf < num_vfs; vf++) {
++		struct pci_child_platdata *pplat;
++		ulong class;
+ 
+-	/* Skip DWORD 2 for type 1 functions */
+-	if (hdr_type == PCI_HEADER_TYPE_BRIDGE)
+-		offset += sizeof(u32);
++		pci_bus_read_config(bus, bdf, PCI_CLASS_DEVICE,
++				    &class, PCI_SIZE_16);
+ 
+-	for (i = 0; (i < num_ent) && (bar != bei); i++) {
+-		offset = dm_pci_ea_entry_read(dev, offset, &bei, start, size);
+-	}
++		debug("%s: bus %d/%s: found VF %x:%x\n", __func__,
++		      bus->seq, bus->name, PCI_DEV(bdf), PCI_FUNC(bdf));
+ 
+-	return (bar == bei);
+-}
++		/* Find this device in the device tree */
++		ret = pci_bus_find_devfn(bus, PCI_MASK_BUS(bdf), &dev);
+ 
+-/**
+- * dm_pci_find_next_ext_capability - Find an extended capability
+- *
+- * Returns the address of the next matching extended capability structure
+- * within the device's PCI configuration space or 0 if the device does
+- * not support it.  Some capabilities can occur several times, e.g., the
+- * vendor-specific capability, and this provides a way to find them all.
+- */
+-int dm_pci_find_next_ext_capability(struct udevice *dev,
+-				    int start, int cap)
+-{
+-	u32 header;
+-	int ttl, pos = PCI_CFG_SPACE_SIZE;
++		if (ret == -ENODEV) {
++			struct pci_device_id find_id;
+ 
+-	/* minimum 8 bytes per capability */
+-	ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
++			memset(&find_id, 0, sizeof(find_id));
+ 
+-	if (start)
+-		pos = start;
++			find_id.vendor = vendor;
++			find_id.device = device;
++			find_id.class = class;
+ 
+-	dm_pci_read_config32(dev, pos, &header);
+-	if (header == 0xffffffff || header == 0)
+-		return 0;
++			ret = pci_find_and_bind_driver(bus, &find_id,
++						       bdf, &dev);
+ 
+-	while (ttl-- > 0) {
+-		if (PCI_EXT_CAP_ID(header) == cap && pos != start)
+-			return pos;
++			if (ret)
++				return ret;
++		}
+ 
+-		pos = PCI_EXT_CAP_NEXT(header);
+-		if (pos < PCI_CFG_SPACE_SIZE)
+-			break;
++		/* Update the platform data */
++		pplat = dev_get_parent_platdata(dev);
++		pplat->devfn = PCI_MASK_BUS(bdf);
++		pplat->vendor = vendor;
++		pplat->device = device;
++		pplat->class = class;
++		pplat->is_virtfn = true;
++		pplat->pfdev = pdev;
++		pplat->virtid = vf * vf_stride + vf_offset;
+ 
+-		dm_pci_read_config32(dev, pos, &header);
+-		if (header == 0xffffffff || header == 0)
+-			break;
++		debug("%s: bus %d/%s: found VF %x:%x %x:%x class %lx id %x\n",
++		      __func__, dev->seq, dev->name, PCI_DEV(bdf),
++		      PCI_FUNC(bdf), vendor, device, class, pplat->virtid);
++		bdf += PCI_BDF(0, 0, vf_stride);
+ 	}
+ 
+ 	return 0;
+-}
+ 
+-/**
+- * dm_pci_find_ext_capability - Find an extended capability
+- *
+- * Returns the address of the requested extended capability structure
+- * within the device's PCI configuration space or 0 if the device does
+- * not support it.
+- */
+-int dm_pci_find_ext_capability(struct udevice *dev, int cap)
+-{
+-	return dm_pci_find_next_ext_capability(dev, 0, cap);
+ }
+ 
+-/**
+- * pci_bus_find_next_ext_capability - Find an extended capability
+- *
+- * Returns the address of the next matching extended capability structure
+- * within the device's PCI configuration space or 0 if the device does
+- * not support it.  Some capabilities can occur several times, e.g., the
+- * vendor-specific capability, and this provides a way to find them all.
+- */
+-static int pci_bus_find_next_ext_capability(struct udevice *bus,
+-					    pci_dev_t bdf, int start, int cap)
++int pci_sriov_get_totalvfs(struct udevice *pdev)
+ {
+-	ulong header;
+-	int ttl, pos = PCI_CFG_SPACE_SIZE;
+-
+-	/* minimum 8 bytes per capability */
+-	ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
+-
+-	if (start)
+-		pos = start;
+-
+-	pci_bus_read_config(bus, bdf, pos, &header, PCI_SIZE_32);
+-	if (header == 0xffffffff || header == 0)
+-		return 0;
+-
+-	while (ttl-- > 0) {
+-		if (PCI_EXT_CAP_ID(header) == cap && pos != start)
+-			return pos;
+-
+-		pos = PCI_EXT_CAP_NEXT(header);
+-		if (pos < PCI_CFG_SPACE_SIZE)
+-			break;
++	u16 total_vf;
++	int pos;
+ 
+-		pci_bus_read_config(bus, bdf, pos, &header, PCI_SIZE_32);
+-		if (header == 0xffffffff || header == 0)
+-			break;
++	pos = dm_pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_SRIOV);
++	if (!pos) {
++		printf("Error: SRIOV capability not found\n");
++		return -ENODEV;
+ 	}
+ 
+-	return 0;
+-}
++	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
+ 
+-/**
+- * pci_find_ext_capability - Find an extended capability
+- *
+- * Returns the address of the requested extended capability structure
+- * within the device's PCI configuration space or 0 if the device does
+- * not support it.
+- */
+-int pci_bus_find_ext_capability(struct udevice *bus, pci_dev_t bdf, int cap)
+-{
+-	return pci_bus_find_next_ext_capability(bus, bdf, 0, cap);
++	return total_vf;
+ }
+ 
+ UCLASS_DRIVER(pci) = {
+diff --git a/drivers/pci/pci_auto.c b/drivers/pci/pci_auto.c
+index 167883a29c..4ad102a69c 100644
+--- a/drivers/pci/pci_auto.c
++++ b/drivers/pci/pci_auto.c
+@@ -312,12 +312,12 @@ int dm_pciauto_config_device(struct udevice *dev)
+ 	struct pci_region *pci_io;
+ 	unsigned int sub_bus = PCI_BUS(dm_pci_get_bdf(dev));
+ 	unsigned short class;
+-	bool enum_only;
++	bool enum_only = false;
+ 	struct udevice *ctlr = pci_get_controller(dev);
+ 	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
+ 	int n;
+ 
+-	enum_only = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
++//	enum_only = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+ #ifdef CONFIG_PCI_ENUM_ONLY
+ 	enum_only = true;
+ #endif
+diff --git a/drivers/spi/octeontx_spi.c b/drivers/spi/octeontx_spi.c
+index 449c9ba555..830d94c2a8 100644
+--- a/drivers/spi/octeontx_spi.c
++++ b/drivers/spi/octeontx_spi.c
+@@ -623,11 +623,11 @@ static int octeontx_pci_spi_probe(struct udevice *dev)
+ {
+ 	struct octeontx_spi *priv = dev_get_priv(dev);
+ 	pci_dev_t bdf = dm_pci_get_bdf(dev);
+-	size_t size;
+ 
+ 	debug("SPI PCI device: %x\n", bdf);
+ 	dev->req_seq = PCI_FUNC(bdf);
+-	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++	priv->baseaddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
++					PCI_REGION_MEM);
+ 
+ 	debug("SPI bus %s %d at %p\n", dev->name, dev->seq, priv->baseaddr);
+ 
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 4c2e576251..b995aef997 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -17,10 +17,9 @@ static void xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
+ 	struct xhci_hccr *hccr;
+ 	struct xhci_hcor *hcor;
+ 	u32 cmd;
+-	size_t size;
+ 
+ 	hccr = (struct xhci_hccr *)dm_pci_map_bar(dev,
+-			0, &size, PCI_REGION_MEM);
++			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
+ 	hcor = (struct xhci_hcor *)((uintptr_t) hccr +
+ 			HC_LENGTH(xhci_readl(&hccr->cr_capbase)));
+ 
+diff --git a/include/configs/octeontx_common.h b/include/configs/octeontx_common.h
+index 43483feedb..07f5983847 100644
+--- a/include/configs/octeontx_common.h
++++ b/include/configs/octeontx_common.h
+@@ -38,8 +38,6 @@
+ /* Allow environment variable to be overwritten */
+ #define CONFIG_ENV_OVERWRITE
+ 
+-#define CONFIG_MISC_INIT_R
+-
+ /** Reduce hashes printed out */
+ #define CONFIG_TFTP_TSIZE
+ 
+@@ -105,4 +103,11 @@
+ #define CONFIG_SUPPORT_EMMC_RPMB
+ #define CONFIG_CMD_BKOPS_ENABLE
+ 
++#if defined(CONFIG_NAND_OCTEONTX)
++#define CONFIG_MTD_DEVICE
++/*#define CONFIG_MTD_CONCAT */
++#define CONFIG_SYS_MAX_NAND_DEVICE 8
++#define CONFIG_SYS_NAND_ONFI_DETECTION
++#endif
++
+ #endif /* __OCTEONTX_COMMON_H__ */
+diff --git a/include/pci.h b/include/pci.h
+index ea4c2f8d19..c6863219d0 100644
+--- a/include/pci.h
++++ b/include/pci.h
+@@ -412,188 +412,6 @@
+ #define PCI_MSI_DATA_32		8	/* 16 bits of data for 32-bit devices */
+ #define PCI_MSI_DATA_64		12	/* 16 bits of data for 64-bit devices */
+ 
+-/* PCI Express capability registers */
+-
+-#define PCI_EXP_FLAGS		2	/* Capabilities register */
+-#define PCI_EXP_FLAGS_VERS	0x000f	/* Capability version */
+-#define PCI_EXP_FLAGS_TYPE	0x00f0	/* Device/Port type */
+-#define  PCI_EXP_TYPE_ENDPOINT	0x0	/* Express Endpoint */
+-#define  PCI_EXP_TYPE_LEG_END	0x1	/* Legacy Endpoint */
+-#define  PCI_EXP_TYPE_ROOT_PORT 0x4	/* Root Port */
+-#define  PCI_EXP_TYPE_UPSTREAM	0x5	/* Upstream Port */
+-#define  PCI_EXP_TYPE_DOWNSTREAM 0x6	/* Downstream Port */
+-#define  PCI_EXP_TYPE_PCI_BRIDGE 0x7	/* PCIe to PCI/PCI-X Bridge */
+-#define  PCI_EXP_TYPE_PCIE_BRIDGE 0x8	/* PCI/PCI-X to PCIe Bridge */
+-#define  PCI_EXP_TYPE_RC_END	0x9	/* Root Complex Integrated Endpoint */
+-#define  PCI_EXP_TYPE_RC_EC	0xa	/* Root Complex Event Collector */
+-#define PCI_EXP_FLAGS_SLOT	0x0100	/* Slot implemented */
+-#define PCI_EXP_FLAGS_IRQ	0x3e00	/* Interrupt message number */
+-#define PCI_EXP_DEVCAP		4	/* Device capabilities */
+-#define  PCI_EXP_DEVCAP_PAYLOAD	0x00000007 /* Max_Payload_Size */
+-#define  PCI_EXP_DEVCAP_PHANTOM	0x00000018 /* Phantom functions */
+-#define  PCI_EXP_DEVCAP_EXT_TAG	0x00000020 /* Extended tags */
+-#define  PCI_EXP_DEVCAP_L0S	0x000001c0 /* L0s Acceptable Latency */
+-#define  PCI_EXP_DEVCAP_L1	0x00000e00 /* L1 Acceptable Latency */
+-#define  PCI_EXP_DEVCAP_ATN_BUT	0x00001000 /* Attention Button Present */
+-#define  PCI_EXP_DEVCAP_ATN_IND	0x00002000 /* Attention Indicator Present */
+-#define  PCI_EXP_DEVCAP_PWR_IND	0x00004000 /* Power Indicator Present */
+-#define  PCI_EXP_DEVCAP_RBER	0x00008000 /* Role-Based Error Reporting */
+-#define  PCI_EXP_DEVCAP_PWR_VAL	0x03fc0000 /* Slot Power Limit Value */
+-#define  PCI_EXP_DEVCAP_PWR_SCL	0x0c000000 /* Slot Power Limit Scale */
+-#define  PCI_EXP_DEVCAP_FLR     0x10000000 /* Function Level Reset */
+-#define PCI_EXP_DEVCTL		8	/* Device Control */
+-#define  PCI_EXP_DEVCTL_CERE	0x0001	/* Correctable Error Reporting En. */
+-#define  PCI_EXP_DEVCTL_NFERE	0x0002	/* Non-Fatal Error Reporting Enable */
+-#define  PCI_EXP_DEVCTL_FERE	0x0004	/* Fatal Error Reporting Enable */
+-#define  PCI_EXP_DEVCTL_URRE	0x0008	/* Unsupported Request Reporting En. */
+-#define  PCI_EXP_DEVCTL_RELAX_EN 0x0010 /* Enable relaxed ordering */
+-#define  PCI_EXP_DEVCTL_PAYLOAD	0x00e0	/* Max_Payload_Size */
+-#define  PCI_EXP_DEVCTL_EXT_TAG	0x0100	/* Extended Tag Field Enable */
+-#define  PCI_EXP_DEVCTL_PHANTOM	0x0200	/* Phantom Functions Enable */
+-#define  PCI_EXP_DEVCTL_AUX_PME	0x0400	/* Auxiliary Power PM Enable */
+-#define  PCI_EXP_DEVCTL_NOSNOOP_EN 0x0800  /* Enable No Snoop */
+-#define  PCI_EXP_DEVCTL_READRQ	0x7000	/* Max_Read_Request_Size */
+-#define  PCI_EXP_DEVCTL_BCR_FLR 0x8000  /* Bridge Configuration Retry / FLR */
+-#define PCI_EXP_DEVSTA		10	/* Device Status */
+-#define  PCI_EXP_DEVSTA_CED	0x0001	/* Correctable Error Detected */
+-#define  PCI_EXP_DEVSTA_NFED	0x0002	/* Non-Fatal Error Detected */
+-#define  PCI_EXP_DEVSTA_FED	0x0004	/* Fatal Error Detected */
+-#define  PCI_EXP_DEVSTA_URD	0x0008	/* Unsupported Request Detected */
+-#define  PCI_EXP_DEVSTA_AUXPD	0x0010	/* AUX Power Detected */
+-#define  PCI_EXP_DEVSTA_TRPND	0x0020	/* Transactions Pending */
+-#define PCI_EXP_LNKCAP		12	/* Link Capabilities */
+-#define  PCI_EXP_LNKCAP_SLS	0x0000000f /* Supported Link Speeds */
+-#define  PCI_EXP_LNKCAP_SLS_2_5GB 0x00000001 /* LNKCAP2 SLS Vector bit 0 */
+-#define  PCI_EXP_LNKCAP_SLS_5_0GB 0x00000002 /* LNKCAP2 SLS Vector bit 1 */
+-#define  PCI_EXP_LNKCAP_MLW	0x000003f0 /* Maximum Link Width */
+-#define  PCI_EXP_LNKCAP_ASPMS	0x00000c00 /* ASPM Support */
+-#define  PCI_EXP_LNKCAP_L0SEL	0x00007000 /* L0s Exit Latency */
+-#define  PCI_EXP_LNKCAP_L1EL	0x00038000 /* L1 Exit Latency */
+-#define  PCI_EXP_LNKCAP_CLKPM	0x00040000 /* Clock Power Management */
+-#define  PCI_EXP_LNKCAP_SDERC	0x00080000 /* Surprise Down Error Reporting Capable */
+-#define  PCI_EXP_LNKCAP_DLLLARC	0x00100000 /* Data Link Layer Link Active Reporting Capable */
+-#define  PCI_EXP_LNKCAP_LBNC	0x00200000 /* Link Bandwidth Notification Capability */
+-#define  PCI_EXP_LNKCAP_PN	0xff000000 /* Port Number */
+-#define PCI_EXP_LNKCTL		16	/* Link Control */
+-#define  PCI_EXP_LNKCTL_ASPMC	0x0003	/* ASPM Control */
+-#define  PCI_EXP_LNKCTL_ASPM_L0S 0x0001	/* L0s Enable */
+-#define  PCI_EXP_LNKCTL_ASPM_L1  0x0002	/* L1 Enable */
+-#define  PCI_EXP_LNKCTL_RCB	0x0008	/* Read Completion Boundary */
+-#define  PCI_EXP_LNKCTL_LD	0x0010	/* Link Disable */
+-#define  PCI_EXP_LNKCTL_RL	0x0020	/* Retrain Link */
+-#define  PCI_EXP_LNKCTL_CCC	0x0040	/* Common Clock Configuration */
+-#define  PCI_EXP_LNKCTL_ES	0x0080	/* Extended Synch */
+-#define  PCI_EXP_LNKCTL_CLKREQ_EN 0x0100 /* Enable clkreq */
+-#define  PCI_EXP_LNKCTL_HAWD	0x0200	/* Hardware Autonomous Width Disable */
+-#define  PCI_EXP_LNKCTL_LBMIE	0x0400	/* Link Bandwidth Management Interrupt Enable */
+-#define  PCI_EXP_LNKCTL_LABIE	0x0800	/* Link Autonomous Bandwidth Interrupt Enable */
+-#define PCI_EXP_LNKSTA		18	/* Link Status */
+-#define  PCI_EXP_LNKSTA_CLS	0x000f	/* Current Link Speed */
+-#define  PCI_EXP_LNKSTA_CLS_2_5GB 0x0001 /* Current Link Speed 2.5GT/s */
+-#define  PCI_EXP_LNKSTA_CLS_5_0GB 0x0002 /* Current Link Speed 5.0GT/s */
+-#define  PCI_EXP_LNKSTA_CLS_8_0GB 0x0003 /* Current Link Speed 8.0GT/s */
+-#define  PCI_EXP_LNKSTA_NLW	0x03f0	/* Negotiated Link Width */
+-#define  PCI_EXP_LNKSTA_NLW_X1	0x0010	/* Current Link Width x1 */
+-#define  PCI_EXP_LNKSTA_NLW_X2	0x0020	/* Current Link Width x2 */
+-#define  PCI_EXP_LNKSTA_NLW_X4	0x0040	/* Current Link Width x4 */
+-#define  PCI_EXP_LNKSTA_NLW_X8	0x0080	/* Current Link Width x8 */
+-#define  PCI_EXP_LNKSTA_NLW_SHIFT 4	/* start of NLW mask in link status */
+-#define  PCI_EXP_LNKSTA_LT	0x0800	/* Link Training */
+-#define  PCI_EXP_LNKSTA_SLC	0x1000	/* Slot Clock Configuration */
+-#define  PCI_EXP_LNKSTA_DLLLA	0x2000	/* Data Link Layer Link Active */
+-#define  PCI_EXP_LNKSTA_LBMS	0x4000	/* Link Bandwidth Management Status */
+-#define  PCI_EXP_LNKSTA_LABS	0x8000	/* Link Autonomous Bandwidth Status */
+-#define PCI_CAP_EXP_ENDPOINT_SIZEOF_V1	20	/* v1 endpoints end here */
+-#define PCI_EXP_SLTCAP		20	/* Slot Capabilities */
+-#define  PCI_EXP_SLTCAP_ABP	0x00000001 /* Attention Button Present */
+-#define  PCI_EXP_SLTCAP_PCP	0x00000002 /* Power Controller Present */
+-#define  PCI_EXP_SLTCAP_MRLSP	0x00000004 /* MRL Sensor Present */
+-#define  PCI_EXP_SLTCAP_AIP	0x00000008 /* Attention Indicator Present */
+-#define  PCI_EXP_SLTCAP_PIP	0x00000010 /* Power Indicator Present */
+-#define  PCI_EXP_SLTCAP_HPS	0x00000020 /* Hot-Plug Surprise */
+-#define  PCI_EXP_SLTCAP_HPC	0x00000040 /* Hot-Plug Capable */
+-#define  PCI_EXP_SLTCAP_SPLV	0x00007f80 /* Slot Power Limit Value */
+-#define  PCI_EXP_SLTCAP_SPLS	0x00018000 /* Slot Power Limit Scale */
+-#define  PCI_EXP_SLTCAP_EIP	0x00020000 /* Electromechanical Interlock Present */
+-#define  PCI_EXP_SLTCAP_NCCS	0x00040000 /* No Command Completed Support */
+-#define  PCI_EXP_SLTCAP_PSN	0xfff80000 /* Physical Slot Number */
+-#define PCI_EXP_SLTCTL		24	/* Slot Control */
+-#define  PCI_EXP_SLTCTL_ABPE	0x0001	/* Attention Button Pressed Enable */
+-#define  PCI_EXP_SLTCTL_PFDE	0x0002	/* Power Fault Detected Enable */
+-#define  PCI_EXP_SLTCTL_MRLSCE	0x0004	/* MRL Sensor Changed Enable */
+-#define  PCI_EXP_SLTCTL_PDCE	0x0008	/* Presence Detect Changed Enable */
+-#define  PCI_EXP_SLTCTL_CCIE	0x0010	/* Command Completed Interrupt Enable */
+-#define  PCI_EXP_SLTCTL_HPIE	0x0020	/* Hot-Plug Interrupt Enable */
+-#define  PCI_EXP_SLTCTL_AIC	0x00c0	/* Attention Indicator Control */
+-#define  PCI_EXP_SLTCTL_ATTN_IND_ON    0x0040 /* Attention Indicator on */
+-#define  PCI_EXP_SLTCTL_ATTN_IND_BLINK 0x0080 /* Attention Indicator blinking */
+-#define  PCI_EXP_SLTCTL_ATTN_IND_OFF   0x00c0 /* Attention Indicator off */
+-#define  PCI_EXP_SLTCTL_PIC	0x0300	/* Power Indicator Control */
+-#define  PCI_EXP_SLTCTL_PWR_IND_ON     0x0100 /* Power Indicator on */
+-#define  PCI_EXP_SLTCTL_PWR_IND_BLINK  0x0200 /* Power Indicator blinking */
+-#define  PCI_EXP_SLTCTL_PWR_IND_OFF    0x0300 /* Power Indicator off */
+-#define  PCI_EXP_SLTCTL_PCC	0x0400	/* Power Controller Control */
+-#define  PCI_EXP_SLTCTL_PWR_ON         0x0000 /* Power On */
+-#define  PCI_EXP_SLTCTL_PWR_OFF        0x0400 /* Power Off */
+-#define  PCI_EXP_SLTCTL_EIC	0x0800	/* Electromechanical Interlock Control */
+-#define  PCI_EXP_SLTCTL_DLLSCE	0x1000	/* Data Link Layer State Changed Enable */
+-#define PCI_EXP_SLTSTA		26	/* Slot Status */
+-#define  PCI_EXP_SLTSTA_ABP	0x0001	/* Attention Button Pressed */
+-#define  PCI_EXP_SLTSTA_PFD	0x0002	/* Power Fault Detected */
+-#define  PCI_EXP_SLTSTA_MRLSC	0x0004	/* MRL Sensor Changed */
+-#define  PCI_EXP_SLTSTA_PDC	0x0008	/* Presence Detect Changed */
+-#define  PCI_EXP_SLTSTA_CC	0x0010	/* Command Completed */
+-#define  PCI_EXP_SLTSTA_MRLSS	0x0020	/* MRL Sensor State */
+-#define  PCI_EXP_SLTSTA_PDS	0x0040	/* Presence Detect State */
+-#define  PCI_EXP_SLTSTA_EIS	0x0080	/* Electromechanical Interlock Status */
+-#define  PCI_EXP_SLTSTA_DLLSC	0x0100	/* Data Link Layer State Changed */
+-#define PCI_EXP_RTCTL		28	/* Root Control */
+-#define  PCI_EXP_RTCTL_SECEE	0x0001	/* System Error on Correctable Error */
+-#define  PCI_EXP_RTCTL_SENFEE	0x0002	/* System Error on Non-Fatal Error */
+-#define  PCI_EXP_RTCTL_SEFEE	0x0004	/* System Error on Fatal Error */
+-#define  PCI_EXP_RTCTL_PMEIE	0x0008	/* PME Interrupt Enable */
+-#define  PCI_EXP_RTCTL_CRSSVE	0x0010	/* CRS Software Visibility Enable */
+-#define PCI_EXP_RTCAP		30	/* Root Capabilities */
+-#define PCI_EXP_RTSTA		32	/* Root Status */
+-#define PCI_EXP_RTSTA_PME	0x00010000 /* PME status */
+-#define PCI_EXP_RTSTA_PENDING	0x00020000 /* PME pending */
+-/*
+- * The Device Capabilities 2, Device Status 2, Device Control 2,
+- * Link Capabilities 2, Link Status 2, Link Control 2,
+- * Slot Capabilities 2, Slot Status 2, and Slot Control 2 registers
+- * are only present on devices with PCIe Capability version 2.
+- * Use pcie_capability_read_word() and similar interfaces to use them
+- * safely.
+- */
+-#define PCI_EXP_DEVCAP2		36	/* Device Capabilities 2 */
+-#define  PCI_EXP_DEVCAP2_ARI		0x00000020 /* Alternative Routing-ID */
+-#define  PCI_EXP_DEVCAP2_LTR		0x00000800 /* Latency tolerance reporting */
+-#define  PCI_EXP_DEVCAP2_OBFF_MASK	0x000c0000 /* OBFF support mechanism */
+-#define  PCI_EXP_DEVCAP2_OBFF_MSG	0x00040000 /* New message signaling */
+-#define  PCI_EXP_DEVCAP2_OBFF_WAKE	0x00080000 /* Re-use WAKE# for OBFF */
+-#define PCI_EXP_DEVCTL2		40	/* Device Control 2 */
+-#define  PCI_EXP_DEVCTL2_COMP_TIMEOUT	0x000f	/* Completion Timeout Value */
+-#define  PCI_EXP_DEVCTL2_ARI		0x0020	/* Alternative Routing-ID */
+-#define  PCI_EXP_DEVCTL2_IDO_REQ_EN	0x0100	/* Allow IDO for requests */
+-#define  PCI_EXP_DEVCTL2_IDO_CMP_EN	0x0200	/* Allow IDO for completions */
+-#define  PCI_EXP_DEVCTL2_LTR_EN		0x0400	/* Enable LTR mechanism */
+-#define  PCI_EXP_DEVCTL2_OBFF_MSGA_EN	0x2000	/* Enable OBFF Message type A */
+-#define  PCI_EXP_DEVCTL2_OBFF_MSGB_EN	0x4000	/* Enable OBFF Message type B */
+-#define  PCI_EXP_DEVCTL2_OBFF_WAKE_EN	0x6000	/* OBFF using WAKE# signaling */
+-#define PCI_EXP_DEVSTA2		42	/* Device Status 2 */
+-#define PCI_CAP_EXP_ENDPOINT_SIZEOF_V2	44	/* v2 endpoints end here */
+-#define PCI_EXP_LNKCAP2		44	/* Link Capabilities 2 */
+-#define  PCI_EXP_LNKCAP2_SLS_2_5GB	0x00000002 /* Supported Speed 2.5GT/s */
+-#define  PCI_EXP_LNKCAP2_SLS_5_0GB	0x00000004 /* Supported Speed 5.0GT/s */
+-#define  PCI_EXP_LNKCAP2_SLS_8_0GB	0x00000008 /* Supported Speed 8.0GT/s */
+-#define  PCI_EXP_LNKCAP2_CROSSLINK	0x00000100 /* Crosslink supported */
+-#define PCI_EXP_LNKCTL2		48	/* Link Control 2 */
+-#define PCI_EXP_LNKSTA2		50	/* Link Status 2 */
+-#define PCI_EXP_SLTCAP2		52	/* Slot Capabilities 2 */
+-#define PCI_EXP_SLTCTL2		56	/* Slot Control 2 */
+-#define PCI_EXP_SLTSTA2		58	/* Slot Status 2 */
+-
+-
+ /* PCI Enhanced Allocation registers */
+ 
+ #define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
+@@ -1112,9 +930,9 @@ struct udevice;
+  * @vendor:	PCI vendor ID (see pci_ids.h)
+  * @device:	PCI device ID (see pci_ids.h)
+  * @class:	PCI class, 3 bytes: (base, sub, prog-if)
+- * @is_phys:	Whether device is a physical or virtual function
+- * @pdev:	Physical function for VFs
+- * @vf_id:	VF identifier
++ * @is_virtfn:	Whether device is virtual function
++ * @pfdev:	Physical function device for VFs
++ * @virtid:	VF identifier
+  */
+ struct pci_child_platdata {
+ 	int devfn;
+@@ -1122,9 +940,9 @@ struct pci_child_platdata {
+ 	unsigned short device;
+ 	unsigned int class;
+ 
+-	bool is_phys;
+-	struct udevice *pdev;
+-	int vf_id;
++	bool is_virtfn;
++	struct udevice *pfdev;
++	int virtid;
+ };
+ 
+ /* PCI bus operations */
+@@ -1597,12 +1415,11 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
+  * 32b/64b BARs.  Note that duplicate BEI entries are not supported.
+  *
+  * @dev:	Device to check
+- * @bar:	Bar register offset (PCI_BASE_ADDRESS_...)
+- * @size:	BAR size
++ * @bar:	Bar number to read (numbered from 0)
+  * @flags:	Flags for the region type (PCI_REGION_...)
+  * @return: pointer to the virtual address to use or 0 on error
+  */
+-void *dm_pci_map_bar(struct udevice *dev, int bar, size_t *size, int flags);
++void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
+ 
+ /**
+  * dm_pci_find_next_capability() - find a capability starting from an offset
+diff --git a/net/eth-uclass.c b/net/eth-uclass.c
+index 91c2428db3..3bd98b01ad 100644
+--- a/net/eth-uclass.c
++++ b/net/eth-uclass.c
+@@ -393,9 +393,8 @@ int eth_initialize(void)
+ 	int num_devices = 0;
+ 	struct udevice *dev;
+ 
+-#ifndef CONFIG_MISC_INIT_R
+ 	eth_common_init();
+-#endif
++
+ 	/*
+ 	 * Devices need to write the hwaddr even if not started so that Linux
+ 	 * will have access to the hwaddr that u-boot stored for the device.
+-- 
+2.29.0
+

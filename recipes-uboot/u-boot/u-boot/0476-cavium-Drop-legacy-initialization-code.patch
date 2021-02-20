@@ -1,0 +1,45 @@
+From 9e5cb291edb8884ac260150bdf459261b6e0ac4c Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 19 May 2016 13:59:41 -0400
+Subject: [PATCH 0476/1239] cavium: Drop legacy initialization code
+
+This code is not relevant anymore since all network drivers are now
+initialized by the means of DM/ECAM
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ board/cavium/thunderx/thunderx.c | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 14492caa20..df9b50d7e7 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -125,9 +125,6 @@ int board_late_init(void)
+ int board_eth_init(bd_t *bis)
+ {
+ 	int rc = 0;
+-#if defined(CONFIG_THUNDERX_VNIC)
+-	struct nicpf* nicpf;
+-	unsigned int node;
+ 
+ #ifdef CONFIG_RANDOM_MACADDR
+ 	unsigned char ethaddr[6];
+@@ -138,14 +135,6 @@ int board_eth_init(bd_t *bis)
+ 		eth_setenv_enetaddr("ethaddr", ethaddr);
+ 	}
+ #endif
+-#endif
+-
+-
+-
+-	for (node = 0; node < atf_node_count(); node++) {
+-		thunderx_bgx_initialize(0, node);
+-		thunderx_bgx_initialize(1, node);
+-	}
+ 
+ 	rc = pci_eth_init(bis);
+ 
+-- 
+2.29.0
+

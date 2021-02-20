@@ -1,0 +1,233 @@
+From 950388eedeaa0e2c6788be30c7a04da42181df5a Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Fri, 30 Mar 2018 14:58:36 +0800
+Subject: [PATCH 0171/1239] spi: kirkwood: add direct write mode
+
+This patch ports the linux kernel commit "spi: orion: Add direct
+access mode" written by Stefan Roese to u-boot.
+
+This patch adds support for the direct write mode to the kirkwood
+SPI driver which is used on the Marvell Armada based SoCs. In this
+direct write mode, all data written to a specifically mapped
+window (linked to one SPI chip-select on one of the SPI controllers)
+will be transferred directly to the SPI bus. Without the need to
+control the SPI registers in between. This can improve the SPI
+write rate in such cases.
+
+Please note that direct-read and direct-write mode are supported in
+different way.
+ - Write mode benefits from the SPI direct mode, as the data bytes
+   are written head-to-head to the SPI bus, without any additional
+   addresses;
+ - For direct-read mode, we can read spi data directly from the
+   specifically mapped window, for example, the SPI mapped window
+   is [0xf9000000, 0xf9ffffff] in armada 7040 DB board, we can read
+   spi flahs address n(n < 0x1000000) by reading (0xf9000000 + n).
+
+This mode is described in chapter "43.10 Direct mode" in the Marvell
+Armada 70xx/80xx Functional Spec Datasheet.
+
+Change-Id: Ic1e383c982211f511ecf18b55197788f5fe391d7
+Signed-off-by: Stefan Roese <sr@denx.de>
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ doc/device-tree-bindings/spi/mvebu-spi.txt | 43 ++++++++++++
+ drivers/spi/kirkwood_spi.c                 | 82 +++++++++++++++++++++-
+ 2 files changed, 124 insertions(+), 1 deletion(-)
+
+diff --git a/doc/device-tree-bindings/spi/mvebu-spi.txt b/doc/device-tree-bindings/spi/mvebu-spi.txt
+index 8db329b8cf..95840fd24d 100644
+--- a/doc/device-tree-bindings/spi/mvebu-spi.txt
++++ b/doc/device-tree-bindings/spi/mvebu-spi.txt
+@@ -10,6 +10,15 @@ SoC specific:
+ 				"marvell,armada-380-spi"
+ 				"marvell,armada-xp-spi"
+ - reg:			Base address of SPI host controllers
++- reg : 		offset and length of the register set for the device.
++			This property can optionally have additional entries to configure
++			the SPI direct access mode that some of the Marvell SoCs support
++			additionally to the normal indirect access (PIO) mode. The values
++			for the MBus "target" and "attribute" are defined in the Marvell
++			SoC "Functional Specifications" Manual in the chapter "Marvell
++			Core Processor Address Decoding".
++			The register sets following the control registers refer to
++			chip-select lines 0 through n(n<=7) respectively.
+ - clocks:		This property points to the used clock for the SPI interface.
+ - cell-index:		SPI unit id.
+ - #address-cells: 	Must be <1>, as required by generic SPI binding.
+@@ -28,3 +37,37 @@ Example: For SPI-0 node:
+ 			cell-index = <1>;
+ 			clocks = <&cpm_syscon0 0 3>;
+ 	};
++
++Example with SPI direct mode support in armada 7040 DB boards(optionally):
++	&cp0_spi1: spi@700680 {
++		compatible = "marvell,armada-380-spi";
++		pinctrl-names = "default";
++		pinctrl-0 = <&cp0_spi0_pins>;
++		reg = <0x700680 0x50>,		/* control */
++		      <0x2000000 0x1000000>,	/* CS0 */
++		      <0 0xffffffff>,		/* CS1 */
++		      <0 0xffffffff>,		/* CS2 */
++		      <0 0xffffffff>;		/* CS3 */
++		#address-cells = <1>;
++		#size-cells = <0>;
++		cell-index = <2>;
++	};
++
++To enable the direct mode, the board specific 'ranges' property needs
++to add the entries for the desired SPI controllers and its chip-selects
++that are used in the direct mode instead of PIO mode. Here an example
++for this (SPI controller 1, device 0 is used in direct mode. All other
++SPI device are used in the default indirect (PIO) mode):
++
++#define SPI_DIRECT_BASE                                (0xf9000000)
++
++	cp0 {
++		config-space {
++			/*
++			* Enable the SPI direct access by configuring an entry
++			* here in the board-specific ranges property
++			*/
++			ranges = <0x0 U64_TO_U32_H(CP110_BASE) U64_TO_U32_L(CP110_BASE) 0x2000000>,			/* internal regs */
++				 <0x2000000 U64_TO_U32_H(SPI_DIRECT_BASE) U64_TO_U32_L(SPI_DIRECT_BASE) 0x1000000>;	/* SPI1-DEV0 */
++		}
++	};
+diff --git a/drivers/spi/kirkwood_spi.c b/drivers/spi/kirkwood_spi.c
+index e14eb53917..f27ebf50e8 100644
+--- a/drivers/spi/kirkwood_spi.c
++++ b/drivers/spi/kirkwood_spi.c
+@@ -28,6 +28,33 @@ static void _spi_cs_deactivate(struct kwspi_registers *reg)
+ 	clrbits_le32(&reg->ctrl, KWSPI_CSN_ACT);
+ }
+ 
++static int _spi_direct_write(struct kwspi_registers *reg, unsigned int bitlen,
++			     const void *dout, void *din, unsigned long flags,
++			     void *direct_addr)
++{
++	unsigned int count = bitlen / 8;
++	unsigned int words = count / 4;
++	unsigned int rem = count % 4;
++
++	if (flags & SPI_XFER_BEGIN)
++		_spi_cs_activate(reg);
++
++	clrsetbits_le32(&reg->cfg, KWSPI_XFERLEN_MASK, KWSPI_XFERLEN_1BYTE);
++
++	if (words)
++		writesl(direct_addr, dout, words);
++	if (rem) {
++		u32 *buf = (u32 *)dout;
++
++		writesb(direct_addr, &buf[words], rem);
++	}
++
++	if (flags & SPI_XFER_END)
++		_spi_cs_deactivate(reg);
++
++	return 0;
++}
++
+ static int _spi_xfer(struct kwspi_registers *reg, unsigned int bitlen,
+ 		     const void *dout, void *din, unsigned long flags)
+ {
+@@ -203,8 +230,15 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+ }
+ 
+ #else
++DECLARE_GLOBAL_DATA_PTR;
+ 
+ /* Here now the DM part */
++#define CHIPSELECTS_NUM		8
++
++struct mvebu_spi_direct_acc {
++	void __iomem		*addr;
++	u32			size;
++};
+ 
+ struct mvebu_spi_dev {
+ 	bool			is_errata_50mhz_ac;
+@@ -213,6 +247,7 @@ struct mvebu_spi_dev {
+ struct mvebu_spi_platdata {
+ 	struct kwspi_registers *spireg;
+ 	bool is_errata_50mhz_ac;
++	struct mvebu_spi_direct_acc	direct_access[CHIPSELECTS_NUM];
+ };
+ 
+ struct mvebu_spi_priv {
+@@ -348,8 +383,13 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
+ {
+ 	struct udevice *bus = dev->parent;
+ 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
++	void *direct_addr = plat->direct_access[spi_chip_select(dev)].addr;
+ 
+-	return _spi_xfer(plat->spireg, bitlen, dout, din, flags);
++	if (dout && direct_addr)
++		return _spi_direct_write(plat->spireg, bitlen, dout,
++					 din, flags, direct_addr);
++	else
++		return _spi_xfer(plat->spireg, bitlen, dout, din, flags);
+ }
+ 
+ __attribute__((weak)) int mvebu_board_spi_claim_bus(struct udevice *dev)
+@@ -389,6 +429,9 @@ static int mvebu_spi_probe(struct udevice *bus)
+ 	writel(KWSPI_SMEMRDIRQ, &reg->irq_cause);
+ 	writel(KWSPI_IRQMASK, &reg->irq_mask);
+ 
++	/* Don't deassert CS between the direct mapped SPI transfers */
++	writel(0, &reg->dw_cfg);
++
+ 	return 0;
+ }
+ 
+@@ -397,10 +440,47 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
+ 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+ 	const struct mvebu_spi_dev *drvdata =
+ 		(struct mvebu_spi_dev *)dev_get_driver_data(bus);
++	struct udevice *child_dev;
+ 
+ 	plat->spireg = (struct kwspi_registers *)devfdt_get_addr(bus);
+ 	plat->is_errata_50mhz_ac = drvdata->is_errata_50mhz_ac;
+ 
++	list_for_each_entry(child_dev, &bus->child_head, sibling_node) {
++		int cs;
++		fdt_addr_t direct_addr;
++		fdt_size_t size;
++
++		/* Get chip-select number from the "reg" property */
++		cs = fdtdec_get_int(gd->fdt_blob, dev_of_offset(child_dev),
++				    "reg", -1);
++		if (cs == -1) {
++			printf("%s has no valid 'reg' property\n",
++			       child_dev->name);
++			continue;
++		}
++
++		/*
++		 * Check if an address is configured for this SPI device. If
++		 * not, the MBus mapping via the 'ranges' property in the 'soc'
++		 * node is not configured and this device should not use the
++		 * direct mode. In this case, just continue with the next
++		 * device.
++		 */
++		direct_addr = devfdt_get_addr_size_index(bus, cs + 1, &size);
++		if (direct_addr == FDT_ADDR_T_NONE) {
++			printf("\nBus %s CS%d address is not set correct.\n",
++			       bus->name, cs);
++			plat->direct_access[cs].addr = NULL;
++			continue;
++		}
++		plat->direct_access[cs].addr = (void *)direct_addr;
++		plat->direct_access[cs].size = size;
++		printf("\nBus %s CS%d configured for direct access %p:0x%x\n",
++		       bus->name, cs,
++		       plat->direct_access[cs].addr,
++		       plat->direct_access[cs].size);
++	}
++
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

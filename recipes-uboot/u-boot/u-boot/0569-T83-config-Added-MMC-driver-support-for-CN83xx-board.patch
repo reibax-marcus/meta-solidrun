@@ -1,0 +1,39 @@
+From e927683d81ff873dd4f3b73a809492a1a412f589 Mon Sep 17 00:00:00 2001
+From: Nithya <nithya.mani@caviumnetworks.com>
+Date: Mon, 14 Nov 2016 17:54:28 -0800
+Subject: [PATCH 0569/1239] T83 config : Added MMC driver support for CN83xx
+ boards
+
+---
+ include/configs/thunderx_83xx.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index aa83f55abd..c61220a9db 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -267,6 +267,9 @@
+ /** Enable UUIDs for drives >= 3TB */
+ #define CONFIG_PARTITION_UUIDS
+ 
++/** Enable EXT4 filesystem support */
++#define CONFIG_FS_EXT4
++
+ /* PCIe */
+ /** Show devices found on PCI bus */
+ #define CONFIG_PCI_SCAN_SHOW
+@@ -395,4 +398,11 @@
+ 
+ #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
+ 
++#define CONFIG_OCTEON_MMC
++#define CONFIG_CMD_MMC
++#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
++#define CONFIG_SYS_MMC_SET_DEV
++
++#define CONFIG_CMD_TIME
++
+ #endif /* __THUNDERX_83XX_H__ */
+-- 
+2.29.0
+

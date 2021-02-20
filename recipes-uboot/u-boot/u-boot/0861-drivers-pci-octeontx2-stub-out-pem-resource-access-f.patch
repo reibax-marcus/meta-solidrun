@@ -1,0 +1,40 @@
+From e427d818f94bc9ad337a0e655be707b7c44a4add Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 24 Dec 2018 14:29:06 -0800
+Subject: [PATCH 0861/1239] drivers: pci: octeontx2: stub out pem resource
+ access for 8xx
+
+Change-Id: I00d35b1ef1efb0cf3deb0bf97ae438a64b75617e
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1476
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ drivers/pci/pci_octeontx_ecam.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pci/pci_octeontx_ecam.c b/drivers/pci/pci_octeontx_ecam.c
+index 8eb640d66c..244a5bcce3 100644
+--- a/drivers/pci/pci_octeontx_ecam.c
++++ b/drivers/pci/pci_octeontx_ecam.c
+@@ -466,6 +466,7 @@ static int pci_octeontx_ecam_probe(struct udevice *dev)
+ 		return err;
+ 	}
+ 
++#if defined(CONFIG_ARCH_OCTEONTX2)
+ 	err = fdt_node_check_compatible(gd->fdt_blob, dev->node.of_offset,
+ 					"marvell,pci-host-octeontx2-pem");
+ 	if (!err) {
+@@ -478,7 +479,7 @@ static int pci_octeontx_ecam_probe(struct udevice *dev)
+ 			return err;
+ 		}
+ 	}
+-
++#endif
+ 	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->node.of_offset,
+ 				       &pcie->bus);
+ 
+-- 
+2.29.0
+

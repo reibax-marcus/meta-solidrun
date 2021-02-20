@@ -1,0 +1,65 @@
+From c305b64a504e80e4a48c41718204739bcacb2a86 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Sun, 30 Apr 2017 20:16:55 +0300
+Subject: [PATCH 0015/1239] phy: marvell: cp110: utmi: update analog parameters
+ according to latest ETP
+
+Add UTMI analog parameters initialization values according to
+latest ETP.
+
+Change-Id: I5bcca205a3995202a18ff126f371a81f69e205c8
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ drivers/phy/marvell/comphy_cp110.c | 9 +++------
+ drivers/phy/marvell/utmi_phy.h     | 5 ++++-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/phy/marvell/comphy_cp110.c b/drivers/phy/marvell/comphy_cp110.c
+index e3dbaad69e..c1af0a08fc 100644
+--- a/drivers/phy/marvell/comphy_cp110.c
++++ b/drivers/phy/marvell/comphy_cp110.c
+@@ -1704,15 +1704,12 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
+ 
+ 	/* Impedance Calibration Threshold Setting */
+ 	reg_set(utmi_base_addr + UTMI_CALIB_CTRL_REG,
+-		0x6 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET,
++		0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET,
+ 		UTMI_CALIB_CTRL_IMPCAL_VTH_MASK);
+ 
+ 	/* Set LS TX driver strength coarse control */
+-	mask = UTMI_TX_CH_CTRL_DRV_EN_LS_MASK;
+-	data = 0x3 << UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET;
+-	/* Set LS TX driver fine adjustment */
+-	mask |= UTMI_TX_CH_CTRL_IMP_SEL_LS_MASK;
+-	data |= 0x3 << UTMI_TX_CH_CTRL_IMP_SEL_LS_OFFSET;
++	mask = UTMI_TX_CH_CTRL_AMP_MASK;
++	data = 0x4 << UTMI_TX_CH_CTRL_AMP_OFFSET;
+ 	reg_set(utmi_base_addr + UTMI_TX_CH_CTRL_REG, data, mask);
+ 
+ 	/* Enable SQ */
+diff --git a/drivers/phy/marvell/utmi_phy.h b/drivers/phy/marvell/utmi_phy.h
+index 682a3acc40..fa6bf3c914 100644
+--- a/drivers/phy/marvell/utmi_phy.h
++++ b/drivers/phy/marvell/utmi_phy.h
+@@ -52,6 +52,9 @@
+ #define UTMI_TX_CH_CTRL_IMP_SEL_LS_OFFSET	16
+ #define UTMI_TX_CH_CTRL_IMP_SEL_LS_MASK		\
+ 	(0xf << UTMI_TX_CH_CTRL_IMP_SEL_LS_OFFSET)
++#define UTMI_TX_CH_CTRL_AMP_OFFSET		20
++#define UTMI_TX_CH_CTRL_AMP_MASK		\
++	(0x7 << UTMI_TX_CH_CTRL_AMP_OFFSET)
+ 
+ #define UTMI_RX_CH_CTRL0_REG			0x14
+ #define UTMI_RX_CH_CTRL0_SQ_DET_OFFSET		15
+@@ -64,7 +67,7 @@
+ #define UTMI_RX_CH_CTRL1_REG			0x18
+ #define UTMI_RX_CH_CTRL1_SQ_AMP_CAL_OFFSET	0
+ #define UTMI_RX_CH_CTRL1_SQ_AMP_CAL_MASK	\
+-	(0x3 << UTMI_RX_CH_CTRL1_SQ_AMP_CAL_OFFSET)
++	(0x7 << UTMI_RX_CH_CTRL1_SQ_AMP_CAL_OFFSET)
+ #define UTMI_RX_CH_CTRL1_SQ_AMP_CAL_EN_OFFSET	3
+ #define UTMI_RX_CH_CTRL1_SQ_AMP_CAL_EN_MASK	\
+ 	(0x1 << UTMI_RX_CH_CTRL1_SQ_AMP_CAL_EN_OFFSET)
+-- 
+2.29.0
+

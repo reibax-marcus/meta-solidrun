@@ -1,0 +1,154 @@
+From 6f1df7bba7a03a15b26ecaae72d9051b51468f5e Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Tue, 17 Dec 2019 17:30:06 +0100
+Subject: [PATCH 1047/1239] thermal: a80x0: a70x0: use smc calls for thermal
+ sensor init and read
+
+Since the dfx register set is going to be marked as secure, use smc for
+performing thermal sensor configuration and read.
+
+If during thermal initialisation the smc will be not supported (old fw),
+fallback to normal handling.
+
+Change-Id: Ia32d0c572714c5435b063635473795187212546e
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/20588
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/include/asm/arch-mvebu/thermal.h |  1 +
+ arch/arm/mach-mvebu/armada8k/soc.c        | 15 ++++++++
+ arch/arm/mach-mvebu/include/mach/soc.h    |  9 +++++
+ drivers/thermal/mvebu_ext_thermal_28nm.c  | 44 ++++++++++++++++++++++-
+ 4 files changed, 68 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/include/asm/arch-mvebu/thermal.h b/arch/arm/include/asm/arch-mvebu/thermal.h
+index 2a011fb000..44fb2e5f2b 100644
+--- a/arch/arm/include/asm/arch-mvebu/thermal.h
++++ b/arch/arm/include/asm/arch-mvebu/thermal.h
+@@ -21,6 +21,7 @@ struct thermal_unit_config {
+ 	u32 (*ptr_thermal_sensor_probe)(struct thermal_unit_config *cfg);
+ 	s32 (*ptr_thermal_sensor_read)(struct thermal_unit_config *cfg,
+ 				       int *temp);
++	u32 fw_smc_support;
+ };
+ 
+ /* Thermal sensors APIs */
+diff --git a/arch/arm/mach-mvebu/armada8k/soc.c b/arch/arm/mach-mvebu/armada8k/soc.c
+index 322668c816..a3f3fa93bb 100644
+--- a/arch/arm/mach-mvebu/armada8k/soc.c
++++ b/arch/arm/mach-mvebu/armada8k/soc.c
+@@ -69,6 +69,21 @@ static struct soc_info soc_info_table[] = {
+ 	{ {0x8045, 0}, "Armada8040-B0", {0x806, 2}, {0x115, 0}, 1, 2, 0},
+ };
+ 
++int mvebu_dfx_smc(u32 addr, u32 *reg)
++{
++	struct pt_regs pregs = {0};
++
++	pregs.regs[0] = MV_SIP_DFX;
++	pregs.regs[1] = addr;
++
++	smc_call(&pregs);
++
++	if (pregs.regs[0] == 0 && reg)
++		*reg = pregs.regs[1];
++
++	return pregs.regs[0];
++}
++
+ static int get_soc_type_rev(u32 *type, u32 *rev)
+ {
+ 	*type = readl(CP_DEV_ID_STATUS_REG) & DEVICE_ID_STATUS_MASK;
+diff --git a/arch/arm/mach-mvebu/include/mach/soc.h b/arch/arm/mach-mvebu/include/mach/soc.h
+index 9f9927e426..91c0c2e790 100644
+--- a/arch/arm/mach-mvebu/include/mach/soc.h
++++ b/arch/arm/mach-mvebu/include/mach/soc.h
+@@ -230,7 +230,16 @@
+ #define BOOT_FROM_SPI		0x3
+ #endif
+ 
++/* FW related definitions */
++#define MV_SIP_DFX			0x82000014
++#define MV_SIP_DFX_THERMAL_INIT		1
++#define MV_SIP_DFX_THERMAL_READ		2
++#define MV_SIP_DFX_THERMAL_IS_VALID	3
++
+ #ifndef __ASSEMBLY__
++#include <asm/types.h>
++
++int mvebu_dfx_smc(u32 addr, u32 *reg);
+ void soc_print_device_info(void);
+ int soc_get_ap_cp_num(void *ap_num, void *cp_num);
+ void soc_print_system_cache_info(void);
+diff --git a/drivers/thermal/mvebu_ext_thermal_28nm.c b/drivers/thermal/mvebu_ext_thermal_28nm.c
+index 9afea50a24..980de4cf3b 100644
+--- a/drivers/thermal/mvebu_ext_thermal_28nm.c
++++ b/drivers/thermal/mvebu_ext_thermal_28nm.c
+@@ -44,6 +44,16 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
+ 		return 0;
+ 	}
+ 
++	if (tsen->fw_smc_support) {
++		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_READ, temp);
++		if (ret)
++			return ret;
++
++		*temp = *temp / tsen->tsen_divisor;
++
++		return ret;
++	}
++
+ 	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_STATS);
+ 	reg = ((reg & THERMAL_SEN_CTRL_STATS_TEMP_OUT_MASK) >>
+ 	      THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET);
+@@ -62,13 +72,45 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
+ 	return ret;
+ }
+ 
++static u32 mvebu_thermal_ext_fw_validation(struct thermal_unit_config *tsen)
++{
++	u32 reg = 0, timeout = 0;
++	int ret;
++
++	debug("%s: fw smc support\n", __func__);
++
++	tsen->fw_smc_support = true;
++
++	while ((reg) == 0 && timeout < THERMAL_TIMEOUT) {
++		udelay(10);
++		ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_IS_VALID, &reg);
++		timeout++;
++	}
++
++	if (reg == 0) {
++		pr_err("%s: thermal.%lx: external sensor is not ready\n",
++		       __func__, (uintptr_t)tsen->regs_base);
++		return -1;
++	}
++
++	debug("thermal.%lx: Initialization done\n", (uintptr_t)tsen->regs_base);
++
++	return ret;
++}
++
+ u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *tsen)
+ {
+-	u32 reg, timeout = 0;
++	u32 reg = 0, timeout = 0;
++	int ret;
+ 
+ 	debug("thermal.%lx Initializing sensor unit\n",
+ 	      (uintptr_t)tsen->regs_base);
+ 
++	/* Try init thermal sensor via firmware, if fails try legacy */
++	ret = mvebu_dfx_smc(MV_SIP_DFX_THERMAL_INIT, 0x0);
++	if (ret == SMCCC_RET_SUCCESS)
++		return mvebu_thermal_ext_fw_validation(tsen);
++
+ 	/* Initialize thermal sensor hardware reset once */
+ 	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_LSB);
+ 	/* De-assert TSEN_RESET */
+-- 
+2.29.0
+

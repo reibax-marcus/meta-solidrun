@@ -1,0 +1,29 @@
+From ec8c2378cd92e35b0cb768f1b14b23069f3ee2b9 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 31 Jan 2020 11:22:30 -0800
+Subject: [PATCH 1077/1239] drivers: spi: octeontx: Fix memory leak
+
+Change-Id: Iba7a16cb13eeb6c7285e8a6c97d26b7b4f9e9f69
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/22701
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/spi/octeontx_spi.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/spi/octeontx_spi.c b/drivers/spi/octeontx_spi.c
+index e2404b2170..ee4c426df9 100644
+--- a/drivers/spi/octeontx_spi.c
++++ b/drivers/spi/octeontx_spi.c
+@@ -644,6 +644,7 @@ static int octeontx_spi_exec_op(struct spi_slave *slave,
+ 			flags |= SPI_XFER_END;
+ 		ret = octeontx_spi_xfer(slave->dev, i * 8, (void *)buf, NULL,
+ 					flags);
++		free(buf);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+-- 
+2.29.0
+

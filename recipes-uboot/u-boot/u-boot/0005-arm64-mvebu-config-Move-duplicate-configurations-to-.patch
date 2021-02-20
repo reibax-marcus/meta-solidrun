@@ -1,0 +1,389 @@
+From 98dde97f6604b22c105c86b7812b4587038c3f10 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Sun, 6 Aug 2017 15:13:49 +0300
+Subject: [PATCH 0005/1239] arm64: mvebu: config: Move duplicate configurations
+ to a common file
+
+Move duplicate settings from configuration files of A8K and
+A37xx files to a common file - mvebu_armada-common.h.
+This common file is included in both families configuration
+files and marvell defaults replace disto defaults.
+This patch also aligns the malloc buffer size of A3k with A8K
+platform - increase it from 4MB to 8MB and move to the common
+configuration section.
+
+Change-Id: I3f2d31f9dc318c42cfe5adf1eb9964abb5b564f1
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Signed-off-by: Ken Ma <make@marvell.com>
+
+[Adjust to mainline U-Boot]
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+---
+ include/configs/mvebu_armada-37xx.h   |  93 ++----------------
+ include/configs/mvebu_armada-8k.h     |  77 +--------------
+ include/configs/mvebu_armada-common.h | 133 ++++++++++++++++++++++++++
+ 3 files changed, 144 insertions(+), 159 deletions(-)
+ create mode 100644 include/configs/mvebu_armada-common.h
+
+diff --git a/include/configs/mvebu_armada-37xx.h b/include/configs/mvebu_armada-37xx.h
+index bc249039c8..1d3db87dd1 100644
+--- a/include/configs/mvebu_armada-37xx.h
++++ b/include/configs/mvebu_armada-37xx.h
+@@ -6,45 +6,15 @@
+ #ifndef _CONFIG_MVEBU_ARMADA_37XX_H
+ #define _CONFIG_MVEBU_ARMADA_37XX_H
+ 
+-/*
+- * High Level Configuration Options (easy to change)
+- */
+-
+-/* additions for new ARM relocation support */
+-#define CONFIG_SYS_SDRAM_BASE	0x00000000
++#define CONFIG_DEFAULT_CONSOLE		"console=ttyMV0,115200 "\
++					"earlycon=ar3700_uart,0xd0012000"
+ 
+-/* auto boot */
+-
+-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, \
+-					  115200, 230400, 460800, 921600 }
++#include <configs/mvebu_armada-common.h>
+ 
+ /*
+- * For booting Linux, the board info and command line data
+- * have to be in the first 8 MB of memory, since this is
+- * the maximum mapped by the Linux kernel during initialization.
+- */
+-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
+-#define CONFIG_INITRD_TAG		/* enable INITRD tag */
+-#define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
+-
+-#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
+-
+-/*
+- * Size of malloc() pool
+- */
+-#define CONFIG_SYS_MALLOC_LEN	(4 << 20) /* 4MiB for malloc() */
+-
+-/*
+- * Other required minimal configurations
++ * High Level Configuration Options (easy to change)
+  */
+-#define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
+-#define CONFIG_SYS_MEMTEST_START 0x00800000	/* 8M */
+-#define CONFIG_SYS_MEMTEST_END	0x00ffffff	/*(_16M -1) */
+-#define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
+-#define CONFIG_SYS_MAXARGS	32	/* max number of command args */
+-
+-/* End of 16M scrubbed by training in bootrom */
+-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
++#define CONFIG_NR_DRAM_BANKS	1
+ 
+ /*
+  * I2C
+@@ -52,57 +22,6 @@
+ #define CONFIG_I2C_MV
+ #define CONFIG_SYS_I2C_SLAVE		0x0
+ 
+-/*
+- * SPI Flash configuration
+- */
+-
+-#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+-#define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
+-
+-/* Environment in SPI NOR flash */
+-#define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */
+-#define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
+-#define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
+-
+-/*
+- * Ethernet Driver configuration
+- */
+-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
+-#define CONFIG_ARP_TIMEOUT	200
+-#define CONFIG_NET_RETRY_COUNT	50
+-
+-#define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
+-
+-/* USB ethernet */
+-
+-/*
+- * SATA/SCSI/AHCI configuration
+- */
+-#define CONFIG_SCSI_AHCI_PLAT
+-#define CONFIG_LBA48
+-#define CONFIG_SYS_64BIT_LBA
+-
+-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
+-#define CONFIG_SYS_SCSI_MAX_LUN		1
+-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+-					 CONFIG_SYS_SCSI_MAX_LUN)
+-
+-#define BOOT_TARGET_DEVICES(func) \
+-	func(MMC, mmc, 1) \
+-	func(MMC, mmc, 0) \
+-	func(USB, usb, 0) \
+-	func(SCSI, scsi, 0) \
+-	func(PXE, pxe, na) \
+-	func(DHCP, dhcp, na)
+-
+-#include <config_distro_bootcmd.h>
+-
+-#define CONFIG_EXTRA_ENV_SETTINGS	\
+-	"scriptaddr=0x4d00000\0"	\
+-	"pxefile_addr_r=0x4e00000\0"	\
+-	"fdt_addr_r=0x4f00000\0"	\
+-	"kernel_addr_r=0x5000000\0"	\
+-	"ramdisk_addr_r=0x8000000\0"	\
+-	BOOTENV
++#define CONFIG_USB_MAX_CONTROLLER_COUNT (1 + 2)
+ 
+ #endif /* _CONFIG_MVEBU_ARMADA_37XX_H */
+diff --git a/include/configs/mvebu_armada-8k.h b/include/configs/mvebu_armada-8k.h
+index 3be36833de..494c4197ed 100644
+--- a/include/configs/mvebu_armada-8k.h
++++ b/include/configs/mvebu_armada-8k.h
+@@ -6,50 +6,15 @@
+ #ifndef _CONFIG_MVEBU_ARMADA_8K_H
+ #define _CONFIG_MVEBU_ARMADA_8K_H
+ 
+-/*
+- * High Level Configuration Options (easy to change)
+- */
+-#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
+-
+-/* additions for new ARM relocation support */
+-#define CONFIG_SYS_SDRAM_BASE	0x00000000
+-
+-/* auto boot */
+-
+-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, \
+-					  115200, 230400, 460800, 921600 }
++#define CONFIG_DEFAULT_CONSOLE		"console=ttyS0,115200 "\
++					"earlycon=uart8250,mmio32,0xf0512000"
+ 
+-/*
+- * For booting Linux, the board info and command line data
+- * have to be in the first 8 MB of memory, since this is
+- * the maximum mapped by the Linux kernel during initialization.
+- */
+-#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
+-#define CONFIG_INITRD_TAG		/* enable INITRD tag */
+-#define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
+-
+-#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
++#include <configs/mvebu_armada-common.h>
+ 
+ /*
+- * Size of malloc() pool
+- */
+-#define CONFIG_SYS_MALLOC_LEN	(4 << 20) /* 4MiB for malloc() */
+-
+-/*
+- * Other required minimal configurations
++ * High Level Configuration Options (easy to change)
+  */
+-#define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
+-#define CONFIG_SYS_MEMTEST_START 0x00800000	/* 8M */
+-#define CONFIG_SYS_MEMTEST_END	0x00ffffff	/*(_16M -1) */
+-#define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
+-#define CONFIG_SYS_MAXARGS	32	/* max number of command args */
+-
+-/* End of 16M scrubbed by training in bootrom */
+-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
+-
+-#define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */
+-#define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
+-#define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
++#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
+ 
+ /* When runtime detection fails this is the default */
+ #define CONFIG_SYS_MMC_ENV_DEV		0
+@@ -58,29 +23,8 @@
+ #define CONFIG_SYS_NAND_MAX_CHIPS	1
+ #define CONFIG_SYS_NAND_ONFI_DETECTION
+ 
+-/*
+- * Ethernet Driver configuration
+- */
+-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
+-#define CONFIG_ARP_TIMEOUT	200
+-#define CONFIG_NET_RETRY_COUNT	50
+-
+ #define CONFIG_USB_MAX_CONTROLLER_COUNT (3 + 3)
+ 
+-/* USB ethernet */
+-
+-/*
+- * SATA/SCSI/AHCI configuration
+- */
+-#define CONFIG_SCSI_AHCI_PLAT
+-#define CONFIG_LBA48
+-#define CONFIG_SYS_64BIT_LBA
+-
+-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
+-#define CONFIG_SYS_SCSI_MAX_LUN		1
+-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+-					 CONFIG_SYS_SCSI_MAX_LUN)
+-
+ /*
+  * PCI configuration
+  */
+@@ -96,15 +40,4 @@
+ 	func(PXE, pxe, na) \
+ 	func(DHCP, dhcp, na)
+ 
+-#include <config_distro_bootcmd.h>
+-
+-#define CONFIG_EXTRA_ENV_SETTINGS	\
+-	"scriptaddr=0x4d00000\0"	\
+-	"pxefile_addr_r=0x4e00000\0"	\
+-	"fdt_addr_r=0x4f00000\0"	\
+-	"kernel_addr_r=0x5000000\0"	\
+-	"ramdisk_addr_r=0x8000000\0"	\
+-	"fdtfile=marvell/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+-	BOOTENV
+-
+ #endif /* _CONFIG_MVEBU_ARMADA_8K_H */
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+new file mode 100644
+index 0000000000..44c1d13ecf
+--- /dev/null
++++ b/include/configs/mvebu_armada-common.h
+@@ -0,0 +1,133 @@
++/*
++ * Copyright (C) 2016 Stefan Roese <sr@denx.de>
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ */
++
++#ifndef _CONFIG_MVEBU_ARMADA_H
++#define _CONFIG_MVEBU_ARMADA_H
++
++#include <asm/arch/soc.h>
++
++/* Additions for new ARM relocation support */
++#define CONFIG_SYS_SDRAM_BASE		0x00000000
++
++/* Console */
++#define CONFIG_BAUDRATE			115200
++#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, \
++					  115200, 230400, 460800, 921600 }
++
++/* Default Env vars */
++#define CONFIG_IPADDR			0.0.0.0	/* In order to cause an error */
++#define CONFIG_SERVERIP			0.0.0.0	/* In order to cause an error */
++#define CONFIG_NETMASK			255.255.255.0
++#define CONFIG_GATEWAYIP		10.4.50.254
++#define CONFIG_HAS_ETH1
++#define CONFIG_HAS_ETH2
++#define CONFIG_ETHPRIME			"eth0"
++#define CONFIG_ROOTPATH			"/srv/nfs/" /* Default Dir for NFS */
++#define CONFIG_EXTRA_ENV_SETTINGS	"kernel_addr=0x5000000\0"	\
++					"initrd_addr=0xa00000\0"	\
++					"initrd_size=0x2000000\0"	\
++					"fdt_addr=0x4f00000\0"		\
++					"loadaddr=0x5000000\0"		\
++					"fdt_high=0xffffffffffffffff\0"	\
++					"hostname=marvell\0"		\
++					"ramfs_addr=0x8000000\0"	\
++					"ramfs_name=-\0"		\
++					"fdt_name=fdt.dtb\0"		\
++					"netdev=eth0\0"			\
++					"ethaddr=00:51:82:11:22:00\0"	\
++					"eth1addr=00:51:82:11:22:01\0"	\
++					"eth2addr=00:51:82:11:22:02\0"	\
++					"eth3addr=00:51:82:11:22:03\0"	\
++					"image_name=Image\0"		\
++					"get_ramfs=if test \"${ramfs_name}\"" \
++						" != \"-\"; then setenv " \
++						"ramfs_addr 0x8000000; " \
++						"tftpboot $ramfs_addr " \
++						"$ramfs_name; else setenv " \
++						"ramfs_addr -;fi\0"	\
++					"get_images=tftpboot $kernel_addr " \
++						"$image_name; tftpboot " \
++						"$fdt_addr $fdt_name; " \
++						"run get_ramfs\0"	\
++					"console=" CONFIG_DEFAULT_CONSOLE "\0"\
++					"root=root=/dev/nfs rw\0"	\
++					"set_bootargs=setenv bootargs $console"\
++						" $root ip=$ipaddr:$serverip:" \
++						"$gatewayip:$netmask:$hostname"\
++						":$netdev:none nfsroot="\
++						"$serverip:$rootpath " \
++						"$extra_params"
++
++/*
++ * For booting Linux, the board info and command line data
++ * have to be in the first 8 MB of memory, since this is
++ * the maximum mapped by the Linux kernel during initialization.
++ */
++#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
++#define CONFIG_INITRD_TAG		/* enable INITRD tag */
++#define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
++
++#define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
++#define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE \
++		+ sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buff */
++
++/*
++ * Size of malloc() pool
++ */
++#define CONFIG_SYS_MALLOC_LEN	(8 << 20) /* 8MiB for malloc() */
++
++/*
++ * Other required minimal configurations
++ */
++#define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
++#define CONFIG_SYS_MEMTEST_START 0x00800000	/* 8M */
++#define CONFIG_SYS_MEMTEST_END	0x00ffffff	/*(_16M -1) */
++#define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
++#define CONFIG_SYS_MAXARGS	32	/* max number of command args */
++
++#define CONFIG_SYS_ALT_MEMTEST
++
++/* End of 16M scrubbed by training in bootrom */
++#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_TEXT_BASE + 0xFF0000)
++
++/*
++ * SPI Flash configuration
++ */
++#define CONFIG_ENV_SPI_BUS		0
++#define CONFIG_ENV_SPI_CS		0
++
++/* SPI NOR flash default params, used by sf commands */
++#define CONFIG_SF_DEFAULT_SPEED		1000000
++#define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
++
++#define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */
++#define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
++#define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
++
++/*
++ * SATA/SCSI/AHCI configuration
++ */
++#define CONFIG_SCSI_AHCI_PLAT
++#define CONFIG_LBA48
++#define CONFIG_SYS_64BIT_LBA
++
++#define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
++#define CONFIG_SYS_SCSI_MAX_LUN		1
++#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
++					 CONFIG_SYS_SCSI_MAX_LUN)
++
++/*
++ * Ethernet Driver configuration
++ */
++#define CONFIG_ARP_TIMEOUT	200
++#define CONFIG_NET_RETRY_COUNT	50
++
++/*
++ * The EEPROM ST M24C64 has 32 byte page write mode and takes up to 10 msec.
++ */
++#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
++
++#endif /* _CONFIG_MVEBU_ARMADA_H */
+-- 
+2.29.0
+

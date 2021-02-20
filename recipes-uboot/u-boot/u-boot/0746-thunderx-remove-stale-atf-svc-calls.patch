@@ -1,0 +1,179 @@
+From aff56a27f3e9b2f429b19bc4290106bc95947408 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 17 Jan 2018 15:12:40 -0800
+Subject: [PATCH 0746/1239] thunderx: remove stale atf svc calls
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ arch/arm/include/asm/arch-thunderx/atf.h |  10 --
+ board/cavium/thunderx/atf.c              | 129 +----------------------
+ 2 files changed, 1 insertion(+), 138 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-thunderx/atf.h b/arch/arm/include/asm/arch-thunderx/atf.h
+index 4fb8946d4b..f5929a1ee8 100644
+--- a/arch/arm/include/asm/arch-thunderx/atf.h
++++ b/arch/arm/include/asm/arch-thunderx/atf.h
+@@ -7,16 +7,6 @@
+ #define __ATF_H__
+ #include <asm/arch/atf_part.h>
+ 
+-ssize_t atf_read_mmc(uintptr_t offset, void *buffer, size_t size);
+-ssize_t atf_read_nor(uintptr_t offset, void *buffer, size_t size);
+-ssize_t atf_get_pcount(void);
+-ssize_t atf_get_part(struct storage_partition *part, unsigned int index);
+-ssize_t atf_erase_nor(uintptr_t offset, size_t size);
+-ssize_t atf_write_nor(uintptr_t offset, const void *buffer, size_t size);
+-ssize_t atf_write_mmc(uintptr_t offset, const void *buffer, size_t size);
+ ssize_t atf_dram_size(unsigned int node);
+ ssize_t atf_node_count(void);
+-ssize_t atf_env_count(void);
+-ssize_t atf_env_string(size_t index, char *str);
+-ssize_t atf_get_bdk_fdt(void *buffer, size_t buffer_size);
+ #endif
+diff --git a/board/cavium/thunderx/atf.c b/board/cavium/thunderx/atf.c
+index 44b178da20..fedcf9ec4d 100644
+--- a/board/cavium/thunderx/atf.c
++++ b/board/cavium/thunderx/atf.c
+@@ -15,93 +15,7 @@
+ 
+ #include <malloc.h>
+ 
+-ssize_t atf_read_mmc(uintptr_t offset, void *buffer, size_t size)
+-{
+-	struct pt_regs regs;
+-	regs.regs[0] = THUNDERX_MMC_READ;
+-	regs.regs[1] = offset;
+-	regs.regs[2] = size;
+-	regs.regs[3] = (uintptr_t)buffer;
+-
+-	smc_call(&regs);
+-
+-	return regs.regs[0];
+-}
+-
+-ssize_t atf_read_nor(uintptr_t offset, void *buffer, size_t size)
+-{
+-	struct pt_regs regs;
+-	regs.regs[0] = THUNDERX_NOR_READ;
+-	regs.regs[1] = offset;
+-	regs.regs[2] = size;
+-	regs.regs[3] = (uintptr_t)buffer;
+-
+-	smc_call(&regs);
+-
+-	return regs.regs[0];
+-}
+-
+-ssize_t atf_get_pcount(void)
+-{
+-	struct pt_regs regs;
+-	regs.regs[0] = THUNDERX_PART_COUNT;
+-
+-	smc_call(&regs);
+-
+-	return regs.regs[0];
+-}
+-
+-ssize_t atf_get_part(struct storage_partition *part, unsigned int index)
+-{
+-	struct pt_regs regs;
+-	regs.regs[0] = THUNDERX_GET_PART;
+-	regs.regs[1] = (uintptr_t)part;
+-	regs.regs[2] = index;
+-
+-	smc_call(&regs);
+-
+-	return regs.regs[0];
+-}
+-
+-ssize_t atf_erase_nor(uintptr_t offset, size_t size)
+-{
+-	struct pt_regs regs;
+-
+-	regs.regs[0] = THUNDERX_NOR_ERASE;
+-	regs.regs[1] = offset;
+-
+-	smc_call(&regs);
+-
+-	return regs.regs[0];
+-}
+-
+-ssize_t atf_write_nor(uintptr_t offset, const void *buffer, size_t size)
+-{
+-	struct pt_regs regs;
+-
+-	regs.regs[0] = THUNDERX_NOR_WRITE;
+-	regs.regs[1] = offset;
+-	regs.regs[2] = size;
+-	regs.regs[3] = (uintptr_t)buffer;
+-
+-	smc_call(&regs);
+-
+-	return regs.regs[0];
+-}
+-
+-ssize_t atf_write_mmc(uintptr_t offset, const void *buffer, size_t size)
+-{
+-	struct pt_regs regs;
+-
+-	regs.regs[0] = THUNDERX_MMC_WRITE;
+-	regs.regs[1] = offset;
+-	regs.regs[2] = size;
+-	regs.regs[3] = (uintptr_t)buffer;
+-
+-	smc_call(&regs);
+-
+-	return regs.regs[0];
+-}
++DECLARE_GLOBAL_DATA_PTR;
+ 
+ ssize_t atf_dram_size(unsigned int node)
+ {
+@@ -124,44 +38,3 @@ ssize_t atf_node_count(void)
+ 	return regs.regs[0];
+ }
+ 
+-ssize_t atf_env_count(void)
+-{
+-	struct pt_regs regs;
+-	regs.regs[0] = THUNDERX_ENV_COUNT;
+-
+-	smc_call(&regs);
+-
+-	return regs.regs[0];
+-}
+-
+-ssize_t atf_env_string(size_t index, char *str)
+-{
+-	uint64_t *buf = (void *)str;
+-	struct pt_regs regs;
+-	regs.regs[0] = THUNDERX_ENV_STRING;
+-	regs.regs[1] = index;
+-
+-	smc_call(&regs);
+-
+-	if (regs.regs > 0) {
+-		buf[0] = regs.regs[0];
+-		buf[1] = regs.regs[1];
+-		buf[2] = regs.regs[2];
+-		buf[3] = regs.regs[3];
+-
+-		return 1;
+-	} else {
+-		return regs.regs[0];
+-	}
+-}
+-
+-ssize_t atf_get_bdk_fdt(void *buffer, size_t buffer_size)
+-{
+-	struct pt_regs regs;
+-	regs.regs[0] = THUNDERX_FDT_GET;
+-	regs.regs[1] = (uintptr_t)buffer;
+-	regs.regs[2] = buffer_size;
+-	smc_call(&regs);
+-	return regs.regs[0];
+-}
+-
+-- 
+2.29.0
+

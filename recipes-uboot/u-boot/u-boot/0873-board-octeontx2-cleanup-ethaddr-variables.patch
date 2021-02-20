@@ -1,0 +1,72 @@
+From 1d901b380b1abdcc9b16156b7266f1d8c1251371 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 23 Jan 2019 18:44:04 -0800
+Subject: [PATCH 0873/1239] board: octeontx2: cleanup ethaddr variables
+
+Delete any existing ethaddr variables in environment as with
+every boot there is chance of change in configuration of interfaces,
+which leads to unnecessary warnings during boot.
+
+Change-Id: Ic9c09ff9ca7d5ead06849a1363548d2bf70d8041
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/2709
+Tested-by: sa_ip-sw-jenkins
+---
+ board/Marvell/octeontx/octeontx.c   |  3 ++-
+ board/Marvell/octeontx2/octeontx2.c | 16 +++++++++++++++-
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/board/Marvell/octeontx/octeontx.c b/board/Marvell/octeontx/octeontx.c
+index 4a0859366d..67cfc4206f 100644
+--- a/board/Marvell/octeontx/octeontx.c
++++ b/board/Marvell/octeontx/octeontx.c
+@@ -199,7 +199,8 @@ int board_late_init(void)
+ 
+ 	/*
+ 	 * Now that pci_init initializes env device.
+-	 * Try to validate ethaddr env variables
++	 * Try to cleanup ethaddr env variables, this is needed
++	 * as with each boot, configuration of QLM can change.
+ 	 */
+ 	octeontx_cleanup_ethaddr();
+ 
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index cba3db2df6..e0cb3f9d49 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -25,6 +25,17 @@ extern unsigned long fdt_base_addr;
+ extern void cgx_intf_shutdown(void);
+ extern void eth_common_init(void);
+ 
++void octeontx2_cleanup_ethaddr(void)
++{
++	char ename[32];
++
++	for (int i = 0; i < 20; i++) {
++		sprintf(ename, i ? "eth%daddr" : "ethaddr", i);
++		if (env_get(ename))
++			env_set_force(ename, NULL);
++	}
++}
++
+ void octeontx_parse_board_info(void)
+ {
+ 	const char *str;
+@@ -166,10 +177,13 @@ int board_late_init(void)
+ 	char boardname[20];
+ 
+ 	debug("%s()\n", __func__);
++
+ 	/*
+ 	 * Now that pci_init initializes env device.
+-	 * Try to validate ethaddr env variables
++	 * Try to cleanup ethaddr env variables, this is needed
++	 * as with each boot, configuration of QLM can change.
+ 	 */
++	octeontx2_cleanup_ethaddr();
+ 
+ 	debug("bdt.type %s\n", g_cavm_bdt.type);
+ 	snprintf(boardname, sizeof(boardname), "%s> ", g_cavm_bdt.type);
+-- 
+2.29.0
+

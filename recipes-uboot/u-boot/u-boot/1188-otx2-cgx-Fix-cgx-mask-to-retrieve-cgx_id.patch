@@ -1,0 +1,30 @@
+From 67882777ddfc8da0f2a63575046375190ecfccbe Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Thu, 2 Jul 2020 11:33:16 -0700
+Subject: [PATCH 1188/1239] otx2: cgx: Fix cgx mask to retrieve cgx_id
+
+Change-Id: I8cbce6757b49902c1ac3a1a64c62b1ead88eb245
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/31338
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/net/octeontx2/cgx_intf.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index 0b2bf696fe..8fbbe1ae0d 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -16,7 +16,7 @@
+ #define CGX_CMR_SCRATCH0	0x87e0e0001050
+ #define CGX_CMR_SCRATCH1	0x87e0e0001058
+ 
+-#define CGX_SHIFT(x)		(0x1000000 * ((x) & 0x3))
++#define CGX_SHIFT(x)		(0x1000000 * ((x) & 0x7))
+ #define CMR_SHIFT(x)		(0x40000 * ((x) & 0x3))
+ 
+ /* CGX error types. set for cmd response status as CGX_STAT_FAIL */
+-- 
+2.29.0
+

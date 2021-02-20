@@ -1,0 +1,33 @@
+From 692a37800373596605f0cb932a79ba5c44df8080 Mon Sep 17 00:00:00 2001
+From: Ben Peled <bpeled@marvell.com>
+Date: Mon, 20 Apr 2020 18:48:08 +0300
+Subject: [PATCH 1137/1239] net: mvpp2: remove unused define
+ MVPP22_SMI_PHY_ADDR_REG
+
+Change-Id: I645a7fde9fd4a9cc6f23e9ec4ba9e3e982078885
+Signed-off-by: Ben Peled <bpeled@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27202
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/net/mvpp2.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/net/mvpp2.c b/drivers/net/mvpp2.c
+index 050ceac01c..6362c647c2 100644
+--- a/drivers/net/mvpp2.c
++++ b/drivers/net/mvpp2.c
+@@ -478,9 +478,6 @@ do {									\
+ #define MVPP22_SMI_MISC_CFG_REG			(MVPP22_SMI + 0x04)
+ #define      MVPP22_SMI_POLLING_EN		BIT(10)
+ 
+-#define MVPP22_SMI_PHY_ADDR_REG(port)		(MVPP22_SMI + 0x04 + \
+-						 (0x4 * (port)))
+-
+ #define MVPP2_CAUSE_TXQ_SENT_DESC_ALL_MASK	0xff
+ 
+ /* Descriptor ring Macros */
+-- 
+2.29.0
+

@@ -1,0 +1,373 @@
+From 3047d49b842b37c0c06eb9ab8b1459e900d0c0ec Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Tue, 30 Jun 2020 16:17:34 +0300
+Subject: [PATCH 1190/1239] configs/mvebu_*: enable FIT update and DM SPI in
+ all setups
+
+Enable support for SPI MDT model and fitupd  command in all
+Marvell platforms default configuration files mvebu_*_defconfig
+Enable SPI flash driver model as well.
+
+CONFIG_CMD_FITUPD=y
+CONFIG_DM_SPI_FLASH=y
+CONFIG_SPI_FLASH_MTD=y
+CONFIG_FIT=y
+CONFIG_FIT_VERBOSE=y
+CONFIG_OF_LIBFDT=y
+CONFIG_UPDATE_TFTP=y
+
+Change-Id: Iecb164f3999275a744bba2e84bbc39041e067413
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/31198
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+---
+ configs/mvebu_comexpress-88f7020_defconfig  | 6 ++++++
+ configs/mvebu_crb_cn9130_defconfig          | 6 ++++++
+ configs/mvebu_crb_ep_cn9130_defconfig       | 6 ++++++
+ configs/mvebu_db-88f3720_defconfig          | 7 +++++++
+ configs/mvebu_db_armada8k_defconfig         | 6 ++++++
+ configs/mvebu_db_cn91xx_defconfig           | 6 ++++++
+ configs/mvebu_db_ep_cn91xx_defconfig        | 6 ++++++
+ configs/mvebu_espressobin-88f3720_defconfig | 7 +++++++
+ configs/mvebu_mcbin-88f8040_defconfig       | 6 ++++++
+ configs/mvebu_ocp-88f8040_defconfig         | 6 ++++++
+ configs/mvebu_ucpe-88f8040_defconfig        | 6 ++++++
+ 11 files changed, 68 insertions(+)
+
+diff --git a/configs/mvebu_comexpress-88f7020_defconfig b/configs/mvebu_comexpress-88f7020_defconfig
+index 52b23f1527..61099a11c2 100644
+--- a/configs/mvebu_comexpress-88f7020_defconfig
++++ b/configs/mvebu_comexpress-88f7020_defconfig
+@@ -31,6 +31,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -60,6 +61,7 @@ CONFIG_MTD=y
+ CONFIG_NAND=y
+ CONFIG_NAND_PXA3XX=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+@@ -95,3 +97,7 @@ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_crb_cn9130_defconfig b/configs/mvebu_crb_cn9130_defconfig
+index 835f93e442..f111ca07e8 100644
+--- a/configs/mvebu_crb_cn9130_defconfig
++++ b/configs/mvebu_crb_cn9130_defconfig
+@@ -30,6 +30,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -64,6 +65,7 @@ CONFIG_MTD=y
+ CONFIG_NAND=y
+ CONFIG_NAND_PXA3XX=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+@@ -100,3 +102,7 @@ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_crb_ep_cn9130_defconfig b/configs/mvebu_crb_ep_cn9130_defconfig
+index 9d0726f20f..08fd4cdd87 100644
+--- a/configs/mvebu_crb_ep_cn9130_defconfig
++++ b/configs/mvebu_crb_ep_cn9130_defconfig
+@@ -34,6 +34,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -68,6 +69,7 @@ CONFIG_MTD=y
+ CONFIG_NAND=y
+ CONFIG_NAND_PXA3XX=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+@@ -103,3 +105,7 @@ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index 2cfe6cd0b7..1596b1b518 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -27,6 +27,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -52,11 +53,13 @@ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_SDMA=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SF_DEFAULT_MODE=0
+ CONFIG_SF_DEFAULT_SPEED=40000000
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_SPI_FLASH_MTD=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_DM_MDIO=y
+ CONFIG_PHY_GIGE=y
+@@ -87,3 +90,7 @@ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SHA1=y
+ CONFIG_SHA256=y
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index d4ca810b89..0b4ef2061f 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -34,6 +34,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -66,6 +67,7 @@ CONFIG_MTD=y
+ CONFIG_NAND=y
+ CONFIG_NAND_PXA3XX=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SF_DEFAULT_MODE=0
+ CONFIG_SF_DEFAULT_SPEED=40000000
+ CONFIG_SPI_FLASH_MACRONIX=y
+@@ -106,3 +108,7 @@ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_db_cn91xx_defconfig b/configs/mvebu_db_cn91xx_defconfig
+index 4cceb9df54..1532d1b500 100644
+--- a/configs/mvebu_db_cn91xx_defconfig
++++ b/configs/mvebu_db_cn91xx_defconfig
+@@ -30,6 +30,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -60,6 +61,7 @@ CONFIG_MTD=y
+ CONFIG_NAND=y
+ CONFIG_NAND_PXA3XX=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+@@ -96,3 +98,7 @@ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_db_ep_cn91xx_defconfig b/configs/mvebu_db_ep_cn91xx_defconfig
+index 72756724ab..1a0d632545 100644
+--- a/configs/mvebu_db_ep_cn91xx_defconfig
++++ b/configs/mvebu_db_ep_cn91xx_defconfig
+@@ -34,6 +34,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -64,6 +65,7 @@ CONFIG_MTD=y
+ CONFIG_NAND=y
+ CONFIG_NAND_PXA3XX=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+@@ -100,3 +102,7 @@ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_espressobin-88f3720_defconfig b/configs/mvebu_espressobin-88f3720_defconfig
+index 60f8dea13f..5c9206387d 100644
+--- a/configs/mvebu_espressobin-88f3720_defconfig
++++ b/configs/mvebu_espressobin-88f3720_defconfig
+@@ -27,6 +27,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -49,6 +50,7 @@ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_SDMA=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SF_DEFAULT_MODE=0
+ CONFIG_SF_DEFAULT_SPEED=40000000
+ CONFIG_SPI_FLASH_GIGADEVICE=y
+@@ -57,6 +59,7 @@ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_SPI_FLASH_WINBOND=y
++CONFIG_SPI_FLASH_MTD=y
+ CONFIG_MV88E6XXX_SWITCH=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_DM_MDIO=y
+@@ -87,3 +90,7 @@ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SHA1=y
+ CONFIG_SHA256=y
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_mcbin-88f8040_defconfig b/configs/mvebu_mcbin-88f8040_defconfig
+index 24bb9eb938..04c7820b4d 100644
+--- a/configs/mvebu_mcbin-88f8040_defconfig
++++ b/configs/mvebu_mcbin-88f8040_defconfig
+@@ -31,6 +31,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -56,6 +57,7 @@ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_MTD=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SF_DEFAULT_MODE=0
+ CONFIG_SF_DEFAULT_SPEED=40000000
+ CONFIG_SPI_FLASH_MACRONIX=y
+@@ -95,3 +97,7 @@ CONFIG_USB_ETHER_ASIX=y
+ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_ocp-88f8040_defconfig b/configs/mvebu_ocp-88f8040_defconfig
+index f991b6e9ee..824c06aa26 100644
+--- a/configs/mvebu_ocp-88f8040_defconfig
++++ b/configs/mvebu_ocp-88f8040_defconfig
+@@ -32,6 +32,7 @@ CONFIG_CMD_MTD=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -59,6 +60,7 @@ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_MTD=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+@@ -91,3 +93,7 @@ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_ucpe-88f8040_defconfig b/configs/mvebu_ucpe-88f8040_defconfig
+index 806cd4f7f4..8fba4c8ab9 100644
+--- a/configs/mvebu_ucpe-88f8040_defconfig
++++ b/configs/mvebu_ucpe-88f8040_defconfig
+@@ -26,6 +26,7 @@ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_FITUPD=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+@@ -49,6 +50,7 @@ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_MTD=y
+ CONFIG_SPI_FLASH=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+@@ -84,3 +86,7 @@ CONFIG_USB_ETHER_MCS7830=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_OF_LIBFDT=y
++CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
+-- 
+2.29.0
+

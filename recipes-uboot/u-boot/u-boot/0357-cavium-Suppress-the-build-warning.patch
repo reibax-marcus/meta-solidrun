@@ -1,0 +1,24 @@
+From 6b0949022ec43c6683c2b148cb2c91079b54156c Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Fri, 6 Nov 2015 16:22:24 -0800
+Subject: [PATCH 0357/1239] cavium: Suppress the build warning
+
+---
+ include/configs/thunderx_88xx.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 5806c49ad0..32ae12458c 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -145,7 +145,6 @@
+ #define CONFIG_CMD_DIAG
+ #define CONFIG_CMD_ENV
+ #define CONFIG_CMD_FLASH
+-#define CONFIG_CMD_GO
+ #define CONFIG_CMD_IMI
+ #define CONFIG_CMD_MEMORY
+ #define CONFIG_CMD_RUN
+-- 
+2.29.0
+

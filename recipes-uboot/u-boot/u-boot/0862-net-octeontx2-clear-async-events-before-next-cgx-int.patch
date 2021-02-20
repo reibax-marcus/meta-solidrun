@@ -1,0 +1,63 @@
+From 9b2d42031490f4176f59cde8ca539364ccf4edb5 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 26 Dec 2018 13:59:19 -0800
+Subject: [PATCH 0862/1239] net: octeontx2: clear async events before next cgx
+ interface command
+
+Clear async events in status register before issue of next command
+to ATF, otherwise response will be invalid.
+
+Change-Id: I1f944f4b8041b104dba658af4926636f99514aec
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1477
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ drivers/net/octeontx2/cgx_intf.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index 118a10a015..258103c6f9 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -69,12 +69,28 @@ static int wait_for_ownership(u8 cgx, u8 lmac)
+ {
+ 	union cgx_scratchx1 scr1;
+ 	union cgx_scratchx0 scr0;
++	u64 cmrx_int;
+ 	int timeout = 5000;
+ 
+ 	do {
+ 	
+ 		scr1.u = cgx_rd_scr1(cgx, lmac);
+ 		scr0.u = cgx_rd_scr0(cgx, lmac);
++		/* clear async events if any */
++		if ((scr0.s.evt_sts.evt_type == CGX_EVT_ASYNC) &&
++			scr0.s.evt_sts.ack) {
++			/* clear interrupt */
++			cmrx_int = readq(CGX_CMR_INT +
++					 CGX_SHIFT(cgx) + CMR_SHIFT(lmac));
++			cmrx_int |= 0x2; // Overflw bit
++			writeq(cmrx_int, CGX_CMR_INT +
++					 CGX_SHIFT(cgx) + CMR_SHIFT(lmac));
++
++			/* clear ack */
++			scr0.s.evt_sts.ack = 0;
++			cgx_wr_scr0(cgx, lmac, scr0.u);
++		}
++
+ 		if (timeout-- < 0) {
+ 			debug("timeout waiting for ownership\n");
+ 			return -ETIMEDOUT;
+@@ -98,7 +114,7 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
+ 		err = -ETIMEDOUT;
+ 		goto error;
+ 	}
+- 
++
+ 	/* send command */
+ 	scr1.u = cgx_rd_scr1(cgx, lmac);
+ 	scr1.s.cmd.id = cmd;
+-- 
+2.29.0
+

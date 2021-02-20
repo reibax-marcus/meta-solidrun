@@ -1,0 +1,263 @@
+From 915301d29cb792303d4a668dd57e43b47e4982a2 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 29 Jun 2016 17:13:53 -0700
+Subject: [PATCH 0511/1239] Moved thunderx arch specific include files
+
+I forgot to include the new arch directory for thunderx in my last checkin.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ arch/arm/include/asm/arch-thunderx/atf.h      | 22 ++++++
+ arch/arm/include/asm/arch-thunderx/atf_part.h | 26 +++++++
+ arch/arm/include/asm/arch-thunderx/slt.h      | 11 +++
+ arch/arm/include/asm/arch-thunderx/thunderx.h | 13 ++++
+ .../include/asm/arch-thunderx/thunderx_fdt.h  | 11 +++
+ .../include/asm/arch-thunderx/thunderx_smi.h  | 12 ++++
+ .../include/asm/arch-thunderx/thunderx_svc.h  | 70 +++++++++++++++++++
+ .../include/asm/arch-thunderx/thunderx_vnic.h | 20 ++++++
+ 8 files changed, 185 insertions(+)
+ create mode 100644 arch/arm/include/asm/arch-thunderx/atf.h
+ create mode 100644 arch/arm/include/asm/arch-thunderx/atf_part.h
+ create mode 100644 arch/arm/include/asm/arch-thunderx/slt.h
+ create mode 100644 arch/arm/include/asm/arch-thunderx/thunderx.h
+ create mode 100644 arch/arm/include/asm/arch-thunderx/thunderx_fdt.h
+ create mode 100644 arch/arm/include/asm/arch-thunderx/thunderx_smi.h
+ create mode 100644 arch/arm/include/asm/arch-thunderx/thunderx_svc.h
+ create mode 100644 arch/arm/include/asm/arch-thunderx/thunderx_vnic.h
+
+diff --git a/arch/arm/include/asm/arch-thunderx/atf.h b/arch/arm/include/asm/arch-thunderx/atf.h
+new file mode 100644
+index 0000000000..4fb8946d4b
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/atf.h
+@@ -0,0 +1,22 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++#ifndef __ATF_H__
++#define __ATF_H__
++#include <asm/arch/atf_part.h>
++
++ssize_t atf_read_mmc(uintptr_t offset, void *buffer, size_t size);
++ssize_t atf_read_nor(uintptr_t offset, void *buffer, size_t size);
++ssize_t atf_get_pcount(void);
++ssize_t atf_get_part(struct storage_partition *part, unsigned int index);
++ssize_t atf_erase_nor(uintptr_t offset, size_t size);
++ssize_t atf_write_nor(uintptr_t offset, const void *buffer, size_t size);
++ssize_t atf_write_mmc(uintptr_t offset, const void *buffer, size_t size);
++ssize_t atf_dram_size(unsigned int node);
++ssize_t atf_node_count(void);
++ssize_t atf_env_count(void);
++ssize_t atf_env_string(size_t index, char *str);
++ssize_t atf_get_bdk_fdt(void *buffer, size_t buffer_size);
++#endif
+diff --git a/arch/arm/include/asm/arch-thunderx/atf_part.h b/arch/arm/include/asm/arch-thunderx/atf_part.h
+new file mode 100644
+index 0000000000..182f6f4b88
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/atf_part.h
+@@ -0,0 +1,26 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++
++#ifndef __ATF_PART_H__
++#define __ATF_PART_H__
++
++struct storage_partition {
++	unsigned int type;
++	unsigned int size;
++	unsigned long offset;
++};
++
++enum {
++	PARTITION_NBL1FW_REST = 0,
++	PARTITION_BL2_BL31 = 1,
++	PARTITION_UBOOT = 2,
++	PARTITION_UEFI = 2,
++	PARTITION_KERNEL = 3,
++	PARTITION_DEVICE_TREE = 4,
++	PARTITION_LAST,
++};
++
++#endif
+diff --git a/arch/arm/include/asm/arch-thunderx/slt.h b/arch/arm/include/asm/arch-thunderx/slt.h
+new file mode 100644
+index 0000000000..8ef89ba17c
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/slt.h
+@@ -0,0 +1,11 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++#ifndef _SLT_H_
++#define _SLT_H_
++
++unsigned long slt_main(void);
++
++#endif /* _SLT_H_ */
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx.h b/arch/arm/include/asm/arch-thunderx/thunderx.h
+new file mode 100644
+index 0000000000..2fb02af075
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/thunderx.h
+@@ -0,0 +1,13 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++#ifndef __THUNDERX_H__
++#define __THUNDERX_H__
++
++#define CSR_PA(node, csr) ((csr) | ((uint64_t)(node) << 44))
++
++#define RST_BOOT 0x87E006001600ULL
++
++#endif
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_fdt.h b/arch/arm/include/asm/arch-thunderx/thunderx_fdt.h
+new file mode 100644
+index 0000000000..b25355ae3d
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/thunderx_fdt.h
+@@ -0,0 +1,11 @@
++/**
++ * (C) Copyright 2016, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++#ifndef __THUNDERX_FDT_H__
++#define __THUNDERX_FDT_H__
++
++void thunderx_parse_bdk_config(void);
++
++#endif
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_smi.h b/arch/arm/include/asm/arch-thunderx/thunderx_smi.h
+new file mode 100644
+index 0000000000..a3929cab8f
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/thunderx_smi.h
+@@ -0,0 +1,12 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++
++#ifndef THUNDERX_SMI_H_
++#define THUNDERX_SMI_H_
++
++int thunderx_smi_initialize(bd_t *bis, unsigned int index);
++
++#endif /* THUNDERX_SMI_H_ */
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_svc.h b/arch/arm/include/asm/arch-thunderx/thunderx_svc.h
+new file mode 100644
+index 0000000000..2e3e632858
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/thunderx_svc.h
+@@ -0,0 +1,70 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++
++#ifndef __THUNDERX_SVC_H__
++#define __THUNDERX_SVC_H__
++
++/* SMC function IDs for general purpose queries */
++
++#define THUNDERX_SVC_CALL_COUNT		0x4300ff00
++#define THUNDERX_SVC_UID		0x4300ff01
++
++#define THUNDERX_SVC_VERSION		0x4300ff03
++
++#define ARM_STD_SVC_VERSION		0x8400ff03
++
++/* ThunderX Service Calls version numbers */
++#define THUNDERX_VERSION_MAJOR	0x0
++#define THUNDERX_VERSION_MINOR	0x1
++
++#define THUNDERX_MMC_READ		0x43000101
++/* x1 - block address
++ * x2 - size
++ * x3 - buffer address
++ */
++#define THUNDERX_MMC_WRITE		0x43000102
++/* x1 - block address
++ * x2 - size
++ * x3 - buffer address
++ */
++
++#define THUNDERX_NOR_READ		0x43000111
++/* x1 - block address
++ * x2 - size
++ * x3 - buffer address
++ */
++#define THUNDERX_NOR_WRITE		0x43000112
++/* x1 - block address
++ * x2 - size
++ * x3 - buffer address
++ */
++#define THUNDERX_NOR_ERASE		0x43000113
++/* x1 - block address
++ */
++
++#define THUNDERX_PART_COUNT		0x43000201
++#define THUNDERX_GET_PART		0x43000202
++/* x1 - pointer to the buffer
++ * x2 - index
++ */
++
++#define THUNDERX_DRAM_SIZE		0x43000301
++/* x1 - node number
++ */
++
++#define THUNDERX_GTI_SYNC		0x43000401
++
++#define THUNDERX_ENV_COUNT		0x43000501
++#define THUNDERX_ENV_STRING		0x43000502
++/* x1 - index
++ */
++
++#define THUNDERX_NODE_COUNT		0x43000601
++
++/* x1 - user buffer, x2 - buffer size */
++#define THUNDERX_FDT_GET                0x43000701
++
++#endif /* __THUNDERX_SVC_H__ */
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_vnic.h b/arch/arm/include/asm/arch-thunderx/thunderx_vnic.h
+new file mode 100644
+index 0000000000..e79284c8c5
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/thunderx_vnic.h
+@@ -0,0 +1,20 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++
++#ifndef VNIC_H_
++#define VNIC_H_
++
++struct nicpf;
++struct nicvf;
++
++int nicvf_initialize(struct udevice *dev, int vf_num);
++int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
++void bgx_get_count(int node, int *bgx_count);
++int bgx_get_lmac_count(int node, int bgx_idx);
++void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
++			unsigned int *phy_addr);
++
++#endif /* VNIC_H_ */
+-- 
+2.29.0
+

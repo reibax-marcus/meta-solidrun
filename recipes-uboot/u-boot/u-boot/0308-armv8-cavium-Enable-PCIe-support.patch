@@ -1,0 +1,44 @@
+From 6a3c49cac1b71481da2abd4e41f7027b0e684b3a Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
+Date: Thu, 19 Mar 2015 18:07:12 +0300
+Subject: [PATCH 0308/1239] armv8: cavium: Enable PCIe support
+
+---
+ include/configs/thunderx_88xx.h | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 69609ac3f6..91921d149a 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -10,6 +10,12 @@
+ 
+ #define CONFIG_THUNDERX
+ 
++#define CONFIG_SPECIAL_SYNC_HANDLER
++
++/*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
++
++#define CONFIG_SYS_GENERIC_BOARD
++
+ #define CONFIG_SYS_64BIT
+ 
+ #define MEM_BASE			0x00500000
+@@ -110,6 +116,14 @@
+ #define CONFIG_EFI_PARTITION
+ #define CONFIG_PARTITION_UUIDS
+ 
++/* PCIe */
++#define CONFIG_PCI
++#define CONFIG_SYS_PCI_64BIT
++#define CONFIG_PCI_SCAN_SHOW
++#undef CONFIG_PCI_ENUM_ONLY
++#define CONFIG_PCI_PNP
++#define CONFIG_THUNDER_ECAMS 4
++
+ #define CONFIG_SYS_CACHELINE_SIZE 128
+ 
+ #define CONFIG_SYS_I2C
+-- 
+2.29.0
+

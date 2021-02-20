@@ -1,0 +1,95 @@
+From 7a4d8763a79f6a38e0c10f83dce033347429f92c Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 24 Apr 2019 14:02:21 -0700
+Subject: [PATCH 0900/1239] octeontx2: fix u-boot config check errors
+
+SDK builds only target u-boot-nodtb.bin but few kconfig
+errors appear with full make, so fix them.
+
+Change-Id: I599fbbdedd61bccdf0275eb1638bc7d5c57bda37
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/8033
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx2/Kconfig |  4 ++--
+ drivers/mmc/Kconfig             |  8 ++++++++
+ net/Kconfig                     | 28 ++++++++++++++++++++++++++++
+ 3 files changed, 38 insertions(+), 2 deletions(-)
+
+diff --git a/board/Marvell/octeontx2/Kconfig b/board/Marvell/octeontx2/Kconfig
+index 8a27164bcc..793340b6af 100644
+--- a/board/Marvell/octeontx2/Kconfig
++++ b/board/Marvell/octeontx2/Kconfig
+@@ -3,10 +3,10 @@ if ARCH_OCTEONTX2
+ choice
+ 	prompt "Target board"
+ 
+-config	TARGET_OCTEONTX2_96XX
++config TARGET_OCTEONTX2_96XX
+ 	bool "OcteonTX2 CN96XX"
+ 
+-config	TARGET_OCTEONTX2_95XX
++config TARGET_OCTEONTX2_95XX
+ 	bool "OcteonTX2 CN95XX"
+ 
+ endchoice
+diff --git a/drivers/mmc/Kconfig b/drivers/mmc/Kconfig
+index 9bc4f611f5..7fb0a5ff25 100644
+--- a/drivers/mmc/Kconfig
++++ b/drivers/mmc/Kconfig
+@@ -47,6 +47,14 @@ config MMC_OCTEONTX
+ 	  If you have an OcteonTX board with a Multimedia Card slot,
+ 	  say Y here.  If unsure, say N.
+ 
++config MMC_SUPPORTS_TUNING
++	depends on MMC_OCTEONTX
++	bool "Support for HW partitioning command(eMMC)"
++	default	y
++	help
++	  This adds support for tuning in OcteonTX MMC driver.
++
++
+ config MMC_HW_PARTITIONING
+ 	bool "Support for HW partitioning command(eMMC)"
+ 	default y
+diff --git a/net/Kconfig b/net/Kconfig
+index 68cecf75a2..9f712845c3 100644
+--- a/net/Kconfig
++++ b/net/Kconfig
+@@ -35,4 +35,32 @@ config TFTP_BLOCKSIZE
+ 	help
+ 	  Default TFTP block size.
+ 
++config BOOTP_PXE
++	bool "Enable BOOTP PXE"
++	depends on CMD_NET
++
++config BOOTP_SUBNETMASK
++	bool "Enable BOOTP subnetmask"
++	depends on CMD_NET
++	depends on CMD_NET
++
++config BOOTP_TFTP_SERVERIP
++	bool "Enable BOOTP TFTP serverip"
++	depends on CMD_NET
++
++config BOOTP_PXE_CLIENTARCH
++	hex
++	depends on CMD_NET
++        default 0x16 if ARM64
++        default 0x15 if ARM
++        default 0 if X86
++
++config BOOTP_VCI_STRING
++	string
++	depends on CMD_NET
++	default "U-Boot.armv7" if CPU_V7 || CPU_V7M
++	default "U-Boot.armv8" if ARM64
++	default "U-Boot.arm" if ARM
++	default "U-Boot"
++
+ endif   # if NET
+-- 
+2.29.0
+

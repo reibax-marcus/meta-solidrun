@@ -1,0 +1,130 @@
+From 6b9c263aed21e388ed593231704e5c773ee92862 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Tue, 17 Dec 2019 16:01:03 +0200
+Subject: [PATCH 1041/1239] arch/arm/dts: add support for cn9130-crb-C board
+
+The platform is based on CN9130-CRB board configured
+to work in PCIe EP mode on PCI0 x4 interface.
+
+The main board changes (board revision R1P1):
+- PCIE0_CLK_CONFIG is set to sue the external clock source
+  R440 removed. R310 (1K) installed
+- Internal PCI reference clock is disconnected from PCI0:
+  R83 and R85 removed
+
+FLY x4 plug-in module is inserted into NVMI slot and has
+the following modifications:
+- R5, R7 and R3 are removed
+- R_EP_PCIE_REF_CLK_1P wire on FLY x4 module (R5 pad close
+  to J2 connector) is connected to the main board wire
+  CN9130_CP_PCIE0_CLK_P (R85 pad close to the SoC BGA)
+- R_EP_PCIE_REF_CLK_1N wire on FLY x4 module (R7 pad close
+  to J2 connector) is connected to the main board wire
+  CN9130_CP_PCIE0_CLK_N (R83 pad close to the SoC BGA)
+
+Change-Id: I1daa58bd85ad9611797d9bc048dbb7c6ebf5c44b
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20452
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+---
+ arch/arm/dts/Makefile         |  1 +
+ arch/arm/dts/cn9130-crb-C.dts | 74 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 75 insertions(+)
+ create mode 100644 arch/arm/dts/cn9130-crb-C.dts
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 7b7811110f..51c556a5d0 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -226,6 +226,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
+ 	armada-xp-crs305-1g-4s.dtb		\
+ 	cn9130-crb-A.dtb			\
+ 	cn9130-crb-B.dtb			\
++	cn9130-crb-C.dtb			\
+ 	cn9130-db-A.dtb				\
+ 	cn9130-db-B.dtb				\
+ 	cn9131-db-A.dtb				\
+diff --git a/arch/arm/dts/cn9130-crb-C.dts b/arch/arm/dts/cn9130-crb-C.dts
+new file mode 100644
+index 0000000000..ccb19c382b
+--- /dev/null
++++ b/arch/arm/dts/cn9130-crb-C.dts
+@@ -0,0 +1,74 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ */
++
++#include "cn9130-crb.dtsi"
++
++/ {
++	model = "CN9130-CRB-C (PCIe EP)";
++	compatible = "marvell,cn9130-crb-C",
++		"marvell,cn9130",
++		"marvell,armada-ap806-quad",
++		"marvell,armada-ap806";
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		/* The PCI console memory must be reserved */
++		console_reserved: pci-console-nexus@7f000000 {
++			compatible = "marvell,pci-console-nexus-memory";
++			reg = <0 0x7f000000 0 0x100000>;
++			no-map;
++		};
++	};
++};
++
++&cp0_comphy {
++	phy0 {
++		phy-type = <COMPHY_TYPE_IGNORE>;
++	};
++
++	phy1 {
++		phy-type = <COMPHY_TYPE_IGNORE>;
++	};
++
++	phy2 {
++		phy-type = <COMPHY_TYPE_IGNORE>;
++	};
++
++	phy3 {
++		phy-type = <COMPHY_TYPE_IGNORE>;
++	};
++
++	phy4 {
++		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
++	};
++
++	phy5 {
++		phy-type = <COMPHY_TYPE_SGMII2>;
++		phy-speed = <COMPHY_SPEED_3_125G>;
++	};
++};
++
++&cp0_pci_ep_uio {
++	reg = <0 0 0 0x100000>, <0 0x7f000000 0 0x100000>,
++	      <0x80 0x00000000 0x8 0x000000000>;
++	reg-names = "bar0", "bar2", "host-map";
++	status = "okay";
++};
++
++&cp0_pcie_ep {
++	status = "okay";
++};
++
++&cp0_usb3_0 {
++	status = "okay";
++};
++
++&cp0_usb3_1 {
++	status = "okay";
++};
+-- 
+2.29.0
+

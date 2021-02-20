@@ -1,0 +1,87 @@
+From 0f0ed4231f753cfb331cdcd734ac0767ea2148a2 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 21 May 2019 23:06:32 -0700
+Subject: [PATCH 0923/1239] gpio: i2c_gpio: octeontx_gpio: Use device tree
+ status field.
+
+When probing the device, honor the status field in the
+device tree.
+
+Change-Id: I01bdabc7a0ae452dacf5bb78afba10f55210c47a
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/9421
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/gpio/i2c_gpio.c      | 9 +++++++++
+ drivers/gpio/octeontx_gpio.c | 9 +++++++++
+ drivers/mmc/octeontx_hsmmc.c | 4 ++--
+ 3 files changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpio/i2c_gpio.c b/drivers/gpio/i2c_gpio.c
+index 91956d717c..df3dc78144 100644
+--- a/drivers/gpio/i2c_gpio.c
++++ b/drivers/gpio/i2c_gpio.c
+@@ -164,8 +164,17 @@ static int i2c_gpio_probe(struct udevice *dev)
+ 	char name[32], label[16], *str;
+ 	const char *tmp;
+ 	int size;
++	const char *status;
+ 
+ 	debug("%s(%s)\n", __func__, dev->name);
++
++	status = ofnode_read_string(dev->node, "status");
++	if (status && !strncmp(status, "ok", 2)) {
++		debug("%s(%s): GPIO device disabled in device tree\n",
++		      __func__, dev->name);
++		return -ENODEV;
++	}
++
+ 	chip->addr = ofnode_read_u32_default(dev->node, "reg", 0);
+ 	if (!chip->addr) {
+ 		pr_err("%s(%s): Missing reg property\n",
+diff --git a/drivers/gpio/octeontx_gpio.c b/drivers/gpio/octeontx_gpio.c
+index 00bbe66470..98098d0a4c 100644
+--- a/drivers/gpio/octeontx_gpio.c
++++ b/drivers/gpio/octeontx_gpio.c
+@@ -160,6 +160,15 @@ static int octeontx_gpio_probe(struct udevice *dev)
+ 	union gpio_const gpio_const;
+ 	size_t size;
+ 	char *end;
++	const char *status;
++
++	status = ofnode_read_string(dev->node, "status");
++
++	if (status && !strncmp(status, "ok", 2)) {
++		debug("%s(%s): GPIO device disabled in device tree\n",
++		      __func__, dev->name);
++		return -1;
++	}
+ 
+ 	dev->req_seq = PCI_FUNC(bdf);
+ 	priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index 250fbc613b..8986521da6 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -2373,7 +2373,7 @@ static int octeontx_mmc_slot_probe(struct udevice *dev)
+ 	slot->valid = false;
+ 	if (!octeontx_mmc_get_valid(dev)) {
+ 		debug("%s(%s): slot is invalid\n", __func__, dev->name);
+-		return -1;
++		return -ENODEV;
+ 	}
+ 
+ 	debug("%s(%s): Getting config\n", __func__, dev->name);
+@@ -2502,7 +2502,7 @@ static int octeontx_mmc_host_probe(struct udevice *dev)
+ 
+ 	if (!octeontx_mmc_get_valid(dev)) {
+ 		debug("%s(%s): mmc host not valid\n", __func__, dev->name);
+-		return -1;
++		return -ENODEV;
+ 	}
+ 	memset(host, 0, sizeof(*host));
+ 	host->base_addr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+-- 
+2.29.0
+

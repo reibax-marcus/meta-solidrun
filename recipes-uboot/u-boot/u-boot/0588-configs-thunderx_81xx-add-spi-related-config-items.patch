@@ -1,0 +1,37 @@
+From 78db9f960ee193d351d517e89068055bd3928e84 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Tue, 20 Dec 2016 17:24:37 -0800
+Subject: [PATCH 0588/1239] configs: thunderx_81xx: add spi related config
+ items
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 0380f7a122..a59f7c67c8 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -294,6 +294,18 @@
+ 
+ #define CONFIG_SYS_SPD_I2C_BUS 1
+ 
++/***** SPI Defines *********/
++#define CONFIG_DM_SPI
++#define CONFIG_DM_SPI_FLASH
++#define CONFIG_SPI_FLASH
++#define CONFIG_SPI_FLASH_STMICRO
++#define CONFIG_CAVIUM_SPI
++#define CONFIG_SF_DEFAULT_SPEED 12500000
++#define CONFIG_SF_DEFAULT_MODE	0
++#define CONFIG_SF_DEFAULT_BUS	0
++#define CONFIG_SF_DEFAULT_CS	0
++
++/**************************/
+ #define CONFIG_CMD_SAVES
+ 
+ /* BOOTP options */
+-- 
+2.29.0
+

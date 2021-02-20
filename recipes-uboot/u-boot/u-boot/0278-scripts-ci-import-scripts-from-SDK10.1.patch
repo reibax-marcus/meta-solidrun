@@ -1,0 +1,450 @@
+From 256170ee59019b628ae731efb824c70f4780d3f9 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Wed, 23 Oct 2019 21:25:30 +0200
+Subject: [PATCH 0278/1239] scripts: ci: import scripts from SDK10.1
+
+Change-Id: I3f5035abbf34db68d615881c40dcbc2ea07ea1bc
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+---
+ scripts/ci/baseline.txt         |   7 +
+ scripts/ci/compile.sh           | 244 ++++++++++++++++++++++++++++++++
+ scripts/ci/pack.sh              |  25 ++++
+ scripts/ci/pack_source.sh       |  42 ++++++
+ scripts/ci/supported_builds.txt |  78 ++++++++++
+ 5 files changed, 396 insertions(+)
+ create mode 100644 scripts/ci/baseline.txt
+ create mode 100755 scripts/ci/compile.sh
+ create mode 100755 scripts/ci/pack.sh
+ create mode 100755 scripts/ci/pack_source.sh
+ create mode 100644 scripts/ci/supported_builds.txt
+
+diff --git a/scripts/ci/baseline.txt b/scripts/ci/baseline.txt
+new file mode 100644
+index 0000000000..5cf19695f0
+--- /dev/null
++++ b/scripts/ci/baseline.txt
+@@ -0,0 +1,7 @@
++#
++# SPDX-License-Identifier:           GPL-2.0
++# https://spdx.org/licenses
++#
++# Copyright (C) 2018 Marvell International Ltd.
++# commit id of base tag for this branch
++f95ab1fb6e37f0601f397091bb011edf7a98b890 (tag: v2018.03) Prepare v2018.03
+\ No newline at end of file
+diff --git a/scripts/ci/compile.sh b/scripts/ci/compile.sh
+new file mode 100755
+index 0000000000..d9d75d8158
+--- /dev/null
++++ b/scripts/ci/compile.sh
+@@ -0,0 +1,244 @@
++#!/bin/bash
++# SPDX-License-Identifier:           GPL-2.0
++# https://spdx.org/licenses
++# Copyright (C) 2018 Marvell International Ltd.
++#
++###############################################################################
++## This is the compile script for u-boot                                     ##
++## This script is called by CI automated builds                              ##
++## It may also be used interactively by users to compile the same way as CI  ##
++###############################################################################
++## WARNING: Do NOT MODIFY the CI wrapper code segments.                      ##
++## You can only modify the config and compile commands                       ##
++###############################################################################
++
++
++## =v=v=v=v=v=v=v=v=v=v=v CI WRAPPER - Do not Modify! v=v=v=v=v=v=v=v=v=v=v= ##
++set -euo pipefail
++shopt -s extglob
++##==================================== USAGE ================================##
++function usage {
++	echo """
++Usage: compile [--no_configure] [--echo_only] BUILD_NAME
++ or:   compile --list
++ or:   compile --help
++
++Compiles u-boot similar to the given CI build
++
++ -N, --no_configure   Skip configuration steps (mrproper, make defconfig)
++ -e, --echo_only      Print out the compilation sequence but do not execute it
++ -l, --list           List all supported BUILD_NAME values and exit
++ -h, --help           Display this help and exit
++
++Prerequisites:       CROSS_COMPILE must point to the cross compiler
++
++"""
++	exit 0
++}
++##============================ PARSE ARGUMENTS ==============================##
++TEMP=`getopt -a -o Nelh --long no_configure,echo_only,list,help \
++             -n 'compile' -- "$@"`
++
++if [ $? != 0 ] ; then
++	echo "Error: Failed parsing command options" >&2
++	exit 1
++fi
++eval set -- "$TEMP"
++
++no_configure=
++echo_only=
++list=
++
++while true; do
++	case "$1" in
++		-N | --no_configure ) no_configure=true; shift ;;
++		-e | --echo_only )    echo_only=true; shift ;;
++		-l | --list ) 	      list=true; shift ;;
++		-h | --help )         usage; ;;
++		-- ) shift; break ;;
++		* ) break ;;
++	esac
++done
++
++if [[ $list ]] ; then
++	DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
++	echo "Supported build names:"
++	grep -v '^#' "$DIR/supported_builds.txt"
++	echo
++	echo
++	exit 0
++fi
++
++[[ $# -ne 1 ]] && usage
++build_name=$1
++
++grep ^$build_name$ ./scripts/ci/supported_builds.txt >&/dev/null ||
++	( echo "Error: Unsupported build ${build_name}"; exit -1 )
++echo "running compile.sh ${build_name}"
++## =^=^=^=^=^=^=^=^=^=^=^=^  End of CI WRAPPER code -=^=^=^=^=^=^=^=^=^=^=^= ##
++
++
++########################### U-BOOT CONFIGURATION ##############################
++case $build_name in
++	*_a70x0* )       defconfig="mvebu_db_armada8k_defconfig"; ;;
++	*_a7020* )       defconfig="mvebu_db_armada8k_defconfig"; ;;
++	*_a80x0_mcbin* ) defconfig="mvebu_mcbin-88f8040_defconfig"; ;;
++	*_a80x0_ucpe* )  defconfig="mvebu_ucpe-88f8040_defconfig"; ;;
++	*_a80x0* )       defconfig="mvebu_db_armada8k_defconfig"; ;;
++	*_a388_gp )    defconfig="db-88f6820-gp_defconfig"; ;;
++	*_a3900* )       defconfig="mvebu_db_armada8k_defconfig"; ;;
++	*_cn9* )        defconfig="mvebu_db_cn91xx_defconfig"; ;;
++	*_a37xx_espressobin_* )
++	                 defconfig="mvebu_espressobin-88f3720_defconfig"; ;;
++	*_a37xx_* )      defconfig="mvebu_db-88f3720_defconfig"; ;;
++	* )	echo "Error: Could not configure defconfig." \
++		" Unsupported build ${build_name}"; exit -1; ;;
++esac
++
++case $build_name in
++	uboot_2018_a70x0 )   device_tree="armada-7040-db"; ;;
++	uboot_2018_a70x0_B ) device_tree="armada-7040-db-B"; ;;
++	uboot_2018_a70x0_C ) device_tree="armada-7040-db-C"; ;;
++	uboot_2018_a70x0_D ) device_tree="armada-7040-db-D"; ;;
++	uboot_2018_a70x0_E ) device_tree="armada-7040-db-E"; ;;
++	uboot_2018_a70x0_pcac ) device_tree="armada-7040-pcac"; ;;
++	uboot_2018_a7020_amc ) device_tree="armada-7020-amc"; ;;
++	uboot_2018_a7020_comexp ) device_tree="armada-7020-comexp"; ;;
++	uboot_2018_a70x0_kr ) device_tree="armada-7040-db"; ;;
++
++	uboot_2018_a80x0 )   device_tree="armada-8040-db"; ;;
++	uboot_2018_a80x0_B ) device_tree="armada-8040-db-B"; ;;
++	uboot_2018_a80x0_C ) device_tree="armada-8040-db-C"; ;;
++	uboot_2018_a80x0_D ) device_tree="armada-8040-db-D"; ;;
++	uboot_2018_a80x0_E ) device_tree="armada-8040-db-E"; ;;
++	uboot_2018_a80x0_G ) device_tree="armada-8040-db-G"; ;;
++	uboot_2018_a80x0_H ) device_tree="armada-8040-db-H"; ;;
++	uboot_2018_a80x0_kr ) device_tree="armada-8040-db"; ;;
++	uboot_2018_a80x0_pm ) device_tree="armada-8040-db"; ;;
++	uboot_2018_a80x0_ddr32 ) device_tree="armada-8040-db"; ;;
++	uboot_2018_a80x0_mcbin_single_shot* )
++	device_tree="armada-8040-mcbin-single-shot"; ;;
++	uboot_2018_a80x0_mcbin* ) device_tree="armada-8040-mcbin"; ;;
++	uboot_2018_a80x0_ucpe* ) device_tree="armada-8040-ucpe"; ;;
++
++	uboot_2018_a388_gp ) device_tree="armada-388-gp"; ;;
++	uboot_2018_a3900_A ) device_tree="armada-3900-vd-A"; ;;
++	uboot_2018_a3900_B ) device_tree="armada-3900-vd-B"; ;;
++	uboot_2018_cn9130_A ) device_tree="cn9130-db-A"; ;;
++	uboot_2018_cn9130_B ) device_tree="cn9130-db-B"; ;;
++	uboot_2018_cn9130_ddr32_A ) device_tree="cn9130-db-A"; ;;
++	uboot_2018_cn9130_emmc_A ) device_tree="cn9130-db-A"; ;;
++	uboot_2018_cn9130_crb_A ) device_tree="cn9130-crb-A"; ;;
++	uboot_2018_cn9130_crb_B ) device_tree="cn9130-crb-B"; ;;
++	uboot_2018_cn9131_A ) device_tree="cn9131-db-A"; ;;
++	uboot_2018_cn9131_B ) device_tree="cn9131-db-B"; ;;
++	uboot_2018_cn9131_ddr32_A ) device_tree="cn9131-db-A"; ;;
++	uboot_2018_cn9131_emmc_A ) device_tree="cn9131-db-A"; ;;
++	uboot_2018_cn9132_A ) device_tree="cn9132-db-A"; ;;
++	uboot_2018_cn9132_B ) device_tree="cn9132-db-B"; ;;
++	uboot_2018_cn9132_ddr32_A ) device_tree="cn9132-db-A"; ;;
++	uboot_2018_cn9132_emmc_A ) device_tree="cn9132-db-A"; ;;
++
++	uboot_2018*_a37xx_ddr3_v2_A_* )
++		device_tree="armada-3720-db"; ;;
++	uboot_2018_a37xx_ddr3_v2_B_* )
++		device_tree="armada-3720-ddr3-db-v2-B"; ;;
++	uboot_2018_a37xx_ddr3_v2_C_* )
++		device_tree="armada-3720-ddr3-db-v2-C"; ;;
++	uboot_2018_a37xx_ddr4_v1_A_* )
++		device_tree="armada-3720-ddr4-db-v1-A"; ;;
++	uboot_2018_a37xx_ddr4_v3_A_* )
++		device_tree="armada-3720-ddr4-db-v3-A"; ;;
++	uboot_2018_a37xx_ddr4_v3_B_* )
++		device_tree="armada-3720-ddr4-db-v3-B"; ;;
++	uboot_2018_a37xx_ddr4_v3_C_* )
++		device_tree="armada-3720-ddr4-db-v3-C"; ;;
++	uboot_2018_a37xx_espressobin_ddr3_* )
++		device_tree="armada-3720-espressobin"; ;;
++	uboot_2018_a37xx_espressobin_ddr4_v7_1G_emmc* )
++		device_tree="armada-3720-espressobin-emmc"; ;;
++	uboot_2018_a37xx_espressobin_ddr4_v7_2G_emmc* )
++		device_tree="armada-3720-espressobin-emmc"; ;;
++	uboot_2018_a37xx_espressobin_ddr4_v7_1G* )
++		device_tree="armada-3720-espressobin"; ;;
++	uboot_2018_a37xx_espressobin_ddr4_v7_2G* )
++		device_tree="armada-3720-espressobin"; ;;
++	* ) echo "Error: Could not configure device_tree." \
++		" Unsupported build ${build_name}"; exit -1;	;;
++esac
++
++if [ $device_tree ]; then
++	device_tree="DEVICE_TREE=${device_tree}"
++fi
++
++config_cmd=""
++if [[ $build_name == "uboot_2018_a70x0_D" ||
++	$build_name == "uboot_2018_a7020_amc" ||
++	$build_name == "uboot_2018_a7020_comexp" ||
++	$build_name == "uboot_2018_a80x0_D" ||
++	$build_name == "uboot_2018_cn9130_B" ||
++	$build_name == "uboot_2018_cn9131_B" ||
++	$build_name == "uboot_2018_cn9132_B" ]]; then
++	config_cmd="""
++	./scripts/config -d CONFIG_MVEBU_SPI_BOOT
++	./scripts/config -e CONFIG_MVEBU_NAND_BOOT
++	./scripts/config -d CONFIG_ENV_IS_IN_SPI_FLASH
++	./scripts/config -e CONFIG_ENV_IS_IN_NAND
++	"""
++elif [[ $build_name == "uboot_2018_a37xx_espressobin_ddr4_v7_1G_emmc" ||
++	$build_name == "uboot_2018_a37xx_espressobin_ddr4_v7_2G_emmc" ||
++	$build_name == "uboot_2018_cn9130_emmc_A" ||
++	$build_name == "uboot_2018_cn9131_emmc_A" ||
++	$build_name == "uboot_2018_cn9132_emmc_A" ]]; then
++	config_cmd="""
++	./scripts/config -d CONFIG_MVEBU_SPI_BOOT
++	./scripts/config -e CONFIG_MVEBU_MMC_BOOT
++	./scripts/config -d CONFIG_ENV_IS_IN_SPI_FLASH
++	./scripts/config -e CONFIG_ENV_IS_IN_MMC
++	./scripts/config --set-val MVEBU_BOOT_PART 1
++	"""
++	if [[ $build_name == "uboot_2018_a37xx_espressobin_ddr4_v7_1G_emmc" ||
++	$build_name == "uboot_2018_a37xx_espressobin_ddr4_v7_2G_emmc" ]]; then
++	config_cmd=$config_cmd"""
++		./scripts/config --set-val MVEBU_BOOT_DEVICE 1
++	"""
++	fi
++fi
++
++build_flags="" # not used in u-boot-2018
++logfile="$$.make.log"
++###############################################################################
++
++
++## =v=v=v=v=v=v=v=v=v=v=v CI WRAPPER - Do not Modify! v=v=v=v=v=v=v=v=v=v=v= ##
++cmd="""
++set -x
++pwd"""
++## =^=^=^=^=^=^=^=^=^=^=^=^  End of CI WRAPPER code -=^=^=^=^=^=^=^=^=^=^=^= ##
++
++
++##################################### CONFIG ##################################
++[[ $no_configure ]] || cmd=$cmd"""
++make mrproper
++make ${defconfig}
++${config_cmd}"""
++
++#################################### COMPILE ##################################
++cmd=$cmd"""
++make ${device_tree} ${build_flags} -j4"""
++###############################################################################
++
++
++## =v=v=v=v=v=v=v=v=v=v=v CI WRAPPER - Do not Modify! v=v=v=v=v=v=v=v=v=v=v= ##
++if [[ $echo_only ]]; then
++	echo "$cmd"
++	exit 0
++fi
++
++(eval "$cmd") 2>&1 | tee ${logfile}
++cat $logfile
++if grep -i "warning:" $logfile; then
++	echo "Error: Build has warnings. Aborted"
++	exit -1
++fi
++## =^=^=^=^=^=^=^=^=^=^=^=^  End of CI WRAPPER code -=^=^=^=^=^=^=^=^=^=^=^= ##
+diff --git a/scripts/ci/pack.sh b/scripts/ci/pack.sh
+new file mode 100755
+index 0000000000..2485dc1a3b
+--- /dev/null
++++ b/scripts/ci/pack.sh
+@@ -0,0 +1,25 @@
++#!/bin/bash
++# SPDX-License-Identifier:           GPL-2.0
++# https://spdx.org/licenses
++# Copyright (C) 2018 Marvell International Ltd.
++#
++###############################################################################
++## This is the pack script for u-boot                                        ##
++## This script is called by CI automated builds                              ##
++###############################################################################
++## WARNING: Do NOT MODIFY the CI wrapper code segments.                      ##
++## You can only modify the config and compile commands                       ##
++###############################################################################
++## Prerequisites:       DESTDIR is the path to the destination directory
++## Usage:               pack BUILD_NAME
++
++## =v=v=v=v=v=v=v=v=v=v=v CI WRAPPER - Do not Modify! v=v=v=v=v=v=v=v=v=v=v= ##
++set -exuo pipefail
++shopt -s extglob
++
++build_name=$1
++echo "running pack.sh ${build_name}"
++## =^=^=^=^=^=^=^=^=^=^=^=^  End of CI WRAPPER code -=^=^=^=^=^=^=^=^=^=^=^= ##
++
++mkdir -p $DESTDIR/dev_images
++cp u-boot.bin $DESTDIR/dev_images/
+diff --git a/scripts/ci/pack_source.sh b/scripts/ci/pack_source.sh
+new file mode 100755
+index 0000000000..6909ad8080
+--- /dev/null
++++ b/scripts/ci/pack_source.sh
+@@ -0,0 +1,42 @@
++#!/bin/bash
++# SPDX-License-Identifier:           GPL-2.0
++# https://spdx.org/licenses
++# Copyright (C) 2018 Marvell International Ltd.
++#
++###############################################################################
++## This is the source packing script for u-boot                              ##
++## This script is called by CI automated builds                              ##
++###############################################################################
++## WARNING: Do NOT MODIFY the CI wrapper code segments.                      ##
++## You can only modify the config and compile commands                       ##
++###############################################################################
++## Prerequisites:       DESTDIR is the path to the destination directory
++## Usage:               pack_source RELEASE_VER END_TAG
++## Output:              packname
++
++## =v=v=v=v=v=v=v=v=v=v=v CI WRAPPER - Do not Modify! v=v=v=v=v=v=v=v=v=v=v= ##
++set -exuo pipefail
++shopt -s extglob
++
++release_ver=$1
++end_tag=$2
++echo "running pack_source.sh ${release_ver} ${end_tag}"
++## =^=^=^=^=^=^=^=^=^=^=^=^  End of CI WRAPPER code -=^=^=^=^=^=^=^=^=^=^=^= ##
++
++packname="u-boot-2018.03-${release_ver}"
++base_tag=`cat scripts/ci/baseline.txt | \
++	perl -nae 'next if /^#/; print \$F[0]; exit'`
++ref_to_ref="${base_tag}..${end_tag}"
++srcpkg="sources-${packname}"
++gitpkg="git-${packname}"
++
++mkdir -p ${DESTDIR}/$srcpkg
++cp -R ./* ${DESTDIR}/$srcpkg/ || true
++
++mkdir ${DESTDIR}/$gitpkg
++git format-patch -o ${DESTDIR}/$gitpkg $ref_to_ref
++
++
++## =v=v=v=v=v=v=v=v=v=v=v CI WRAPPER - Do not Modify! v=v=v=v=v=v=v=v=v=v=v= ##
++echo "packname:$packname"
++## =^=^=^=^=^=^=^=^=^=^=^=^  End of CI WRAPPER code -=^=^=^=^=^=^=^=^=^=^=^= ##
+diff --git a/scripts/ci/supported_builds.txt b/scripts/ci/supported_builds.txt
+new file mode 100644
+index 0000000000..630a34c453
+--- /dev/null
++++ b/scripts/ci/supported_builds.txt
+@@ -0,0 +1,78 @@
++#
++# SPDX-License-Identifier:           GPL-2.0
++# https://spdx.org/licenses
++#
++# Copyright (C) 2018 Marvell International Ltd.
++#
++uboot_2018_a70x0
++uboot_2018_a70x0_B
++uboot_2018_a70x0_C
++uboot_2018_a70x0_D
++uboot_2018_a70x0_E
++uboot_2018_a70x0_pcac
++uboot_2018_a7020_amc
++uboot_2018_a7020_comexp
++uboot_2018_a70x0_kr
++
++uboot_2018_a80x0
++uboot_2018_a80x0_B
++uboot_2018_a80x0_C
++uboot_2018_a80x0_D
++uboot_2018_a80x0_E
++uboot_2018_a80x0_G
++uboot_2018_a80x0_H
++uboot_2018_a80x0_kr
++uboot_2018_a80x0_pm
++uboot_2018_a80x0_mcbin
++uboot_2018_a80x0_mcbin_cve_2018_3639
++uboot_2018_a80x0_mcbin_pm
++uboot_2018_a80x0_mcbin_single_shot
++uboot_2018_a80x0_mcbin_single_shot_cve_2018_3639
++uboot_2018_a80x0_mcbin_single_shot_pm
++uboot_2018_a80x0_ucpe
++uboot_2018_a80x0_ddr32
++
++uboot_2018_a388_gp
++uboot_2018_a3900_A
++uboot_2018_a3900_B
++uboot_2018_cn9130_A
++uboot_2018_cn9130_B
++uboot_2018_cn9130_ddr32_A
++uboot_2018_cn9130_emmc_A
++uboot_2018_cn9130_crb_A
++uboot_2018_cn9130_crb_B
++uboot_2018_cn9131_A
++uboot_2018_cn9131_B
++uboot_2018_cn9131_ddr32_A
++uboot_2018_cn9131_emmc_A
++uboot_2018_cn9132_A
++uboot_2018_cn9132_B
++uboot_2018_cn9132_ddr32_A
++uboot_2018_cn9132_emmc_A
++
++uboot_2018_a37xx_ddr3_v2_A_1000_800
++uboot_2018_a37xx_ddr3_v2_B_1000_800
++uboot_2018_a37xx_ddr3_v2_C_1000_800
++uboot_2018_a37xx_ddr3_v2_A_1200_750
++uboot_2018_a37xx_ddr3_v2_B_1200_750
++uboot_2018_a37xx_ddr3_v2_C_1200_750
++uboot_2018_a37xx_ddr3_v2_A_600_600
++uboot_2018_a37xx_ddr3_v2_B_600_600
++uboot_2018_a37xx_ddr3_v2_A_800_800
++uboot_2018_a37xx_ddr3_v2_B_800_800
++uboot_2018_a37xx_ddr3_v2_C_800_800
++uboot_2018_a37xx_ddr4_v1_A_1000_800
++uboot_2018_a37xx_ddr4_v3_A_1000_800
++uboot_2018_a37xx_ddr4_v3_B_1000_800
++uboot_2018_a37xx_ddr4_v3_C_1000_800
++uboot_2018_a37xx_ddr4_v1_A_800_800
++uboot_2018_a37xx_ddr4_v3_A_800_800
++uboot_2018_a37xx_ddr4_v3_B_800_800
++uboot_2018_a37xx_ddr4_v3_C_800_800
++uboot_2018_a37xx_espressobin_ddr3_1cs_1000_800
++uboot_2018_a37xx_espressobin_ddr3_2cs_1000_800
++uboot_2018_a37xx_espressobin_ddr4_v7_1G_1000_800
++uboot_2018_a37xx_espressobin_ddr4_v7_2G_1000_800
++uboot_2018_a37xx_espressobin_ddr4_v7_1G_emmc_1000_800
++uboot_2018_a37xx_espressobin_ddr4_v7_2G_emmc_1000_800
++uboot_2018_freertos_a37xx_ddr3_v2_A_1000_800
+-- 
+2.29.0
+

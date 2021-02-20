@@ -1,0 +1,56 @@
+From 6323c1ec6c2147daff6753467def9c7fd6a5e519 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 13 Dec 2018 13:07:25 -0800
+Subject: [PATCH 0850/1239] net: octeontx2: Fix for hw errata on BLK_RST.rst
+ bit
+
+Although BLK_RST.rst bit is WO it is not suggested to write
+0 (Writing 0 works for NPC, NPA but does not work for NIX).
+Clear all such writes in AF driver.
+
+Change-Id: If36a8fcd7ab50647b58284023d6252a61d8ab645
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1463
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ drivers/net/octeontx2/nix_af.c | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/drivers/net/octeontx2/nix_af.c b/drivers/net/octeontx2/nix_af.c
+index 92e48211cc..87cb3c40e4 100644
+--- a/drivers/net/octeontx2/nix_af.c
++++ b/drivers/net/octeontx2/nix_af.c
+@@ -320,9 +320,6 @@ int npa_af_shutdown(struct npa_af *npa_af)
+ 		WATCHDOG_RESET();
+ 	} while (blk_rst.s.busy);
+ 
+-	blk_rst.u = 0;
+-	npa_af_reg_write(npa_af, CAVM_NPA_AF_BLK_RST(), blk_rst.u);
+-
+ 	rvu_aq_free(&npa_af->aq);
+ 
+ 	debug("%s: npa af reset -- \n", __func__);
+@@ -990,9 +987,6 @@ int npc_af_shutdown(struct nix_af *nix_af)
+ 		WATCHDOG_RESET();
+ 	} while (blk_rst.s.busy);
+ 
+-	blk_rst.u = 0;
+-	npc_af_reg_write(nix_af, CAVM_NPC_AF_BLK_RST(), blk_rst.u);
+-
+ 	debug("%s: npc af reset -- \n", __func__);
+ 
+ 	return 0;
+@@ -1112,9 +1106,6 @@ int nix_af_shutdown(struct nix_af *nix_af)
+ 		WATCHDOG_RESET();
+ 	} while (blk_rst.s.busy);
+ 
+-	blk_rst.u = 0;
+-	nix_af_reg_write(nix_af, CAVM_NIXX_AF_BLK_RST(), blk_rst.u);
+-
+ 	rvu_aq_free(&nix_af->aq);
+ 
+ 	debug("%s: nix af reset -- \n", __func__);
+-- 
+2.29.0
+

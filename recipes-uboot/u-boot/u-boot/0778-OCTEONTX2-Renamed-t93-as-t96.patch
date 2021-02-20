@@ -1,0 +1,76 @@
+From e98808803c22be1b419025967adcc59d4f06a101 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Thu, 31 May 2018 00:00:34 -0700
+Subject: [PATCH 0778/1239] OCTEONTX2: Renamed t93 as t96
+
+BDK renamed CN93xx to CN96XX, updated config files accordingly
+to work with PLAT=t96.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ board/cavium/octeontx2/Kconfig                              | 6 +++---
+ board/cavium/octeontx2/MAINTAINERS                          | 4 ++--
+ .../{octeontx2_93xx_defconfig => octeontx2_96xx_defconfig}  | 4 ++--
+ include/configs/{octeontx2_93xx.h => octeontx2_96xx.h}      | 0
+ 4 files changed, 7 insertions(+), 7 deletions(-)
+ rename configs/{octeontx2_93xx_defconfig => octeontx2_96xx_defconfig} (95%)
+ rename include/configs/{octeontx2_93xx.h => octeontx2_96xx.h} (100%)
+
+diff --git a/board/cavium/octeontx2/Kconfig b/board/cavium/octeontx2/Kconfig
+index a0ce7f4442..cb5c457ae3 100644
+--- a/board/cavium/octeontx2/Kconfig
++++ b/board/cavium/octeontx2/Kconfig
+@@ -3,12 +3,12 @@ if ARCH_OCTEONTX2
+ choice
+ 	prompt "Target board"
+ 
+-config	TARGET_OCTEONTX2_93XX
+-	bool "OcteonTX2 CN93XX"
++config	TARGET_OCTEONTX2_96XX
++	bool "OcteonTX2 CN96XX"
+ 
+ endchoice
+ 
+ config SYS_CONFIG_NAME
+-	default "octeontx2_93xx" if TARGET_OCTEONTX2_93XX
++	default "octeontx2_96xx" if TARGET_OCTEONTX2_96XX
+ 
+ endif
+diff --git a/board/cavium/octeontx2/MAINTAINERS b/board/cavium/octeontx2/MAINTAINERS
+index 3e6a47b508..df88e50d86 100644
+--- a/board/cavium/octeontx2/MAINTAINERS
++++ b/board/cavium/octeontx2/MAINTAINERS
+@@ -2,5 +2,5 @@ OCTEONTX2 BOARD
+ M:	Suneel Garapati <sgarapati@caviumnetworks.com>
+ S:	Maintained
+ F:	board/cavium/octeontx2/
+-F:	include/configs/octeontx2_93xx.h
+-F:	configs/octeontx2_93xx_defconfig
++F:	include/configs/octeontx2_96xx.h
++F:	configs/octeontx2_96xx_defconfig
+diff --git a/configs/octeontx2_93xx_defconfig b/configs/octeontx2_96xx_defconfig
+similarity index 95%
+rename from configs/octeontx2_93xx_defconfig
+rename to configs/octeontx2_96xx_defconfig
+index 7b7b6879b7..352c6dcbba 100644
+--- a/configs/octeontx2_93xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -2,9 +2,9 @@ CONFIG_ARM=y
+ # CONFIG_ARM64_SUPPORT_AARCH32 is not set
+ CONFIG_ARCH_OCTEONTX2=y
+ CONFIG_SYS_TEXT_BASE=0x04000000
+-CONFIG_IDENT_STRING=" for Cavium OcteonTX2 CN93XX ARM V8 Core"
++CONFIG_IDENT_STRING=" for Cavium OcteonTX2 CN96XX ARM V8 Core"
+ # CONFIG_PSCI_RESET is not set
+-CONFIG_TARGET_OCTEONTX2_93XX=y
++CONFIG_TARGET_OCTEONTX2_96XX=y
+ CONFIG_DEBUG_UART=y
+ CONFIG_AHCI=y
+ CONFIG_FIT=y
+diff --git a/include/configs/octeontx2_93xx.h b/include/configs/octeontx2_96xx.h
+similarity index 100%
+rename from include/configs/octeontx2_93xx.h
+rename to include/configs/octeontx2_96xx.h
+-- 
+2.29.0
+

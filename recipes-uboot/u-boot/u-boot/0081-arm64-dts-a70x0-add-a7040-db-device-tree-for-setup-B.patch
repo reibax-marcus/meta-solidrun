@@ -1,0 +1,249 @@
+From 74502a2b7b3e5cb1bca9574e1641ab5b38c47a5a Mon Sep 17 00:00:00 2001
+From: Christine Gharzuzi <chrisg@marvell.com>
+Date: Wed, 26 Apr 2017 21:18:23 +0300
+Subject: [PATCH 0081/1239] arm64: dts: a70x0: add a7040-db device tree for
+ setup B
+
+Armada 7040 DB board is a modular board,
+which supports multiple possible configurations
+
+topology for setup B:
+SerDes:
+	- lane0: PCIe0
+	- lane1: PCIe0
+	- lane2: PCIe0
+	- lane3: PCIe0
+	- lane4: USB1
+	- lane5: PCIe2
+AP-MPPs:
+	- SDIO, UART
+CP-MPPs:
+	- RGMII1, RGMII2, SPI, SDIO
+
+Change-Id: I18fb696aeb85e2b97f4eaa27bb5efe209a7c0bec
+Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ arch/arm/dts/Makefile             |   1 +
+ arch/arm/dts/armada-7040-db-B.dts | 197 ++++++++++++++++++++++++++++++
+ 2 files changed, 198 insertions(+)
+ create mode 100644 arch/arm/dts/armada-7040-db-B.dts
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index a23b4cc69e..d9a55bfa13 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -183,6 +183,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
+ 	armada-7020-amc.dtb			\
+ 	armada-7040-pcac.dtb	                \
+ 	armada-7040-db.dtb			\
++	armada-7040-db-B.dtb			\
+ 	armada-7040-db-nand.dtb			\
+ 	armada-8040-db.dtb			\
+ 	armada-8040-db-B.dtb			\
+diff --git a/arch/arm/dts/armada-7040-db-B.dts b/arch/arm/dts/armada-7040-db-B.dts
+new file mode 100644
+index 0000000000..4a2712c748
+--- /dev/null
++++ b/arch/arm/dts/armada-7040-db-B.dts
+@@ -0,0 +1,197 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++/*
++ * Device Tree file for Marvell Armada 7040 Development board platform
++ * Boot device: SPI NOR, 0x32 (SW3)
++ */
++
++#include "armada-70x0-db.dtsi"
++
++/ {
++	model = "Marvell Armada 7040 Development Board DB-88FA7040 setup(B)";
++	compatible = "marvell,armada7040-db", "marvell,armada7040",
++		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	aliases {
++		i2c0 = &cp0_i2c0;
++		spi0 = &cp0_spi1;
++	};
++
++	memory@00000000 {
++		device_type = "memory";
++		reg = <0x0 0x0 0x0 0x80000000>;
++	};
++};
++
++&ap_pinctl {
++	   /* MPP Bus:
++	    * SDIO  [0-5]
++	    * UART0 [11,19]
++	    */
++		  /* 0 1 2 3 4 5 6 7 8 9 */
++	pin-func = < 1 1 1 1 1 1 0 0 0 0
++		     0 3 0 0 0 0 0 0 0 3 >;
++};
++
++&uart0 {
++	status = "okay";
++};
++
++&cp0_pcie2 {
++	status = "okay";
++};
++
++&cp0_pcie0 {
++	status = "okay";
++};
++
++&cp0_i2c0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&cp0_i2c0_pins>;
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++&cp0_pinctl {
++		/* MPP Bus:
++		 * RGMII1 [0-11]
++		 * SPI    [13-16]
++		 * SATA1  [28]
++		 * UART0  [29-30]
++		 * SMI	  [32,34]
++		 * XSMI   [35-36]
++		 * I2C	  [37-38]
++		 * RGMII2 [44-55]
++		 * SD	  [56-61]
++		 * GPIO   [62]
++		 */
++		/*   0   1   2   3   4   5   6   7   8   9 */
++	pin-func = < 3   3   3   3   3   3   3   3   3   3
++		     3   3   0   3   3   3   3   0   0   0
++		     0   0   0   0   0   0   0   0   9   0xA
++		     0xA 0   7   0   7   7   7   2   2   0
++		     0   0   0   0   1   1   1   1   1   1
++		     1   1   1   1   1   1   0xE 0xE 0xE 0xE
++		     0xE 0xE 0>;
++};
++
++&cp0_spi1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&cp0_spi0_pins>;
++	status = "okay";
++
++	spi-flash@0 {
++		#address-cells = <0x1>;
++		#size-cells = <0x1>;
++		compatible = "jedec,spi-nor", "spi-flash";
++		reg = <0x0>;
++		spi-max-frequency = <20000000>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "U-Boot";
++				reg = <0x0 0x200000>;
++			};
++
++			partition@400000 {
++				label = "Filesystem";
++				reg = <0x200000 0xe00000>;
++			};
++		};
++	};
++};
++
++&cp0_usb3_1 {
++	status = "okay";
++};
++
++&cp0_comphy {
++	phy0 {
++		phy-type = <COMPHY_TYPE_PEX0>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++
++	phy1 {
++		phy-type = <COMPHY_TYPE_PEX0>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++
++	phy2 {
++		phy-type = <COMPHY_TYPE_PEX0>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++
++	phy3 {
++		phy-type = <COMPHY_TYPE_PEX0>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++
++	phy4 {
++		phy-type = <COMPHY_TYPE_USB3_HOST1>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++
++	phy5 {
++		phy-type = <COMPHY_TYPE_PEX2>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++};
++
++&cp0_utmi0 {
++	status = "okay";
++};
++
++&cp0_utmi1 {
++	status = "okay";
++};
++
++&ap_sdhci0 {
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	non-removable;
++};
++
++&cp0_sdhci0 {
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	non-removable;
++};
++
++&cp0_mdio {
++	status = "okay";
++	phy0: ethernet-phy@0 {
++		reg = <0>;
++	};
++	phy1: ethernet-phy@1 {
++		reg = <1>;
++	};
++};
++
++&cp0_ethernet {
++	status = "okay";
++};
++
++&cp0_eth1 {
++	status = "okay";
++	phy = <&phy0>;
++	phy-mode = "rgmii-id";
++};
++
++&cp0_eth2 {
++	status = "okay";
++	phy = <&phy1>;
++	phy-mode = "rgmii-id";
++};
+-- 
+2.29.0
+

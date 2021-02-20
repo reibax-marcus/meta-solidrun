@@ -1,0 +1,117 @@
+From 018c94763eff51e7c7a52a10d622c28f744fd486 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Tue, 12 Feb 2019 15:45:40 -0800
+Subject: [PATCH 0881/1239] env: sf: add support for fio spi1 env with fdt
+ string
+
+Use fdt string "u-boot,env" in spi flash nodes, nodes with
+compatible "spi-flash", to make user requested device
+as storage medium for u-boot environment.
+With 9xx chips, spi controllers count is 2 and each can support
+two flash devices on each chip select, so it makes sense to
+push this logic to internal sdk for easy custom env device.
+If not defined, default values for controller and chip-select
+will be 0.
+
+This may not be upstreamable as it is required to have build
+option for each board so that it is fixed at compile time.
+
+Change-Id: Ib6d733c9636800f788bc7140dd92371bab617c4a
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/3923
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx2/octeontx2.c | 33 +++++++++++++++++++++++++++++
+ env/sf.c                            | 23 +++++++++++++++++++-
+ 2 files changed, 55 insertions(+), 1 deletion(-)
+
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index e0cb3f9d49..37baa11f38 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -36,6 +36,39 @@ void octeontx2_cleanup_ethaddr(void)
+ 	}
+ }
+ 
++void board_get_env_spi_bus_cs(int *bus, int *cs)
++{
++	const void *blob = gd->fdt_blob;
++	int env_bus, env_cs;
++	int node, preg;
++
++	env_bus = -1;
++	env_cs = -1;
++	node = fdt_node_offset_by_compatible(blob, -1, "spi-flash");
++	while (node > 0) {
++		if (fdtdec_get_bool(blob, node, "u-boot,env")) {
++			env_cs = fdtdec_get_int(blob, node, "reg", -1);
++			preg = fdtdec_get_int(blob,
++					      fdt_parent_offset(blob, node),
++					      "reg", -1);
++			/* SPI node will have PCI addr, so map it */
++			if (preg == 0x3000)
++				env_bus = 0;
++			if (preg == 0x3800)
++				env_bus = 1;
++			debug("\n Env SPI [bus:cs] [%d:%d]\n",
++			      env_bus, env_cs);
++			break;
++		}
++		node = fdt_node_offset_by_compatible(blob, node, "spi-flash");
++	}
++	if (env_bus == -1)
++		debug("\'u-boot,env\' property not found in fdt\n");
++
++	*bus = env_bus;
++	*cs = env_cs;
++}
++
+ void octeontx_parse_board_info(void)
+ {
+ 	const char *str;
+diff --git a/env/sf.c b/env/sf.c
+index 590d0cedd8..f679236ffa 100644
+--- a/env/sf.c
++++ b/env/sf.c
+@@ -42,8 +42,19 @@ static int setup_flash_device(void)
+ 	struct udevice *new;
+ 	int	ret;
+ 
++#ifdef CONFIG_ARCH_OCTEONTX2
++	int bus, cs;
++extern void board_get_env_spi_bus_cs(int *bus, int *cs);
++
++	board_get_env_spi_bus_cs(&bus, &cs);
++	if (bus < 0) {
++		/* Default to config */
++		bus = CONFIG_ENV_SPI_BUS;
++		cs = CONFIG_ENV_SPI_CS;
++	}
++
+ 	/* speed and mode will be read from DT */
+-	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
++	ret = spi_flash_probe_bus_cs(bus, cs,
+ 				     CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE,
+ 				     &new);
+ 	if (ret) {
+@@ -51,6 +62,16 @@ static int setup_flash_device(void)
+ 		return ret;
+ 	}
+ 
++#else
++	/* speed and mode will be read from DT */
++	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
++				     CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE,
++				     &new);
++	if (ret) {
++		set_default_env("!spi_flash_probe_bus_cs() failed");
++		return ret;
++	}
++#endif
+ 	env_flash = dev_get_uclass_priv(new);
+ #else
+ 
+-- 
+2.29.0
+

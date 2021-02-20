@@ -1,0 +1,275 @@
+From b39984549d47f2ba135902e725d04c38107bf439 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Sun, 28 Jul 2019 20:38:00 -0700
+Subject: [PATCH 0946/1239] cmd: marvell: Add mdio_dbg command support
+
+mdio_dbg command supports read and write of PHY registers
+on Marvell OcteonTX2 RVU PF interfaces with valid PHY
+interface. Actual operations over SMI bus are achieved
+using SMC calls to ATF.
+
+Uncomment CMD_MDIO_DBG in include/configs/octeontx2_<platform>.h
+file to enable this command.
+
+Change-Id: I99d23c51eb9cf29a0e683264c3211d67ada477a4
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/13204
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/atf.h     |  4 +
+ .../asm/arch-octeontx2/octeontx2_svc.h        |  3 +
+ board/Marvell/octeontx2/atf.c                 | 35 ++++++++
+ cmd/marvell/Kconfig                           |  7 ++
+ cmd/marvell/Makefile                          |  1 +
+ cmd/marvell/mdio_dbg.c                        | 83 +++++++++++++++++++
+ drivers/net/octeontx2/nix.c                   | 10 +++
+ include/configs/octeontx2_95xx.h              |  1 +
+ include/configs/octeontx2_96xx.h              |  1 +
+ include/configs/octeontx2_loki.h              |  1 +
+ 10 files changed, 146 insertions(+)
+ create mode 100644 cmd/marvell/mdio_dbg.c
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/atf.h b/arch/arm/include/asm/arch-octeontx2/atf.h
+index 69c299fa7e..7b2a2480d8 100644
+--- a/arch/arm/include/asm/arch-octeontx2/atf.h
++++ b/arch/arm/include/asm/arch-octeontx2/atf.h
+@@ -13,4 +13,8 @@ ssize_t atf_node_count(void);
+ ssize_t atf_disable_rvu_lfs(unsigned int node);
+ ssize_t atf_flsf_fw_booted(void);
+ ssize_t atf_flsf_clr_force_2ndry(void);
++ssize_t atf_mdio_dbg_read(int cgx_lmac, int mode, int phyaddr, int devad,
++			  int reg);
++ssize_t atf_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
++			   int reg, int val);
+ #endif
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+index 8147d5dfa8..81d16f97bb 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+@@ -31,4 +31,7 @@
+ #define OCTEONTX2_FSAFE_PR_BOOT_SUCCESS	0xc2000b02
+ #define OCTEONTX2_FSAFE_CLR_FORCE_SEC	0xc2000b03
+ 
++#define OCTEONTX2_MDIO_DBG_READ		0xc2000d01
++#define OCTEONTX2_MDIO_DBG_WRITE	0xc2000d02
++
+ #endif /* __OCTEONTX2_SVC_H__ */
+diff --git a/board/Marvell/octeontx2/atf.c b/board/Marvell/octeontx2/atf.c
+index d12eae17bb..e508a06dc3 100644
+--- a/board/Marvell/octeontx2/atf.c
++++ b/board/Marvell/octeontx2/atf.c
+@@ -82,3 +82,38 @@ ssize_t atf_flsf_clr_force_2ndry(void)
+ 
+ 	return regs.regs[0];
+ }
++
++ssize_t atf_mdio_dbg_read(int cgx_lmac, int mode, int phyaddr, int devad,
++			  int reg)
++{
++	struct pt_regs regs;
++
++	regs.regs[0] = OCTEONTX2_MDIO_DBG_READ;
++	regs.regs[1] = cgx_lmac;
++	regs.regs[2] = mode;
++	regs.regs[3] = phyaddr;
++	regs.regs[4] = devad;
++	regs.regs[5] = reg;
++
++	smc_call(&regs);
++
++	return regs.regs[0];
++}
++
++ssize_t atf_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
++			   int reg, int val)
++{
++	struct pt_regs regs;
++
++	regs.regs[0] = OCTEONTX2_MDIO_DBG_WRITE;
++	regs.regs[1] = cgx_lmac;
++	regs.regs[2] = mode;
++	regs.regs[3] = phyaddr;
++	regs.regs[4] = devad;
++	regs.regs[5] = reg;
++	regs.regs[6] = val;
++
++	smc_call(&regs);
++
++	return regs.regs[0];
++}
+diff --git a/cmd/marvell/Kconfig b/cmd/marvell/Kconfig
+index f3c868ee28..fd1e597b9a 100644
+--- a/cmd/marvell/Kconfig
++++ b/cmd/marvell/Kconfig
+@@ -16,4 +16,11 @@ config CMD_ETH
+ 	   LMAC modes on RVU PF [CGX] network interfaces on Marvell
+ 	   OcteonTX2 platforms.
+ 
++config CMD_MDIO_DBG
++	bool "PHY registers read/write support on mdio bus"
++	help
++	   Support to debug phy registers over MDIO bus using SMC interface
++	   to ATF for RVU PF [CGX] network interfaces on Marvell OcteonTX2
++	   platforms.
++
+ endmenu
+diff --git a/cmd/marvell/Makefile b/cmd/marvell/Makefile
+index 06294de4e1..dacf768f8b 100644
+--- a/cmd/marvell/Makefile
++++ b/cmd/marvell/Makefile
+@@ -6,4 +6,5 @@
+ ifdef CONFIG_ARCH_OCTEONTX2
+ obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_cmds.o
+ obj-$(CONFIG_CMD_ETH) += eth_cmds.o
++obj-$(CONFIG_CMD_MDIO_DBG) += mdio_dbg.o
+ endif
+diff --git a/cmd/marvell/mdio_dbg.c b/cmd/marvell/mdio_dbg.c
+new file mode 100644
+index 0000000000..194912aa95
+--- /dev/null
++++ b/cmd/marvell/mdio_dbg.c
+@@ -0,0 +1,83 @@
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <command.h>
++#include <dm.h>
++#include <asm/arch/atf.h>
++
++extern void nix_get_cgx_lmac_id(struct udevice *dev, int *cgxid, int *lmacid);
++
++static int do_mdio_dbg(cmd_tbl_t *cmdtp, int flag, int argc,
++		       char *const argv[])
++{
++	const char *cmd;
++	char *endp;
++	const char *devname;
++	int ret = -1;
++	int mode, phyaddr, devaddr, regaddr, data, cgx, lmac, cgx_lmac;
++	struct udevice *dev;
++
++	if (argc < 7)
++		return CMD_RET_USAGE;
++
++	devaddr = -1;
++	cmd = argv[1];
++	devname = argv[2];
++
++	dev = eth_get_dev_by_name(devname);
++	if (!dev) {
++		printf("device interface %s not found\n", devname);
++		return CMD_RET_FAILURE;
++	}
++	if (strncmp(dev->name, "rvu_", 4)) {
++		printf("Invalid eth interface, choose RVU PF device\n");
++		return CMD_RET_FAILURE;
++	}
++	nix_get_cgx_lmac_id(dev, &cgx, &lmac);
++	cgx_lmac = (lmac & 0xF) | ((cgx & 0xF) << 4);
++
++	mode = simple_strtol(argv[3], &endp, 0);
++	if (mode < 0 || mode > 1) {
++		printf("Invalid clause selection\n");
++		return CMD_RET_FAILURE;
++	}
++	phyaddr = simple_strtol(argv[4], &endp, 0);
++
++	if (strcmp(cmd, "read") == 0) {
++		if (mode)
++			devaddr = simple_strtol(argv[5], &endp, 0);
++		regaddr = simple_strtol(argv[6], &endp, 0);
++		ret = atf_mdio_dbg_read(cgx_lmac, mode, phyaddr, devaddr,
++					regaddr);
++		printf("Read register 0x%x devad[%d] of PHY@0x%x => 0x%x\n",
++		       regaddr, devaddr, phyaddr, ret);
++	} else if (strcmp(cmd, "write") == 0) {
++		if (mode)
++			devaddr = simple_strtol(argv[5], &endp, 0);
++		regaddr = simple_strtol(argv[6], &endp, 0);
++		data = simple_strtol(argv[7], &endp, 0);
++		ret = atf_mdio_dbg_write(cgx_lmac, mode, phyaddr, devaddr,
++					 regaddr, data);
++		printf("Write register 0x%x devad[%d] of PHY@0x%x <= 0x%x\n",
++		       regaddr, devaddr, phyaddr, data);
++	}
++	return (ret == 0) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
++}
++
++U_BOOT_CMD(
++	mdio_dbg,	8,	1,	do_mdio_dbg,
++	"MDIO Debug utility commands",
++	"mdio_dbg read <ethX> <mode> <addr> <devad> <reg>\n"
++	" - read register of PHY@addr using <mode> at <devad>.<reg>\n"
++	"mdio_dbg write <ethX> <mode> <addr> <devad> <reg> <data>\n"
++	" - write register of PHY@addr using <mode> at <devad>.<reg>\n"
++	"\n"
++	" - mode 0 [CLAUSE22] and 1 [CLAUSE45]\n"
++	" - devad should be -1 for clause22 and device address for clause45\n"
++	"Use 'ethlist' command to display network interface names\n"
++);
+diff --git a/drivers/net/octeontx2/nix.c b/drivers/net/octeontx2/nix.c
+index 581e048821..e1e86e83ee 100644
+--- a/drivers/net/octeontx2/nix.c
++++ b/drivers/net/octeontx2/nix.c
+@@ -830,6 +830,16 @@ int nix_lf_init(struct udevice *dev)
+ 	return 0;
+ }
+ 
++void nix_get_cgx_lmac_id(struct udevice *dev, int *cgxid, int *lmacid)
++{
++	struct rvu_pf *rvu = dev_get_priv(dev);
++	struct nix *nix = rvu->nix;
++	struct lmac *lmac = nix->lmac;
++
++	*cgxid = lmac->cgx->cgx_id;
++	*lmacid = lmac->lmac_id;
++}
++
+ void nix_print_mac_info(struct udevice *dev)
+ {
+ 	struct rvu_pf *rvu = dev_get_priv(dev);
+diff --git a/include/configs/octeontx2_95xx.h b/include/configs/octeontx2_95xx.h
+index 406c943127..5bdb6a1724 100644
+--- a/include/configs/octeontx2_95xx.h
++++ b/include/configs/octeontx2_95xx.h
+@@ -43,6 +43,7 @@
+ #define CONFIG_MISC_INIT_R
+ 
+ #define CONFIG_LAST_STAGE_INIT
++/* #define CONFIG_CMD_MDIO_DBG */
+ 
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+diff --git a/include/configs/octeontx2_96xx.h b/include/configs/octeontx2_96xx.h
+index f4c3f1dfe8..79a0b2febe 100644
+--- a/include/configs/octeontx2_96xx.h
++++ b/include/configs/octeontx2_96xx.h
+@@ -43,6 +43,7 @@
+ #define CONFIG_MISC_INIT_R
+ 
+ #define CONFIG_LAST_STAGE_INIT
++/* #define CONFIG_CMD_MDIO_DBG */
+ 
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+diff --git a/include/configs/octeontx2_loki.h b/include/configs/octeontx2_loki.h
+index 3829f7e464..dc4f62b228 100644
+--- a/include/configs/octeontx2_loki.h
++++ b/include/configs/octeontx2_loki.h
+@@ -42,6 +42,7 @@
+ #define CONFIG_MISC_INIT_R
+ 
+ #define CONFIG_LAST_STAGE_INIT
++/* #define CONFIG_CMD_MDIO_DBG */
+ 
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+-- 
+2.29.0
+

@@ -1,0 +1,139 @@
+From e18ea158bbc1f558cd842b506f2411422d38d4d9 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Tue, 28 Jan 2020 12:10:12 -0800
+Subject: [PATCH 1079/1239] cmd: eth_cmds: add set_an_lbk command
+
+Add set_an_lbk command to support set or clear of Auto-neg
+loopback for selected RVU PF interface.
+
+Depends-On: https://sj1git1.cavium.com/c/IP/SW/boot/atf/+/22054
+Change-Id: I7b4c0204d5f077abec422fd9ae7bd82ae8330e00
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Signed-off-by: Nithya Mani <nithya.mani@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/22443
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Nithya Mani <Nithya.Mani@cavium.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ cmd/marvell/eth_cmds.c           | 15 +++++++++++++++
+ drivers/net/octeontx2/cgx_intf.c | 22 ++++++++++++++++++++++
+ drivers/net/octeontx2/cgx_intf.h | 13 ++++++++-----
+ 3 files changed, 45 insertions(+), 5 deletions(-)
+
+diff --git a/cmd/marvell/eth_cmds.c b/cmd/marvell/eth_cmds.c
+index 9c7e3d1f4f..e2447e805e 100644
+--- a/cmd/marvell/eth_cmds.c
++++ b/cmd/marvell/eth_cmds.c
+@@ -16,6 +16,7 @@ extern int cgx_intf_get_fec(struct udevice *ethdev);
+ extern int cgx_intf_get_phy_mod_type(struct udevice *ethdev);
+ extern int cgx_intf_set_phy_mod_type(struct udevice *ethdev, int type);
+ extern int cgx_intf_set_mode(struct udevice *ethdev, int mode);
++extern int cgx_intf_set_an_lbk(struct udevice *ethdev, int enable);
+ extern int cgx_intf_get_mode(struct udevice *ethdev);
+ extern void nix_print_mac_info(struct udevice *dev);
+ 
+@@ -73,6 +74,13 @@ static int do_ethparam_common(cmd_tbl_t *cmdtp, int flag, int argc,
+ 		ret = cgx_intf_set_fec(dev, type);
+ 	} else if (strcmp(cmd, "get_fec") == 0) {
+ 		ret = cgx_intf_get_fec(dev);
++	} else if (strcmp(cmd, "set_an_lbk") == 0) {
++		if (argc < 3)
++			return CMD_RET_FAILURE;
++		type = simple_strtol(argv[2], &endp, 0);
++		if (type < 0 || type > 1)
++			return CMD_RET_USAGE;
++		ret = cgx_intf_set_an_lbk(dev, type);
+ 	} else if (strcmp(cmd, "set_phymod") == 0) {
+ 		if (argc < 3)
+ 			return CMD_RET_FAILURE;
+@@ -112,6 +120,13 @@ U_BOOT_CMD(
+ 	"Use 'ethlist' command to display network interface names\n"
+ );
+ 
++U_BOOT_CMD(set_an_lbk, 3, 1, do_ethparam_common,
++	   "Set or clear Auto-neg loopback for ethernet interface",
++	   "Example - set_an_lbk <ethX> [value]\n"
++	   "0 [clear] or 1 [set]\n"
++	   "Use 'ethlist' command to display network interface names\n"
++);
++
+ U_BOOT_CMD(
+ 	set_phymod, 3, 1, do_ethparam_common,
+ 	"Modify line side phy-mod type for selected ethernet interface",
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index bc3e8712de..99d1b6c50f 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -561,6 +561,28 @@ int cgx_intf_set_phy_mod_type(struct udevice *ethdev, int type)
+ 	return 0;
+ }
+ 
++int cgx_intf_set_an_lbk(struct udevice *ethdev, int enable)
++{
++	struct rvu_pf *rvu = dev_get_priv(ethdev);
++	struct nix *nix = rvu->nix;
++	union cgx_scratchx0 scr0;
++	int ret;
++	union cgx_cmd_s cmd;
++
++	cmd.cmd.id = CGX_CMD_AN_LOOPBACK;
++	cmd.cmd_args.enable = enable;
++
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   cmd, &scr0.u, 0);
++	if (ret) {
++		printf("Set AN loopback command failed on %s\n", ethdev->name);
++		return -1;
++	}
++	printf("AN loopback %s for %s\n", enable ? "set" : "clear",
++	       ethdev->name);
++	return 0;
++}
++
+ int cgx_intf_display_eye(u8 qlm, u8 lane)
+ {
+ 	union cgx_scratchx0 scr0;
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index bea4726c6b..3fbb763fd3 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -78,12 +78,12 @@ enum cgx_cmd_id {
+ 	CGX_CMD_GET_MAC_ADDR,
+ 	CGX_CMD_SET_MTU,
+ 	CGX_CMD_GET_LINK_STS,		/* optional to user */
+-	CGX_CMD_LINK_BRING_UP,
++	CGX_CMD_LINK_BRING_UP,		/* = 5 */
+ 	CGX_CMD_LINK_BRING_DOWN,
+ 	CGX_CMD_INTERNAL_LBK,
+ 	CGX_CMD_EXTERNAL_LBK,
+ 	CGX_CMD_HIGIG,
+-	CGX_CMD_LINK_STAT_CHANGE,
++	CGX_CMD_LINK_STAT_CHANGE,	/* = 10 */
+ 	CGX_CMD_MODE_CHANGE,		/* hot plug support */
+ 	CGX_CMD_INTF_SHUTDOWN,
+ 	CGX_CMD_GET_MKEX_SIZE,
+@@ -93,14 +93,17 @@ enum cgx_cmd_id {
+ 	CGX_CMD_SET_LINK_MODE,
+ 	CGX_CMD_GET_SUPPORTED_FEC,
+ 	CGX_CMD_SET_FEC,
+-	CGX_CMD_GET_AN,
++	CGX_CMD_GET_AN,			/* = 20 */
+ 	CGX_CMD_SET_AN,
+ 	CGX_CMD_GET_ADV_LINK_MODES,
+ 	CGX_CMD_GET_ADV_FEC,
+ 	CGX_CMD_GET_PHY_MOD_TYPE, /* line-side modulation type: NRZ or PAM4 */
+-	CGX_CMD_SET_PHY_MOD_TYPE,
++	CGX_CMD_SET_PHY_MOD_TYPE,	/* = 25 */
+ 	CGX_CMD_PRBS,
+-	CGX_CMD_DISPLAY_EYE, /* = 27 */
++	CGX_CMD_DISPLAY_EYE,
++	CGX_CMD_GET_PHY_FEC_STATS,
++	CGX_CMD_DISPLAY_SERDES,
++	CGX_CMD_AN_LOOPBACK,	/* = 30 */
+ };
+ 
+ /* async event ids */
+-- 
+2.29.0
+

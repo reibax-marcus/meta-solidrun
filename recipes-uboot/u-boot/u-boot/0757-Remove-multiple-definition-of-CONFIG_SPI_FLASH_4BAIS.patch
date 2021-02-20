@@ -1,0 +1,27 @@
+From a053c5e7b824729068f163f76c4f983cbfeac004 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Fri, 23 Feb 2018 16:33:39 -0800
+Subject: [PATCH 0757/1239] Remove multiple definition of
+ CONFIG_SPI_FLASH_4BAIS.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ configs/t81_defconfig | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/configs/t81_defconfig b/configs/t81_defconfig
+index 81cfc74c94..d912e7e514 100644
+--- a/configs/t81_defconfig
++++ b/configs/t81_defconfig
+@@ -117,8 +117,3 @@ CONFIG_USB_ETHER_ASIX88179=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
+-CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR=0x77
+-CONFIG_ENV_VARS_UBOOT_CONFIG=y
+-CONFIG_OF_LIBFDT=y
+-CONFIG_OF_BOARD=y
+-CONFIG_SPI_FLASH_4BAIS=y
+-- 
+2.29.0
+

@@ -1,0 +1,52 @@
+From 4523ae8f32432483a1f08cfc0dd67bceb9fa8242 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 17 Jan 2019 14:04:59 -0800
+Subject: [PATCH 0868/1239] drivers: pci: octeontx: enable ras injection errata
+ for all PEMs
+
+Remove init_done flag based init as it will skip the workaround
+init to inject byte enable error for PEM 1/2/3.
+Optimization can be handled later.
+
+Change-Id: I8bf91400455d17d6a1be63695be5360e2a217e2c
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/2356
+Tested-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ drivers/pci/pci_octeontx_ecam.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/drivers/pci/pci_octeontx_ecam.c b/drivers/pci/pci_octeontx_ecam.c
+index 244a5bcce3..63e304daa1 100644
+--- a/drivers/pci/pci_octeontx_ecam.c
++++ b/drivers/pci/pci_octeontx_ecam.c
+@@ -279,14 +279,12 @@ static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
+ 	u64 rval, wval;
+ 	u32 cfg_off, data;
+ 	u64 raddr, waddr;
+-	static int init_done = 0;
+ 	u8 shift;
+ 
+ 	raddr = pcie->pem.start + PEM_CFG_RD;
+ 	waddr = pcie->pem.start + PEM_CFG_WR;
+ 
+ 	debug("%s raddr %llx waddr %llx\n", __func__, raddr, waddr);
+-	if (!init_done) {
+ 		cfg_off = rval = wval = data = 0;
+ 
+ 		cfg_off = PCIERC_RASDP_DE_ME;
+@@ -324,9 +322,6 @@ static void pci_octeontx2_pem_errata(struct udevice *bus, uint offset,
+ 	debug("%s CHGP1 waddr %llx wval %llx\n", __func__, waddr, wval);
+ 		writeq(wval, waddr);
+ 
+-		init_done = 1;
+-	}
+-
+ 	cfg_off = PCIERC_RAS_EINJ_EN;
+ 	wval = cfg_off;
+ 	data = 0x40;
+-- 
+2.29.0
+

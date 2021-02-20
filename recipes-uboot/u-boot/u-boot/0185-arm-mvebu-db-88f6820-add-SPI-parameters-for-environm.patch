@@ -1,0 +1,35 @@
+From d1fcea2ce466b72a3a22f88fdd82df16fa923d50 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Tue, 28 Aug 2018 18:04:09 +0300
+Subject: [PATCH 0185/1239] arm: mvebu: db-88f6820: add SPI parameters for
+ environment setup
+
+Add definitions for CONFIG_ENV_SPI_BUS and CONFIG_ENV_SPI_CS
+to Armada-388-GP board configuration
+
+Change-Id: Ic70edb627cbe7094ab4e3809f164ac2968795d9d
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ include/configs/db-88f6820-gp.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/include/configs/db-88f6820-gp.h b/include/configs/db-88f6820-gp.h
+index 900c962679..3b2d8f8812 100644
+--- a/include/configs/db-88f6820-gp.h
++++ b/include/configs/db-88f6820-gp.h
+@@ -23,6 +23,12 @@
+ #define CONFIG_SYS_I2C_SLAVE		0x0
+ #define CONFIG_SYS_I2C_SPEED		100000
+ 
++/*
++ * SPI Flash configuration for the environemnt access
++ */
++#define CONFIG_ENV_SPI_BUS		0
++#define CONFIG_ENV_SPI_CS		0
++
+ /*
+  * SDIO/MMC Card Configuration
+  */
+-- 
+2.29.0
+

@@ -1,0 +1,66 @@
+From 8397d9626b81a01156cf2844a51743307a29214a Mon Sep 17 00:00:00 2001
+From: Ben Peled <bpeled@marvell.com>
+Date: Tue, 21 Apr 2020 13:59:12 +0300
+Subject: [PATCH 1136/1239] This adds the PCA9546 4-channel i2c bus switch.
+
+Change-Id: I5061a9592bde6f99ffdac4b0692d65c02d48e770
+Signed-off-by: Chris Packham <judge.packham@gmail.com>
+Signed-off-by: Ben Peled <bpeled@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27259
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/i2c/muxes/Kconfig   | 4 ++--
+ drivers/i2c/muxes/pca954x.c | 6 ++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 68f15261be..39683fc43b 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -33,8 +33,8 @@ config I2C_MUX_PCA954x
+ 	  devices. It is x width I2C multiplexer which enables to partitioning
+ 	  I2C bus and connect multiple devices with the same address to the same
+ 	  I2C controller where driver handles proper routing to target i2c
+-	  device. Supported chips are PCA9543, PCA9544, PCA9547, PCA9548 and
+-	  PCA9646.
++	  device. Supported chips are PCA9543, PCA9544, PCA9546, PCA9547,
++	  PCA9548 and PCA9646.
+ 
+ config I2C_MUX_GPIO
+         tristate "GPIO-based I2C multiplexer"
+diff --git a/drivers/i2c/muxes/pca954x.c b/drivers/i2c/muxes/pca954x.c
+index a630ce991d..dfe936870a 100644
+--- a/drivers/i2c/muxes/pca954x.c
++++ b/drivers/i2c/muxes/pca954x.c
+@@ -17,6 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ enum pca_type {
+ 	PCA9543,
+ 	PCA9544,
++	PCA9546,
+ 	PCA9547,
+ 	PCA9548,
+ 	PCA9646
+@@ -47,6 +48,10 @@ static const struct chip_desc chips[] = {
+ 		.muxtype = pca954x_ismux,
+ 		.width = 4,
+ 	},
++	[PCA9546] = {
++		.muxtype = pca954x_isswi,
++		.width = 4,
++	},
+ 	[PCA9547] = {
+ 		.enable = 0x8,
+ 		.muxtype = pca954x_ismux,
+@@ -94,6 +99,7 @@ static const struct i2c_mux_ops pca954x_ops = {
+ static const struct udevice_id pca954x_ids[] = {
+ 	{ .compatible = "nxp,pca9543", .data = PCA9543 },
+ 	{ .compatible = "nxp,pca9544", .data = PCA9544 },
++	{ .compatible = "nxp,pca9546", .data = PCA9546 },
+ 	{ .compatible = "nxp,pca9547", .data = PCA9547 },
+ 	{ .compatible = "nxp,pca9548", .data = PCA9548 },
+ 	{ .compatible = "nxp,pca9646", .data = PCA9646 },
+-- 
+2.29.0
+

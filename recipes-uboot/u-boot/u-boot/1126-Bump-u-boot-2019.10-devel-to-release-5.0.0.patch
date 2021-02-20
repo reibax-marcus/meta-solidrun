@@ -1,0 +1,24 @@
+From 2a119ec622dab40ba6b3ecc082a3841655aefa90 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Tue, 31 Mar 2020 22:40:09 -0700
+Subject: [PATCH 1126/1239] Bump u-boot-2019.10-devel to release 5.0.0
+
+Change-Id: I32e87f0d98f9b1430add76fa4c4b4e20c2dd33ed
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/26034
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+---
+ localversion | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/localversion b/localversion
+index 43844464d7..5c96c49b29 100644
+--- a/localversion
++++ b/localversion
+@@ -1 +1 @@
+--4.0.0
++-5.0.0
+-- 
+2.29.0
+

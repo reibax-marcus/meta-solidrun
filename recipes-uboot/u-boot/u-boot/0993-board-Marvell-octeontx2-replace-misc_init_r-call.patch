@@ -1,0 +1,75 @@
+From 332f059b18a44cb0f8e3abc176299632313526ba Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Sat, 9 Nov 2019 01:16:29 -0800
+Subject: [PATCH 0993/1239] board: Marvell: octeontx2: replace misc_init_r call
+
+With probe of all UCLASS_MISC devices, pcie_console is also
+invoked causing crash. Instead call probe on only required
+devices CGX and RVU AF based on PCI_VEND_DID from board_late_init.
+
+Change-Id: I85145a59346b003c81b97d973cc00403b444a3c3
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+---
+ board/Marvell/octeontx2/board.c | 36 +++++++++++++++++++--------------
+ 1 file changed, 21 insertions(+), 15 deletions(-)
+
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 1bb8a2f5c0..e854cad9d4 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -144,24 +144,26 @@ int dram_init(void)
+ 	return 0;
+ }
+ 
+-/**
+- * Board misc devices initialization routine.
+- */
+-int misc_init_r(void)
++#ifdef CONFIG_NET_OCTEONTX2
++void board_late_probe_devices(void)
+ {
+-	struct udevice *bus;
+-
+-	/*
+-	 * Enumerate all known miscellaneous devices
+-	 * so CGX and RVU AF devices will be probed.
+-	 */
+-	for (uclass_first_device_check(UCLASS_MISC, &bus);
+-	     bus;
+-	     uclass_next_device_check(&bus)) {
+-		;
++	struct udevice *dev;
++	int err, cgx_cnt, i;
++
++	/* Probe MAC(CGX) and NIC AF devices before Network stack init */
++	cgx_cnt = otx_is_soc(CN98XX) ? 5 : 3;
++	for (i = 0; i < cgx_cnt; i++) {
++		err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA059, i,
++					 &dev);
++		if (err)
++			debug("%s CGX%d device not found\n", __func__, i);
+ 	}
+-	return 0;
++	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM, 0xA065, 0, &dev);
++	if (err)
++		debug("NIC AF device not found\n");
+ }
++#endif
++
+ #if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
+ 	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
+ 	!CONFIG_IS_ENABLED(CONSOLE_MUX)
+@@ -347,6 +349,10 @@ int board_late_init(void)
+ 	val = env_get_hex("disable_ooo", 0);
+ 	smc_configure_ooo(val);
+ 
++#ifdef CONFIG_NET_OCTEONTX2
++	board_late_probe_devices();
++#endif
++
+ #if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
+ 	if (init_bootcmd_console())
+ 		printf("Failed to init bootcmd input\n");
+-- 
+2.29.0
+

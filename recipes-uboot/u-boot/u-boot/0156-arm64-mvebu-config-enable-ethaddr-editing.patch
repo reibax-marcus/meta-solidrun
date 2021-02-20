@@ -1,0 +1,31 @@
+From 3c9cb7c4cb4fc45b6b03c63573a3e15d5753544e Mon Sep 17 00:00:00 2001
+From: Ofir Fedida <ofedida@marvell.com>
+Date: Tue, 10 Jul 2018 16:17:00 +0300
+Subject: [PATCH 0156/1239] arm64: mvebu: config: enable ethaddr editing
+
+Currently, environment variable 'ethaddr' cannot be overwritten at all.
+
+This patch fixes this issue by setting CONFIG_ENV_OVERWRITE, this
+allows 'ethaddr' modification in the environment variables.
+
+Change-Id: I1bba17bd6a162c1306d0ecc17669e8d7f1159181
+Signed-off-by: Ofir Fedida <ofedida@marvell.com>
+---
+ include/configs/mvebu_armada-common.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index 2df2a5dff3..36b7c8be15 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -26,6 +26,7 @@
+ #define CONFIG_HAS_ETH2
+ #define CONFIG_ETHPRIME			"eth0"
+ #define CONFIG_ROOTPATH			"/srv/nfs/" /* Default Dir for NFS */
++#define CONFIG_ENV_OVERWRITE		/* ethaddr can be reprogrammed */
+ #define CONFIG_EXTRA_ENV_SETTINGS	"kernel_addr_r=0x7000000\0"	\
+ 					"initrd_addr=0xa00000\0"	\
+ 					"initrd_size=0x2000000\0"	\
+-- 
+2.29.0
+

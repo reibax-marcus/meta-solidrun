@@ -1,0 +1,259 @@
+From a3033d068143add6cca14d00da05d9265bb0b5c5 Mon Sep 17 00:00:00 2001
+From: Srikanth Pidugu <spidugu@marvell.com>
+Date: Wed, 9 Oct 2019 12:04:30 -0700
+Subject: [PATCH 0970/1239] otx/otx2: Export board manufacturing data to env
+
+Change-Id: I05a169bbc1368ea752f728126e4fd44e36a91c5d
+Signed-off-by: Srikanth Pidugu <spidugu@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/17138
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx/board.h  |  2 +
+ arch/arm/include/asm/arch-octeontx2/board.h |  2 +
+ board/Marvell/octeontx/board-fdt.c          | 55 ++++++++++++++++++---
+ board/Marvell/octeontx/board.c              | 14 ++++++
+ board/Marvell/octeontx2/board-fdt.c         | 34 ++++++++++++-
+ board/Marvell/octeontx2/board.c             | 16 +++++-
+ 6 files changed, 115 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx/board.h b/arch/arm/include/asm/arch-octeontx/board.h
+index 52cbef2ad8..dc419adfe6 100644
+--- a/arch/arm/include/asm/arch-octeontx/board.h
++++ b/arch/arm/include/asm/arch-octeontx/board.h
+@@ -185,6 +185,8 @@ union rst_boot {
+ /** Function definitions */
+ int octeontx_board_has_pmp(void);
+ const char *fdt_get_board_model(void);
++const char *fdt_get_board_serial(void);
++const char *fdt_get_board_revision(void);
+ void fdt_parse_phy_info(void);
+ void fdt_board_get_ethaddr(int bgx, int lmac, unsigned char *eth);
+ 
+diff --git a/arch/arm/include/asm/arch-octeontx2/board.h b/arch/arm/include/asm/arch-octeontx2/board.h
+index a8e37e3e11..7ee8205c06 100644
+--- a/arch/arm/include/asm/arch-octeontx2/board.h
++++ b/arch/arm/include/asm/arch-octeontx2/board.h
+@@ -233,6 +233,8 @@ union rst_boot {
+ int fdt_get_board_mac_cnt(void);
+ u64 fdt_get_board_mac_addr(void);
+ const char *fdt_get_board_model(void);
++const char *fdt_get_board_serial(void);
++const char *fdt_get_board_revision(void);
+ void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr);
+ void acquire_flash_arb(bool acquire);
+ 
+diff --git a/board/Marvell/octeontx/board-fdt.c b/board/Marvell/octeontx/board-fdt.c
+index 9e1c8f5d81..46bae3944d 100644
+--- a/board/Marvell/octeontx/board-fdt.c
++++ b/board/Marvell/octeontx/board-fdt.c
+@@ -155,29 +155,72 @@ void fdt_parse_phy_info(void)
+ }
+ #endif
+ 
+-const char *fdt_get_board_model(void)
++static int fdt_get_bdk_node(void)
+ {
++	int node, ret;
+ 	const void *fdt = gd->fdt_blob;
+-	int ret, node, len = 16;
+-	const char *str = NULL;
+ 
+ 	if (!fdt) {
+ 		printf("ERROR: %s: no valid device tree found\n", __func__);
+-		return NULL;
++		return 0;
+ 	}
+ 
+ 	ret = fdt_check_header(fdt);
+ 	if (ret < 0) {
+ 		printf("fdt: %s\n", fdt_strerror(ret));
+-		return NULL;
++		return 0;
+ 	}
+ 
+ 	node = fdt_path_offset(fdt, "/cavium,bdk");
+ 	if (node < 0) {
+ 		printf("%s: /cavium,bdk is missing from device tree: %s\n",
+ 		       __func__, fdt_strerror(node));
+-		return NULL;
++		return 0;
+ 	}
++	return node;
++}
++
++const char *fdt_get_board_serial(void)
++{
++	const void *fdt = gd->fdt_blob;
++	int node, len = 64;
++	const char *str = NULL;
++
++	node = fdt_get_bdk_node();
++	if (!node)
++		return NULL;
++
++	str = fdt_getprop(fdt, node, "BOARD-SERIAL", &len);
++	if (!str)
++		printf("Error: cannot retrieve board serial from fdt\n");
++	return str;
++}
++
++const char *fdt_get_board_revision(void)
++{
++	const void *fdt = gd->fdt_blob;
++	int node, len = 64;
++	const char *str = NULL;
++
++	node = fdt_get_bdk_node();
++	if (!node)
++		return NULL;
++
++	str = fdt_getprop(fdt, node, "BOARD-REVISION", &len);
++	if (!str)
++		printf("Error: cannot retrieve board revision from fdt\n");
++	return str;
++}
++
++const char *fdt_get_board_model(void)
++{
++	const void *fdt = gd->fdt_blob;
++	int node, len = 16;
++	const char *str = NULL;
++
++	node = fdt_get_bdk_node();
++	if (!node)
++		return NULL;
+ 
+ 	str = fdt_getprop(fdt, node, "BOARD-MODEL", &len);
+ 	if (!str)
+diff --git a/board/Marvell/octeontx/board.c b/board/Marvell/octeontx/board.c
+index 45758772c1..a2eebc2ef5 100644
+--- a/board/Marvell/octeontx/board.c
++++ b/board/Marvell/octeontx/board.c
+@@ -97,6 +97,7 @@ void board_late_probe_devices(void)
+ int board_late_init(void)
+ {
+ 	char boardname[32];
++	char boardserial[150], boardrev[150];
+ 
+ 	/*
+ 	 * Try to cleanup ethaddr env variables, this is needed
+@@ -109,9 +110,22 @@ int board_late_init(void)
+ 
+ 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+ 
++	if (fdt_get_board_revision()) {
++		snprintf(boardrev, sizeof(boardrev), "%s",
++			 fdt_get_board_revision());
++		env_set("boardrev", boardrev);
++	}
++
++	if (fdt_get_board_serial()) {
++		snprintf(boardserial, sizeof(boardserial), "%s",
++			 fdt_get_board_serial());
++		env_set("serial#", boardserial);
++	}
++
+ #ifdef CONFIG_NET_OCTEONTX
+ 	board_late_probe_devices();
+ #endif
++	env_save();
+ 	return 0;
+ }
+ 
+diff --git a/board/Marvell/octeontx2/board-fdt.c b/board/Marvell/octeontx2/board-fdt.c
+index b07e8a51eb..1151cc31ed 100644
+--- a/board/Marvell/octeontx2/board-fdt.c
++++ b/board/Marvell/octeontx2/board-fdt.c
+@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ extern unsigned long fdt_base_addr;
+ 
+-int fdt_get_bdk_node(void)
++static int fdt_get_bdk_node(void)
+ {
+ 	int node, ret;
+ 	const void *fdt = gd->fdt_blob;
+@@ -93,6 +93,38 @@ int fdt_get_board_mac_cnt(void)
+ 	return mac_count;
+ }
+ 
++const char *fdt_get_board_serial(void)
++{
++	const void *fdt = gd->fdt_blob;
++	int node, len = 64;
++	const char *str = NULL;
++
++	node = fdt_get_bdk_node();
++	if (!node)
++		return NULL;
++
++	str = fdt_getprop(fdt, node, "BOARD-SERIAL", &len);
++	if (!str)
++		printf("Error: cannot retrieve board serial from fdt\n");
++	return str;
++}
++
++const char *fdt_get_board_revision(void)
++{
++	const void *fdt = gd->fdt_blob;
++	int node, len = 64;
++	const char *str = NULL;
++
++	node = fdt_get_bdk_node();
++	if (!node)
++		return NULL;
++
++	str = fdt_getprop(fdt, node, "BOARD-REVISION", &len);
++	if (!str)
++		printf("Error: cannot retrieve board revision from fdt\n");
++	return str;
++}
++
+ const char *fdt_get_board_model(void)
+ {
+ 	int node, len = 16;
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index f199549630..b7f69a7844 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -195,7 +195,8 @@ void board_init_serial_bootcmd(void)
+  */
+ int board_late_init(void)
+ {
+-	char boardname[20];
++	char boardname[32];
++	char boardserial[150], boardrev[150];
+ 	long val;
+ 
+ 	/*
+@@ -208,12 +209,25 @@ int board_late_init(void)
+ 	env_set("prompt", boardname);
+ 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+ 
++	if (fdt_get_board_revision()) {
++		snprintf(boardrev, sizeof(boardrev), "%s",
++			 fdt_get_board_revision());
++		env_set("boardrev", boardrev);
++	}
++
++	if (fdt_get_board_serial()) {
++		snprintf(boardserial, sizeof(boardserial), "%s",
++			 fdt_get_board_serial());
++		env_set("serial#", boardserial);
++	}
++
+ 	val = env_get_hex("disable_ooo", 0);
+ 	smc_configure_ooo(val);
+ 
+ #ifdef CONFIG_OCTEONTX_SERIAL_BOOTCMD
+ 	board_init_serial_bootcmd();
+ #endif
++	env_save();
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,34 @@
+From df6382d0a313af57f07eacaaf5268c12cec84731 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 22 Aug 2018 00:54:39 -0700
+Subject: [PATCH 0790/1239] octeontx: nand: fix missing function prototype
+ warning.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ drivers/mtd/nand/octeontx_bch.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/mtd/nand/octeontx_bch.h b/drivers/mtd/nand/octeontx_bch.h
+index 824efe3f91..c46bcb3150 100644
+--- a/drivers/mtd/nand/octeontx_bch.h
++++ b/drivers/mtd/nand/octeontx_bch.h
+@@ -160,4 +160,15 @@ static inline void octeontx_bch_write_doorbell(u64 num_commands,
+ 	writeq(num_words, vf->reg_base + BCH_VQX_DOORBELL(0));
+ }
+ 
++/**
++ * Since it's possible (and even likely) that the NAND device will be probed
++ * before the BCH device has been probed, we may need to defer the probing.
++ *
++ * In this case, the initial probe returns success but the actual probing
++ * is deferred until the BCH VF has been probed.
++ *
++ * @return	0 for success, otherwise error
++ */
++int octeontx_pci_nand_deferred_probe(void);
++
+ #endif /* __OCTEONTX_BCH_H__ */
+-- 
+2.29.0
+

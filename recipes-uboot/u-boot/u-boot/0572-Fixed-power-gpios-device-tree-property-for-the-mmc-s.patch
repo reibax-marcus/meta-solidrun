@@ -1,0 +1,60 @@
+From 2006ef8eb18c915db3fb82282428faa19ab4c2f4 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 22 Nov 2016 16:41:01 -0800
+Subject: [PATCH 0572/1239] Fixed power-gpios device tree property for the mmc
+ slot.
+
+Getting the power-gpios field from the slot info in the device tree
+used the wrong offset.  It was using the device node, not the slot
+node.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ drivers/mmc/cavium_mmc.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/mmc/cavium_mmc.c b/drivers/mmc/cavium_mmc.c
+index 7cfdd269a3..6a2b002eda 100644
+--- a/drivers/mmc/cavium_mmc.c
++++ b/drivers/mmc/cavium_mmc.c
+@@ -43,7 +43,7 @@
+  * implements all of the MMC support found in the generic MMC driver
+  * and should be compatible with it for the most part.
+  *
+- * Currently both MMC and SD/SDHC are supported.
++ * Currently both MMC and SD/SDHC/SDXC are supported.
+  */
+ 
+ #include <common.h>
+@@ -5842,8 +5842,6 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
+ 		int reg = fdtdec_get_int(blob, slot_node, "reg", -1);
+ 		uint voltages[2];
+ 		uint low, high;
+-
+-		debug("%s: slot %d found\n", __func__, reg);
+ 		if (reg < 0) {
+ 			printf("Missing reg field for mmc slot in device tree\n");
+ 			return -1;
+@@ -5907,13 +5905,18 @@ static int cavium_mmc_get_config(const void *blob, int of_offset,
+ 		slot->bus_max_width = fdtdec_get_int(blob, slot_node,
+ 						     "cavium,bus-max-width", 8);
+ 		if (power_slot)
+-			gpio_request_by_name_nodev(blob, of_offset,
++			gpio_request_by_name_nodev(blob, slot_node,
+ 						   "power-gpios", 0,
+ 						   &slot->power_gpio,
+ 						   GPIOD_IS_OUT);
+ 		debug("%s: power gpio number: slot: %d, host: %d\n", __func__,
+ 		      gpio_get_number(&slot->power_gpio),
+ 		      gpio_get_number(&host->power_gpio));
++
++		debug("  slot GPIO is%s valid, host GPIO is%s valid\n",
++		      dm_gpio_is_valid(&slot->power_gpio) ? "" : " not",
++		      dm_gpio_is_valid(&host->power_gpio) ? "" : " not");
++
+ 		gpio_request_by_name_nodev(blob, slot_node, "cd-gpios", 0,
+ 					   &slot->cd_gpio, GPIOD_IS_IN);
+ 		if (fdtdec_get_bool(blob, slot_node, "cd-inverted"))
+-- 
+2.29.0
+

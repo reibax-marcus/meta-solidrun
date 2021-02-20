@@ -1,0 +1,42 @@
+From 5fd95af3e3bbe06b765a89bb416d6f07cbc6ba87 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 2 Aug 2017 11:41:00 -0700
+Subject: [PATCH 0678/1239] board: thunderx: cleanup dram_init
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/cavium/thunderx/thunderx.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 64cebcf9c8..172119f376 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -88,13 +88,13 @@ int dram_init(void)
+ 	ssize_t dram_size;
+ 	int node;
+ 
+-	printf("Initializing\nNodes in system: %zd\n", node_count);
++	debug("Initializing\nNodes in system: %zd\n", node_count);
+ 
+ 	gd->ram_size = 0;
+ 
+ 	for (node = 0; node < node_count; node++) {
+ 		dram_size = atf_dram_size(node);
+-		printf("Node %d: %zd MBytes of DRAM\n", node, dram_size >> 20);
++		debug("Node %d: %zd MBytes of DRAM\n", node, dram_size >> 20);
+ 		gd->ram_size += dram_size;
+ 	}
+ 
+@@ -102,8 +102,6 @@ int dram_init(void)
+ 
+ 	*(unsigned long *)CPU_RELEASE_ADDR = 0;
+ 
+-	puts("DRAM size:");
+-
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

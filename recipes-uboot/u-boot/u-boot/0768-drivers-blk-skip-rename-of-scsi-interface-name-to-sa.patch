@@ -1,0 +1,30 @@
+From 870cf4c79d5edb6afe70536cc4f16cd31bbbfbb6 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 6 Mar 2018 13:44:21 -0800
+Subject: [PATCH 0768/1239] drivers: blk: skip rename of scsi interface name to
+ sata
+
+Must have slipped in with automerge.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/block/blk-uclass.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/block/blk-uclass.c b/drivers/block/blk-uclass.c
+index 607509271f..077a843700 100644
+--- a/drivers/block/blk-uclass.c
++++ b/drivers/block/blk-uclass.c
+@@ -13,9 +13,6 @@
+ static const char *if_typename_str[IF_TYPE_COUNT] = {
+ 	[IF_TYPE_IDE]		= "ide",
+ 	[IF_TYPE_SCSI]		= "scsi",
+-#if !defined(CONFIG_CMD_SATA) && defined(CONFIG_SCSI_AHCI)
+-	[IF_TYPE_SCSI]		= "sata",
+-#endif
+ 	[IF_TYPE_ATAPI]		= "atapi",
+ 	[IF_TYPE_USB]		= "usb",
+ 	[IF_TYPE_DOC]		= "doc",
+-- 
+2.29.0
+

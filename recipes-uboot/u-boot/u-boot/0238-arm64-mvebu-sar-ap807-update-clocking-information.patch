@@ -1,0 +1,40 @@
+From 75d13efd6101e112e9671bcbfc1a2fe8d8385d6b Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 4 Jan 2019 13:56:12 +0200
+Subject: [PATCH 0238/1239] arm64: mvebu: sar: ap807: update clocking
+ information
+
+For the ap807 based system cpu_freq==6 is reserved for
+CPU_2200_DDR_1200_RCLK_1200 mode. Reflect it in the code.
+
+Change-Id: I11e3de7ecc04029fa6e381798f7fcdadfd3e6dcc
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ drivers/misc/mvebu_sar/ap807_sar.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/misc/mvebu_sar/ap807_sar.c b/drivers/misc/mvebu_sar/ap807_sar.c
+index 5190954527..eb306cbf01 100644
+--- a/drivers/misc/mvebu_sar/ap807_sar.c
++++ b/drivers/misc/mvebu_sar/ap807_sar.c
+@@ -109,7 +109,7 @@ struct sar_info ap807_sar_1[] = {
+ enum clocking_options {
+ 	CPU_2000_DDR_1200_RCLK_1200 = 0x0,
+ 	CPU_2000_DDR_1050_RCLK_1050 = 0x1,
+-	CPU_1800_DDR_1200_RCLK_1200 = 0x6,
++	CPU_2200_DDR_1200_RCLK_1200 = 0x6,
+ 	CPU_1800_DDR_1050_RCLK_1200 = 0x7,
+ 	CPU_1600_DDR_1200_RCLK_1200 = 0x0d,
+ 	CPU_1600_DDR_900_RCLK_900 = 0x0e,
+@@ -120,7 +120,7 @@ static const u32 pll_freq_tbl[16][4] = {
+ 	/* CPU */   /* DDR */   /* Ring */
+ 	{2.0 * GHz, 1.2  * GHz, 1.2  * GHz, CPU_2000_DDR_1200_RCLK_1200},
+ 	{2.0 * GHz, 1.05 * GHz, 1.05 * GHz, CPU_2000_DDR_1050_RCLK_1050},
+-	{1.8 * GHz, 1.2  * GHz, 1.2  * GHz, CPU_1800_DDR_1200_RCLK_1200},
++	{2.2 * GHz, 1.2  * GHz, 1.2  * GHz, CPU_2200_DDR_1200_RCLK_1200},
+ 	{1.8 * GHz, 1.05 * GHz, 1.2 * GHz, CPU_1800_DDR_1050_RCLK_1200},
+ 	{1.6 * GHz, 1.2 * GHz, 1.2 * GHz, CPU_1600_DDR_1200_RCLK_1200},
+ 	{1.6 * GHz, 0.9  * GHz, 0.9  * GHz, CPU_1600_DDR_900_RCLK_900},
+-- 
+2.29.0
+

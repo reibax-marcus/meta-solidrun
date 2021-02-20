@@ -1,0 +1,49 @@
+From 7e804800ead11d4a1a44482597b364ac3fb1b15a Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 13 Aug 2018 16:00:48 -0700
+Subject: [PATCH 0815/1239] net: octeontx2: fix dev name to include sequence
+ number
+
+helps in better readability while executing commands on
+different interfaces, as against same name for all interfaces.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/cavium/octeontx2/rvu_pf.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/octeontx2/rvu_pf.c b/drivers/net/cavium/octeontx2/rvu_pf.c
+index de4fd0c75a..15ff6a0d19 100644
+--- a/drivers/net/cavium/octeontx2/rvu_pf.c
++++ b/drivers/net/cavium/octeontx2/rvu_pf.c
+@@ -57,11 +57,12 @@ int rvu_pf_probe(struct udevice *dev)
+ 	struct rvu_pf *rvu = dev_get_priv(dev);
+ 	size_t size;
+ 	int err;
++	char name[16];
+ 
+ 	debug("%s: name: %s\n", __func__, dev->name);
+ 
+ 	rvu->pf_base = dm_pci_map_bar(dev, 2, &size, PCI_REGION_MEM);
+-	rvu->pfid = dev->seq + 1;
++	rvu->pfid = dev->seq + 1; // RVU PF's start from 1;
+ 	rvu->dev = dev;
+ 	if (!rvu_af_dev) {
+ 		printf("%s: Error: Could not find RVU AF device\n",
+@@ -79,6 +80,13 @@ int rvu_pf_probe(struct udevice *dev)
+ 	if (err)
+ 		printf("%s: Error %d adding nix\n", __func__, err);
+ 
++	/*
++	 * modify device name to include index/sequence number,
++	 * for better readability, this is 1:1 mapping with eth0/1/2.. names.
++	 */
++	sprintf(name, "rvu_pf#%d", dev->seq);
++	device_set_name(dev, name);
++	debug("%s: name: %s\n", __func__, dev->name);
+ 	return err;
+ }
+ 
+-- 
+2.29.0
+

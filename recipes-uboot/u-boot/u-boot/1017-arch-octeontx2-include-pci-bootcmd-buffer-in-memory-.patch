@@ -1,0 +1,35 @@
+From bcd3a530552f5538e05bf7b140394c838648ff38 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Mon, 2 Dec 2019 12:21:18 -0800
+Subject: [PATCH 1017/1239] arch: octeontx2: include pci bootcmd buffer in
+ memory map
+
+For 96xx platforms, devicetree includes 4K pci-bootcmd buffer
+so add it to memory map, otherwise driver probe will fail.
+
+Change-Id: Ie815c9f64ce362eee2840f5cf06ffb0f15cd7763
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19678
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ arch/arm/mach-octeontx2/cpu.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/mach-octeontx2/cpu.c b/arch/arm/mach-octeontx2/cpu.c
+index 2a6d5e8661..a8039d6a35 100644
+--- a/arch/arm/mach-octeontx2/cpu.c
++++ b/arch/arm/mach-octeontx2/cpu.c
+@@ -52,6 +52,9 @@ void mem_map_fill(void)
+ 	int banks = OTX2_MEM_MAP_USED;
+ 	u32 dram_start = CONFIG_SYS_TEXT_BASE;
+ 
++	/* Add 4K pci bootcmd buffer range for 96xx boards */
++	if (otx_is_soc(CN96XX))
++		dram_start -= 0x1000;
+ 	for (int i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+ 		otx2_mem_map[banks].virt = dram_start;
+ 		otx2_mem_map[banks].phys = dram_start;
+-- 
+2.29.0
+

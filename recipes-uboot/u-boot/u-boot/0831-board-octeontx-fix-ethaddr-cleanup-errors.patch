@@ -1,0 +1,46 @@
+From e3379f56533235114fda40e4014761b11bf8351e Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 17 Sep 2018 16:48:00 -0700
+Subject: [PATCH 0831/1239] board: octeontx: fix ethaddr cleanup errors
+
+Cleanup existing ethaddr variables with force flag.
+If local-mac-address is not defined, set zero value to ethaddr.
+Later network stack will set random addr.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx/octeontx.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/board/Marvell/octeontx/octeontx.c b/board/Marvell/octeontx/octeontx.c
+index d608c21de2..4a0859366d 100644
+--- a/board/Marvell/octeontx/octeontx.c
++++ b/board/Marvell/octeontx/octeontx.c
+@@ -30,7 +30,7 @@ void octeontx_cleanup_ethaddr(void)
+ 	for (int i = 0; i < 20; i++) {
+ 		sprintf(ename, i ? "eth%daddr" : "ethaddr", i);
+ 		if(env_get(ename))
+-			env_set(ename, NULL);
++			env_set_force(ename, NULL);
+ 	}
+ }
+ 
+@@ -62,9 +62,12 @@ void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
+ 		/* check for local-mac-address */
+ 		mac = fdt_getprop(fdt, subnode,
+ 				       "local-mac-address", &len);
+-		debug("%s mac %pM\n", __func__, mac);
+-		memcpy(eth, mac, ARP_HLEN);
+-		debug("%s mac %pM\n", __func__, eth);
++		if(mac) {
++			debug("%s mac %pM\n", __func__, mac);
++			memcpy(eth, mac, ARP_HLEN);
++		} else
++			memset(eth, 0, ARP_HLEN);
++		debug("%s eth %pM\n", __func__, eth);
+ 		return;
+ 	}
+ }
+-- 
+2.29.0
+

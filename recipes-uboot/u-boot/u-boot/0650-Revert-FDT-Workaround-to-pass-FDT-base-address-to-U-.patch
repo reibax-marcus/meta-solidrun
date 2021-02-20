@@ -1,0 +1,73 @@
+From 154993f9d39af115469dba4bb58fc3b0506e9a57 Mon Sep 17 00:00:00 2001
+From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+Date: Mon, 17 Jul 2017 07:19:55 -0700
+Subject: [PATCH 0650/1239] Revert FDT Workaround to pass FDT base address to
+ U-Boot
+
+This reverts two commits:
+ - cc2f854cdeac5681f4a0e0f563f35a40c4603f76
+ - b1f588fa7015d0af8614521f5aa2bf6c087fd9e4,
+
+which were the workaround to achieve proper FDT base address.
+
+Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+---
+ arch/arm/config.mk |  6 ------
+ lib/fdtdec.c       | 24 ------------------------
+ 2 files changed, 30 deletions(-)
+
+diff --git a/arch/arm/config.mk b/arch/arm/config.mk
+index bafebbfcee..f25603109e 100644
+--- a/arch/arm/config.mk
++++ b/arch/arm/config.mk
+@@ -46,12 +46,6 @@ PF_CPPFLAGS_ARM := $(call cc-option,-marm,) \
+ 		$(call cc-option,-mno-thumb-interwork,)
+ endif
+ 
+-ifdef ENCRYPT_UBOOT
+-ifeq ($(ENCRYPT_UBOOT), 1)
+-    PLATFORM_CPPFLAGS += -DENCRYPT_UBOOT=1
+-endif
+-endif
+-
+ # Only test once
+ ifeq ($(CONFIG_$(SPL_)SYS_THUMB_BUILD),y)
+ archprepare: checkthumb checkgcc6
+diff --git a/lib/fdtdec.c b/lib/fdtdec.c
+index 27266102ae..9de0152753 100644
+--- a/lib/fdtdec.c
++++ b/lib/fdtdec.c
+@@ -638,30 +638,6 @@ int fdtdec_check_fdt(void)
+  */
+ int fdtdec_prepare_fdt(void)
+ {
+-#if defined(ENCRYPT_UBOOT)
+-	uint64_t fdt_align;
+-	static int aligned = 0;
+-	/*
+-	 * WORKAROUND: Set fdt_blob to be aligned to 16B for secure-boot
+-	 * purposes. U-Boot should be fixed to take the fdt_blob address from
+-	 * x1 register that is passed to ATF. Currently U-Boot does not do this,
+-	 * fdt_blob is then the same as uboot-size stored at uboot binary header
+-	 */
+-	if (aligned == 0) {
+-		fdt_align = (uint64_t)gd->fdt_blob;
+-		if (fdt_align % 16 != 0) {
+-			printf("Aligning FDT base address...\n");
+-			gd->fdt_blob += (fdt_align % 16);
+-			aligned = 1;
+-		} else if (fdt_align % 16 == 0 && aligned == 0) {
+-			printf("Aligning +16 bytes...\n");
+-			gd->fdt_blob += 16;
+-			aligned = 1;
+-		}
+-		aligned = 1;
+-	}
+-#endif
+-
+ 	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
+ 	    fdt_check_header(gd->fdt_blob)) {
+ #ifdef CONFIG_SPL_BUILD
+-- 
+2.29.0
+

@@ -1,0 +1,34 @@
+From f1f377e69e15f9c0daec3062e588d343faa0c4cc Mon Sep 17 00:00:00 2001
+From: aaronw <aaron.williams@cavium.com>
+Date: Thu, 7 Mar 2019 20:54:35 -0800
+Subject: [PATCH 0893/1239] octeontx: bootimgup: Allow command for SPI NOR
+
+The bootimgup command should also be available when mmc is not
+available since it also works with spi nor.
+
+Change-Id: I355a91c5e999de30e8a101f15718db8f8d8045e7
+Signed-off-by: aaronw <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/5428
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ cmd/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 9a610aacb5..0dd6785cb5 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1531,7 +1531,8 @@ endif
+ menu "Misc commands"
+ 
+ config CMD_BOOTIMGUP
+-	depends on MMC_OCTEONTX
++	depends on ARCH_OCTEONTX || ARCH_OCTEONTX2
++	depends on MMC_OCTEONTX || SPI_FLASH
+ 	bool "bootimgup"
+ 	help
+ 	  bootimgup command support
+-- 
+2.29.0
+

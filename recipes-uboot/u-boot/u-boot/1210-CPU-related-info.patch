@@ -1,0 +1,317 @@
+From bda33bf210c20abf9305ec0bb19b3a1496202f88 Mon Sep 17 00:00:00 2001
+From: Sujeet Baranwal <sbaranwal@marvell.com>
+Date: Fri, 24 Jul 2020 12:56:44 -0700
+Subject: [PATCH 1210/1239] CPU related info
+
+Armada specific information is added to instatiate cpu
+uclass. Data is added to satisfy information needed for
+SMBIOS framework.
+
+Change-Id: I20efb06287dfcd62a949ba34cdacaa87c5c44bac
+Signed-off-by: Sujeet Baranwal <sbaranwal@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35161
+Tested-by: Jia Ma <jiam@marvell.com>
+Reviewed-by: Jia Ma <jiam@marvell.com>
+Reviewed-by: Sujeet Kumar Baranwal <Sujeet.Baranwal@cavium.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/armada-ap80x-quad.dtsi |   8 ++
+ arch/arm/mach-mvebu/Makefile        |   1 +
+ arch/arm/mach-mvebu/cpu_armada.c    | 125 ++++++++++++++++++++++++++++
+ drivers/cpu/cpu_sandbox.c           |   2 +-
+ include/cpu.h                       |  20 +++++
+ include/smbios.h                    |  31 +++++++
+ 6 files changed, 186 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/mach-mvebu/cpu_armada.c
+
+diff --git a/arch/arm/dts/armada-ap80x-quad.dtsi b/arch/arm/dts/armada-ap80x-quad.dtsi
+index d5d85db619..bc87e83a99 100644
+--- a/arch/arm/dts/armada-ap80x-quad.dtsi
++++ b/arch/arm/dts/armada-ap80x-quad.dtsi
+@@ -18,24 +18,32 @@
+ 		#size-cells = <0>;
+ 
+ 		cpu@000 {
++			clocks;
++			u-boot,dm-pre-reloc;
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a72", "arm,armv8";
+ 			reg = <0x000>;
+ 			enable-method = "psci";
+ 		};
+ 		cpu@001 {
++			clocks;
++			u-boot,dm-pre-reloc;
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a72", "arm,armv8";
+ 			reg = <0x001>;
+ 			enable-method = "psci";
+ 		};
+ 		cpu@100 {
++			clocks;
++			u-boot,dm-pre-reloc;
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a72", "arm,armv8";
+ 			reg = <0x100>;
+ 			enable-method = "psci";
+ 		};
+ 		cpu@101 {
++			clocks;
++			u-boot,dm-pre-reloc;
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a72", "arm,armv8";
+ 			reg = <0x101>;
+diff --git a/arch/arm/mach-mvebu/Makefile b/arch/arm/mach-mvebu/Makefile
+index 1bf147440b..41002a90ef 100644
+--- a/arch/arm/mach-mvebu/Makefile
++++ b/arch/arm/mach-mvebu/Makefile
+@@ -7,6 +7,7 @@ ifdef CONFIG_ARM64
+ obj-$(CONFIG_ARMADA_3700) += armada3700/
+ obj-$(CONFIG_ARMADA_8K) += armada8k/
+ obj-y += arm64-common.o
++obj-y += cpu_armada.o
+ 
+ else # CONFIG_ARM64
+ 
+diff --git a/arch/arm/mach-mvebu/cpu_armada.c b/arch/arm/mach-mvebu/cpu_armada.c
+new file mode 100644
+index 0000000000..3aab32bdc2
+--- /dev/null
++++ b/arch/arm/mach-mvebu/cpu_armada.c
+@@ -0,0 +1,125 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * (C) Copyright 2020
++ * Sujeet Baranwal, sbaranwal@marvell.com
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <cpu.h>
++
++/* SMBIOS spec proc family for ARM :Surce https://www.dmtf.org */
++#define DMTF_BIT_64			BIT(2)
++#define DMTF_MULTI_CORE			BIT(3)
++#define DMTF_EXECUTE_PROTECTION		BIT(5)
++#define DMTF_ENHANCED_VIRTUALIZATION	BIT(6)
++#define DMTF_POWER_PERFORMANCE_CONTROL	BIT(7)
++
++#define DMTF_PROC_VOLT_3_3V		(0x2)
++#define DMTF_PROC_TYPE_CENTRAL_PROC	(0x3)
++#define	DMTF_CPU_SOCKET_POPULATED	BIT(6)
++#define	DMTF_CPU_ENABLED		(0x1)
++#define	MAX_CPU_SPEED_2200_MHZ		(2200)
++
++#define DMTF_PROC_CHAR (DMTF_BIT_64 | DMTF_MULTI_CORE | \
++			DMTF_EXECUTE_PROTECTION | \
++			DMTF_ENHANCED_VIRTUALIZATION | \
++			DMTF_POWER_PERFORMANCE_CONTROL)
++
++static inline u64 read_midr(void)
++{
++	u64 result;
++
++	asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (result));
++	return result;
++}
++
++int cpu_armada_bind(struct udevice *dev)
++{
++	u64 midr;
++	u32 *p_midr = (u32 *)&midr;
++
++	char tbd[] = "To Be Filled By O.E.M.";
++	char proc_v[] = "Armada CN9130 SMP arm,cortex-a72";
++
++	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
++
++	midr = read_midr();
++	plat->id[0] = p_midr[0];
++	plat->id[1] = p_midr[1];
++
++	plat->voltage = DMTF_PROC_VOLT_3_3V;
++	plat->proc_type = DMTF_PROC_TYPE_CENTRAL_PROC;
++	plat->core_count = 4;
++	plat->core_enabled = 4;
++	plat->thread_count = 4;
++	plat->proc_char = DMTF_PROC_CHAR;
++	plat->max_speed = MAX_CPU_SPEED_2200_MHZ;
++	plat->status = DMTF_CPU_SOCKET_POPULATED | DMTF_CPU_ENABLED;
++
++	strncpy(plat->socket_designation, "CPU 1", 5);
++	strncpy(plat->processor_version, proc_v, sizeof(proc_v));
++	strncpy(plat->serial_number, tbd, sizeof(tbd));
++	strncpy(plat->asset_tag, tbd, sizeof(tbd));
++	strncpy(plat->part_number, tbd, sizeof(tbd));
++
++	return 0;
++}
++
++int cpu_armada_get_desc(struct udevice *dev, char *buf, int size)
++{
++	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
++
++	snprintf(buf, size, plat->processor_version);
++	return 0;
++}
++
++int cpu_armada_get_info(struct udevice *dev, struct cpu_info *info)
++{
++	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
++
++	info->cpu_freq = plat->max_speed;
++	strncpy(info->cpu_type, "ARMv8", 5);
++	return 0;
++}
++
++int cpu_armada_get_count(struct udevice *dev)
++{
++	struct cpu_platdata *plat = dev_get_parent_platdata(dev);
++
++	/* No of cores */
++	return plat->core_count;
++}
++
++int cpu_armada_get_vendor(struct udevice *dev, char *buf, int size)
++{
++	snprintf(buf, size, "Marvell");
++
++	return 0;
++}
++
++static const struct cpu_ops cpu_armada_ops = {
++	.get_desc = cpu_armada_get_desc,
++	.get_info = cpu_armada_get_info,
++	.get_count = cpu_armada_get_count,
++	.get_vendor = cpu_armada_get_vendor,
++};
++
++int cpu_armada_probe(struct udevice *dev)
++{
++	return 0;
++}
++
++static const struct udevice_id cpu_armada_ids[] = {
++	{ .compatible = "arm,cortex-a72" },
++	{ }
++};
++
++U_BOOT_DRIVER(cpu_armada) = {
++	.name           = "cpu_armada",
++	.id             = UCLASS_CPU,
++	.bind		= cpu_armada_bind,
++	.ops		= &cpu_armada_ops,
++	.of_match       = cpu_armada_ids,
++	.probe          = cpu_armada_probe,
++};
+diff --git a/drivers/cpu/cpu_sandbox.c b/drivers/cpu/cpu_sandbox.c
+index ff87e8adca..946c8d09b0 100644
+--- a/drivers/cpu/cpu_sandbox.c
++++ b/drivers/cpu/cpu_sandbox.c
+@@ -48,7 +48,7 @@ int cpu_sandbox_probe(struct udevice *dev)
+ }
+ 
+ static const struct udevice_id cpu_sandbox_ids[] = {
+-	{ .compatible = "sandbox,cpu_sandbox" },
++	{ .compatible = "arm,cortex-a72" },
+ 	{ }
+ };
+ 
+diff --git a/include/cpu.h b/include/cpu.h
+index 28dd48feb8..8000120ea2 100644
+--- a/include/cpu.h
++++ b/include/cpu.h
+@@ -14,6 +14,12 @@
+  * @device_id:     Driver-defined device identifier
+  * @family:        DMTF CPU Family identifier
+  * @id:            DMTF CPU Processor identifier
++ * @voltage:	   DMTF CPU voltage identifier
++ * proc_type:	   DMTF CPU processor type
++ * core_count:	   DMTF CPU no of processor cores
++ * core_enabled:   DMTF CPU no of enabled cores
++ * thread_count:   DMTF CPU no of threads supported
++ * proc_char:      DMTF CPU porcessor charactorstics
+  * @timebase_freq: the current frequency at which the cpu timer timebase
+  *		   registers are updated (in Hz)
+  *
+@@ -24,7 +30,20 @@ struct cpu_platdata {
+ 	int cpu_id;
+ 	int ucode_version;
+ 	ulong device_id;
++	u8 status;
++	u8 proc_type;
++	u8 voltage;
++	u8 core_count;
++	u8 core_enabled;
++	u8 thread_count;
+ 	u16 family;
++	u16 proc_char;
++	u16 max_speed;
++	char processor_version[48];
++	char serial_number[32];
++	char asset_tag[32];
++	char part_number[32];
++	char socket_designation[32];
+ 	u32 id[2];
+ 	u32 timebase_freq;
+ };
+@@ -48,6 +67,7 @@ enum {
+ struct cpu_info {
+ 	ulong cpu_freq;
+ 	ulong features;
++	char cpu_type[16];
+ };
+ 
+ struct cpu_ops {
+diff --git a/include/smbios.h b/include/smbios.h
+index 97b9ddce23..3b81b1c8a4 100644
+--- a/include/smbios.h
++++ b/include/smbios.h
+@@ -12,6 +12,19 @@
+ #define SMBIOS_MAJOR_VER	3
+ #define SMBIOS_MINOR_VER	0
+ 
++#define DMTF_PROC_ARMV7		0x100
++#define DMTF_PROC_ARMV8		0x101
++#define DMTF_CHECK_FAMILY2	0xFE
++
++enum {
++	L1_D_CACHE = 0,
++	L1_I_CACHE,
++	L2_CACHE,
++	CACHE_MAX,
++};
++
++#define NO_OF_CACHE CACHE_MAX
++
+ /* SMBIOS structure types */
+ enum {
+ 	SMBIOS_BIOS_INFORMATION = 0,
+@@ -197,6 +210,24 @@ struct __packed smbios_header {
+ 	u16 handle;
+ };
+ 
++/*
++ * is_proc_arm() - Findout if cpu is arm
++ *
++ * Findout if cpu is arm.
++ *
++ * @cpu:	cpu name
++ */
++static inline u16 is_proc_arm(char *cpu)
++{
++	if (!strcmp(cpu, "ARMv7"))
++		return DMTF_PROC_ARMV7;
++
++	if (!strcmp(cpu, "ARMv8"))
++		return DMTF_PROC_ARMV8;
++
++	return 0;
++}
++
+ /**
+  * fill_smbios_header() - Fill the header of an SMBIOS table
+  *
+-- 
+2.29.0
+

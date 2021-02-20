@@ -1,0 +1,37 @@
+From 92c85ad91ce016e33e996b2a42716461bfe94adb Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 26 Jul 2019 10:41:54 +0200
+Subject: [PATCH 0251/1239] arm64: mvebu: common: increase wait time for usb
+ hub power on
+
+Some usb hubs break the spec and requires longer warm-up time. The
+generic usb_hub.c driver predict that and allows to set the bigger delay
+via usb_pgood_delay env. Make this env default for all armada related
+devices to overcome issues with specific usb hubs.
+
+This patch is based on Ray Asbury work who debug usb hub issues and
+determined sufficient delay.
+
+Change-Id: I4fceb3a408b971965c0d08f867f84ebb18b32672
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ include/configs/mvebu_armada-common.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index 296609222b..484724f71c 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -69,7 +69,8 @@
+ 						":$netdev:none nfsroot="\
+ 						"$serverip:$rootpath,tcp,v3 " \
+ 						"$extra_params " \
+-						"$cpuidle"
++						"$cpuidle\0" \
++					"usb_pgood_delay=5000"
+ 
+ /*
+  * For booting Linux, the board info and command line data
+-- 
+2.29.0
+

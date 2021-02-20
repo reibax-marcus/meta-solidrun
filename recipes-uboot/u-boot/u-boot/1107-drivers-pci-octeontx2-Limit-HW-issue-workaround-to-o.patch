@@ -1,0 +1,185 @@
+From e5e4e172952c8d1e5cb471d9a93689b4c75f8ae3 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Mon, 24 Feb 2020 13:10:59 -0800
+Subject: [PATCH 1107/1239] drivers: pci: octeontx2: Limit HW issue workaround
+ to older silicon
+
+Use part variant in MIDR register to limit the workaround for
+older silicon for T96 and F95.
+
+Change-Id: I5127b867271be7879e46bffc37c52e5494eddfa0
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23828
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/soc.h |  1 +
+ board/Marvell/octeontx2/soc-utils.c       |  5 ++
+ drivers/pci/pci_octeontx.c                | 63 ++++++++++++++---------
+ 3 files changed, 45 insertions(+), 24 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/soc.h b/arch/arm/include/asm/arch-octeontx2/soc.h
+index 9dd1384c0f..63d792c46a 100644
+--- a/arch/arm/include/asm/arch-octeontx2/soc.h
++++ b/arch/arm/include/asm/arch-octeontx2/soc.h
+@@ -29,6 +29,7 @@ typedef enum {
+ 
+ platform_t read_platform(void);
+ u8 read_partnum(void);
++u8 read_partvar(void);
+ const char *read_board_name(void);
+ 
+ #endif /* __SOC_H */
+diff --git a/board/Marvell/octeontx2/soc-utils.c b/board/Marvell/octeontx2/soc-utils.c
+index 228efe4db8..5a794db536 100644
+--- a/board/Marvell/octeontx2/soc-utils.c
++++ b/board/Marvell/octeontx2/soc-utils.c
+@@ -37,6 +37,11 @@ static inline u64 read_midr(void)
+ 	return result;
+ }
+ 
++u8 read_partvar(void)
++{
++	return ((read_midr() >> 20) & 0xF);
++}
++
+ u8 read_partnum(void)
+ {
+ 	return ((read_midr() >> 4) & 0xFF);
+diff --git a/drivers/pci/pci_octeontx.c b/drivers/pci/pci_octeontx.c
+index d754f98bbd..1d6b603e78 100644
+--- a/drivers/pci/pci_octeontx.c
++++ b/drivers/pci/pci_octeontx.c
+@@ -15,6 +15,7 @@
+ #include <asm/io.h>
+ 
+ #if defined(CONFIG_ARCH_OCTEONTX2)
++#include <asm/arch/soc.h>
+ 
+ #define PEM_CFG_WR 0x18
+ #define PEM_CFG_RD 0x20
+@@ -212,6 +213,18 @@ static int pci_octeontx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
+ 	return 0;
+ }
+ 
++#if defined(CONFIG_ARCH_OCTEONTX2)
++static inline bool use_workaround(void)
++{
++	u8 var = read_partvar();
++
++	/* HW issue workaround should be applied only to older silicons */
++	if (otx_is_soc(CN96XX) && var <= 1)
++		return true;
++
++	return false;
++}
++
+ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
+ 					 uint offset, ulong *valuep,
+ 					 enum pci_size_t size)
+@@ -264,7 +277,6 @@ static int pci_octeontx2_pem_read_config(struct udevice *bus, pci_dev_t bdf,
+ static void pci_octeontx2_pem_workaround(struct udevice *bus, uint offset,
+ 					 enum pci_size_t size)
+ {
+-#if defined(CONFIG_ARCH_OCTEONTX2)
+ 	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+ 	u64 rval, wval;
+ 	u32 cfg_off, data;
+@@ -353,7 +365,6 @@ static void pci_octeontx2_pem_workaround(struct udevice *bus, uint offset,
+ 
+ 	wval = readq(waddr);
+ 	debug("%s EP_CTL waddr %llx => wval %llx\n", __func__, waddr, wval);
+-#endif
+ }
+ 
+ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
+@@ -406,7 +417,8 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
+ 	}
+ 	debug("tmp long %lx %lx\n", addr, value);
+ 
+-	pci_octeontx2_pem_workaround(bus, offset, size);
++	if (use_workaround())
++		pci_octeontx2_pem_workaround(bus, offset, size);
+ 
+ 	switch (size) {
+ 	case PCI_SIZE_8:
+@@ -430,6 +442,7 @@ static int pci_octeontx2_pem_write_config(struct udevice *bus, pci_dev_t bdf,
+ 
+ 	return 0;
+ }
++#endif
+ 
+ static int pci_octeontx_ofdata_to_platdata(struct udevice *dev)
+ {
+@@ -486,6 +499,17 @@ static const struct udevice_id pci_octeontx_ecam_ids[] = {
+ 	{ }
+ };
+ 
++U_BOOT_DRIVER(pci_octeontx_ecam) = {
++	.name	= "pci_octeontx_ecam",
++	.id	= UCLASS_PCI,
++	.of_match = pci_octeontx_ecam_ids,
++	.ops	= &pci_octeontx_ecam_ops,
++	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
++	.probe	= pci_octeontx_ecam_probe,
++	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
++	.flags = DM_FLAG_PRE_RELOC,
++};
++
+ static const struct dm_pci_ops pci_octeontx_pem_ops = {
+ 	.read_config	= pci_octeontx_pem_read_config,
+ 	.write_config	= pci_octeontx_pem_write_config,
+@@ -496,6 +520,17 @@ static const struct udevice_id pci_octeontx_pem_ids[] = {
+ 	{ }
+ };
+ 
++U_BOOT_DRIVER(pci_octeontx_pcie) = {
++	.name	= "pci_octeontx_pem",
++	.id	= UCLASS_PCI,
++	.of_match = pci_octeontx_pem_ids,
++	.ops	= &pci_octeontx_pem_ops,
++	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
++	.probe	= pci_octeontx_ecam_probe,
++	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
++};
++
++#if defined(CONFIG_ARCH_OCTEONTX2)
+ static const struct dm_pci_ops pci_octeontx2_pem_ops = {
+ 	.read_config	= pci_octeontx2_pem_read_config,
+ 	.write_config	= pci_octeontx2_pem_write_config,
+@@ -506,17 +541,6 @@ static const struct udevice_id pci_octeontx2_pem_ids[] = {
+ 	{ }
+ };
+ 
+-U_BOOT_DRIVER(pci_octeontx_ecam) = {
+-	.name	= "pci_octeontx_ecam",
+-	.id	= UCLASS_PCI,
+-	.of_match = pci_octeontx_ecam_ids,
+-	.ops	= &pci_octeontx_ecam_ops,
+-	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
+-	.probe	= pci_octeontx_ecam_probe,
+-	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
+-	.flags = DM_FLAG_PRE_RELOC,
+-};
+-
+ U_BOOT_DRIVER(pci_octeontx2_pcie) = {
+ 	.name	= "pci_octeontx2_pem",
+ 	.id	= UCLASS_PCI,
+@@ -526,13 +550,4 @@ U_BOOT_DRIVER(pci_octeontx2_pcie) = {
+ 	.probe	= pci_octeontx_ecam_probe,
+ 	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
+ };
+-
+-U_BOOT_DRIVER(pci_octeontx_pcie) = {
+-	.name	= "pci_octeontx_pem",
+-	.id	= UCLASS_PCI,
+-	.of_match = pci_octeontx_pem_ids,
+-	.ops	= &pci_octeontx_pem_ops,
+-	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
+-	.probe	= pci_octeontx_ecam_probe,
+-	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
+-};
++#endif
+-- 
+2.29.0
+

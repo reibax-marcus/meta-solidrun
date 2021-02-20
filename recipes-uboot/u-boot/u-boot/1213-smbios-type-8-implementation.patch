@@ -1,0 +1,144 @@
+From 3e048a4fc4eced3d4509717cee34afb1691734cd Mon Sep 17 00:00:00 2001
+From: Sujeet Baranwal <sbaranwal@marvell.com>
+Date: Fri, 24 Jul 2020 15:12:20 -0700
+Subject: [PATCH 1213/1239] smbios: type 8 implementation
+
+SMBIOS type 8 deals with Port Connector Information which
+is added in this patch.
+
+Signed-off-by: Sujeet Baranwal <sbaranwal@marvell.com>
+Change-Id: Iefc32f61ca055db733e29d180dea0a044bd51ae3
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35165
+Reviewed-by: Jia Ma <jiam@marvell.com>
+Tested-by: Jia Ma <jiam@marvell.com>
+---
+ include/smbios.h | 21 +++++++++++++++++++
+ lib/smbios.c     | 52 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 73 insertions(+)
+
+diff --git a/include/smbios.h b/include/smbios.h
+index 4cbeb48300..e97cc3f977 100644
+--- a/include/smbios.h
++++ b/include/smbios.h
+@@ -24,6 +24,7 @@ enum {
+ };
+ 
+ #define NO_OF_CACHE CACHE_MAX
++#define MAX_PORTS 3
+ 
+ /* SMBIOS structure types */
+ enum {
+@@ -33,6 +34,7 @@ enum {
+ 	SMBIOS_SYSTEM_ENCLOSURE = 3,
+ 	SMBIOS_PROCESSOR_INFORMATION = 4,
+ 	SMBIOS_CACHE_INFORMATION = 7,
++	SMBIOS_PORT_INFORMATION = 8,
+ 	SMBIOS_SYSTEM_SLOTS = 9,
+ 	SMBIOS_PHYS_MEMORY_ARRAY = 16,
+ 	SMBIOS_MEMORY_DEVICE = 17,
+@@ -237,6 +239,25 @@ struct __packed smbios_type7 {
+ 	char eos[SMBIOS_STRUCT_EOS_BYTES];
+ };
+ 
++/* Type 8 */
++#define DMTF_TYPE8_OTHER			0xFF
++#define DMTF_TYPE8_RJ45				0x0B
++#define DMTF_TYPE8_NETWORK_PORT		0x1F
++#define DMTF_TYPE8_USB				0x10
++#define DMTF_TYPE8_ACCESS_BUS		0x12
++
++struct __packed smbios_type8 {
++	u8 type;
++	u8 length;
++	u16 handle;
++	u8 internal_reference_designator;
++	u8 internal_connector_type;
++	u8 external_reference_designator;
++	u8 external_connector_type;
++	u8 port_type;
++	char eos[SMBIOS_STRUCT_EOS_BYTES];
++};
++
+ struct __packed smbios_type32 {
+ 	u8 type;
+ 	u8 length;
+diff --git a/lib/smbios.c b/lib/smbios.c
+index ed24852dec..50969a130c 100644
+--- a/lib/smbios.c
++++ b/lib/smbios.c
+@@ -25,6 +25,20 @@ struct cache_details cache_data[NO_OF_CACHE] = {
+ 	{"CACHE-L2", DMTF_TYPE7_CACHE_L2, DMTF_TYPE7_SINGLE_BIT_ECC, DMTF_TYPE7_16_WAY_SET_ASSOCIATIVE, DMTF_TYPE7_DATA_UNIFIED, DMTF_TYPE7_512K},
+ };
+ 
++struct smbios_type8 type8_data[3] = {
++	{
++		0, 0, 0, 0, 0xFF, 0,  DMTF_TYPE8_RJ45, DMTF_TYPE8_NETWORK_PORT
++	},
++
++	{
++		0, 0, 0, 0, DMTF_TYPE8_ACCESS_BUS, 0,  DMTF_TYPE8_ACCESS_BUS, DMTF_TYPE8_USB
++	},
++
++	{
++		0, 0, 0, 0, DMTF_TYPE8_ACCESS_BUS, 0,  DMTF_TYPE8_ACCESS_BUS, DMTF_TYPE8_USB
++	},
++};
++
+ /**
+  * smbios_add_string() - add a string to the string area
+  *
+@@ -319,6 +333,43 @@ static int smbios_write_type7(ulong *current, int handle)
+ 	return len;
+ }
+ 
++static int smbios_write_type8_dm(ulong *current, int handle, int index)
++{
++	struct smbios_type8 *t;
++	int len = sizeof(struct smbios_type8);
++
++	char type8_reference_designator[MAX_PORTS][10] = {
++		"RJ45", "USB 1", "USB 2"
++	};
++
++	t = map_sysmem(*current, len);
++	memset(t, 0, sizeof(struct smbios_type8));
++	fill_smbios_header(t, SMBIOS_PORT_INFORMATION, len, handle + index);
++
++	t->internal_reference_designator = smbios_add_string(t->eos, type8_reference_designator[index]);
++	t->external_reference_designator = smbios_add_string(t->eos, type8_reference_designator[index]);
++
++	t->internal_connector_type = type8_data[index].internal_connector_type;
++	t->external_connector_type = type8_data[index].external_connector_type;
++	t->port_type = type8_data[index].port_type;
++
++	len = t->length + smbios_string_table_len(t->eos);
++	*current += len;
++	unmap_sysmem(t);
++
++	return len;
++}
++
++static int smbios_write_type8(ulong *current, int handle)
++{
++	u32 no_of_handles = MAX_PORTS, i = 0, len = 0;
++
++	for (; i < no_of_handles; i++)
++		len += smbios_write_type8_dm(current, handle, i);
++
++	return len;
++}
++
+ static int smbios_write_type32(ulong *current, int handle)
+ {
+ 	struct smbios_type32 *t;
+@@ -356,6 +407,7 @@ static smbios_write_type smbios_write_funcs[] = {
+ 	smbios_write_type3,
+ 	smbios_write_type4,
+ 	smbios_write_type7,
++	smbios_write_type8,
+ 	smbios_write_type32,
+ 	smbios_write_type127
+ };
+-- 
+2.29.0
+

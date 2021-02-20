@@ -1,0 +1,53 @@
+From 569613fa09db1ebf1b11861697b4513143000df0 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 23 Oct 2019 18:40:36 -0700
+Subject: [PATCH 0990/1239] drivers: pci-uclass: Add support for
+ Alternate-RoutingID capability
+
+If ARI capability is found on device, use it to update next function
+number in bus scan and also helps to skip unnecessary bdf scans.
+
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+---
+ drivers/pci/pci-uclass.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pci/pci-uclass.c b/drivers/pci/pci-uclass.c
+index 5cee0fa935..eb4eda0e8c 100644
+--- a/drivers/pci/pci-uclass.c
++++ b/drivers/pci/pci-uclass.c
+@@ -772,7 +772,7 @@ int pci_bind_bus_devices(struct udevice *bus)
+ 	ulong header_type;
+ 	pci_dev_t bdf, end;
+ 	bool found_multi;
+-	int ret;
++	int ret, ari_off;
+ 
+ 	found_multi = false;
+ 	end = PCI_BDF(bus->seq, PCI_MAX_PCI_DEVICES - 1,
+@@ -844,6 +844,22 @@ int pci_bind_bus_devices(struct udevice *bus)
+ 		pplat->vendor = vendor;
+ 		pplat->device = device;
+ 		pplat->class = class;
++
++		ari_off = dm_pci_find_ext_capability(dev, PCI_EXT_CAP_ID_ARI);
++		if (ari_off) {
++			u16 ari_cap;
++
++			/* Read Next Function number in ARI Cap Register */
++			dm_pci_read_config16(dev, ari_off + 4, &ari_cap);
++			/* Update next scan on this function number,
++			 * subtract 1 in BDF to satisfy loop increment.
++			 */
++			if (ari_cap & 0xff00) {
++				bdf = PCI_BDF(PCI_BUS(bdf), PCI_DEV(ari_cap),
++					      PCI_FUNC(ari_cap));
++				bdf = bdf - 0x100;
++			}
++		}
+ 	}
+ 
+ 	return 0;
+-- 
+2.29.0
+

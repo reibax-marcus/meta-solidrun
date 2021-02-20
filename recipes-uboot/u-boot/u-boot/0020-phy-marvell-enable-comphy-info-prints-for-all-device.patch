@@ -1,0 +1,29 @@
+From 1c712087e29ede72d80d4fe2f7f4e5921a67b635 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Sun, 3 Dec 2017 15:13:08 +0200
+Subject: [PATCH 0020/1239] phy: marvell: enable comphy info prints for all
+ devices
+
+Change-Id: I3b97253e7102a0868440a9e0200acc1c7919c743
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ drivers/phy/marvell/comphy_core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/phy/marvell/comphy_core.c b/drivers/phy/marvell/comphy_core.c
+index 0aa15c892d..dcbddd5793 100644
+--- a/drivers/phy/marvell/comphy_core.c
++++ b/drivers/phy/marvell/comphy_core.c
+@@ -182,8 +182,7 @@ static int comphy_probe(struct udevice *dev)
+ 	/* PHY power UP sequence */
+ 	chip_cfg->ptr_comphy_chip_init(chip_cfg, chip_cfg->comphy_map_data);
+ 	/* PHY print SerDes status */
+-	if (of_machine_is_compatible("marvell,armada8040"))
+-		printf("Comphy chip #%d:\n", chip_cfg->cp_index);
++	printf("Comphy chip #%d:\n", chip_cfg->cp_index);
+ 	comphy_print(chip_cfg, chip_cfg->comphy_map_data);
+ 
+ 	/*
+-- 
+2.29.0
+

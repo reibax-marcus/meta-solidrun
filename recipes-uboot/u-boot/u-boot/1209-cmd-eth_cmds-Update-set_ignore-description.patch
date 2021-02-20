@@ -1,0 +1,32 @@
+From c349145ab18304911da9b548dab33c2762d690f7 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Tue, 8 Sep 2020 11:26:00 -0700
+Subject: [PATCH 1209/1239] cmd: eth_cmds: Update set_ignore description
+
+Update description.
+
+Change-Id: Ib8d7c9856a793e78b9448eac7c2ef88b35a434b1
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35558
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ cmd/marvell/eth_cmds.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/marvell/eth_cmds.c b/cmd/marvell/eth_cmds.c
+index 01dbc04d6e..0120d7c6e8 100644
+--- a/cmd/marvell/eth_cmds.c
++++ b/cmd/marvell/eth_cmds.c
+@@ -171,7 +171,7 @@ U_BOOT_CMD(set_ignore, 4, 1, do_ethparam_common,
+ 	   "0 [clear ignore] or 1 [set ignore]\n"
+ 	   "Example - set_ignore <cgx#> <lmac#> [value]\n"
+ 	   "For CGX0 LMAC3 - set_ignore 0 3 [value]\n"
+-	   "0 [clear ignore] or 1 [set ignore]\n"
++	   "0 [do not ignore flash settings] or 1 [ignore flash settings]\n"
+ 	   "Helps to ignore all persist settings for selected ethernet\n"
+ 	   "interface on next boot\n"
+ 	   "Use 'ethlist' command to display network interface names\n"
+-- 
+2.29.0
+

@@ -1,0 +1,240 @@
+From 37f3a1dc203884d2e63fc2ec5f8989fcd40c4311 Mon Sep 17 00:00:00 2001
+From: zachary zhang <zhangzg@marvell.com>
+Date: Fri, 26 Jan 2018 14:07:11 +0800
+Subject: [PATCH 0104/1239] arm64: mvebu: a8k: add soc type and revision
+ printing in boot log
+
+This patch adds SoC type and revision and each module's type
+and revision printing for a7k and a8k boards.
+
+Change-Id: I16166c4c231fce169bbbf9e8ef197a92f01c3d63
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ arch/arm/mach-mvebu/armada8k/Makefile  |   1 +
+ arch/arm/mach-mvebu/armada8k/cpu.c     |   9 ++
+ arch/arm/mach-mvebu/armada8k/soc.c     | 130 +++++++++++++++++++++++++
+ arch/arm/mach-mvebu/include/mach/soc.h |   3 +
+ common/board_f.c                       |   4 +
+ configs/mvebu_db_armada8k_defconfig    |   1 -
+ 6 files changed, 147 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/mach-mvebu/armada8k/soc.c
+
+diff --git a/arch/arm/mach-mvebu/armada8k/Makefile b/arch/arm/mach-mvebu/armada8k/Makefile
+index 82cb25b417..19503f785b 100644
+--- a/arch/arm/mach-mvebu/armada8k/Makefile
++++ b/arch/arm/mach-mvebu/armada8k/Makefile
+@@ -3,4 +3,5 @@
+ # Copyright (C) 2016 Stefan Roese <sr@denx.de>
+ 
+ obj-y = cpu.o
++obj-y += soc.o
+ obj-y += cache_llc.o
+diff --git a/arch/arm/mach-mvebu/armada8k/cpu.c b/arch/arm/mach-mvebu/armada8k/cpu.c
+index 959a7cff76..d0760cafab 100644
+--- a/arch/arm/mach-mvebu/armada8k/cpu.c
++++ b/arch/arm/mach-mvebu/armada8k/cpu.c
+@@ -12,6 +12,7 @@
+ #include <asm/arch/cpu.h>
+ #include <asm/arch/soc.h>
+ #include <asm/armv8/mmu.h>
++#include <mach/soc.h>
+ 
+ /* Armada 7k/8k */
+ #define MVEBU_RFU_BASE			(MVEBU_REGISTER(0x6f0000))
+@@ -149,3 +150,11 @@ int mmc_get_env_dev(void)
+ 
+ 	return CONFIG_SYS_MMC_ENV_DEV;
+ }
++
++#if defined(CONFIG_DISPLAY_BOARDINFO)
++int print_cpuinfo(void)
++{
++	soc_print_device_info();
++	return 0;
++}
++#endif
+diff --git a/arch/arm/mach-mvebu/armada8k/soc.c b/arch/arm/mach-mvebu/armada8k/soc.c
+new file mode 100644
+index 0000000000..511c7340ee
+--- /dev/null
++++ b/arch/arm/mach-mvebu/armada8k/soc.c
+@@ -0,0 +1,130 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <asm/io.h>
++#include <asm/arch/soc.h>
++
++#define CP_DEV_ID_STATUS_REG		(MVEBU_REGISTER(0x2400240))
++#define DEVICE_ID_STATUS_MASK		0xffff
++#define SW_REV_STATUS_OFFSET		16
++#define SW_REV_STATUS_MASK		0xf
++
++struct mochi_module {
++	u32 module_type;
++	u32 module_rev;
++};
++
++struct soc_info {
++	struct mochi_module soc;
++	char *soc_name;
++	struct mochi_module ap;
++	struct mochi_module cp;
++	u32 ap_num;
++	u32 cp_num;
++};
++
++static struct soc_info soc_info_table[] = {
++	{ {0x7040, 1}, "Armada7040-A1", {0x806, 1}, {0x110, 1}, 1, 1 },
++	{ {0x7040, 2}, "Armada7040-A2", {0x806, 1}, {0x110, 2}, 1, 1 },
++	{ {0x8040, 1}, "Armada8040-A1", {0x806, 1}, {0x110, 1}, 1, 2 },
++	{ {0x8040, 2}, "Armada8040-A2", {0x806, 1}, {0x110, 2}, 1, 2 },
++};
++
++static int get_soc_type_rev(u32 *type, u32 *rev)
++{
++	*type = readl(CP_DEV_ID_STATUS_REG) & DEVICE_ID_STATUS_MASK;
++	*rev = (readl(CP_DEV_ID_STATUS_REG) >> SW_REV_STATUS_OFFSET) &
++		SW_REV_STATUS_MASK;
++
++	return 0;
++}
++
++static int get_soc_table_index(u32 *index)
++{
++	u32 soc_type;
++	u32 rev, i, ret = 1;
++
++	*index = 0;
++	get_soc_type_rev(&soc_type, &rev);
++
++	for (i = 0; i < sizeof(soc_info_table) / sizeof(struct soc_info); i++) {
++		if ((soc_type ==
++			soc_info_table[i].soc.module_type) &&
++		   (rev == soc_info_table[i].soc.module_rev)) {
++			*index = i;
++			ret = 0;
++		}
++	}
++
++	return ret;
++}
++
++static int get_soc_name(char **soc_name)
++{
++	u32 index;
++
++	get_soc_table_index(&index);
++	*soc_name = soc_info_table[index].soc_name;
++
++	return 0;
++}
++
++static int get_ap_cp_num(u32 *ap_num, u32 *cp_num)
++{
++	u32 index;
++
++	get_soc_table_index(&index);
++	*ap_num = soc_info_table[index].ap_num;
++	*cp_num = soc_info_table[index].cp_num;
++
++	return 0;
++}
++
++/* Get SoC's Application Processor (AP) module type and revision */
++static int get_ap_type_rev(u32 *type, u32 *rev)
++{
++	u32 index;
++
++	get_soc_table_index(&index);
++	*type = soc_info_table[index].ap.module_type;
++	*rev = soc_info_table[index].ap.module_rev;
++
++	return 0;
++}
++
++/* Get SoC's Communication Processor (CP) module type and revision */
++static int get_cp_type_rev(u32 *type, u32 *rev)
++{
++	u32 index;
++
++	get_soc_table_index(&index);
++	*type = soc_info_table[index].cp.module_type;
++	*rev = soc_info_table[index].cp.module_rev;
++
++	return 0;
++}
++
++/* Print device's SoC name and AP & CP information */
++void soc_print_device_info(void)
++{
++	u32 ap_num, cp_num, ap_type, ap_rev, cp_type, cp_rev;
++	char *soc_name = NULL;
++
++	get_ap_cp_num(&ap_num, &cp_num);
++
++	get_soc_name(&soc_name);
++	get_ap_type_rev(&ap_type, &ap_rev);
++	get_cp_type_rev(&cp_type, &cp_rev);
++
++	printf("SoC: %s; AP%x-A%d; ", soc_name, ap_type, ap_rev);
++	/* more than one cp module */
++	if (cp_num > 1)
++		printf("%dx CP%x-A%d\n", cp_num, cp_type, cp_rev);
++	else
++		printf("CP%x-A%d\n", cp_type, cp_rev);
++}
+diff --git a/arch/arm/mach-mvebu/include/mach/soc.h b/arch/arm/mach-mvebu/include/mach/soc.h
+index acb9257c90..2e13d9ec1b 100644
+--- a/arch/arm/mach-mvebu/include/mach/soc.h
++++ b/arch/arm/mach-mvebu/include/mach/soc.h
+@@ -203,4 +203,7 @@
+ #define BOOT_FROM_SPI		0x3
+ #endif
+ 
++#ifndef __ASSEMBLY__
++void soc_print_device_info(void);
++#endif /* __ASSEMBLY__ */
+ #endif /* _MVEBU_SOC_H */
+diff --git a/common/board_f.c b/common/board_f.c
+index 591f18f391..7b5d0b9f6e 100644
+--- a/common/board_f.c
++++ b/common/board_f.c
+@@ -900,6 +900,7 @@ static const init_fnc_t init_sequence_f[] = {
+ #if defined(CONFIG_PPC) || defined(CONFIG_SH) || defined(CONFIG_X86)
+ 	checkcpu,
+ #endif
++
+ #if defined(CONFIG_SYSRESET)
+ 	print_resetinfo,
+ #endif
+@@ -911,6 +912,9 @@ static const init_fnc_t init_sequence_f[] = {
+ #endif
+ #if defined(CONFIG_DISPLAY_BOARDINFO)
+ 	show_board_info,
++#endif
++#if defined(CONFIG_DISPLAY_BOARDINFO)
++	print_cpuinfo,		/* display cpu info (and speed) */
+ #endif
+ 	INIT_FUNC_WATCHDOG_INIT
+ #if defined(CONFIG_MISC_INIT_F)
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index 1652406347..b83c36a66f 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -17,7 +17,6 @@ CONFIG_USE_PREBOOT=y
+ CONFIG_SYS_CONSOLE_ENV_OVERWRITE=y
+ CONFIG_SYS_CONSOLE_INFO_QUIET=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+-# CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_DISPLAY_BOARDINFO_LATE=y
+ CONFIG_ARCH_EARLY_INIT_R=y
+ CONFIG_BOARD_EARLY_INIT_F=y
+-- 
+2.29.0
+

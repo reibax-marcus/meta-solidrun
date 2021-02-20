@@ -1,0 +1,27 @@
+From c19b1051e68bdd9aecaa250f2fa16fc3503d5ae5 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Thu, 20 Sep 2018 11:56:34 +0200
+Subject: [PATCH 0193/1239] arm64: mvebu: a8k: move firmware related
+ definitions to fw info
+
+Change-Id: Ia93676ee0b641b0f6d718848393714ef83b63c71
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ arch/arm/mach-mvebu/include/mach/fw_info.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm/mach-mvebu/include/mach/fw_info.h b/arch/arm/mach-mvebu/include/mach/fw_info.h
+index 28da19f5da..28c7733952 100644
+--- a/arch/arm/mach-mvebu/include/mach/fw_info.h
++++ b/arch/arm/mach-mvebu/include/mach/fw_info.h
+@@ -11,4 +11,7 @@
+ #define ATF_REGION_START		0x4000000
+ #define ATF_REGION_END			0x5400000
+ 
++/* Firmware related definition used for SMC calls */
++#define MV_SIP_DRAM_SIZE		0x82000010
++
+ #endif /* _FW_INFO_H_ */
+-- 
+2.29.0
+

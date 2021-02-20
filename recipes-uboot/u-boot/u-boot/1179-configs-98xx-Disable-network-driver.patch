@@ -1,0 +1,31 @@
+From 9a3e691fd2beb338b5d760dafe50eaf11bc1c55e Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Thu, 18 Jun 2020 11:35:07 -0700
+Subject: [PATCH 1179/1239] configs: 98xx: Disable network driver
+
+Until ATF RVU init is fixed.
+
+Change-Id: I23e748aad8d5183c60b9da546739e67ba731165e
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/30338
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ configs/octeontx2_98xx_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/configs/octeontx2_98xx_defconfig b/configs/octeontx2_98xx_defconfig
+index 0f6bbc50c0..aca267cbb6 100644
+--- a/configs/octeontx2_98xx_defconfig
++++ b/configs/octeontx2_98xx_defconfig
+@@ -97,7 +97,6 @@ CONFIG_DM_ETH=y
+ CONFIG_E1000=y
+ CONFIG_E1000_SPI=y
+ CONFIG_CMD_E1000=y
+-CONFIG_NET_OCTEONTX2=y
+ CONFIG_NVME=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+-- 
+2.29.0
+

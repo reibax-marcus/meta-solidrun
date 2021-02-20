@@ -1,0 +1,524 @@
+From 93a4e08d500c8e6fca5d7c7eceb59d5f8620b33c Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 6 Jun 2016 17:38:27 -0700
+Subject: [PATCH 0494/1239] net: thunderx: Added RGMII support.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/Makefile      |   4 +-
+ drivers/net/cavium/nic.h         |   1 +
+ drivers/net/cavium/nic_main.c    |  43 ++++++--
+ drivers/net/cavium/thunder_bgx.c |  66 +++++++++--
+ drivers/net/cavium/thunder_bgx.h |   2 +
+ drivers/net/cavium/thunder_xcv.c | 182 +++++++++++++++++++++++++++++++
+ include/configs/thunderx_81xx.h  |   4 +-
+ 7 files changed, 282 insertions(+), 20 deletions(-)
+ create mode 100644 drivers/net/cavium/thunder_xcv.c
+
+diff --git a/drivers/net/cavium/Makefile b/drivers/net/cavium/Makefile
+index 0a2c9a2ff3..b35290b591 100644
+--- a/drivers/net/cavium/Makefile
++++ b/drivers/net/cavium/Makefile
+@@ -4,4 +4,6 @@
+ # SPDX-License-Identifier:	GPL-2.0+
+ #
+ obj-y = thunder_bgx.o nic_main.o nicvf_queues.o \
+-		nicvf_main.o thunderx_smi.o
++		nicvf_main.o thunderx_smi.o thunder_xcv.o
++
++ccflags-y += -Icsr/include
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index cbf9b0d53a..c7c84fbcff 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -23,6 +23,7 @@
+ #define	PCI_DEVICE_ID_THUNDER_NIC_VF_1	0x0011
+ #define PCI_DEVICE_ID_THUNDER_NIC_VF_2	0xA034
+ #define	PCI_DEVICE_ID_THUNDER_BGX	0xA026
++#define	PCI_DEVICE_ID_THUNDER_RGX	0xA054
+ 
+ /* Subsystem device IDs */
+ #define PCI_SUBSYS_DEVID_88XX_NIC_PF		0xA11E
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index ca5f5ca5cf..b9bc4da662 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -371,12 +371,18 @@ static void nic_set_tx_pkt_pad(struct nicpf *nic, int size)
+ {
+ 	int lmac;
+ 	uint64_t lmac_cfg;
++	struct hw_info *hw = nic->hw;
++	int max_lmac = CONFIG_MAX_BGX_PER_NODE * MAX_LMAC_PER_BGX;
+ 
+ 	/* Max value that can be set is 60 */
+ 	if (size > 60)
+ 		size = 60;
+ 
+-	for (lmac = 0; lmac < (CONFIG_MAX_BGX_PER_NODE * MAX_LMAC_PER_BGX); lmac++) {
++	/* CN81XX has RGX configured as FAKE BGX, adjust mac_lmac accordingly */
++	if (hw->chans_per_rgx)
++		max_lmac = (CONFIG_MAX_BGX_PER_NODE - 1) * MAX_LMAC_PER_BGX;
++
++	for (lmac = 0; lmac < max_lmac; lmac++) {
+ 		lmac_cfg = nic_reg_read(nic, NIC_PF_LMAC_0_7_CFG | (lmac << 3));
+ 		lmac_cfg &= ~(0xF << 2);
+ 		lmac_cfg |= ((size / 4) << 2);
+@@ -420,6 +426,14 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
+ 				NIC_HW_MAX_FRS) / 16) << 12);
+ 		nic_reg_write(nic,
+ 				NIC_PF_LMAC_0_7_CREDIT + (lmac * 8), lmac_credit);
++
++		/* On CN81XX there are only 8 VFs but max possible no of
++		 * interfaces are 9.
++		 */
++		if (nic->num_vf_en >= 8) {
++			nic->num_vf_en = 8;
++			break;
++		}
+ 	}
+ }
+ 
+@@ -535,17 +549,25 @@ static void nic_config_cpi(struct nicpf *nic, struct cpi_cfg_msg *cfg)
+ 	u32 padd, cpi_count = 0;
+ 	u64 cpi_base, cpi, rssi_base, rssi;
+ 	u8  qset, rq_idx = 0;
++	u16 sdevid;
++
++	dm_pci_read_config16(nic->udev, PCI_SUBSYSTEM_ID, &sdevid);
+ 
+ 	vnic = cfg->vf_id;
+ 	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vnic]);
+ 	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[vnic]);
+ 
+ 	chan = (lmac * hw->chans_per_lmac) + (bgx * hw->chans_per_bgx);
+-	cpi_base = (lmac * NIC_MAX_CPI_PER_LMAC) +
+-		   (bgx * (hw->cpi_cnt / hw->bgx_cnt));
+-	rssi_base = (lmac * hw->rss_ind_tbl_size) +
+-		    (bgx * (hw->rssi_cnt / hw->bgx_cnt));
+-
++	/* Check for RGX interface on CN81XX */
++	if ((sdevid == PCI_SUBSYS_DEVID_81XX_NIC_PF) && (bgx == 2)) {
++		cpi_base = (3 * NIC_MAX_CPI_PER_LMAC) + (hw->cpi_cnt / 2);
++		rssi_base = (3 * hw->rss_ind_tbl_size) + (hw->rssi_cnt / 2);
++	} else {
++		cpi_base = (lmac * NIC_MAX_CPI_PER_LMAC) +
++			(bgx * (hw->cpi_cnt / hw->bgx_cnt));
++		rssi_base = (lmac * hw->rss_ind_tbl_size) +
++			(bgx * (hw->rssi_cnt / hw->bgx_cnt));
++	}
+ 	/* Rx channel configuration */
+ 	nic_reg_write(nic, NIC_PF_CHAN_0_255_RX_BP_CFG | (chan << 3),
+ 		      (1ull << 63) | (vnic << 0));
+@@ -628,6 +650,9 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
+ 	u8 sq_idx = sq->sq_num;
+ 	u8 pqs_vnic = vnic;
+ 	int svf;
++	u16 sdevid;
++
++	dm_pci_read_config16(nic->udev, PCI_SUBSYSTEM_ID, &sdevid);
+ 
+ 	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(nic->vf_lmac_map[pqs_vnic]);
+ 	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(nic->vf_lmac_map[pqs_vnic]);
+@@ -639,7 +664,11 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
+ 	 * 512-1023 TL4s transmit via BGX1.
+ 	 */
+ 	if (hw->tl1_per_bgx) {
+-		tl4 = bgx * (hw->tl4_cnt / hw->bgx_cnt);
++		/* Check for RGX interface on CN81XX */
++		if ((sdevid == PCI_SUBSYS_DEVID_81XX_NIC_PF) && (bgx == 2))
++			tl4 = (MAX_QUEUES_PER_QSET * 3) + (hw->tl4_cnt / 2);
++		else
++			tl4 = bgx * (hw->tl4_cnt / hw->bgx_cnt);
+ 		if (!sq->sqs_mode) {
+ 			tl4 += (lmac * MAX_QUEUES_PER_QSET);
+ 		} else {
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 94e14582a7..4225838bfe 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -33,6 +33,7 @@
+ 
+ static const phy_interface_t if_mode[] = {
+ 	[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
++	[QLM_MODE_RGMII]  = PHY_INTERFACE_MODE_SGMII,
+ 	[QLM_MODE_QSGMII] = PHY_INTERFACE_MODE_SGMII,
+ 	[QLM_MODE_XAUI]   = PHY_INTERFACE_MODE_XAUI,
+ 	[QLM_MODE_RXAUI]  = PHY_INTERFACE_MODE_RXAUI,
+@@ -63,8 +64,10 @@ struct bgx {
+ 	int			node;
+ 	struct	lmac		lmac[MAX_LMAC_PER_BGX];
+ 	int			lmac_count;
++	u8			max_lmac;
+ 	void __iomem		*reg_base;
+ 	struct pci_dev		*pdev;
++	bool			is_rgx;
+ };
+ 
+ struct bgx_board_info bgx_board_info[CONFIG_MAX_BGX];
+@@ -275,6 +278,8 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
+ 
+ 	lmac = &bgx->lmac[lmacid];
+ 
++	debug("bgx_lmac_sgmii_init: bgx_id = %d, lmacid = %d\n", bgx->bgx_id, lmacid);
++
+ 	bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_THRESH, 0x30);
+ 	/* max packet size */
+ 	bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_RXX_JABBER, MAX_FRAME_SIZE);
+@@ -311,10 +316,12 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
+ 		return 0; /* Skip checking AN_CPT */
+ 	}
+ 
+-	if (bgx_poll_reg(bgx, lmacid, BGX_GMP_PCS_MRX_STATUS,
++	if (lmac->qlm_mode == QLM_MODE_SGMII) {
++		if (bgx_poll_reg(bgx, lmacid, BGX_GMP_PCS_MRX_STATUS,
+ 			 PCS_MRX_STATUS_AN_CPT, false)) {
+-		printf("BGX AN_CPT not completed\n");
+-		return -1;
++			printf("BGX AN_CPT not completed\n");
++			return -1;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -529,6 +536,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
+ 		switch (lmac->lmac_type) {
+ 		default:
+ 		case 0: // SGMII
++		case 5: // RGMII
+ 		case 1: // XAUI
+ 			/* Nothing to do */
+ 			break;
+@@ -659,8 +667,9 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 	      __FILE__, __LINE__,
+ 	      node, bgx_idx, lmacid, lmac);
+ 
+-	if (lmac->qlm_mode == QLM_MODE_SGMII ||
+-	    lmac->qlm_mode == QLM_MODE_QSGMII){
++	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
++	    (lmac->qlm_mode == QLM_MODE_RGMII) ||
++	    (lmac->qlm_mode == QLM_MODE_QSGMII)) {
+ 		snprintf(mii_name, sizeof(mii_name), "txsmi%d",
+ 			 bgx_board_info[bgx_idx].mdio_bus);
+ 
+@@ -700,6 +709,9 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 				lmac->netdev.name, lmac->phydev->dev->name);
+ 		}
+ 
++		if (lmac->qlm_mode == QLM_MODE_RGMII)
++			xcv_setup_link(lmac->phydev->link, lmac->phydev->speed);
++
+ 		lmac->link_up = lmac->phydev->link;
+ 		lmac->last_speed = lmac->phydev->speed;
+ 		lmac->last_duplex = lmac->phydev->duplex;
+@@ -759,8 +771,9 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
+ 
+ 	debug("bgx_lmac_enable: lmac: %p, lmacid = %d\n", lmac, lmacid);
+ 
+-	if (lmac->qlm_mode == QLM_MODE_SGMII ||
+-	    lmac->qlm_mode == QLM_MODE_QSGMII) {
++	if ((lmac->qlm_mode == QLM_MODE_SGMII) ||
++	    (lmac->qlm_mode == QLM_MODE_RGMII) ||
++	    (lmac->qlm_mode == QLM_MODE_QSGMII)) {
+ 		if (bgx_lmac_sgmii_init(bgx, lmacid)) {
+ 			debug("bgx_lmac_sgmii_init failed\n");
+ 			return -1;
+@@ -865,6 +878,13 @@ static void bgx_init_hw(struct bgx *bgx)
+ 			lmac->use_training = 1;
+ 			lmac_count = 1;
+ 			break;
++		case QLM_MODE_RGMII:
++			if (lmacid != 0)
++				continue;
++			lmac->lmac_type = 5;
++			lmac->lane_to_sds = 0xE4;
++			lmac_count = 1;
++			break;
+ 		case QLM_MODE_QSGMII:
+ 			if ((lmacid == 0) || (lmacid == 2)) {
+ 				lmac_count = 4;
+@@ -940,9 +960,18 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 
+ 		switch(lmac->lmac_type) {
+ 		case 0:
+-			lmac->qlm_mode = QLM_MODE_SGMII;
+-			printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
+-					bgx->bgx_id, lmac->qlm, lmacid);
++			if (bgx->is_rgx) {
++				if (lmacid == 0) {
++					lmac->qlm_mode = QLM_MODE_RGMII;
++					printf("BGX%d LMAC%d mode: RGMII\n",
++							bgx->bgx_id, lmacid);
++				}
++				continue;
++			} else {
++				lmac->qlm_mode = QLM_MODE_SGMII;
++				printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
++						bgx->bgx_id, lmac->qlm, lmacid);
++			}
+ 			break;
+ 		case 1:
+ 			lmac->qlm_mode = QLM_MODE_XAUI;
+@@ -1015,6 +1044,21 @@ int thunderx_bgx_probe(struct udevice *dev)
+ 
+ 	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+ 
++	/* Use FAKE BGX2 for RGX interface */
++	if ((((uintptr_t)bgx->reg_base >> 24) & 0xf) == 0x8) {
++		bgx->bgx_id = 2;
++		bgx->is_rgx = true;
++		for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac++) {
++			if (lmac == 0) {
++				bgx->lmac[lmac].lmacid = 0;
++				bgx->lmac[lmac].qlm = 0;
++			} else {
++				bgx->lmac[lmac].qlm = -1;
++			}
++		}
++		goto skip_qlm_config;
++	}
++
+ 	node = node_id(bgx->reg_base);
+ 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 1;
+ 	bgx->bgx_id = node * CONFIG_MAX_BGX_PER_NODE + bgx_idx;
+@@ -1036,6 +1080,7 @@ int thunderx_bgx_probe(struct udevice *dev)
+ 		bgx->lmac[lmac].lmacid = lmac;
+ 	}
+ 
++skip_qlm_config:
+ 	bgx_vnic[bgx->bgx_id] = bgx;
+ 	bgx_get_qlm_mode(bgx);
+ 	debug("bgx_vnic[%u]: %p\n", bgx->bgx_id, bgx);
+@@ -1084,6 +1129,7 @@ U_BOOT_DRIVER(thunderx_bgx) = {
+ 
+ static struct pci_device_id thunderx_bgx_supported[] = {
+ 	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_BGX) },
++	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_RGX) },
+ 	{}
+ };
+ 
+diff --git a/drivers/net/cavium/thunder_bgx.h b/drivers/net/cavium/thunder_bgx.h
+index 6033f59262..7bd9aa179b 100644
+--- a/drivers/net/cavium/thunder_bgx.h
++++ b/drivers/net/cavium/thunder_bgx.h
+@@ -208,6 +208,7 @@ int bgx_get_lmac_count(int node, int bgx);
+ void bgx_print_stats(int bgx_idx, int lmac);
+ void bgx_set_board_info(unsigned int bgx_id, unsigned int mdio_bus,
+ 			unsigned int *phy_addr);
++int xcv_setup_link(bool link_up, int link_speed);
+ 
+ #undef LINK_INTR_ENABLE
+ 
+@@ -220,6 +221,7 @@ enum qlm_mode {
+ 	QLM_MODE_10G_KR,    /* 4 10GBASE-KR, 1 lane each */
+ 	QLM_MODE_40G_KR4,   /* 1 40GBASE-KR4, 4 lanes each */
+ 	QLM_MODE_QSGMII,    /* 4 QSGMII, each lane independent */
++	QLM_MODE_RGMII,     /* 1 RGX */
+ };
+ 
+ struct bgx_board_info {
+diff --git a/drivers/net/cavium/thunder_xcv.c b/drivers/net/cavium/thunder_xcv.c
+new file mode 100644
+index 0000000000..628de2f45a
+--- /dev/null
++++ b/drivers/net/cavium/thunder_xcv.c
+@@ -0,0 +1,182 @@
++/*
++ * Copyright (C) 2016 Cavium, Inc.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ */
++
++#include <config.h>
++#include <common.h>
++#include <net.h>
++#include <dm.h>
++#include <pci.h>
++#include <misc.h>
++#include <netdev.h>
++#include <malloc.h>
++#include <miiphy.h>
++#include <asm/io.h>
++#include <asm/errno.h>
++
++#ifdef CONFIG_OF_LIBFDT
++ #include <libfdt.h>
++ #include <fdt_support.h>
++#endif
++
++#include <cavium/thunderx_smi.h>
++#include <cavium/thunderx_vnic.h>
++
++#include "cavm-arch.h"
++#define	PCI_DEVICE_ID_THUNDER_XCV	0xA056
++
++struct lxcv {
++	void __iomem		*reg_base;
++	struct pci_dev		*pdev;
++};
++
++struct lxcv *xcv;
++
++int xcv_setup_link(bool link_up, int link_speed)
++{
++	xcvx_ctl_t xcv_ctl;
++	xcvx_reset_t reset;
++	xcvx_dll_ctl_t xcv_dll_ctl;
++	xcvx_comp_ctl_t xcv_comp_ctl;
++	int speed = 2;
++	int credits;
++	int ret;
++
++	/* Now check RGMII link */
++	if (link_speed == 100)
++		speed = 1;
++	else if (link_speed == 10)
++		speed = 0;
++
++	reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
++	credits = link_up && !reset.s.enable;
++	xcv_ctl.u = readq(CSR_PA(0, XCVX_CTL(0)));
++
++printf("link_up = %d, speed = %d, xcv_ctl.speed = %d\n", link_up, link_speed, speed, xcv_ctl.s.speed);
++	if (link_up && (!reset.s.enable || (xcv_ctl.s.speed != speed))) {
++		/* Enable the XCV block */
++		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
++		reset.s.enable = 1;
++		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
++
++		/* set operating mode */
++		xcv_ctl.u = readq(CSR_PA(0, XCVX_CTL(0)));
++		xcv_ctl.s.speed = speed;
++		writeq(xcv_ctl.u, CSR_PA(0, XCVX_CTL(0)));
++
++		/* Configure DLL - enable or bypass */
++		xcv_dll_ctl.u = readq(CSR_PA(0, XCVX_DLL_CTL(0)));
++		xcv_dll_ctl.s.clkrx_set = 0;
++		xcv_dll_ctl.s.clkrx_byp = 1;
++		xcv_dll_ctl.s.clktx_byp = 0;
++		writeq(xcv_dll_ctl.u, CSR_PA(0, XCVX_DLL_CTL(0)));
++
++		/* Enable */
++		xcv_dll_ctl.u = readq(CSR_PA(0, XCVX_DLL_CTL(0)));
++		xcv_dll_ctl.s.refclk_sel = 0;
++		writeq(xcv_dll_ctl.u, CSR_PA(0, XCVX_DLL_CTL(0)));
++		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
++		reset.s.dllrst = 0;
++		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
++
++		/* Delay seems to be needed so XCV_DLL_CTL[CLK_SET] works */
++		udelay(10);
++
++		/* Configure compensation controller - enable or disable */
++		xcv_comp_ctl.u = readq(CSR_PA(0, XCVX_COMP_CTL(0)));
++		xcv_comp_ctl.s.drv_byp = 0;
++		writeq(xcv_comp_ctl.u, CSR_PA(0, XCVX_COMP_CTL(0)));
++
++		/* Enable */
++		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
++		reset.s.comp = 1;
++		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
++
++		/* setup the RXC. CLKRST must be zero for loopback */
++		xcv_ctl.u = readq(CSR_PA(0, XCVX_CTL(0)));
++		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
++		reset.s.clkrst = !xcv_ctl.s.lpbk_int;
++		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
++
++		/* Datapaths come out of reset
++		   - The datapath resets will disengage BGX from the
++		     RGMII interface
++		   - XCV will continue to return TX credits for each tick
++		     that is sent on the TX data path */
++		reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
++		reset.s.tx_dat_rst_n = 1; 
++		reset.s.rx_dat_rst_n = 1; 
++		writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
++printf("done with rx/tx data rst\n");
++	}
++
++	/* Enable the packet flow
++	   - The datapath resets will disengage BGX from the RGMII interface
++	   - XCV will continue to return TX credits for each tick that is sent
++	     on the TX data path */
++	reset.u = readq(CSR_PA(0, XCVX_RESET(0)));
++	reset.s.tx_dat_rst_n = link_up; 
++	reset.s.rx_dat_rst_n = link_up; 
++	writeq(reset.u, CSR_PA(0, XCVX_RESET(0)));
++
++	/* Full reset when link is down */
++	if (!link_up) {
++		/* Wait 2*MTU in time */
++		mdelay(10000);
++		/* Reset the world */
++		writeq(0, CSR_PA(0, XCVX_RESET(0)));
++	}
++
++	/* Grant TX credits */
++	if (credits) {
++		xcvx_batch_crd_ret_t xcv_crd_ret;
++		xcv_crd_ret.u = readq(CSR_PA(0, XCVX_BATCH_CRD_RET(0)));
++		xcv_crd_ret.s.crd_ret = 1;
++		writeq(xcv_crd_ret.u, CSR_PA(0, XCVX_BATCH_CRD_RET(0)));
++	}
++	return 0;
++}
++
++int thunderx_xcv_probe(struct udevice *dev)
++{
++	size_t size;
++
++	xcv = dev_get_priv(dev);
++	if (xcv == NULL) {
++		return -ENOMEM;
++	}
++
++	xcv->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++printf("xcv_reg_base = 0x%llx\n", xcv->reg_base);
++
++	return 0;
++}
++
++static const struct misc_ops thunderx_xcv_ops = {
++};
++
++static const struct udevice_id thunderx_xcv_ids[] = {
++	{ .compatible = "cavium,xcv" },
++	{}
++};
++
++U_BOOT_DRIVER(thunderx_xcv) = {                         
++        .name   = "thunderx_xcv",
++        .id     = UCLASS_MISC,
++        .probe  = thunderx_xcv_probe,                   
++        .of_match = thunderx_xcv_ids,
++        .ops    = &thunderx_xcv_ops,
++        .priv_auto_alloc_size = sizeof(struct lxcv),
++};                                                      
++
++static struct pci_device_id thunderx_xcv_supported[] = {
++        { PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_XCV) },
++        {}
++};
++
++U_BOOT_PCI_DEVICE(thunderx_xcv, thunderx_xcv_supported);
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index c880c9a93b..cbdd6736bb 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -124,8 +124,8 @@
+ #endif
+ #define CONFIG_OVERWRITE_ETHADDR_ONCE
+ 
+-#define CONFIG_MAX_BGX_PER_NODE		2
+-#define CONFIG_MAX_BGX			2
++#define CONFIG_MAX_BGX_PER_NODE		3
++#define CONFIG_MAX_BGX			3 /* 2 BGX + 1 RGX */
+ 
+ #define CONFIG_PHYLIB_10G
+ 
+-- 
+2.29.0
+

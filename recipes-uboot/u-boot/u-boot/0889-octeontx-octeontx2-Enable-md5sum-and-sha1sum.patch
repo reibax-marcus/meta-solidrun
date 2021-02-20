@@ -1,0 +1,70 @@
+From f1f8249e60058c020c8ed0e72a5841a89a2bb887 Mon Sep 17 00:00:00 2001
+From: aaronw <aaron.williams@cavium.com>
+Date: Wed, 6 Mar 2019 16:59:42 -0800
+Subject: [PATCH 0889/1239] octeontx: octeontx2: Enable md5sum and sha1sum
+
+This enables the md5sum and sha1sum commands.
+
+Change-Id: Ia4fb19017caf6a073e35f4f91a043220d7ac9db6
+Signed-off-by: aaronw <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/5422
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ configs/octeontx2_95xx_defconfig | 4 ++++
+ configs/octeontx2_96xx_defconfig | 4 ++++
+ configs/octeontx_81xx_defconfig  | 4 ++++
+ configs/octeontx_83xx_defconfig  | 4 ++++
+ 4 files changed, 16 insertions(+)
+
+diff --git a/configs/octeontx2_95xx_defconfig b/configs/octeontx2_95xx_defconfig
+index be205c4e9b..4c02324803 100644
+--- a/configs/octeontx2_95xx_defconfig
++++ b/configs/octeontx2_95xx_defconfig
+@@ -78,3 +78,7 @@ CONFIG_DM_SPI=y
+ CONFIG_OCTEONTX_SPI=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
++CONFIG_CMD_SHA1SUM=y
++CONFIG_SHA1SUM_VERIFY=y
++CONFIG_CMD_MD5SUM=y
++CONFIG_MD5SUM_VERIFY=y
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index f4dc762ed7..b01da23a73 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -106,3 +106,7 @@ CONFIG_USB_ETHER_ASIX88179=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
++CONFIG_CMD_SHA1SUM=y
++CONFIG_SHA1SUM_VERIFY=y
++CONFIG_CMD_MD5SUM=y
++CONFIG_MD5SUM_VERIFY=y
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index b53298308c..af3deeeed1 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -117,3 +117,7 @@ CONFIG_USB_ETHER_ASIX88179=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
++CONFIG_CMD_SHA1SUM=y
++CONFIG_SHA1SUM_VERIFY=y
++CONFIG_CMD_MD5SUM=y
++CONFIG_MD5SUM_VERIFY=y
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index d7c06fc456..0c84c44a97 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -111,3 +111,7 @@ CONFIG_USB_ETHER_ASIX88179=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
++CONFIG_CMD_SHA1SUM=y
++CONFIG_SHA1SUM_VERIFY=y
++CONFIG_CMD_MD5SUM=y
++CONFIG_MD5SUM_VERIFY=y
+-- 
+2.29.0
+

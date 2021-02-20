@@ -1,0 +1,95 @@
+From 4f44f319ae9e4e113f20928637b468f02692e5ba Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 24 May 2019 14:48:09 +0200
+Subject: [PATCH 0262/1239] arm: mvebu: common: provide defaults enviroments
+
+Change-Id: I95ce2c0f4187547ba07fbdd777477176c6ea74ae
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ include/configs/db-88f6820-gp.h |  6 ++--
+ include/configs/mv-common.h     | 52 +++++++++++++++++++++++++++++++++
+ 2 files changed, 54 insertions(+), 4 deletions(-)
+
+diff --git a/include/configs/db-88f6820-gp.h b/include/configs/db-88f6820-gp.h
+index 3b2d8f8812..929a71c2c5 100644
+--- a/include/configs/db-88f6820-gp.h
++++ b/include/configs/db-88f6820-gp.h
+@@ -58,10 +58,8 @@
+ #define CONFIG_PCI_SCAN_SHOW
+ #endif
+ 
+-/* Keep device tree and initrd in lower memory so the kernel can access them */
+-#define CONFIG_EXTRA_ENV_SETTINGS	\
+-	"fdt_high=0x10000000\0"		\
+-	"initrd_high=0x10000000\0"
++#define CONFIG_DEFAULT_CONSOLE		"console=ttyS0,115200 "\
++					"earlyprintk=ttyS0,115200"
+ 
+ /* SPL */
+ /*
+diff --git a/include/configs/mv-common.h b/include/configs/mv-common.h
+index dceaa179aa..171e8cc83e 100644
+--- a/include/configs/mv-common.h
++++ b/include/configs/mv-common.h
+@@ -75,6 +75,58 @@
+ #define CONFIG_SYS_MAX_NAND_DEVICE     1
+ #endif
+ 
++/* Default Env vars */
++#define CONFIG_IPADDR			0.0.0.0	/* In order to cause an error */
++#define CONFIG_SERVERIP			0.0.0.0	/* In order to cause an error */
++#define CONFIG_NETMASK			255.255.255.0
++#define CONFIG_GATEWAYIP		10.4.50.254
++#define CONFIG_HAS_ETH1
++#define CONFIG_ETHPRIME			"eth0"
++#define CONFIG_ROOTPATH                 "/srv/nfs/" /* Default Dir for NFS */
++#define CONFIG_ENV_OVERWRITE		/* ethaddr can be reprogrammed */
++#define CONFIG_EXTRA_ENV_SETTINGS	"bootcmd=run get_images; " \
++						"run set_bootargs; " \
++						"bootz $kernel_addr_r " \
++						"$ramdisk_addr_r " \
++						"$fdt_addr_r\0" \
++					"extra_params=pci=pcie_bus_safe\0" \
++					"kernel_addr_r=0x7000000\0"	\
++					"initrd_addr=0xa00000\0"	\
++					"initrd_size=0x2000000\0"	\
++					"fdt_addr_r=0x6f00000\0"	\
++					"loadaddr=0x6000000\0"		\
++					"fdt_high=0xffffffffffffffff\0"	\
++					"hostname=marvell\0"		\
++					"ramdisk_addr_r=0x8000000\0"	\
++					"ramfs_name=-\0"		\
++					"cpuidle=cpuidle.off=1\0"	\
++					"fdt_name=fdt.dtb\0"		\
++					"netdev=eth0\0"			\
++					"ethaddr=00:51:82:11:22:00\0"	\
++					"eth1addr=00:51:82:11:22:01\0"	\
++					"eth2addr=00:51:82:11:22:02\0"	\
++					"eth3addr=00:51:82:11:22:03\0"	\
++					"image_name=zImage\0"		\
++					"get_ramfs=if test \"${ramfs_name}\"" \
++						" != \"-\"; then setenv " \
++						"ramdisk_addr_r 0x8000000; " \
++						"tftpboot $ramdisk_addr_r " \
++						"$ramfs_name; else setenv " \
++						"ramdisk_addr_r -;fi\0"	\
++					"get_images=tftpboot $kernel_addr_r " \
++						"$image_name; tftpboot " \
++						"$fdt_addr_r $fdt_name; " \
++						"run get_ramfs\0"	\
++					"console=" CONFIG_DEFAULT_CONSOLE "\0"\
++					"root=root=/dev/nfs rw\0"	\
++					"set_bootargs=setenv bootargs $console"\
++						" $root ip=$ipaddr:$serverip:" \
++						"$gatewayip:$netmask:$hostname"\
++						":$netdev:none nfsroot="\
++						"$serverip:$rootpath,tcp,v3 " \
++						"$extra_params " \
++						"$cpuidle\0"
++
+ /*
+  * PCI
+  */
+-- 
+2.29.0
+

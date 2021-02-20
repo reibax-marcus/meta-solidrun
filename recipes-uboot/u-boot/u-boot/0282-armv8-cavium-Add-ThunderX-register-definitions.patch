@@ -1,0 +1,32 @@
+From 685bfc4f62cadbcd550b480113dd9a35f1872df3 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 15 Apr 2015 15:51:29 -0700
+Subject: [PATCH 0282/1239] armv8: cavium: Add ThunderX register definitions
+
+---
+ include/cavium/thunderx.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+ create mode 100644 include/cavium/thunderx.h
+
+diff --git a/include/cavium/thunderx.h b/include/cavium/thunderx.h
+new file mode 100644
+index 0000000000..2fb02af075
+--- /dev/null
++++ b/include/cavium/thunderx.h
+@@ -0,0 +1,13 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++#ifndef __THUNDERX_H__
++#define __THUNDERX_H__
++
++#define CSR_PA(node, csr) ((csr) | ((uint64_t)(node) << 44))
++
++#define RST_BOOT 0x87E006001600ULL
++
++#endif
+-- 
+2.29.0
+

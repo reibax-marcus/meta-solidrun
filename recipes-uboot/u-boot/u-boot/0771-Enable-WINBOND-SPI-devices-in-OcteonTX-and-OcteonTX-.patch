@@ -1,0 +1,65 @@
+From f8c5e941de01a433d502fd51e4fbe0b88ad123b2 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 2 Apr 2018 14:03:36 -0700
+Subject: [PATCH 0771/1239] Enable WINBOND SPI devices in OcteonTX and OcteonTX
+ config files.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ configs/octeontx2_93xx_defconfig | 1 +
+ configs/octeontx2_95xx_defconfig | 1 +
+ configs/octeontx_81xx_defconfig  | 1 +
+ configs/octeontx_83xx_defconfig  | 1 +
+ 4 files changed, 4 insertions(+)
+
+diff --git a/configs/octeontx2_93xx_defconfig b/configs/octeontx2_93xx_defconfig
+index 963bb65034..a774946270 100644
+--- a/configs/octeontx2_93xx_defconfig
++++ b/configs/octeontx2_93xx_defconfig
+@@ -69,6 +69,7 @@ CONFIG_SPI_FLASH_4BAIS=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+diff --git a/configs/octeontx2_95xx_defconfig b/configs/octeontx2_95xx_defconfig
+index a1eb98d083..089d31e0c4 100644
+--- a/configs/octeontx2_95xx_defconfig
++++ b/configs/octeontx2_95xx_defconfig
+@@ -69,6 +69,7 @@ CONFIG_SPI_FLASH_4BAIS=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index 20c925fed7..236385c7d2 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -69,6 +69,7 @@ CONFIG_SPI_FLASH_4BAIS=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_PHYLIB=y
+ CONFIG_PHYLIB_10G=y
+ CONFIG_PHY_AQUANTIA=y
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index ec2744e2a6..6f87a53973 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -69,6 +69,7 @@ CONFIG_SPI_FLASH_4BAIS=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_PHYLIB=y
+ CONFIG_PHYLIB_10G=y
+ CONFIG_PHY_AQUANTIA=y
+-- 
+2.29.0
+

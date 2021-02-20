@@ -1,0 +1,34 @@
+From 96a693cf5a4fcf089faa9987df6fdd219535d6a6 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Fri, 20 May 2016 13:36:55 -0400
+Subject: [PATCH 0482/1239] net: cavium: Remove excess printf() in the VF
+ initialization Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
+---
+ drivers/net/cavium/nicvf_main.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/cavium/nicvf_main.c
+index 4dbaaf6df9..30fde0e046 100644
+--- a/drivers/net/cavium/nicvf_main.c
++++ b/drivers/net/cavium/nicvf_main.c
+@@ -527,12 +527,12 @@ fail:
+ 
+ int thunderx_vnic_probe(struct udevice *dev)
+ {
+-	int pos;
+-	printf("%s: %d, dev: %p, bdf: %x\n", __FUNCTION__, __LINE__, dev, dm_pci_get_bdf(dev));
++	void *regs;
++	size_t size;
+ 
+-	pos = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
++	regs = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
+ 
+-	printf("%s: %d, pos: %d\n", __FUNCTION__, __LINE__, pos);
++	debug("%s: %d, regs: %p\n", __FUNCTION__, __LINE__, regs);
+ 
+ 	return 0;
+ }
+-- 
+2.29.0
+

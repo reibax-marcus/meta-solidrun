@@ -1,0 +1,33 @@
+From 0b02a631a7c6884f55b67b39d42d852de771adc8 Mon Sep 17 00:00:00 2001
+From: Selvam Venkatachalam <selvamv@marvell.com>
+Date: Thu, 6 Aug 2020 13:36:50 -0400
+Subject: [PATCH 1203/1239] drivers: mtd: spi: Add MX66L2G45GXRI00 macronix
+ flash
+
+Add entry for Macronix part MX66L2G45GXRI00 to spi_nor_ids table
+with its parameters.
+
+Signed-off-by: Selvam Venkatachalam <selvamv@marvell.com>
+Change-Id: I22455bea421722a4719450df2d23740d0d3eafb1
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/33545
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/mtd/spi/spi-nor-ids.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/mtd/spi/spi-nor-ids.c b/drivers/mtd/spi/spi-nor-ids.c
+index 8506a9fdf7..3546f8ccb1 100644
+--- a/drivers/mtd/spi/spi-nor-ids.c
++++ b/drivers/mtd/spi/spi-nor-ids.c
+@@ -152,6 +152,7 @@ const struct flash_info spi_nor_ids[] = {
+ 	{ INFO("mx66u51235f", 0xc2253a, 0, 64 * 1024, 1024, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
+ 	{ INFO("mx66u2g45g",  0xc2253c, 0, 64 * 1024, 4096, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
+ 	{ INFO("mx66l1g45g",  0xc2201b, 0, 64 * 1024, 2048, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
++	{ INFO("mx66l2g45g",  0xc2201c, 0, 64 * 1024, 4096, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
+ 	{ INFO("mx25l1633e", 0xc22415, 0, 64 * 1024,   32, SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES | SECT_4K) },
+ #endif
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,48 @@
+From e5c51647f95a400c7b2752a702829db38c4c317f Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Wed, 22 Jan 2020 19:58:33 -0800
+Subject: [PATCH 1065/1239] octeontx: octeontx2: Print preserved memory if
+ requested
+
+Change-Id: I5d3a47e8fbfd04a70bf3d36dccaf82e6436fb30d
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/22088
+Reviewed-by: Lukasz Majczak <lukaszm@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ board/Marvell/octeontx/board-fdt.c  | 3 ++-
+ board/Marvell/octeontx2/board-fdt.c | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/board/Marvell/octeontx/board-fdt.c b/board/Marvell/octeontx/board-fdt.c
+index d0b7901097..05217bff44 100644
+--- a/board/Marvell/octeontx/board-fdt.c
++++ b/board/Marvell/octeontx/board-fdt.c
+@@ -202,7 +202,8 @@ u64 fdt_get_preserved_mem_size(unsigned int node)
+ 	if (str)
+ 		preserved_mem_size += (strtoul(str, NULL, 16) << 20);
+ 
+-	printf("Total memory preserved region: 0x%llx bytes\n", preserved_mem_size);
++	if (preserved_mem_size)
++		printf("Total memory preserved region: 0x%llx bytes\n", preserved_mem_size);
+ 	return preserved_mem_size;
+ }
+ 
+diff --git a/board/Marvell/octeontx2/board-fdt.c b/board/Marvell/octeontx2/board-fdt.c
+index 9b3028204c..ff1cb4af6b 100644
+--- a/board/Marvell/octeontx2/board-fdt.c
++++ b/board/Marvell/octeontx2/board-fdt.c
+@@ -115,7 +115,8 @@ u64 fdt_get_preserved_mem_size(unsigned int node)
+ 	if (str)
+ 		preserved_mem_size += (strtoul(str, NULL, 16) << 20);
+ 
+-	printf("Total memory preserved region: 0x%llx bytes\n", preserved_mem_size);
++	if (preserved_mem_size)
++		printf("Total memory preserved region: 0x%llx bytes\n", preserved_mem_size);
+ 	return preserved_mem_size;
+ }
+ 
+-- 
+2.29.0
+

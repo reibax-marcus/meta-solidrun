@@ -1,0 +1,37 @@
+From ea087633cfcb28819cb224e0a9a52451f5d21506 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Tue, 5 Nov 2019 21:46:09 -0800
+Subject: [PATCH 0982/1239] octeontx: pci-console: Fix padding in data
+ structure
+
+The data structure should be a multiple of 128 bytes and aligned to
+a cache line boundary.  The padding size was a bit short, forcing the
+buffers to be off by 4 bytes.  This should have zero impact on the host
+software, only the alignment of the data structures.
+
+Change-Id: I5a9cd55ae1deb6b2e20a7ea7970df354a395f987
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/18249
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+---
+ drivers/serial/serial_octeontx_pcie_console.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/serial/serial_octeontx_pcie_console.h b/drivers/serial/serial_octeontx_pcie_console.h
+index 355f55efbe..8a86bec09e 100644
+--- a/drivers/serial/serial_octeontx_pcie_console.h
++++ b/drivers/serial/serial_octeontx_pcie_console.h
+@@ -126,7 +126,7 @@ struct octeontx_pcie_console {
+ 	octeontx_spinlock_t	excl_lock;
+ 	void			*user;
+ 	struct octeontx_pcie_lock	pcie_lock;
+-	u32			pad[7];
++	u32			pad[8];
+ } __packed;
+ 
+ /**
+-- 
+2.29.0
+

@@ -1,0 +1,25 @@
+From 90bc0e6ef5bd79bdc246329580c48bad93bb8ad5 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Fri, 12 Aug 2016 12:16:03 -0700
+Subject: [PATCH 0518/1239] thunderx: Don't enable debugging by default.
+
+---
+ board/cavium/thunderx/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index 8d2db07958..028bdd4faa 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -3,7 +3,7 @@
+  *
+  * SPDX-License-Identifier:	GPL-2.0+
+ **/
+-#define DEBUG
++
+ #include <common.h>
+ #include <malloc.h>
+ #include <errno.h>
+-- 
+2.29.0
+

@@ -1,0 +1,36 @@
+From 726162054dafc87e8cb3a162cedff01e3f1b4bdd Mon Sep 17 00:00:00 2001
+From: Stefan Chulski <stefanc@marvell.com>
+Date: Wed, 24 Jul 2019 16:28:47 +0300
+Subject: [PATCH 0063/1239] phy: introduce 1000BaseX and 2500BaseX modes
+
+Change-Id: Ic030c1ee122fa2cd83177a79d4b124e3a7f00ca4
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+---
+ include/phy_interface.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/phy_interface.h b/include/phy_interface.h
+index 836ebde111..52809b1297 100644
+--- a/include/phy_interface.h
++++ b/include/phy_interface.h
+@@ -22,6 +22,8 @@ typedef enum {
+ 	PHY_INTERFACE_MODE_RGMII_RXID,
+ 	PHY_INTERFACE_MODE_RGMII_TXID,
+ 	PHY_INTERFACE_MODE_RTBI,
++	PHY_INTERFACE_MODE_1000BASEX,
++	PHY_INTERFACE_MODE_2500BASEX,
+ 	PHY_INTERFACE_MODE_XGMII,
+ 	PHY_INTERFACE_MODE_XAUI,
+ 	PHY_INTERFACE_MODE_RXAUI,
+@@ -50,6 +52,8 @@ static const char * const phy_interface_strings[] = {
+ 	[PHY_INTERFACE_MODE_RGMII_RXID]		= "rgmii-rxid",
+ 	[PHY_INTERFACE_MODE_RGMII_TXID]		= "rgmii-txid",
+ 	[PHY_INTERFACE_MODE_RTBI]		= "rtbi",
++	[PHY_INTERFACE_MODE_1000BASEX]		= "1000base-x",
++	[PHY_INTERFACE_MODE_2500BASEX]		= "2500base-x",
+ 	[PHY_INTERFACE_MODE_XGMII]		= "xgmii",
+ 	[PHY_INTERFACE_MODE_XAUI]		= "xaui",
+ 	[PHY_INTERFACE_MODE_RXAUI]		= "rxaui",
+-- 
+2.29.0
+

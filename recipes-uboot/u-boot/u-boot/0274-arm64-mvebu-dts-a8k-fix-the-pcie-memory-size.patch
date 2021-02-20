@@ -1,0 +1,77 @@
+From f6f53434d81d7b53fe11b67a98869481e60f3f75 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Tue, 7 May 2019 16:15:54 +0200
+Subject: [PATCH 0274/1239] arm64: mvebu: dts: a8k: fix the pcie memory size
+
+The PCIe MEM space size for CP0 PCIe0 is bigger than for other PCIe
+interfaces - reflect it in device-tree description.
+
+Change-Id: I7cf0d76f7dd649b3da58d56ae5079a8556473ea6
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ arch/arm/dts/armada-8k.dtsi    |  2 +-
+ arch/arm/dts/armada-cp110.dtsi | 14 +++++++-------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/dts/armada-8k.dtsi b/arch/arm/dts/armada-8k.dtsi
+index c5032beea5..923466d135 100644
+--- a/arch/arm/dts/armada-8k.dtsi
++++ b/arch/arm/dts/armada-8k.dtsi
+@@ -12,7 +12,7 @@
+ #define CP110_BASE				(CP110_BASE_OFFSET + \
+ 	((CP110_NUM % 2) * CP110_SPACE_SIZE))
+ 
+-#define CP110_PCIE_MEM_SIZE			(0xf00000)
++#define CP110_PCIE_MEM_SIZE(iface)	(0xf00000)
+ #define CP110_PCIEx_CPU_MEM_BASE(iface)		\
+ 	(0xf6000000 + (CP110_NUM % 2) * 0x4000000 + (iface) *  0x1000000)
+ #define CP110_PCIEx_BUS_MEM_BASE(iface)		\
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index 541643ca58..c92c8d4f9d 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -14,7 +14,7 @@
+ #define CP110_PCIEx_REG0_BASE(iface)	\
+ 	(CP110_BASE + 0x600000 + (iface) * 0x20000)
+ #define CP110_PCIEx_REG1_BASE(iface)	\
+-	(CP110_PCIEx_CPU_MEM_BASE(iface) + CP110_PCIE_MEM_SIZE)
++	(CP110_PCIEx_CPU_MEM_BASE(iface) + CP110_PCIE_MEM_SIZE(iface))
+ / {
+ 	CP110_NAME {
+ 		#address-cells = <2>;
+@@ -274,8 +274,8 @@
+ 				/* non-prefetchable memory */
+ 				<CP110_PCIE_BUS_MEM_CFG U64_TO_U32_H(CP110_PCIEx_BUS_MEM_BASE(0))
+ 				U64_TO_U32_L(CP110_PCIEx_BUS_MEM_BASE(0)) U64_TO_U32_H(CP110_PCIEx_CPU_MEM_BASE(0))
+-				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(0)) U64_TO_U32_H(CP110_PCIE_MEM_SIZE)
+-				U64_TO_U32_L(CP110_PCIE_MEM_SIZE)>;
++				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(0))
++				U64_TO_U32_H(CP110_PCIE_MEM_SIZE(0)) U64_TO_U32_L(CP110_PCIE_MEM_SIZE(0))>;
+ 			num-lanes = <1>;
+ 			status = "disabled";
+ 		};
+@@ -297,8 +297,8 @@
+ 				/* non-prefetchable memory */
+ 				<CP110_PCIE_BUS_MEM_CFG U64_TO_U32_H(CP110_PCIEx_BUS_MEM_BASE(1))
+ 				U64_TO_U32_L(CP110_PCIEx_BUS_MEM_BASE(1)) U64_TO_U32_H(CP110_PCIEx_CPU_MEM_BASE(1))
+-				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(1)) U64_TO_U32_H(CP110_PCIE_MEM_SIZE)
+-				U64_TO_U32_L(CP110_PCIE_MEM_SIZE)>;
++				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(1)) U64_TO_U32_H(CP110_PCIE_MEM_SIZE(1))
++				U64_TO_U32_L(CP110_PCIE_MEM_SIZE(1))>;
+ 			num-lanes = <1>;
+ 			status = "disabled";
+ 		};
+@@ -320,8 +320,8 @@
+ 				/* non-prefetchable memory */
+ 				<CP110_PCIE_BUS_MEM_CFG U64_TO_U32_H(CP110_PCIEx_BUS_MEM_BASE(2))
+ 				U64_TO_U32_L(CP110_PCIEx_BUS_MEM_BASE(2)) U64_TO_U32_H(CP110_PCIEx_CPU_MEM_BASE(2))
+-				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(2)) U64_TO_U32_H(CP110_PCIE_MEM_SIZE)
+-				U64_TO_U32_L(CP110_PCIE_MEM_SIZE)>;
++				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(2)) U64_TO_U32_H(CP110_PCIE_MEM_SIZE(2))
++				U64_TO_U32_L(CP110_PCIE_MEM_SIZE(2))>;
+ 			num-lanes = <1>;
+ 			status = "disabled";
+ 		};
+-- 
+2.29.0
+

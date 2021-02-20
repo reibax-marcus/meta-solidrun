@@ -1,0 +1,51 @@
+From 9129f92cc9e7e9d12b6a4a9e2906bc60388c19a7 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Thu, 30 May 2019 15:09:16 -0700
+Subject: [PATCH 0919/1239] mmc: export power initialization
+
+The OcteonTX driver needs to be able to make sure all of the
+slots are powered down even if they have not been initialized.
+The regulators are only parsed from the device tree during
+initialization though.
+
+This patch allows the driver to manually initialize the
+power regulators.
+
+Change-Id: I6f7f41a6ce0156a01ac8da47bfd17bab745d2813
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/10291
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mmc/mmc.c | 2 +-
+ include/mmc.h     | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index c8f0a2bf95..f98676820d 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -2630,7 +2630,7 @@ __weak void board_mmc_power_init(void)
+ }
+ #endif
+ 
+-static int mmc_power_init(struct mmc *mmc)
++int mmc_power_init(struct mmc *mmc)
+ {
+ #if CONFIG_IS_ENABLED(DM_MMC)
+ #if CONFIG_IS_ENABLED(DM_REGULATOR)
+diff --git a/include/mmc.h b/include/mmc.h
+index 289fe810e5..a612f73b94 100644
+--- a/include/mmc.h
++++ b/include/mmc.h
+@@ -876,6 +876,7 @@ int mmc_get_env_dev(void);
+ /* Minimum partition switch timeout in units of 10-milliseconds */
+ #define MMC_MIN_PART_SWITCH_TIME	30 /* 300 ms */
+ 
++int mmc_power_init(struct mmc *mmc);
+ /* Set block count limit because of 16 bit register limit on some hardware*/
+ #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT
+ #define CONFIG_SYS_MMC_MAX_BLK_COUNT 65535
+-- 
+2.29.0
+

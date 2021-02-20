@@ -1,0 +1,43 @@
+From de46db56c7e51c4296201314c00e7d9ccd4301fa Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 24 Jan 2019 09:10:54 -0800
+Subject: [PATCH 0871/1239] configs: 96xx: add DS1337 rtc support
+
+Add config options for DS1337 RTC driver which enables
+support for date command.
+
+Change-Id: I3fcaf89bc08525afb288468ed85f090355617b86
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/2710
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ configs/octeontx2_96xx_defconfig | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 44444587e2..17697b5ad2 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -75,15 +75,16 @@ CONFIG_PHYLIB=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_VITESSE=y
+ CONFIG_DM_ETH=y
+-CONFIG_NET_OCTEONTX2=y
+ CONFIG_E1000=y
+ CONFIG_E1000_SPI=y
+ CONFIG_CMD_E1000=y
+-CONFIG_OCTEONTX2_CGX_INTF=y
++CONFIG_NET_OCTEONTX2=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+ CONFIG_PCI_OCTEONTX_ECAM=y
++CONFIG_DM_RTC=y
++CONFIG_RTC_DS1337=y
+ CONFIG_SCSI=y
+ CONFIG_DM_SCSI=y
+ CONFIG_DM_SERIAL=y
+-- 
+2.29.0
+

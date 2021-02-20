@@ -1,0 +1,80 @@
+From 27b21c6418e41e27c1392621cbe8fb78cb37ba68 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Sat, 19 Sep 2020 21:52:00 -0700
+Subject: [PATCH 1226/1239] board: marvell: Renamed enable_wfe with
+ enable_wfe_mask env variable
+
+Change-Id: I2cb99f7b504007283e72882643c1c335a16bd4bd
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/36270
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/smc-id.h | 2 +-
+ arch/arm/include/asm/arch-octeontx2/smc.h    | 2 +-
+ board/Marvell/octeontx2/board.c              | 4 ++--
+ board/Marvell/octeontx2/smc.c                | 4 ++--
+ 4 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/smc-id.h b/arch/arm/include/asm/arch-octeontx2/smc-id.h
+index b53f2e2848..e020aec591 100644
+--- a/arch/arm/include/asm/arch-octeontx2/smc-id.h
++++ b/arch/arm/include/asm/arch-octeontx2/smc-id.h
+@@ -26,7 +26,7 @@
+ 
+ #define OCTEONTX2_CONFIG_OOO		0xc2000b04
+ #define OCTEONTX2_CONFIG_OOO_MASK	0xc2000b07
+-#define OCTEONTX2_CONFIG_WFE		0xc2000b06
++#define OCTEONTX2_CONFIG_WFE_MASK	0xc2000b06
+ 
+ /* fail safe */
+ #define OCTEONTX2_FSAFE_PR_BOOT_SUCCESS	0xc2000b02
+diff --git a/arch/arm/include/asm/arch-octeontx2/smc.h b/arch/arm/include/asm/arch-octeontx2/smc.h
+index 3ab17b7d16..59391df0e1 100644
+--- a/arch/arm/include/asm/arch-octeontx2/smc.h
++++ b/arch/arm/include/asm/arch-octeontx2/smc.h
+@@ -12,7 +12,7 @@
+ 
+ ssize_t smc_configure_ooo(unsigned int val);
+ ssize_t smc_configure_ooo_mask(u64 val);
+-ssize_t smc_configure_wfe(u64 val);
++ssize_t smc_configure_wfe_mask(u64 val);
+ ssize_t smc_dram_size(unsigned int node);
+ ssize_t smc_disable_rvu_lfs(unsigned int node);
+ ssize_t smc_flsf_fw_booted(void);
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index c53dd5ccb9..f94956b6c9 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -374,8 +374,8 @@ int board_late_init(void)
+ 	val = env_get_hex("disable_ooo_mask", 0);
+ 	smc_configure_ooo_mask(val);
+ 
+-	val = env_get_hex("enable_wfe", 0);
+-	smc_configure_wfe(val);
++	val = env_get_hex("enable_wfe_mask", 0);
++	smc_configure_wfe_mask(val);
+ 
+ #ifdef CONFIG_NET_OCTEONTX2
+ 	board_late_probe_devices();
+diff --git a/board/Marvell/octeontx2/smc.c b/board/Marvell/octeontx2/smc.c
+index cf21bf9452..e06cd82b2a 100644
+--- a/board/Marvell/octeontx2/smc.c
++++ b/board/Marvell/octeontx2/smc.c
+@@ -61,11 +61,11 @@ ssize_t smc_configure_ooo_mask(u64 val)
+ 	return regs.regs[0];
+ }
+ 
+-ssize_t smc_configure_wfe(u64 val)
++ssize_t smc_configure_wfe_mask(u64 val)
+ {
+ 	struct pt_regs regs;
+ 
+-	regs.regs[0] = OCTEONTX2_CONFIG_WFE;
++	regs.regs[0] = OCTEONTX2_CONFIG_WFE_MASK;
+ 	regs.regs[1] = val;
+ 	smc_call(&regs);
+ 
+-- 
+2.29.0
+

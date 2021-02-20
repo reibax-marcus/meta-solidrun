@@ -1,0 +1,1008 @@
+From 0c90b701691cf46c5ec572b1096ec38b502bc4cd Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 14 Sep 2018 10:32:52 -0700
+Subject: [PATCH 0823/1239] octeontx/octeontx2: cleanup board files
+
+use DISPLAY_BOARDINFO and cleanup board functions.
+discard usage of cavm_bdt outside board files.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ arch/arm/include/asm/arch-octeontx/octeontx.h |   6 +-
+ .../include/asm/arch-octeontx2/octeontx2.h    |  10 +-
+ board/cavium/octeontx/fdt.c                   | 212 +-----------------
+ board/cavium/octeontx/octeontx.c              | 183 ++++++++++++---
+ board/cavium/octeontx2/fdt.c                  |  59 -----
+ board/cavium/octeontx2/octeontx2.c            | 101 ++++++++-
+ configs/octeontx2_96xx_defconfig              |   2 -
+ configs/octeontx_81xx_defconfig               |   6 +-
+ configs/octeontx_83xx_defconfig               |   6 +-
+ drivers/ata/ahci.c                            |  12 +-
+ drivers/net/cavium/octeontx_bgx.c             |  28 +--
+ 11 files changed, 284 insertions(+), 341 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx.h b/arch/arm/include/asm/arch-octeontx/octeontx.h
+index 7f2f8c621a..64bcad14f7 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx.h
+@@ -8,7 +8,7 @@
+ 
+ #define CN81XX	0xA2
+ #define CN83XX	0xA3
+-#define CAVIUM_IS_MODEL(model)	(p_cavm_bdt->prod_id == model)
++#define is_board_model(model)	(g_cavm_bdt.prod_id == model)
+ 
+ #define MAX_LMAC_PER_BGX 4
+ 
+@@ -27,8 +27,8 @@
+ 
+ /** Function definitions */
+ void octeontx_parse_board_info(void);
++int octeontx_board_has_pmp(void);
+ void octeontx_parse_phy_info(void);
+-void octeontx_parse_mac_addr(void);
+ void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth);
+ 
+ /** Board data definitions */
+@@ -38,6 +38,6 @@ struct cavm_bdt {
+ 	u8 alt_pkg;
+ 	char type[16];
+ };
+-extern struct cavm_bdt *p_cavm_bdt;
++extern struct cavm_bdt g_cavm_bdt;
+ 
+ #endif
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2.h b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+index 1b6871cb83..09b9c2de75 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+@@ -6,14 +6,14 @@
+ #ifndef __OCTEONTX2_H__
+ #define __OCTEONTX2_H__
+ 
+-#define CN93XX	0xB2
+-#define CAVIUM_CN9XXX	CN93XX	/* TODO: Fix this! */
+-#define CAVIUM_IS_MODEL(model)	(p_cavm_bdt->prod_id == (model))
++#define CN96XX	0xB2
++#define CN95XX	0xB3
++
++#define is_board_model(model)	(g_cavm_bdt.prod_id == (model))
+ 
+ /** Reg offsets */
+ #define CAVM_RST_BOOT		0x87E006001600ULL
+ #define CAVM_RST_CHIP_DOM_W1S	0x87E006001810ULL
+-#define CAVM_MIO_FUS_DAT2	0x87E003001410ULL
+ 
+ #define CAVM_GTI_CWD_POKEX	0x802000050000ULL
+ #define CAVM_GTI_CWD_WDOGX	0x802000040000ULL
+@@ -33,6 +33,6 @@ struct cavm_bdt {
+ 	u8 alt_pkg;
+ 	char type[16];
+ };
+-extern struct cavm_bdt *p_cavm_bdt;
++extern struct cavm_bdt g_cavm_bdt;
+ 
+ #endif /* __OCTEONTX2_H__ */
+diff --git a/board/cavium/octeontx/fdt.c b/board/cavium/octeontx/fdt.c
+index b54399d45a..355bc43310 100644
+--- a/board/cavium/octeontx/fdt.c
++++ b/board/cavium/octeontx/fdt.c
+@@ -15,80 +15,12 @@
+ #include <fdt_support.h>
+ #include <asm/arch/atf.h>
+ #include <asm/arch/octeontx.h>
+-
+-#ifdef CONFIG_OCTEONTX_VNIC
+-# include <asm/arch/octeontx_vnic.h>
+-#endif
++#include <asm/arch/octeontx_vnic.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+-struct cavm_bdt g_cavm_bdt;
+-struct cavm_bdt *p_cavm_bdt;
+-
+ extern unsigned long fdt_base_addr;
+ 
+-static inline uint64_t cavm_get_model(void) __attribute__ ((pure, always_inline));
+-static inline uint64_t cavm_get_model(void)
+-{
+-#ifdef CAVM_BUILD_HOST
+-    extern uint32_t thunder_remote_get_model(void) __attribute__ ((pure));
+-    return thunder_remote_get_model();
+-#else
+-    uint64_t result;
+-    asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (result));
+-    return result;
+-#endif
+-}
+-
+-void octeontx_parse_board_info(void)
+-{
+-	const char *str;
+-	int node;
+-	int ret = 0, len = 16;
+-	u64 midr, val;
+-
+-	debug("%s: ENTER\n", __func__);
+-
+-	midr = cavm_get_model();
+-	g_cavm_bdt.prod_id = (midr >> 4) & 0xff;
+-
+-	val = readq(CAVM_MIO_FUS_DAT2);
+-	g_cavm_bdt.alt_pkg = (val >> 22) & 0x3;
+-	if ((g_cavm_bdt.prod_id == CN81XX) &&
+-		(g_cavm_bdt.alt_pkg || ((val >> 30) & 0x1)))
+-		g_cavm_bdt.alt_pkg = 2;
+-
+-	if (!gd->fdt_blob) {
+-		printf("ERROR: %s: no valid device tree found\n", __func__);
+-		return;
+-	}
+-
+-	debug("%s: fdt blob at %p\n", __func__, gd->fdt_blob);
+-	ret = fdt_check_header(gd->fdt_blob);
+-	if (ret < 0) {
+-		printf("fdt: %s\n", fdt_strerror(ret));
+-		return;
+-	}
+-
+-	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
+-	if (node < 0) {
+-		printf("%s: /cavium,bdk is missing from device tree: %s\n",
+-		       __func__, fdt_strerror(node));
+-		return;
+-	}
+-
+-	debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
+-	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
+-	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
+-	if (str) {
+-		strncpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
+-		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
+-	} else {
+-		printf("Error: cannot retrieve board type from fdt\n");
+-	}
+-	p_cavm_bdt = &g_cavm_bdt;
+-}
+-
+ #ifdef CONFIG_OCTEONTX_BGX
+ static int octeontx_get_mdio_bus(const void *fdt, int phy_offset)
+ {
+@@ -133,12 +65,12 @@ void octeontx_parse_phy_info(void)
+ 	int phandle, phy_offset;
+ 	int subnode, i;
+ 
+-				int bgxnode;
+-				bgxnode = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
+-				if (bgxnode < 0) {
+-					printf("%s: /cavium,bdk is missing from device tree: %s\n",
+-		       			__func__, fdt_strerror(bgxnode));
+-				}
++	int bgxnode;
++	bgxnode = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
++	if (bgxnode < 0) {
++		printf("%s: /cavium,bdk is missing from device tree: %s\n",
++			__func__, fdt_strerror(bgxnode));
++	}
+ 
+ 	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
+ 	if (offset > 1) {
+@@ -228,136 +160,6 @@ void octeontx_parse_phy_info(void)
+ #endif
+ }
+ 
+-int ethaddr_delete(const char *name)
+-{
+-	int flag = H_INTERACTIVE | H_FORCE;
+-
+-	return hdelete_r(name, &env_htab, flag);
+-}
+-
+-int ethaddr_exists(const char *name)
+-{
+-	ENTRY e, *ep;
+-
+-	e.key = name;
+-	e.data = NULL;
+-	hsearch_r(e, FIND, &ep, &env_htab, 0);
+-
+-	return (ep == NULL) ? 1 : 0;
+-}
+-
+-void octeontx_parse_mac_addr(void)
+-{
+-#ifdef CONFIG_OCTEONTX_BGX
+-	const char *mac_addr;
+-	const void *fdt = gd->fdt_blob;
+-	int subnode, mismatch = 0;
+-	int len, rgx_id = 0, eth_id = 0;
+-	int offset = 0, node, bgx_id = 0, lmacid = 0;
+-	unsigned char eth_addr[ARP_HLEN], env_addr[ARP_HLEN];
+-	char eaddr[32], bgxname[16], envname[16];
+-
+-	debug("%s: ENTER\n", __func__);
+-	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
+-	if (offset < 0)
+-		return;
+-
+-	for (bgx_id = 0; bgx_id < CONFIG_MAX_BGX_PER_NODE; bgx_id++) {
+-		snprintf(bgxname, sizeof(bgxname), "bgx%d", bgx_id);
+-		node = fdt_subnode_offset(fdt, offset, bgxname);
+-		if (node < 0) {
+-			/* check if it is rgx node */
+-			snprintf(bgxname, sizeof(bgxname),
+-				 "rgx%d", rgx_id);
+-			node = fdt_subnode_offset(fdt, offset, bgxname);
+-			if (node < 0) {
+-				debug("bgx%d/rgx0 node not found\n", bgx_id);
+-				continue;
+-			}
+-		}
+-		debug("bgx%d node found\n", bgx_id);
+-
+-		/* loop through each of the bgx/rgx nodes to find PHY nodes */
+-		fdt_for_each_subnode(subnode, fdt, node) {
+-			sprintf(envname, eth_id ? "eth%daddr" : "ethaddr",
+-				eth_id);
+-			/* check for local-mac-address */
+-			mac_addr = fdt_getprop(fdt, subnode,
+-					       "local-mac-address", &len);
+-			if (mac_addr) {
+-				debug("%s mac %pM\n", __func__, mac_addr);
+-				snprintf(eaddr, sizeof(eaddr), "%pM",
+-					 mac_addr);
+-				debug("%s eaddr %pM\n", __func__, eaddr);
+-				memcpy(eth_addr, mac_addr, ARP_HLEN);
+-				debug("%s eth %pM\n", __func__, eth_addr);
+-				if (env_get(envname) == NULL)
+-					mismatch = 1;
+-				else {
+-					eth_env_get_enetaddr(envname, env_addr);
+-					debug("\n env %pM\n", env_addr);
+-					if (memcmp(env_addr, eth_addr,
+-						   ARP_HLEN))
+-						mismatch = 1;
+-				}
+-				env_set_force(envname, eaddr);
+-				//ethdev = eth_get_dev_by_index(eth_id);
+-				//if (ethdev &&
+-				//	memcmp(ethdev->enetaddr, eth_addr,
+-				//		ARP_HLEN))
+-				//	memcpy(ethdev->enetaddr, eth_addr,
+-				//		ARP_HLEN);
+-			} else {
+-				printf("Warning: local-mac-address "
+-				       "not found for bgx%d lmac%d\n",
+-				       bgx_id, lmacid);
+-				if (!ethaddr_exists(envname)) {
+-					memset(eth_addr, 0, ARP_HLEN);
+-					eth_addr[5] = eth_id;
+-					eth_env_get_enetaddr(envname, env_addr);
+-					if (memcmp(env_addr, eth_addr,
+-						ARP_HLEN)) {
+-						mismatch = 1;
+-						snprintf(eaddr, sizeof(eaddr),
+-							 "%pM", eth_addr);
+-						env_set_force(envname, eaddr);
+-				//		ethdev = eth_get_dev_by_index(
+-				//				eth_id);
+-				//		if (ethdev &&
+-				//		    memcmp(ethdev->enetaddr,
+-				//			eth_addr, ARP_HLEN))
+-				//			memcpy(
+-				//			ethdev->enetaddr,
+-				//			eth_addr, ARP_HLEN);
+-					}
+-				}
+-			}
+-			eth_id++;
+-			lmacid++;
+-		}
+-		lmacid = 0;
+-	}
+-
+-	debug("\n %s eth_id %d ",__func__, eth_id);
+-
+-	/*
+-	 * After parsing bgx nodes, remove extra ethaddr env variables
+-	 * maybe configuration or mac addr count might have changed
+-	 * use eth_id as base
+-	 */
+-	for ( ;eth_id < 20; eth_id++) {
+-		sprintf(envname, eth_id ? "eth%daddr" : "ethaddr", eth_id);
+-		if ((!ethaddr_exists(envname)) && (!ethaddr_delete(envname)))
+-			printf("\n delete env %s failed", envname);
+-	}
+-	if (mismatch) {
+-		printf("Interface configuration or mac addr count"
+-			" changed, saving env...\n");
+-		env_save();
+-	}
+-#endif
+-}
+-
+ int arch_fixup_memory_node(void *blob)
+ {
+ 	return 0;
+diff --git a/board/cavium/octeontx/octeontx.c b/board/cavium/octeontx/octeontx.c
+index 5457665897..5d4110a845 100644
+--- a/board/cavium/octeontx/octeontx.c
++++ b/board/cavium/octeontx/octeontx.c
+@@ -17,9 +17,113 @@
+ #include <dm/util.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
++struct cavm_bdt g_cavm_bdt;
++
+ extern unsigned long fdt_base_addr;
+ extern void eth_common_init(void);
+ 
++void octeontx_cleanup_ethaddr(void)
++{
++	char ename[32];
++	for (int i = 0; i < 20; i++) {
++		sprintf(ename, i ? "eth%daddr" : "ethaddr", i);
++		if(env_get(ename))
++			env_set(ename, NULL);
++	}
++}
++
++void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
++{
++	const void *fdt = gd->fdt_blob;
++	const char *mac = NULL;
++	int offset = 0, node, len;
++	int subnode, i = 0;
++	char bgxname[24];
++
++	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
++	if (offset < 0) {
++		printf("%s couldn't find mrml bridge node in fdt\n",
++			 __func__);
++		return;
++	}
++	if (bgx == 2 && is_board_model(CN81XX)) {
++		snprintf(bgxname, sizeof(bgxname), "rgx%d", 0);
++		lmac = 0;
++	} else
++		snprintf(bgxname, sizeof(bgxname), "bgx%d", bgx);
++
++	node = fdt_subnode_offset(fdt, offset, bgxname);
++
++	fdt_for_each_subnode(subnode, fdt, node) {
++		if (i++ != lmac)
++			continue;
++		/* check for local-mac-address */
++		mac = fdt_getprop(fdt, subnode,
++				       "local-mac-address", &len);
++		debug("%s mac %pM\n", __func__, mac);
++		memcpy(eth, mac, ARP_HLEN);
++		debug("%s mac %pM\n", __func__, eth);
++		return;
++	}
++}
++
++int octeontx_board_has_pmp(void)
++{
++	if ((strcasecmp(g_cavm_bdt.type, "sff8104") == 0) ||
++		(strcasecmp(g_cavm_bdt.type, "nas8104") == 0))
++		return 1;
++
++	return 0;
++}
++
++void octeontx_parse_board_info(void)
++{
++	const char *str;
++	int node;
++	int ret = 0, len = 16;
++	u64 midr, val;
++
++	debug("%s: ENTER\n", __func__);
++
++	asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (midr));
++
++	g_cavm_bdt.prod_id = (midr >> 4) & 0xff;
++
++	val = readq(CAVM_MIO_FUS_DAT2);
++	g_cavm_bdt.alt_pkg = (val >> 22) & 0x3;
++	if ((g_cavm_bdt.prod_id == CN81XX) &&
++		(g_cavm_bdt.alt_pkg || ((val >> 30) & 0x1)))
++		g_cavm_bdt.alt_pkg = 2;
++
++	if (!gd->fdt_blob) {
++		printf("ERROR: %s: no valid device tree found\n", __func__);
++		return;
++	}
++
++	debug("%s: fdt blob at %p\n", __func__, gd->fdt_blob);
++	ret = fdt_check_header(gd->fdt_blob);
++	if (ret < 0) {
++		printf("fdt: %s\n", fdt_strerror(ret));
++		return;
++	}
++	debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
++
++	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
++	if (node < 0) {
++		printf("%s: /cavium,bdk is missing from device tree: %s\n",
++		       __func__, fdt_strerror(node));
++		return;
++	}
++	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
++	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
++	if (str) {
++		strncpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
++		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
++	} else {
++		printf("Error: cannot retrieve board type from fdt\n");
++	}
++}
++
+ int board_early_init_r(void)
+ {
+ 	pci_init();
+@@ -46,9 +150,10 @@ int misc_init_r(void)
+ 
+ int board_init(void)
+ {
+-	octeontx_parse_board_info();
+ 	octeontx_parse_phy_info();
+-	printf("Board: %s\n", p_cavm_bdt->type);
++	/* populates cavm_bdt structure */
++	octeontx_parse_board_info();
++
+ 	return 0;
+ }
+ 
+@@ -96,52 +201,66 @@ int board_late_init(void)
+ 	char boardname[20];
+ 
+ 	debug("%s()\n", __func__);
++
+ 	/*
+ 	 * Now that pci_init initializes env device.
+ 	 * Try to validate ethaddr env variables
+ 	 */
+-//	octeontx_parse_mac_addr();
++	octeontx_cleanup_ethaddr();
+ 
+-	debug("bdt.type %s\n", p_cavm_bdt->type);
+-	snprintf(boardname, sizeof(boardname), "%s> ", p_cavm_bdt->type);
++	debug("bdt.type %s\n", g_cavm_bdt.type);
++	snprintf(boardname, sizeof(boardname), "%s> ", g_cavm_bdt.type);
+ 	env_set("prompt", boardname);
+ 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+ 	return 0;
+ }
+ 
+-void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
++/*
++ * Invoked before relocation, so limit to stack variables.
++ */
++int show_board_info(void)
+ {
+-	const void *fdt = gd->fdt_blob;
+-	const char *mac = NULL;
+-	int offset = 0, node, len;
+-	int subnode, i = 0;
+-	char bgxname[24];
++	const char *str;
++	int node, prod_id;
++	int ret = 0, len = 16;
++	u64 midr;
+ 
+-	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
+-	if (offset < 0) {
+-		printf("%s couldn't find mrml bridge node in fdt\n",
+-			 __func__);
+-		return;
++	asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (midr));
++
++	prod_id = (midr >> 4) & 0xff;
++
++	if (!gd->fdt_blob) {
++		printf("ERROR: %s: no valid device tree found\n", __func__);
++		return ret;
+ 	}
+-	if (bgx == 2 && CAVIUM_IS_MODEL(CN81XX)) {
+-		snprintf(bgxname, sizeof(bgxname), "rgx%d", 0);
+-		lmac = 0;
+-	} else
+-		snprintf(bgxname, sizeof(bgxname), "bgx%d", bgx);
+ 
+-	node = fdt_subnode_offset(fdt, offset, bgxname);
++	debug("%s: fdt blob at %p\n", __func__, gd->fdt_blob);
++	ret = fdt_check_header(gd->fdt_blob);
++	if (ret < 0) {
++		printf("fdt: %s\n", fdt_strerror(ret));
++		return ret;
++	}
++	debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
+ 
+-	fdt_for_each_subnode(subnode, fdt, node) {
+-		if (i++ != lmac)
+-			continue;
+-		/* check for local-mac-address */
+-		mac = fdt_getprop(fdt, subnode,
+-				       "local-mac-address", &len);
+-		debug("%s mac %pM\n", __func__, mac);
+-		memcpy(eth, mac, ARP_HLEN);
+-		debug("%s mac %pM\n", __func__, eth);
+-		return;
++	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
++	if (node < 0) {
++		printf("%s: /cavium,bdk is missing from device tree: %s\n",
++		       __func__, fdt_strerror(node));
++		return ret;
++	}
++	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
++	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
++	if (!str) {
++		printf("Error: cannot retrieve board type from fdt\n");
+ 	}
++
++	if (prod_id == CN81XX)
++		printf("OcteonTX CN81XX ARM V8 Core\n");
++	if (prod_id == CN83XX)
++		printf("OcteonTX CN83XX ARM V8 Core\n");
++
++	printf("Board: %s\n", str);
++	return 0;
+ }
+ 
+ #ifdef CONFIG_HW_WATCHDOG
+diff --git a/board/cavium/octeontx2/fdt.c b/board/cavium/octeontx2/fdt.c
+index 69281af6b7..a3ddd3d44b 100644
+--- a/board/cavium/octeontx2/fdt.c
++++ b/board/cavium/octeontx2/fdt.c
+@@ -19,67 +19,8 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+-struct cavm_bdt g_cavm_bdt;
+-struct cavm_bdt *p_cavm_bdt;
+-
+ extern unsigned long fdt_base_addr;
+ 
+-static inline uint64_t cavm_get_model(void) __attribute__ ((pure, always_inline));
+-static inline uint64_t cavm_get_model(void)
+-{
+-#ifdef CAVM_BUILD_HOST
+-    extern uint32_t thunder_remote_get_model(void) __attribute__ ((pure));
+-    return thunder_remote_get_model();
+-#else
+-    uint64_t result;
+-    asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (result));
+-    return result;
+-#endif
+-}
+-
+-void octeontx2_parse_board_info(void)
+-{
+-	const char *str;
+-	int node;
+-	int ret = 0, len = 16;
+-	u64 midr;
+-
+-	debug("%s: ENTER\n", __func__);
+-
+-	midr = cavm_get_model();
+-	g_cavm_bdt.prod_id = (midr >> 4) & 0xff;
+-
+-	if (!gd->fdt_blob) {
+-		printf("ERROR: %s: no valid device tree found\n", __func__);
+-		return;
+-	}
+-
+-	debug("%s: fdt blob at %p\n", __func__, gd->fdt_blob);
+-	ret = fdt_check_header(gd->fdt_blob);
+-	if (ret < 0) {
+-		printf("fdt: %s\n", fdt_strerror(ret));
+-		return;
+-	}
+-
+-	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
+-	if (node < 0) {
+-		printf("%s: /cavium,bdk is missing from device tree: %s\n",
+-		       __func__, fdt_strerror(node));
+-		return;
+-	}
+-
+-	debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
+-	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
+-	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
+-	if (str) {
+-		strncpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
+-		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
+-	} else {
+-		printf("Error: cannot retrieve board type from fdt\n");
+-	}
+-	p_cavm_bdt = &g_cavm_bdt;
+-}
+-
+ int arch_fixup_memory_node(void *blob)
+ {
+ 	return 0;
+diff --git a/board/cavium/octeontx2/octeontx2.c b/board/cavium/octeontx2/octeontx2.c
+index ce977d5eda..291bf5bff1 100644
+--- a/board/cavium/octeontx2/octeontx2.c
++++ b/board/cavium/octeontx2/octeontx2.c
+@@ -18,9 +18,53 @@
+ #include <dm/util.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
++struct cavm_bdt g_cavm_bdt;
++
+ extern unsigned long fdt_base_addr;
+ extern void cgx_intf_shutdown(void);
+ 
++void octeontx_parse_board_info(void)
++{
++	const char *str;
++	int node;
++	int ret = 0, len = 16;
++	u64 midr;
++
++	debug("%s: ENTER\n", __func__);
++
++	asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (midr));
++
++	g_cavm_bdt.prod_id = (midr >> 4) & 0xff;
++
++	if (!gd->fdt_blob) {
++		printf("ERROR: %s: no valid device tree found\n", __func__);
++		return;
++	}
++
++	debug("%s: fdt blob at %p\n", __func__, gd->fdt_blob);
++	ret = fdt_check_header(gd->fdt_blob);
++	if (ret < 0) {
++		printf("fdt: %s\n", fdt_strerror(ret));
++		return;
++	}
++	debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
++
++	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
++	if (node < 0) {
++		printf("%s: /cavium,bdk is missing from device tree: %s\n",
++		       __func__, fdt_strerror(node));
++		return;
++	}
++	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
++	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
++	if (str) {
++		strncpy(g_cavm_bdt.type, str, sizeof(g_cavm_bdt.type));
++		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
++	} else {
++		printf("Error: cannot retrieve board type from fdt\n");
++	}
++}
++
+ void board_quiesce_devices(void)
+ {
+ 	ssize_t node_count = atf_node_count();
+@@ -51,18 +95,15 @@ void board_quiesce_devices(void)
+ 	}
+ }
+ 
+-#ifdef CONFIG_BOARD_EARLY_INIT_R
+ int board_early_init_r(void)
+ {
+ 	pci_init();
+ 	return 0;
+ }
+-#endif
+ 
+ int board_init(void)
+ {
+-	octeontx2_parse_board_info();
+-	printf("Board: %s\n", p_cavm_bdt->type);
++	octeontx_parse_board_info();
+ 	return 0;
+ }
+ 
+@@ -134,8 +175,8 @@ int board_late_init(void)
+ 	 * Try to validate ethaddr env variables
+ 	 */
+ 
+-	debug("bdt.type %s\n", p_cavm_bdt->type);
+-	snprintf(boardname, sizeof(boardname), "%s> ", p_cavm_bdt->type);
++	debug("bdt.type %s\n", g_cavm_bdt.type);
++	snprintf(boardname, sizeof(boardname), "%s> ", g_cavm_bdt.type);
+ 	env_set("prompt", boardname);
+ 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+ 
+@@ -144,6 +185,54 @@ int board_late_init(void)
+ 	return 0;
+ }
+ 
++/*
++ * Invoked before relocation, so limit to stack variables.
++ */
++int show_board_info(void)
++{
++	const char *str;
++	int node, prod_id;
++	int ret = 0, len = 16;
++	u64 midr;
++
++	asm ("mrs %[rd],MIDR_EL1" : [rd] "=r" (midr));
++
++	prod_id = (midr >> 4) & 0xff;
++
++	if (!gd->fdt_blob) {
++		printf("ERROR: %s: no valid device tree found\n", __func__);
++		return ret;
++	}
++
++	debug("%s: fdt blob at %p\n", __func__, gd->fdt_blob);
++	ret = fdt_check_header(gd->fdt_blob);
++	if (ret < 0) {
++		printf("fdt: %s\n", fdt_strerror(ret));
++		return ret;
++	}
++	debug("fdt:size %d\n", fdt_totalsize(gd->fdt_blob));
++
++	node = fdt_path_offset(gd->fdt_blob, "/cavium,bdk");
++	if (node < 0) {
++		printf("%s: /cavium,bdk is missing from device tree: %s\n",
++		       __func__, fdt_strerror(node));
++		return ret;
++	}
++	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MODEL", &len);
++	debug("fdt: BOARD-MODEL str %s len %d\n", str, len);
++	if (!str) {
++		printf("Error: cannot retrieve board type from fdt\n");
++	}
++
++	if (prod_id == CN96XX)
++		printf("OcteonTX2 CN96XX ARM V8 Core\n");
++	if (prod_id == CN95XX)
++		printf("OcteonTX2 CN95XX ARM V8 Core\n");
++
++	printf("Board: %s\n", str);
++	return 0;
++}
++
+ #ifdef CONFIG_HW_WATCHDOG
+ void hw_watchdog_reset(void)
+ {
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 8cc0a48787..a6eedb2e13 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -2,7 +2,6 @@ CONFIG_ARM=y
+ # CONFIG_ARM64_SUPPORT_AARCH32 is not set
+ CONFIG_ARCH_OCTEONTX2=y
+ CONFIG_SYS_TEXT_BASE=0x04000000
+-CONFIG_IDENT_STRING=" for Cavium OcteonTX2 CN96XX ARM V8 Core"
+ # CONFIG_PSCI_RESET is not set
+ CONFIG_TARGET_OCTEONTX2_96XX=y
+ CONFIG_DEBUG_UART=y
+@@ -15,7 +14,6 @@ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=24 rootwait rw root=/dev/sda2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+-# CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="Cavium> "
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index b99953d628..b8d5c0c97b 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -2,7 +2,6 @@ CONFIG_ARM=y
+ # CONFIG_ARM64_SUPPORT_AARCH32 is not set
+ CONFIG_ARCH_OCTEONTX=y
+ CONFIG_SYS_TEXT_BASE=0x500000
+-CONFIG_IDENT_STRING=" for Cavium OcteonTX CN81XX ARM V8 Core"
+ # CONFIG_PSCI_RESET is not set
+ CONFIG_TARGET_OCTEONTX_81XX=y
+ CONFIG_DEBUG_UART=y
+@@ -15,13 +14,14 @@ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=4 rootwait rw root=/dev/sda2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+-# CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="Cavium> "
+ # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
++CONFIG_CMD_MD5SUM=y
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
++CONFIG_CMD_SHA1SUM=y
+ # CONFIG_CMD_FLASH is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+@@ -47,8 +47,6 @@ CONFIG_CMD_EXT4=y
+ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_CMD_FAT=y
+ CONFIG_CMD_FS_GENERIC=y
+-CONFIG_CMD_SHA1SUM=y
+-CONFIG_CMD_MD5SUM=y
+ CONFIG_EFI_PARTITION=y
+ CONFIG_PARTITION_TYPE_GUID=y
+ CONFIG_OF_BOARD=y
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index 201871f22c..1690909f00 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -2,7 +2,6 @@ CONFIG_ARM=y
+ # CONFIG_ARM64_SUPPORT_AARCH32 is not set
+ CONFIG_ARCH_OCTEONTX=y
+ CONFIG_SYS_TEXT_BASE=0x2800000
+-CONFIG_IDENT_STRING=" for Cavium OcteonTX CN83XX ARM V8 Core"
+ # CONFIG_PSCI_RESET is not set
+ CONFIG_TARGET_OCTEONTX_83XX=y
+ CONFIG_DEBUG_UART=y
+@@ -15,13 +14,14 @@ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=24 rootwait rw root=/dev/sda2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+-# CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="Cavium> "
+ # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
++CONFIG_CMD_MD5SUM=y
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
++CONFIG_CMD_SHA1SUM=y
+ # CONFIG_CMD_FLASH is not set
+ # CONFIG_CMD_FPGA is not set
+ CONFIG_CMD_GPIO=y
+@@ -53,8 +53,6 @@ CONFIG_PARTITION_TYPE_GUID=y
+ CONFIG_OF_BOARD=y
+ CONFIG_ENV_IS_IN_SPI_FLASH=y
+ CONFIG_NET_RANDOM_ETHADDR=y
+-CONFIG_CMD_SHA1SUM=y
+-CONFIG_CMD_MD5SUM=y
+ CONFIG_SCSI_AHCI=y
+ CONFIG_AHCI_PCI=y
+ CONFIG_BLOCK_CACHE=y
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 73db5c1d61..5aaaf698c7 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -28,9 +28,6 @@
+ #if CONFIG_ARCH_OCTEONTX
+ #include <asm/arch/octeontx.h>
+ #endif
+-#if CONFIG_ARCH_OCTEONTX2
+-#include <asm/arch/octeontx2.h>
+-#endif
+ 
+ static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port);
+ 
+@@ -56,8 +53,6 @@ struct ahci_uc_priv *probe_ent = NULL;
+ #define WAIT_MS_FLUSH	5000
+ #define WAIT_MS_LINKUP	200
+ 
+-extern char boardtype[32];
+-
+ __weak void __iomem *ahci_port_base(void __iomem *base, u32 port)
+ {
+ 	return base + 0x100 + (port * 0x80);
+@@ -616,15 +611,18 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
+ 
+ 	debug("Exit start port %d\n", port);
+ 
++#if CONFIG_ARCH_OCTEONTX
+ 	/*
+ 	 * Skip interface busy check based on error and status
+ 	 * information from task file data register as these boards
+ 	 * have port multiplier and device is always present
+ 	 * U-boot lacks port multiplier support hence this ugly hack.
+ 	 */
+-	if ((strcasecmp(p_cavm_bdt->type, "sff8104") == 0) ||
+-		(strcasecmp(p_cavm_bdt->type, "nas8104") == 0))
++
++	if (octeontx_board_has_pmp())
+ 		return 0;
++#endif
++
+ 	/*
+ 	 * Make sure interface is not busy based on error and status
+ 	 * information from task file data register before proceeding
+diff --git a/drivers/net/cavium/octeontx_bgx.c b/drivers/net/cavium/octeontx_bgx.c
+index bbb17b80e6..e911378dc2 100644
+--- a/drivers/net/cavium/octeontx_bgx.c
++++ b/drivers/net/cavium/octeontx_bgx.c
+@@ -271,10 +271,10 @@ static int get_qlm_for_bgx(int node, int bgx_id, int index)
+ 	int qlm = 0;
+ 	uint64_t cfg;
+ 
+-	if (CAVIUM_IS_MODEL(CN81XX)) {
++	if (is_board_model(CN81XX)) {
+ 		qlm = (bgx_id) ? 2 : 0;
+ 		qlm += (index >= 2) ? 1 : 0;
+-	} else if (CAVIUM_IS_MODEL(CN83XX)) {
++	} else if (is_board_model(CN83XX)) {
+ 		switch (bgx_id) {
+ 		case 0:
+ 			qlm = 2;
+@@ -560,9 +560,9 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
+ /* Get max number of lanes present in a given QLM/DLM */
+ static int get_qlm_lanes(int qlm)
+ {
+-	if (CAVIUM_IS_MODEL(CN81XX))
++	if (is_board_model(CN81XX))
+ 		return 2;
+-	else if (CAVIUM_IS_MODEL(CN83XX))
++	else if (is_board_model(CN83XX))
+ 		return (qlm >= 5) ? 2 : 4;
+ 	else
+ 		return -1;
+@@ -677,8 +677,8 @@ static int bgx_xaui_check_link(struct lmac *lmac)
+ 	if (!lmac->use_training) {
+ 		int qlm;
+ 		bool use_dlm = 0;
+-		if (CAVIUM_IS_MODEL(CN81XX)
+-		    || (CAVIUM_IS_MODEL(CN83XX) && (bgx->bgx_id == 2)))
++		if (is_board_model(CN81XX)
++		    || (is_board_model(CN83XX) && (bgx->bgx_id == 2)))
+ 			use_dlm = 1;
+ 		switch (lmac->lmac_type) {
+ 		default:
+@@ -1210,8 +1210,8 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 		int train_en;
+ 		int index = 0;
+ 
+-		if (CAVIUM_IS_MODEL(CN81XX)
+-		    || (CAVIUM_IS_MODEL(CN83XX) && (bgx->bgx_id == 2)))
++		if (is_board_model(CN81XX)
++		    || (is_board_model(CN83XX) && (bgx->bgx_id == 2)))
+ 			index = (lmacid < 2) ? 0 : 2;
+ 
+ 		lmac = &bgx->lmac[lmacid];
+@@ -1299,7 +1299,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 		break;
+ 		case BGX_MODE_QSGMII:
+ 			/* If QLM is configured as QSGMII, use lmac0 */
+-			if (CAVIUM_IS_MODEL(CN83XX)
++			if (is_board_model(CN83XX)
+ 			    && (lmacid == 2)
+ 			    && (bgx->bgx_id != 2)) {
+ 				//lmac->qlm_mode = QLM_MODE_DISABLED;
+@@ -1390,7 +1390,7 @@ int octeontx_bgx_probe(struct udevice *dev)
+ 		debug("No PCI region found\n");
+ 		return 0;
+ 	}
+-	is_altpkg = p_cavm_bdt->alt_pkg;
++	is_altpkg = g_cavm_bdt.alt_pkg;
+ 
+ #ifdef CONFIG_OCTEONTX_XCV
+ 	/* Use FAKE BGX2 for RGX interface */
+@@ -1414,14 +1414,14 @@ int octeontx_bgx_probe(struct udevice *dev)
+ 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 3;
+ 	bgx->bgx_id = (node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx;
+ 
+-	if (CAVIUM_IS_MODEL(CN81XX))
++	if (is_board_model(CN81XX))
+ 		inc = 2;
+-	else if (CAVIUM_IS_MODEL(CN83XX) && (bgx_idx == 2))
++	else if (is_board_model(CN83XX) && (bgx_idx == 2))
+ 		inc = 2;
+ 
+ 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += inc) {
+ 		/* BGX3 (DLM4), has only 2 lanes */
+-		if (CAVIUM_IS_MODEL(CN83XX) && (bgx_idx == 3) && lmac >= 2)
++		if (is_board_model(CN83XX) && (bgx_idx == 3) && lmac >= 2)
+ 			continue;
+ 		qlm[lmac + 0] = get_qlm_for_bgx(node, bgx_idx, lmac);
+ 		/* Each DLM has 2 lanes, configure both lanes with
+@@ -1433,7 +1433,7 @@ int octeontx_bgx_probe(struct udevice *dev)
+ 
+ 	/* A BGX can take 1 or 2 DLMs, if both the DLMs are not configured
+ 	   as BGX, then return, nothing to initialize */
+-	if (CAVIUM_IS_MODEL(CN81XX))
++	if (is_board_model(CN81XX))
+ 		if ((qlm[0] == -1) && (qlm[2] == -1))
+ 			return -ENODEV;
+ 
+-- 
+2.29.0
+

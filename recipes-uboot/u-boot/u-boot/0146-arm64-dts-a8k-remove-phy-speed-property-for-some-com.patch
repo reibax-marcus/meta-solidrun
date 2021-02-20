@@ -1,0 +1,230 @@
+From 041e0306e0f2a396719e4778865d9cf874291868 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Sun, 22 Jul 2018 17:19:55 +0300
+Subject: [PATCH 0146/1239] arm64: dts: a8k: remove phy-speed property for some
+ comphy types
+
+For some comphy types (SATA, USB, PEX) the speed is not relevant, therefore
+there is no need to set them.
+
+This shouldn't have any functional changes since all affected comphys
+already ignored the speed parameter. It is rather alignment since before
+this patch some dts'es defined the speed and some didn't.
+
+Change-Id: Icb39cd4c704955e0678e61c1308c8fd931c7977d
+Signed-off-by: Igal Liberman <igall@marvell.com>
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ arch/arm/dts/armada-7020-amc.dts  | 5 -----
+ arch/arm/dts/armada-7040-db-B.dts | 6 ------
+ arch/arm/dts/armada-7040-db-D.dts | 5 -----
+ arch/arm/dts/armada-7040-db-E.dts | 2 --
+ arch/arm/dts/armada-7040-db.dts   | 4 ----
+ arch/arm/dts/armada-8040-db-B.dts | 7 -------
+ 6 files changed, 29 deletions(-)
+
+diff --git a/arch/arm/dts/armada-7020-amc.dts b/arch/arm/dts/armada-7020-amc.dts
+index e47284adf9..c5efea8666 100644
+--- a/arch/arm/dts/armada-7020-amc.dts
++++ b/arch/arm/dts/armada-7020-amc.dts
+@@ -149,22 +149,18 @@
+ &cp0_comphy {
+ 	phy0 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy1 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy4 {
+@@ -174,7 +170,6 @@
+ 
+ 	phy5 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ };
+ 
+diff --git a/arch/arm/dts/armada-7040-db-B.dts b/arch/arm/dts/armada-7040-db-B.dts
+index 2837108a87..e367ba4f38 100644
+--- a/arch/arm/dts/armada-7040-db-B.dts
++++ b/arch/arm/dts/armada-7040-db-B.dts
+@@ -144,32 +144,26 @@
+ &cp0_comphy {
+ 	phy0 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy1 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy4 {
+ 		phy-type = <COMPHY_TYPE_USB3_HOST1>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy5 {
+ 		phy-type = <COMPHY_TYPE_PEX2>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ };
+ 
+diff --git a/arch/arm/dts/armada-7040-db-D.dts b/arch/arm/dts/armada-7040-db-D.dts
+index 651dd57b00..0d2578381c 100644
+--- a/arch/arm/dts/armada-7040-db-D.dts
++++ b/arch/arm/dts/armada-7040-db-D.dts
+@@ -131,12 +131,10 @@
+ &cp0_comphy {
+ 	phy0 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy1 {
+ 		phy-type = <COMPHY_TYPE_USB3_DEVICE>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy2 {
+@@ -146,17 +144,14 @@
+ 
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy4 {
+ 		phy-type = <COMPHY_TYPE_USB3_HOST1>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy5 {
+ 		phy-type = <COMPHY_TYPE_PEX2>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ };
+ 
+diff --git a/arch/arm/dts/armada-7040-db-E.dts b/arch/arm/dts/armada-7040-db-E.dts
+index c798a4ce22..65926bc747 100644
+--- a/arch/arm/dts/armada-7040-db-E.dts
++++ b/arch/arm/dts/armada-7040-db-E.dts
+@@ -166,7 +166,6 @@
+ &cp0_comphy {
+ 	phy0 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy1 {
+@@ -187,7 +186,6 @@
+ 
+ 	phy5 {
+ 		phy-type = <COMPHY_TYPE_PEX2>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ };
+ 
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index f70db9e4e0..4b57cca2e5 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -189,7 +189,6 @@
+ 
+ 	phy1 {
+ 		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy2 {
+@@ -199,17 +198,14 @@
+ 
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy4 {
+ 		phy-type = <COMPHY_TYPE_USB3_HOST1>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy5 {
+ 		phy-type = <COMPHY_TYPE_PEX2>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ };
+ 
+diff --git a/arch/arm/dts/armada-8040-db-B.dts b/arch/arm/dts/armada-8040-db-B.dts
+index 1864f4d4ad..a6d2f8892b 100644
+--- a/arch/arm/dts/armada-8040-db-B.dts
++++ b/arch/arm/dts/armada-8040-db-B.dts
+@@ -113,32 +113,26 @@
+ 	 */
+ 	phy0 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy1 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy4 {
+ 		phy-type = <COMPHY_TYPE_USB3_HOST1>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+ 	phy5 {
+ 		phy-type = <COMPHY_TYPE_PEX2>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ };
+ 
+@@ -246,7 +240,6 @@
+ 	};
+ 	phy1 {
+ 		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SGMII0>;
+-- 
+2.29.0
+

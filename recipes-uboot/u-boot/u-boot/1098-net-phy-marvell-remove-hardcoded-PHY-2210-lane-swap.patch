@@ -1,0 +1,48 @@
+From 7182f6d1571174e5a1e0991038e02112ac9946e2 Mon Sep 17 00:00:00 2001
+From: Stefan Chulski <stefanc@marvell.com>
+Date: Tue, 18 Feb 2020 18:58:28 +0200
+Subject: [PATCH 1098/1239] net: phy: marvell: remove hardcoded PHY 2210 lane
+ swap
+
+Lane swapped only if "enet-phy-lane-swap" set in device tree.
+
+Change-Id: I0fa0a4adcf6085644f8ec39c6901ddca16d4c273
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23442
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Yan Markman <ymarkman@marvell.com>
+Reviewed-by: Marcin Wojtas <marcin@marvell.com>
+---
+ drivers/net/phy/marvell.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index c5e0d7ef26..4b6dd3bbb1 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -709,11 +709,17 @@ static int m88e2110_probe(struct phy_device *phydev)
+ static int m88e2110_config(struct phy_device *phydev)
+ {
+ 	u16 reg;
++	ofnode node = phy_get_ofnode(phydev);
+ 
+-	/* Perform lane swap */
+-	reg = phy_read(phydev, 1, 0xc000);
+-	reg |= 0x1;
+-	phy_write(phydev, 1, 0xc000, reg);
++	if (!ofnode_valid(node))
++		return -EINVAL;
++
++	if (ofnode_read_bool(node, "enet-phy-lane-swap")) {
++		/* Perform lane swap */
++		reg = phy_read(phydev, 1, 0xc000);
++		reg |= 0x1;
++		phy_write(phydev, 1, 0xc000, reg);
++	}
+ 
+ 	/* Configure auto-negotiation advertisement */
+ 	if (phydev->interface == PHY_INTERFACE_MODE_SFI) {
+-- 
+2.29.0
+

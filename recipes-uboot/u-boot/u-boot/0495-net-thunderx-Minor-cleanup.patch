@@ -1,0 +1,45 @@
+From b6ac0fb5bd703143d8f66a119163569d433e70b4 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 6 Jun 2016 17:45:20 -0700
+Subject: [PATCH 0495/1239] net: thunderx: Minor cleanup.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/nic_main.c    | 2 +-
+ drivers/net/cavium/thunder_bgx.c | 7 -------
+ 2 files changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index b9bc4da662..4989d32365 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -413,7 +413,7 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
+ 			continue;
+ 		nic->bgx_cnt++;
+ 		lmac_cnt = bgx_get_lmac_count(nic->node, bgx);
+-		debug("lmac_cnt: %d\n", lmac_cnt);
++		debug("lmac_cnt: %d for BGX%d\n", lmac_cnt, bgx);
+ 		for (lmac = 0; lmac < lmac_cnt; lmac++)
+ 			nic->vf_lmac_map[next_bgx_lmac++] =
+ 						NIC_SET_VF_LMAC_MAP(bgx, lmac);
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 4225838bfe..3acdf945e6 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -1089,13 +1089,6 @@ skip_qlm_config:
+ 
+ 	/* Enable all LMACs */
+ 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
+-		if (bgx->lmac[lmac].qlm_mode == QLM_MODE_SGMII ||
+-		    bgx->lmac[lmac].qlm_mode == QLM_MODE_QSGMII ||
+-		    bgx->lmac[lmac].qlm_mode == QLM_MODE_RXAUI ||
+-		    bgx->lmac[lmac].qlm_mode == QLM_MODE_XAUI) {
+-
+-		}
+-
+ 		snprintf(bgx->lmac[lmac].netdev.name,
+ 			 sizeof(bgx->lmac[lmac].netdev.name),
+ 			 "lmac%d", lmac);
+-- 
+2.29.0
+

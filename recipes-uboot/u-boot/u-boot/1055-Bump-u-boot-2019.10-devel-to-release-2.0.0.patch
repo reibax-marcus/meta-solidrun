@@ -1,0 +1,24 @@
+From 8d88c8f3496e262d28652e1323f7a98372cc94fa Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Wed, 8 Jan 2020 21:55:12 -0800
+Subject: [PATCH 1055/1239] Bump u-boot-2019.10-devel to release 2.0.0
+
+Change-Id: If98889582fd81f632b5d061ae5294338c34bdacd
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/21283
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ localversion | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/localversion b/localversion
+index f21306878f..d04b1df3b7 100644
+--- a/localversion
++++ b/localversion
+@@ -1 +1 @@
+--1.0.0
++-2.0.0
+-- 
+2.29.0
+

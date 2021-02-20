@@ -1,0 +1,63 @@
+From c740184baab6b35f42c91f5cbab520ce7bba5b38 Mon Sep 17 00:00:00 2001
+From: Felix Manlunas <fmanlunas@marvell.com>
+Date: Wed, 15 Apr 2020 11:08:39 -0700
+Subject: [PATCH 1130/1239] octeontx: bgx: Pre-init BGX registers for
+ 1000BASE-X or SGMII case
+
+The Thunder BGX kernel driver relies on lower layer software (in this case
+U-Boot) to pre-init some BGX LMAC registers.  Among them are these two
+(which had been neglected prior to this patch):
+
+    1.  If QLM mode is 1000BASE-X, then set the MODE bit of
+        BGX(0..3)_GMP_PCS_MISC(0..3)_CTL.
+
+    2.  If autoneg is not disabled in the Linux DTS, then set the AN_EN bit
+        in BGX(0..3)_GMP_PSC_MR(0..3)_CONTROL.
+
+Change-Id: I52b9141c35836e831a07f1d9f9fce2d0c4031c81
+Signed-off-by: Felix Manlunas <fmanlunas@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/26955
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/net/octeontx/bgx.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/drivers/net/octeontx/bgx.c b/drivers/net/octeontx/bgx.c
+index 15bb82e895..f2a50ee81a 100644
+--- a/drivers/net/octeontx/bgx.c
++++ b/drivers/net/octeontx/bgx.c
+@@ -1231,6 +1231,30 @@ static void bgx_init_hw(struct bgx *bgx)
+ 			bgx_reg_write(bgx, count, BGX_CMRX_CFG,
+ 				      (tlmac->lmac_type << 8) |
+ 				      tlmac->lane_to_sds);
++
++			if (tlmac->lmac_type == BGX_MODE_SGMII) {
++				if (tlmac->is_1gx) {
++					/* This is actually 1000BASE-X, so
++					 * mark the LMAC as such.
++					 */
++					bgx_reg_modify(bgx, count,
++						       BGX_GMP_PCS_MISCX_CTL,
++						       PCS_MISC_CTL_MODE);
++				}
++
++				if (!bgx_board_info[bgx->bgx_id].
++						phy_info[lmacid].autoneg_dis) {
++					/* The Linux DTS does not disable
++					 * autoneg for this LMAC (in SGMII or
++					 * 1000BASE-X mode), so that means
++					 * enable autoneg.
++					 */
++					bgx_reg_modify(bgx, count,
++						       BGX_GMP_PCS_MRX_CTL,
++						       PCS_MRX_CTL_AN_EN);
++				}
++			}
++
+ 			count += 1;
+ 		}
+ 	}
+-- 
+2.29.0
+

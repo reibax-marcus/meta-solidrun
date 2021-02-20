@@ -1,0 +1,249 @@
+From 930e2f3496e1d957ab9855e12aab563615b1052d Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 1 Aug 2017 12:55:04 -0700
+Subject: [PATCH 0677/1239] configs: more kconfig changes
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/t81_defconfig           | 13 +++++++++++++
+ configs/t83_defconfig           | 10 ++++++++++
+ configs/t93_defconfig           | 15 +++++++++++++--
+ include/configs/thunderx_81xx.h | 13 ++++++-------
+ include/configs/thunderx_83xx.h |  7 ++-----
+ include/configs/thunderx_93xx.h | 17 +++++++++++------
+ 6 files changed, 55 insertions(+), 20 deletions(-)
+
+diff --git a/configs/t81_defconfig b/configs/t81_defconfig
+index e066d7ee5b..50f880c1a2 100644
+--- a/configs/t81_defconfig
++++ b/configs/t81_defconfig
+@@ -7,6 +7,9 @@ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DEFAULT_DEVICE_TREE="thunder-81xx"
+ CONFIG_SYS_EXTRA_OPTIONS="ARM64"
++CONFIG_BOOTDELAY=5
++# CONFIG_DISPLAY_CPUINFO is not set
++# CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="ThunderX_81XX> "
+ CONFIG_CMD_MEMTEST=y
+@@ -37,8 +40,18 @@ CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_DM_I2C_COMPAT=y
+ CONFIG_SATA=y
+ CONFIG_AHCI_PCI=y
++CONFIG_BLOCK_CACHE=y
+ CONFIG_NVME=y
+ CONFIG_MISC=y
++# CONFIG_MMC is not set
++CONFIG_DM_MMC=y
++CONFIG_MMC_CAVIUM=y
++CONFIG_MTD=y
++CONFIG_DM_SPI_FLASH=y
++CONFIG_SPI_FLASH=y
++CONFIG_SPI_FLASH_MACRONIX=y
++CONFIG_SPI_FLASH_SPANSION=y
++CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_PHYLIB=y
+ CONFIG_NETDEVICES=y
+ CONFIG_PCI=y
+diff --git a/configs/t83_defconfig b/configs/t83_defconfig
+index b5b302e5eb..d59fa59145 100644
+--- a/configs/t83_defconfig
++++ b/configs/t83_defconfig
+@@ -9,6 +9,7 @@ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_SYS_EXTRA_OPTIONS="ARM64"
+ CONFIG_BOOTDELAY=5
+ # CONFIG_DISPLAY_CPUINFO is not set
++# CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_HUSH_PARSER=y
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+@@ -40,8 +41,17 @@ CONFIG_PARTITION_TYPE_GUID=y
+ CONFIG_OF_BOARD=y
+ CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_AHCI_PCI=y
++CONFIG_BLOCK_CACHE=y
+ CONFIG_NVME=y
+ CONFIG_MISC=y
++# CONFIG_MMC is not set
++CONFIG_DM_MMC=y
++CONFIG_MMC_CAVIUM=y
++CONFIG_DM_SPI_FLASH=y
++CONFIG_SPI_FLASH=y
++CONFIG_SPI_FLASH_MACRONIX=y
++CONFIG_SPI_FLASH_SPANSION=y
++CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_PHYLIB=y
+ CONFIG_PHYLIB_10G=y
+ CONFIG_PHY_AQUANTIA=y
+diff --git a/configs/t93_defconfig b/configs/t93_defconfig
+index f4fd78c183..c2ae1bf213 100644
+--- a/configs/t93_defconfig
++++ b/configs/t93_defconfig
+@@ -9,6 +9,7 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_SYS_EXTRA_OPTIONS="ARM64"
+ CONFIG_BOOTDELAY=5
+ # CONFIG_DISPLAY_CPUINFO is not set
++# CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_HUSH_PARSER=y
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+@@ -18,6 +19,7 @@ CONFIG_CMD_PART=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_NVME=y
+ # CONFIG_CMD_FPGA is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_TFTPPUT=y
+@@ -30,15 +32,25 @@ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_CMD_BOOTIMGUP=y
++CONFIG_CMD_EXT4=y
++CONFIG_CMD_EXT4_WRITE=y
++CONFIG_CMD_FAT=y
++CONFIG_CMD_FS_GENERIC=y
+ CONFIG_EFI_PARTITION=y
+ CONFIG_PARTITION_TYPE_GUID=y
+ CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_AHCI_PCI=y
++CONFIG_BLOCK_CACHE=y
++CONFIG_NVME=y
+ CONFIG_MISC=y
++# CONFIG_MMC is not set
++CONFIG_DM_MMC=y
++CONFIG_MMC_CAVIUM=y
++CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+-CONFIG_SPI_FLASH_MTD=y
+ CONFIG_PHYLIB=y
+ CONFIG_PHYLIB_10G=y
+ CONFIG_PHY_AQUANTIA=y
+@@ -62,6 +74,5 @@ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_XHCI_HCD=y
+ CONFIG_USB_STORAGE=y
+-CONFIG_FS_FAT=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index b3b4de1abc..270e2309ac 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -179,13 +179,13 @@
+ 
+ #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
+ 
+- /* AHCI support Definitions */
++/* AHCI support Definitions */
+ #define CONFIG_SCSI_AHCI
+ 
+ #ifdef CONFIG_SCSI_AHCI
+- /** Maximum number of SATA devices per controller*/
++/** Maximum number of SATA devices per controller*/
+ # define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+- /** Enable 48-bit SATA addressing */
++/** Enable 48-bit SATA addressing */
+ # define CONFIG_LBA48
+  /** Enable libata, required for SATA */
+ # define CONFIG_LIBATA
+@@ -221,14 +221,12 @@
+ #define CONFIG_SYS_SPD_I2C_BUS 1
+ 
+ /***** SPI Defines *********/
+-#define CONFIG_DM_SPI_FLASH
+-#define CONFIG_SPI_FLASH
+-#define CONFIG_SPI_FLASH_STMICRO
+-#define CONFIG_SPI_FLASH_MACRONIX
++#ifdef CONFIG_DM_SPI_FLASH
+ #define CONFIG_SF_DEFAULT_SPEED 12500000
+ #define CONFIG_SF_DEFAULT_MODE	0
+ #define CONFIG_SF_DEFAULT_BUS	0
+ #define CONFIG_SF_DEFAULT_CS	0
++#endif
+ 
+ /**************************/
+ #define CONFIG_CMD_SAVES
+@@ -294,6 +292,7 @@
+ 
+ /* Use ATF based calls for env variables */
+ #define CONFIG_ATF
++#define CONFIG_BOARD_EARLY_INIT_R
+ 
+ /* Use uboot SPI APIs for env variables */
+ /* #define CONFIG_SPI_ENV */
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 40dc507974..ed0de60b75 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -207,15 +207,12 @@
+ #define CONFIG_SYS_SPD_I2C_BUS 1
+ 
+ /***** SPI Defines *********/
+-#define CONFIG_DM_SPI_FLASH
+-#define CONFIG_SPI_FLASH
+-#define CONFIG_SPI_FLASH_STMICRO
+-#define CONFIG_SPI_FLASH_MACRONIX
++#ifdef CONFIG_DM_SPI_FLASH
+ #define CONFIG_SF_DEFAULT_SPEED 12500000
+ #define CONFIG_SF_DEFAULT_MODE	0
+ #define CONFIG_SF_DEFAULT_BUS	0
+ #define CONFIG_SF_DEFAULT_CS	0
+-/** Enable sf command */
++#endif
+ 
+ /**************************/
+ #define CONFIG_CMD_SAVES
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index 1af83e57da..c6abbb07a0 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -159,11 +159,11 @@
+ #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
+ 
+ /* AHCI support Definitions */
+-#ifdef CONFIG_CMD_SATA
+-/** Enable AHCI SATA driver */
+-# define CONFIG_SATA_AHCI
+-/** Maximum number of SATA devices */
+-# define CONFIG_SYS_SATA_MAX_DEVICE	6
++#define CONFIG_SCSI_AHCI
++
++#ifdef CONFIG_SCSI_AHCI
++/** Maximum number of SATA devices per controller*/
++# define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+ /** Enable 48-bit SATA addressing */
+ # define CONFIG_LBA48
+ /** Enable libata, required for SATA */
+@@ -172,6 +172,10 @@
+ # define CONFIG_SYS_64BIT_LBA
+ #endif
+ 
++#define CONFIG_SYS_SATA_MAX_DEVICE 2
++
++#define CONFIG_SYS_NVME_MAX_DEVICE 64
++
+ /* PCIe */
+ /** Show devices found on PCI bus */
+ #define CONFIG_PCI_SCAN_SHOW
+@@ -199,11 +203,12 @@
+ #define CONFIG_SYS_SPD_I2C_BUS 1
+ 
+ /***** SPI Defines *********/
+-#define CONFIG_DM_SPI_FLASH
++#ifdef CONFIG_DM_SPI_FLASH
+ #define CONFIG_SF_DEFAULT_SPEED 12500000
+ #define CONFIG_SF_DEFAULT_MODE	0
+ #define CONFIG_SF_DEFAULT_BUS	0
+ #define CONFIG_SF_DEFAULT_CS	0
++#endif
+ /**************************/
+ #define CONFIG_CMD_SAVES
+ 
+-- 
+2.29.0
+

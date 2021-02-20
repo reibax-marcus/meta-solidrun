@@ -1,0 +1,538 @@
+From 6affe227f51b9c478ee82c231b8aa0f4794b50ee Mon Sep 17 00:00:00 2001
+From: David Sniatkiwicz <davidsn@marvell.com>
+Date: Mon, 19 Jun 2017 11:23:31 +0300
+Subject: [PATCH 0107/1239] thermal: introduce mvebu thermal driver
+
+In Armada 7K/8K there are 2 types of thermal sensor:
+      - regular thermal (integrated in CP)
+      - external sensor (integrated in AP)
+Add driver support for 28nm thermal sensors (regular and external)
+Add mechanism (thermal_core) to detect thermal units
+(according to device tree)
+Add device tree binding documentation
+
+Change-Id: Iff3a140dc580f5e8e221e557dd8a92a68bce6094
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ arch/arm/include/asm/arch-mvebu/thermal.h     |  34 ++++
+ .../thermal/mvebu-thermal.txt                 |  63 ++++++++
+ drivers/thermal/Kconfig                       |  31 ++++
+ drivers/thermal/Makefile                      |   3 +
+ drivers/thermal/mvebu_ext_thermal_28nm.c      |  95 ++++++++++++
+ drivers/thermal/mvebu_thermal_28nm.c          |  85 ++++++++++
+ drivers/thermal/mvebu_thermal_core.c          | 145 ++++++++++++++++++
+ 7 files changed, 456 insertions(+)
+ create mode 100644 arch/arm/include/asm/arch-mvebu/thermal.h
+ create mode 100644 doc/device-tree-bindings/thermal/mvebu-thermal.txt
+ create mode 100644 drivers/thermal/mvebu_ext_thermal_28nm.c
+ create mode 100644 drivers/thermal/mvebu_thermal_28nm.c
+ create mode 100644 drivers/thermal/mvebu_thermal_core.c
+
+diff --git a/arch/arm/include/asm/arch-mvebu/thermal.h b/arch/arm/include/asm/arch-mvebu/thermal.h
+new file mode 100644
+index 0000000000..3753596f9f
+--- /dev/null
++++ b/arch/arm/include/asm/arch-mvebu/thermal.h
+@@ -0,0 +1,34 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++#ifndef _MVEBU_THERMAL_H_
++#define _MVEBU_THERMAL_H_
++
++#include <dt-bindings/comphy/comphy_data.h>
++#include <fdtdec.h>
++
++struct thermal_unit_config {
++	/* thermal temperature parameters */
++	s32 tsen_offset;
++	s32 tsen_gain;
++	s32 tsen_divisor;
++	/* thermal data */
++	s32 tsen_ready;
++	void __iomem *regs_base;
++	/* thermal functionality */
++	u32 (*ptr_thermal_sensor_probe)(struct thermal_unit_config *);
++	s32 (*ptr_thermal_sensor_read)(struct thermal_unit_config *);
++};
++
++/* Thermal sensors APIs */
++s32 mvebu_thermal_sensor_read(struct thermal_unit_config *thermal_config);
++u32 mvebu_thermal_sensor_probe(struct thermal_unit_config *thermal_config);
++
++/* External Thermal sensors APIs */
++s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *thermal_config);
++u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *thermal_config);
++
++#endif /* _THERMAL_H_ */
++
+diff --git a/doc/device-tree-bindings/thermal/mvebu-thermal.txt b/doc/device-tree-bindings/thermal/mvebu-thermal.txt
+new file mode 100644
+index 0000000000..ffa98e30db
+--- /dev/null
++++ b/doc/device-tree-bindings/thermal/mvebu-thermal.txt
+@@ -0,0 +1,63 @@
++Marvell Thermal Sensor binding
++==============================
++
++The thermal node includes a description of the Thermal Sensor External Unit.
++The thernal sensor is an on-chip temperature sensor that reads the temperature of
++every core and returns the average or the maximum between them.
++
++Mandatory properties:
++SoC specific:
++	- compatible: should contain two compatibles:
++		- first: "marvell,mvebu-thermal"
++		- second: indicate the thermal sensor type
++		"marvell,thermal-sensor" or "marvell,thermal-ext-sensor"
++	- reg: the base address of thermal unit
++	- gain, offset: parameters of the temperature equation
++		which are:
++		T(in Celsius) = T(read value) * gain + offset
++
++	- divisor: the value that multiply with gain and offset; see Note.
++		Note: in the Tsen spec the default value of gain equals 0.425
++		In the u-boot we cannot calculate a real number (no floating point).
++		For this reason, set the gain and offset by multiplying them by divisor
++		value (usually 1000 or 10000).
++		This helps to calculate the equation; see example below.
++
++
++- In Armada80x0/70x0 there are 2 types of thermal sensor:
++	- regular sensor (integrated in CP)
++	- external sensor (integrated in AP)
++
++Example for external sensor (integrated in AP):
++
++The required calculation:
++T(in Celsius) = T(read value) * 0.425 + 153.4
++The calculation in u-boot:
++T(in Celsius) = (T(read value) * 425 + 153400) / 1000
++
++Example:
++	thermal: thermal@6f8084 {
++		compatible = "marvell,mvebu-thermal", "marvell,thermal-ext-sensor";
++		reg = <0x6f8084 0x12>;
++		gain = <425>;
++		offset = <153400>;
++		divisor = <1000>;
++		status = "okay";
++	};
++
++Example for regular sensor (integrated in CP):
++
++The required calculation:
++T(in Celsius) = T(read value) * 0.4761 - 279.1
++The calculation in u-boot:
++T(in Celsius) = (T(read value) * 4761 - 2791000) / 10000
++
++Example:
++	thermal@400070 {
++		compatible = "marvell,mvebu-thermal", "marvell,thermal-sensor";
++		reg = <0x400070 0x12>;
++		gain = <4761>;
++		offset = <2791000>;
++		divisor = <10000>;
++		status = "okay";
++	};
+diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
+index bdf8dc6fef..f1d822a6f3 100644
+--- a/drivers/thermal/Kconfig
++++ b/drivers/thermal/Kconfig
+@@ -8,6 +8,37 @@ config DM_THERMAL
+ 
+ if DM_THERMAL
+ 
++menu "Thermal Sensor driver"
++
++config MVEBU_THERMAL_SENSOR
++        bool "Enable Thermal Sensor Core driver"
++	depends on MVEBU_THERMAL_SENSOR_28NM || MVEBU_THERMAL_EXT_SENSOR_28NM
++        help
++          This config enables thermal sensor core driver.
++          This driver scans for thermal sensor units,
++          and initializes them.
++	  The config is enabled once one of the thermal
++	  sensors drive is enabled.
++
++config MVEBU_THERMAL_SENSOR_28NM
++	bool "Enable Thermal Sensor 28NM driver"
++	select MVEBU_THERMAL_SENSOR
++	help
++	  Choose this option to add support for
++	  thermal sensor 28nm driver.
++	  This driver init the thermal sensor unit,
++	  and read the tempreture from the unit.
++
++config MVEBU_THERMAL_EXT_SENSOR_28NM
++	bool "Enable Thermal External Sensor 28NM driver"
++	select MVEBU_THERMAL_SENSOR
++	help
++	  Choose this option to add support for
++	  thermal external sensor 28nm driver.
++	  This driver init the External thermal sensor unit,
++	  and read the tempreture from the unit.
++endmenu
++
+ config IMX_THERMAL
+ 	bool "Temperature sensor driver for Freescale i.MX SoCs"
+ 	depends on MX6 || MX7
+diff --git a/drivers/thermal/Makefile b/drivers/thermal/Makefile
+index ef2929d180..f613a8ec32 100644
+--- a/drivers/thermal/Makefile
++++ b/drivers/thermal/Makefile
+@@ -7,3 +7,6 @@ obj-$(CONFIG_DM_THERMAL) += thermal-uclass.o
+ obj-$(CONFIG_IMX_THERMAL) += imx_thermal.o
+ obj-$(CONFIG_IMX_SCU_THERMAL) += imx_scu_thermal.o
+ obj-$(CONFIG_TI_DRA7_THERMAL) += ti-bandgap.o
++obj-$(CONFIG_MVEBU_THERMAL_SENSOR) += mvebu_thermal_core.o
++obj-$(CONFIG_MVEBU_THERMAL_SENSOR_28NM) += mvebu_thermal_28nm.o
++obj-$(CONFIG_MVEBU_THERMAL_EXT_SENSOR_28NM) += mvebu_ext_thermal_28nm.o
+diff --git a/drivers/thermal/mvebu_ext_thermal_28nm.c b/drivers/thermal/mvebu_ext_thermal_28nm.c
+new file mode 100644
+index 0000000000..b12c1143f8
+--- /dev/null
++++ b/drivers/thermal/mvebu_ext_thermal_28nm.c
+@@ -0,0 +1,95 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++/* #define DEBUG */
++#include <common.h>
++#include <asm/io.h>
++#include <asm/arch-mvebu/thermal.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define THERMAL_TIMEOUT					1200
++
++#define THERMAL_SEN_CTRL_LSB				0x0
++#define THERMAL_SEN_CTRL_LSB_STRT_OFFSET		0
++#define THERMAL_SEN_CTRL_LSB_STRT_MASK			\
++	(0x1 << THERMAL_SEN_CTRL_LSB_STRT_OFFSET)
++#define THERMAL_SEN_CTRL_LSB_RST_OFFSET			1
++#define THERMAL_SEN_CTRL_LSB_RST_MASK			\
++	(0x1 << THERMAL_SEN_CTRL_LSB_RST_OFFSET)
++#define THERMAL_SEN_CTRL_LSB_EN_OFFSET			2
++#define THERMAL_SEN_CTRL_LSB_EN_MASK			\
++	(0x1 << THERMAL_SEN_CTRL_LSB_EN_OFFSET)
++
++#define THERMAL_SEN_CTRL_STATS				0x8
++#define THERMAL_SEN_CTRL_STATS_VALID_OFFSET		16
++#define THERMAL_SEN_CTRL_STATS_VALID_MASK		\
++	(0x1 << THERMAL_SEN_CTRL_STATS_VALID_OFFSET)
++#define THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET		0
++#define THERMAL_SEN_CTRL_STATS_TEMP_OUT_MASK		\
++	(0x3FF << THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET)
++
++#define THERMAL_SEN_OUTPUT_MSB				512
++#define THERMAL_SEN_OUTPUT_COMP				1024
++
++s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen)
++{
++	u32 reg;
++
++	if (!tsen->tsen_ready) {
++		printf("External Thermal Sensor was not initialized\n");
++		return 0;
++	}
++
++	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_STATS);
++	reg = ((reg & THERMAL_SEN_CTRL_STATS_TEMP_OUT_MASK) >>
++	      THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET);
++
++	/*
++	 * TSEN output format is signed as a 2s complement number
++	 * ranging from-512 to +511. when MSB is set, need to
++	 * calculate the complement number
++	 */
++	if (reg >= THERMAL_SEN_OUTPUT_MSB)
++		reg -= THERMAL_SEN_OUTPUT_COMP;
++
++	return ((tsen->tsen_gain * ((s32)reg)) + tsen->tsen_offset) /
++	       tsen->tsen_divisor;
++}
++
++u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *tsen)
++{
++	u32 reg, timeout = 0;
++
++	debug("thermal.%lx Initializing sensor unit\n",
++	      (uintptr_t)tsen->regs_base);
++
++	/* Initialize thermal sensor hardware reset once */
++	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_LSB);
++	/* De-assert TSEN_RESET */
++	reg &= ~THERMAL_SEN_CTRL_LSB_RST_OFFSET;
++	/* Set TSEN_EN to 1 */
++	reg |= THERMAL_SEN_CTRL_LSB_EN_MASK;
++	/* Set TSEN_START to 1 */
++	reg |= THERMAL_SEN_CTRL_LSB_STRT_MASK;
++	writel(reg, tsen->regs_base + THERMAL_SEN_CTRL_LSB);
++
++	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_STATS);
++	while ((reg & THERMAL_SEN_CTRL_STATS_VALID_MASK) == 0 &&
++	       timeout < THERMAL_TIMEOUT) {
++		udelay(10);
++		reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_STATS);
++		timeout++;
++	}
++	if ((reg & THERMAL_SEN_CTRL_STATS_VALID_MASK) == 0) {
++		pr_err("%s: thermal.%lx: external sensor is not ready\n",
++		       __func__, (uintptr_t)tsen->regs_base);
++		return -1;
++	}
++
++	debug("thermal.%lx: Initialization done\n", (uintptr_t)tsen->regs_base);
++
++	return 0;
++}
+diff --git a/drivers/thermal/mvebu_thermal_28nm.c b/drivers/thermal/mvebu_thermal_28nm.c
+new file mode 100644
+index 0000000000..0a6e36b16f
+--- /dev/null
++++ b/drivers/thermal/mvebu_thermal_28nm.c
+@@ -0,0 +1,85 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++/* #define DEBUG */
++#include <common.h>
++#include <asm/io.h>
++#include <asm/arch-mvebu/thermal.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define THERMAL_SEN_CTRL			0x0
++#define THERMAL_SEN_TC_TRIM_OFFSET		0
++#define THERMAL_SEN_TC_TRIM_MASK		\
++	(0x7 << THERMAL_SEN_TC_TRIM_OFFSET)
++
++#define THERMAL_SEN_CTRL_MSB			0x4
++#define THERMAL_SEN_CTRL_MSB_RST_OFFSET		8
++#define THERMAL_SEN_CTRL_MSB_RST_MASK		\
++	(0x1 << THERMAL_SEN_CTRL_MSB_RST_OFFSET)
++
++#define THERMAL_SEN_CTRL_STATS			0x8
++#define THERMAL_SEN_CTRL_STATS_VALID_OFFSET	10
++#define THERMAL_SEN_CTRL_STATS_VALID_MASK	\
++	(0x1 << THERMAL_SEN_CTRL_STATS_VALID_OFFSET)
++
++#define THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET	0
++#define THERMAL_SEN_CTRL_STATS_TEMP_OUT_MASK	\
++	(0x3FF << THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET)
++
++s32 mvebu_thermal_sensor_read(struct thermal_unit_config *tsen)
++{
++	u32 reg;
++
++	if (!tsen->tsen_ready) {
++		printf("Thermal Sensor was not initialized\n");
++		return 0;
++	}
++
++	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_STATS);
++	reg = ((reg & THERMAL_SEN_CTRL_STATS_TEMP_OUT_MASK) >>
++	      THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET);
++
++	return ((tsen->tsen_gain * ((s32)reg)) - tsen->tsen_offset) /
++	       tsen->tsen_divisor;
++}
++
++u32 mvebu_thermal_sensor_probe(struct thermal_unit_config *tsen)
++{
++	u32 reg, timeout = 0;
++
++	debug("thermal.%lx Initializing sensor unit\n",
++	      (uintptr_t)tsen->regs_base);
++
++	/* Initialize thermal sensor hardware reset once */
++	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_MSB);
++	reg |= THERMAL_SEN_CTRL_MSB_RST_MASK;
++	writel(reg, tsen->regs_base + THERMAL_SEN_CTRL_MSB);
++
++	/* set Tsen Tc Trim to correct default value (errata #132698) */
++	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL);
++	reg &= ~THERMAL_SEN_TC_TRIM_MASK;
++	reg |= 0x3;
++	writel(reg, tsen->regs_base + THERMAL_SEN_CTRL);
++
++	/* Check that Sensor is ready */
++	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_STATS);
++	while ((reg & THERMAL_SEN_CTRL_STATS_VALID_MASK) == 0 &&
++	       timeout < 300) {
++		udelay(1);
++		reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_STATS);
++		timeout++;
++	}
++
++	if ((reg & THERMAL_SEN_CTRL_STATS_VALID_MASK) == 0) {
++		pr_err("%s: thermal.%lx: sensor is not ready\n", __func__,
++		       (uintptr_t)tsen->regs_base);
++		return -1;
++	}
++
++	debug("thermal.%lx: Initialization done\n", (uintptr_t)tsen->regs_base);
++
++	return 0;
++}
+diff --git a/drivers/thermal/mvebu_thermal_core.c b/drivers/thermal/mvebu_thermal_core.c
+new file mode 100644
+index 0000000000..15c686522c
+--- /dev/null
++++ b/drivers/thermal/mvebu_thermal_core.c
+@@ -0,0 +1,145 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++/* #define DEBUG */
++#include <common.h>
++#include <malloc.h>
++#include <fdtdec.h>
++#include <asm/io.h>
++#include <asm/arch-mvebu/thermal.h>
++#include <dm.h>
++#include <thermal.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++static struct thermal_unit_config *init_thermal_config(struct udevice *dev)
++{
++	struct thermal_unit_config *thermal_cfg = dev_get_priv(dev);
++	void *blob = (void *)gd->fdt_blob;
++	int node = dev_of_offset(dev);
++
++	/* Read register base */
++	thermal_cfg->regs_base = (void *)devfdt_get_addr_index(dev, 0);
++
++	if (thermal_cfg->regs_base == 0) {
++		pr_err("thermal: base address is missing in device-tree\n");
++		return NULL;
++	}
++
++	/* Register functions (according to compatible) */
++	if (device_is_compatible(dev, "marvell,thermal-sensor")) {
++		thermal_cfg->ptr_thermal_sensor_probe =
++			mvebu_thermal_sensor_probe;
++		thermal_cfg->ptr_thermal_sensor_read =
++			mvebu_thermal_sensor_read;
++	}
++
++	if (device_is_compatible(dev, "marvell,thermal-ext-sensor")) {
++		thermal_cfg->ptr_thermal_sensor_probe =
++			mvebu_thermal_ext_sensor_probe;
++		thermal_cfg->ptr_thermal_sensor_read =
++			mvebu_thermal_ext_sensor_read;
++	}
++
++	if (!thermal_cfg->ptr_thermal_sensor_probe ||
++	    !thermal_cfg->ptr_thermal_sensor_read) {
++		pr_err("thermal.%lx: compatible is not supported\n",
++		       (uintptr_t)thermal_cfg->regs_base);
++		return NULL;
++	}
++
++	/* Read temperature calculation parameters */
++	thermal_cfg->tsen_gain = fdtdec_get_int(blob, node, "gain", 0);
++	if (thermal_cfg->tsen_gain <= 0) {
++		pr_err("thermal%lx: gain is missing in device-tree\n",
++		       (uintptr_t)thermal_cfg->regs_base);
++		return NULL;
++	}
++
++	thermal_cfg->tsen_offset = fdtdec_get_int(blob, node, "offset", 0);
++	if (thermal_cfg->tsen_offset <= 0) {
++		pr_err("thermal%lx: offset is missing in device-tree\n",
++		       (uintptr_t)thermal_cfg->regs_base);
++		return NULL;
++	}
++
++	thermal_cfg->tsen_divisor = fdtdec_get_int(blob, node, "divisor", 0);
++	if (thermal_cfg->tsen_divisor <= 0) {
++		pr_err("thermal%lx: divisor is missing in device-tree\n",
++		       (uintptr_t)thermal_cfg->regs_base);
++		return NULL;
++	}
++
++	return thermal_cfg;
++}
++
++int mvebu_thermal_read(struct udevice *dev, int *temp)
++{
++	struct thermal_unit_config *thermal_cfg;
++
++	if (!temp) {
++		pr_err("NULL pointer for temperature read\n");
++		return -1;
++	}
++
++	thermal_cfg = dev_get_priv(dev);
++
++	if (thermal_cfg->ptr_thermal_sensor_read == 0 ||
++	    thermal_cfg->tsen_ready == 0) {
++		debug("Thermal unit was not initialized\n");
++		return -1;
++	}
++
++	*temp = thermal_cfg->ptr_thermal_sensor_read(thermal_cfg);
++
++	return 0;
++}
++
++static const struct dm_thermal_ops mvebu_thermal_ops = {
++	.get_temp	= mvebu_thermal_read,
++};
++
++static int mvebu_thermal_probe(struct udevice *dev)
++{
++	struct thermal_unit_config *thermal_cfg = dev_get_priv(dev);
++
++	/* Init Sensor data structure */
++	thermal_cfg = init_thermal_config(dev);
++	if (!thermal_cfg) {
++		pr_err("Thermal: failed to initialize thermal data structure\n");
++		return -1;
++	}
++
++	/* set flag to indicate that Thermal Sensor is not ready */
++	thermal_cfg->tsen_ready = 0;
++
++	/* Sensor init */
++	if (thermal_cfg->ptr_thermal_sensor_probe(thermal_cfg)) {
++		pr_err("thermal.%lx: failed to initialize thermal info\n",
++		       (uintptr_t)thermal_cfg->regs_base);
++		return -1; /* initialization failed */
++	}
++
++	/* Thermal Sensor is ready to use */
++	thermal_cfg->tsen_ready = 1;
++
++	debug("thermal.%lx: Initialized\n", (uintptr_t)thermal_cfg->regs_base);
++
++	return 0;
++}
++
++static const struct udevice_id mvebu_thermal_ids[] = {
++	{ .compatible = "marvell,mvebu-thermal" },
++	{ }
++};
++
++U_BOOT_DRIVER(mvebu_thermal) = {
++	.name	= "mvebu-thermal",
++	.id	= UCLASS_THERMAL,
++	.ops	= &mvebu_thermal_ops,
++	.of_match = mvebu_thermal_ids,
++	.probe	= mvebu_thermal_probe,
++	.priv_auto_alloc_size = sizeof(struct thermal_unit_config),
++};
+-- 
+2.29.0
+

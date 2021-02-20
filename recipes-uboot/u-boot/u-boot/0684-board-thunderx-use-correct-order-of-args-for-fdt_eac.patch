@@ -1,0 +1,27 @@
+From c6ea0aadc7b45c0455f5dd035f173fbbe43c943c Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 9 Aug 2017 17:32:46 -0700
+Subject: [PATCH 0684/1239] board: thunderx: use correct order of args for
+ fdt_each_subnode
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/cavium/thunderx/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index a7313a747d..08c1ca63b9 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -152,7 +152,7 @@ void thunderx_parse_phy_info(void)
+ 
+ 			/* loop through each of the bgx/rgx nodes
+ 			to find PHY nodes */
+-			fdt_for_each_subnode(fdt, subnode, node) {
++			fdt_for_each_subnode(subnode, fdt, node) {
+ 				/* Check for reg property */
+ 				val = fdt_getprop(fdt, subnode, "reg",
+ 						  &len);
+-- 
+2.29.0
+

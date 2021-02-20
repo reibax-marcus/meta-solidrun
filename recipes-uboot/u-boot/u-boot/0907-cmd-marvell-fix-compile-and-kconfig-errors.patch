@@ -1,0 +1,54 @@
+From 5d19bea4508789bcd59b8778caa417734b771cc5 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Mon, 13 May 2019 15:53:34 -0700
+Subject: [PATCH 0907/1239] cmd: marvell: fix compile and kconfig errors
+
+Change-Id: I7c3816d9d1c869b3fbd8ddcd278243f97a60a748
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/8934
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ cmd/Kconfig                  | 1 +
+ cmd/marvell/Kconfig          | 1 +
+ cmd/marvell/octeontx2_cmds.c | 2 +-
+ 3 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 0dd6785cb5..ea172e7da7 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1690,6 +1690,7 @@ config CMD_QFW
+ 	  via -kernel / -initrd
+ 
+ source "cmd/mvebu/Kconfig"
++source "cmd/marvell/Kconfig"
+ 
+ config CMD_TERMINAL
+ 	bool "terminal - provides a way to attach a serial terminal"
+diff --git a/cmd/marvell/Kconfig b/cmd/marvell/Kconfig
+index d6d36fce09..63b4c0b80e 100644
+--- a/cmd/marvell/Kconfig
++++ b/cmd/marvell/Kconfig
+@@ -1,4 +1,5 @@
+ menu "Marvell specific command line interface"
++depends on ARCH_OCTEONTX2
+ 
+ config CMD_FAILSAFE
+ 	bool "command for supporting fail safe boot"
+diff --git a/cmd/marvell/octeontx2_cmds.c b/cmd/marvell/octeontx2_cmds.c
+index 79c7f00870..2d4abc4b4d 100644
+--- a/cmd/marvell/octeontx2_cmds.c
++++ b/cmd/marvell/octeontx2_cmds.c
+@@ -9,7 +9,7 @@
+ #include <command.h>
+ #include <asm/arch/atf.h>
+ 
+-static int do_octeontx2_flsf(
++static int mrvl_otx2_fsafe_clr_sec_boot(
+ 	cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+ {
+ 	return atf_flsf_clr_force_2ndry();
+-- 
+2.29.0
+

@@ -1,0 +1,57 @@
+From e87a9c0cb35c7f9e772c2544505842b88368fdd7 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 17 Aug 2018 09:48:53 -0700
+Subject: [PATCH 0819/1239] net: octeontx2: cgx_intf: always clear overflow
+ interrupt
+
+Clear the overflow interrupt which is used as communication
+mechanism between ATF and kernel.
+Even though u-boot doesn't use interrupt mechanism, ATF sets
+overflow interrupt bit for any commands processed.
+
+Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/cavium/octeontx2/cgx_intf.c | 6 ++++++
+ drivers/net/cavium/octeontx2/cgx_intf.h | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/drivers/net/cavium/octeontx2/cgx_intf.c b/drivers/net/cavium/octeontx2/cgx_intf.c
+index 6dcf6a90e2..ac5853e011 100644
+--- a/drivers/net/cavium/octeontx2/cgx_intf.c
++++ b/drivers/net/cavium/octeontx2/cgx_intf.c
+@@ -91,6 +91,7 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
+ {
+ 	union cgx_scratchx1 scr1;
+ 	union cgx_scratchx0 scr0;
++	u64 cmrx_int;
+ 	int timeout = 500;
+ 	int err = 0;
+ 
+@@ -146,6 +147,11 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
+ 	}
+ 
+ error:
++	/* clear interrupt */
++	cmrx_int = readq(CGX_CMR_INT + CGX_SHIFT(cgx) + CMR_SHIFT(lmac));
++	cmrx_int |= 0x2; // Overflw bit
++	writeq(cmrx_int, CGX_CMR_INT + CGX_SHIFT(cgx) + CMR_SHIFT(lmac));
++
+ 	/* clear ownership and ack */
+ 	scr0.s.evt_sts.ack = 0;
+ 	cgx_wr_scr0(cgx, lmac, scr0.u);
+diff --git a/drivers/net/cavium/octeontx2/cgx_intf.h b/drivers/net/cavium/octeontx2/cgx_intf.h
+index a46ea03b24..01994c53ed 100644
+--- a/drivers/net/cavium/octeontx2/cgx_intf.h
++++ b/drivers/net/cavium/octeontx2/cgx_intf.h
+@@ -14,6 +14,7 @@
+ #define CGX_FIRWARE_MINOR_VER		0
+ 
+ /* Register offsets */
++#define CGX_CMR_INT		0x87e0e0000040
+ #define CGX_CMR_SCRATCH0	0x87e0e0001050
+ #define CGX_CMR_SCRATCH1	0x87e0e0001058
+ 
+-- 
+2.29.0
+

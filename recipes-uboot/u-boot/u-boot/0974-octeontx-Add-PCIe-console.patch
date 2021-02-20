@@ -1,0 +1,1833 @@
+From 784018340572f523e66a76117a96a209fb07d063 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Wed, 9 Oct 2019 21:29:20 -0700
+Subject: [PATCH 0974/1239] octeontx: Add PCIe console
+
+This adds code for performing console read/write operations using
+a shared memory buffer across the PCIe bus.  This consists of two
+drivers.  The first driver is a nexus driver, which handles the
+base descriptor for one or more consoles.  The console driver
+handles a single individual console.  Note that the code requires
+the use of atomics because the nexus data structure can be shared
+by multiple entities including ATF.  Atomics are also used
+in the console code itself to prevent any corruption from occuring
+should a PCIe host console connect during some critical operation.
+
+The functionality is not complete at this point and there is some
+likely cleanup in the future.  Currently support for sharing a
+console between ATF and U-Boot is missing.  Also, U-Boot should
+be able to specify which console to use rather than the first
+available console.
+
+Change-Id: I936219827b8835431bd1dc5c55951e03e38ff8ca
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/17158
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/lock.h    |  139 ++
+ board/Marvell/octeontx2/board.c               |  127 +-
+ configs/octeontx2_96xx_defconfig              |    9 +
+ drivers/serial/Kconfig                        |   15 +-
+ drivers/serial/Makefile                       |    1 +
+ drivers/serial/serial_octeontx_pcie_console.c | 1127 +++++++++++++++++
+ drivers/serial/serial_octeontx_pcie_console.h |  270 ++++
+ 7 files changed, 1664 insertions(+), 24 deletions(-)
+ create mode 100644 arch/arm/include/asm/arch-octeontx2/lock.h
+ create mode 100644 drivers/serial/serial_octeontx_pcie_console.c
+ create mode 100644 drivers/serial/serial_octeontx_pcie_console.h
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/lock.h b/arch/arm/include/asm/arch-octeontx2/lock.h
+new file mode 100644
+index 0000000000..65fab6865f
+--- /dev/null
++++ b/arch/arm/include/asm/arch-octeontx2/lock.h
+@@ -0,0 +1,139 @@
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ */
++
++#ifndef __OCTEONTX2_LOCK_H__
++#define __OCTEONTX2_LOCK_H__
++
++/**
++ * U-Boot doesn't implement spinlocks but we need them here since
++ * we could be sharing with other processes (i.e. ATF)
++ *
++ * This is copied from the Linux kernel arm64 implementation.
++ */
++typedef struct octeontx_spinlock {
++	u16 next;
++	u16 owner;
++} __aligned(4) octeontx_spinlock_t;
++
++/**
++ * Atomic compare and exchange, derived from atomic_ll_sc.h in Linux
++ *
++ * @param	ptr	pointer to 128 bits to compare and exchange
++ * @param	old_hi	expected old value first 64 bits
++ * @param	old_lo	expected old value second 64 bits
++ * @param	new_hi	new first 64-bit value to set
++ * @param	new_lo	new second 64-bit value to set
++ * @param	last_hi	pointer to previous first 64-bit value
++ * @param	last_lo	pointer previous second 64-bit value
++ *
++ * @return	true if successful, false if the old values mismatched
++ *
++ * last_hi and last_lo may be NULL.
++ */
++static inline bool octeontx_cmpxchg_atomic128(volatile void *ptr,
++					      u64 old_hi, u64 old_lo,
++					      u64 new_hi, u64 new_lo,
++					      u64 *last_hi, u64 *last_lo)
++{
++	u64 tmp_hi, tmp_lo, oldval_hi, oldval_lo;
++	u32 tmp;
++
++	asm volatile (
++		"	prfm	pstl1strm, %[v]				\n"
++		"1:	ldaxp	%[oldval_lo], %[oldval_hi], %[v]	\n"
++		"	eor	%[tmp_lo], %[oldval_lo], %[old_lo]	\n"
++		"	eor	%[tmp_hi], %[oldval_hi], %[old_hi]	\n"
++		"	cbnz	%[tmp_lo], 2f				\n"
++		"	cbnz	%[tmp_hi], 2f				\n"
++		"	stxp	%w[tmp],  %[new_hi], %[new_lo], %[v]	\n"
++		"	cbnz	%w[tmp], 1b				\n"
++		"2:							\n"
++		: [tmp] "=&r" (tmp),
++		  [oldval_lo] "=&r" (oldval_lo),
++		  [oldval_hi] "=&r" (oldval_hi),
++		  [v] "+Q" (*(u64 *)ptr),
++		  [tmp_lo] "=&r" (tmp_lo), [tmp_hi] "=&r" (tmp_hi)
++		: [old_lo] "Lr" (old_lo), [old_hi] "Lr" (old_hi),
++		  [new_lo] "r" (new_lo), [new_hi] "r" (new_hi)
++		: "memory");
++	if (last_hi)
++		*last_hi = oldval_hi;
++	if (last_lo)
++		*last_lo = oldval_lo;
++	return !(tmp_hi | tmp_lo);
++}
++
++static inline void octeontx_init_spin_lock(octeontx_spinlock_t *lock)
++{
++	*(u32 *)lock = 0;
++	__iowmb();
++}
++
++/**
++ * Acquires a spinlock
++ *
++ * @param	lock	pointer to lock
++ *
++ * This code is copied from the Linux aarch64 spinlock.h file
++ * and is compatible with it.
++ */
++static inline void octeontx_spin_lock(octeontx_spinlock_t *lock)
++{
++	unsigned int tmp;
++	octeontx_spinlock_t lockval, newval;
++
++	asm volatile (
++	/* Atomically increment the next ticket. */
++	/* LL/SC */
++"	prfm	pstl1strm, %3		\n"
++"1:	ldaxr	%w0, %3			\n"
++"	add	%w1, %w0, %w5		\n"
++"	stxr	%w2, %w1, %3		\n"
++"	cbnz	%w2, 1b			\n"
++
++	/* Did we get the lock? */
++"	eor	%w1, %w0, %w0, ror #16	\n"
++"	cbz	%w1, 3f			\n"
++	/*
++	 * No: spin on the owner. Send a local event to avoid missing an
++	 * unlock before the exclusive load.
++	 */
++"	sevl				\n"
++"2:	wfe				\n"
++"	ldaxrh	%w2, %4			\n"
++"	eor	%w1, %w2, %w0, lsr #16	\n"
++"	cbnz	%w1, 2b			\n"
++	/* We got the lock. Critical section starts here. */
++"3:"
++	: "=&r" (lockval), "=&r" (newval), "=&r" (tmp), "+Q" (*lock)
++	: "Q" (lock->owner), "I" (1 << 16)
++	: "memory");
++}
++
++/**
++ * Releases a spinlock
++ *
++ * @param	lock	pointer to lock
++ *
++ * This code is copied from the Linux aarch64 spinlock.h file.
++ */
++static inline void octeontx_spin_unlock(octeontx_spinlock_t *lock)
++{
++	unsigned long tmp;
++
++	asm volatile (
++		"	ldrh	%w1, %0		\n"
++		"	add	%w1, %w1, #1	\n"
++		"	stlrh	%w1, %0		\n"
++		"	nop			\n"
++		: "=Q" (lock->owner), "=&r" (tmp)
++		:
++		: "memory"
++
++	);
++}
++
++#endif /* __OCTEONTX2_LOCK_H__ */
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index b7f69a7844..96bd61eaf4 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -1,8 +1,7 @@
+-// SPDX-License-Identifier:    GPL-2.0
+ /*
+  * Copyright (C) 2018 Marvell International Ltd.
+  *
+- * https://spdx.org/licenses
++ * SPDX-License-Identifier:    GPL-2.0
+  */
+ 
+ #include <common.h>
+@@ -157,36 +156,113 @@ int misc_init_r(void)
+ 	}
+ 	return 0;
+ }
++#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
++	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
++	!CONFIG_IS_ENABLED(CONSOLE_MUX)
++# error CONFIG_CONSOLE_MUX must be enabled!
++#endif
+ 
+-#ifdef CONFIG_OCTEONTX_SERIAL_BOOTCMD
+-void board_init_serial_bootcmd(void)
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
++static int init_bootcmd_console(void)
+ {
+-	struct udevice *bootcmd_dev = NULL;
+-	int ret;
++	int ret = 0;
+ 	char *stdinname = env_get("stdin");
++	struct udevice *bootcmd_dev = NULL;
++	char iomux_name[128];
+ 
++	debug("%s: stdin before: %s\n", __func__,
++	      stdinname ? stdinname : "NONE");
+ 	if (!stdinname) {
+ 		env_set("stdin", "serial");
+ 		stdinname = env_get("stdin");
+ 	}
+-
+-	/* This will cause the pci-bootcmd driver to be probed. */
+ 	ret = uclass_get_device_by_name(UCLASS_SERIAL, "pci-bootcmd",
+ 					&bootcmd_dev);
+-	if (!ret && bootcmd_dev)
+-		debug("%s: %s found!\n", __func__, bootcmd_dev->name);
+-#if CONFIG_IS_ENABLED(CONSOLE_MUX)
+-	if (stdinname && bootcmd_dev) {
+-		char iomux_name[64];
+-
+-		snprintf(iomux_name, sizeof(iomux_name),
+-			 "%s,%s", stdinname, bootcmd_dev->name);
++	if (!ret && bootcmd_dev) {
++		snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
++			 stdinname, bootcmd_dev->name);
+ 		ret = iomux_doenv(stdin, iomux_name);
+-		if (ret)
+-			printf("%s: Error adding %s to stdin\n",
+-			       __func__, iomux_name);
+ 	}
++	if (ret)
++		printf("%s: Error enabling the PCI bootcmd input console\n",
++		       __func__);
++	else
++		env_set("stdin", iomux_name);
++	debug("%s: Set iomux and stdin to %s (ret: %d)\n",
++	      __func__, iomux_name, ret);
++	return ret;
++}
+ #endif
++
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
++static int init_pcie_console(void)
++{
++	int ret = 0;
++	char *stdinname = env_get("stdin");
++	char *stdoutname = env_get("stdout");
++	char *stderrname = env_get("stderr");
++	struct udevice *pcie_console_dev = NULL;
++	char iomux_name[128];
++
++	debug("%s: stdin: %s, stdout: %s, stderr: %s\n", __func__, stdinname,
++	      stdoutname, stderrname);
++	if (!stdinname) {
++		env_set("stdin", "serial");
++		stdinname = env_get("stdin");
++	}
++	if (!stdoutname) {
++		env_set("stdout", "serial");
++		stdoutname = env_get("stdout");
++	}
++	if (!stderrname) {
++		env_set("stderr", "serial");
++		stderrname = env_get("stderr");
++	}
++
++	if (!stdinname || !stdoutname || !stderrname) {
++		printf("%s: Error setting environment variables for serial\n",
++		       __func__);
++		return -1;
++	}
++
++	ret = uclass_get_device_by_name(UCLASS_SERIAL, "pci-console",
++					&pcie_console_dev);
++	if (!ret && pcie_console_dev) {
++		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stdinname,
++			 pcie_console_dev->name);
++		ret = iomux_doenv(stdin, iomux_name);
++		if (!ret) {
++			env_set("stdin", iomux_name);
++
++			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
++				 stdoutname,
++				 pcie_console_dev->name);
++			ret = iomux_doenv(stdout, iomux_name);
++		} else {
++			printf("%s: Error setting I/O stdin MUX to %s\n",
++			       __func__, iomux_name);
++		}
++		if (!ret)
++			env_set("stdout", iomux_name);
++		else
++			printf("%s: Error setting I/O stdout MUX to %s\n",
++			       __func__, iomux_name);
++		if (!ret) {
++			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
++				 stderrname,
++				 pcie_console_dev->name);
++			ret = iomux_doenv(stderr, iomux_name);
++		}
++		if (!ret)
++			env_set("stderr", iomux_name);
++		else
++			printf("%s: Error setting I/O stderr MUX to %s\n",
++			       __func__, iomux_name);
++	}
++	debug("%s: stdin: %s, stdout: %s, stderr: %s, ret: %d\n",
++	      __func__, env_get("stdin"), env_get("stdout"),
++	      env_get("stderr"), ret);
++	return ret;
+ }
+ #endif
+ 
+@@ -199,7 +275,10 @@ int board_late_init(void)
+ 	char boardserial[150], boardrev[150];
+ 	long val;
+ 
++	debug("%s()\n", __func__);
++
+ 	/*
++	 * Now that pci_init initializes env device.
+ 	 * Try to cleanup ethaddr env variables, this is needed
+ 	 * as with each boot, configuration of QLM can change.
+ 	 */
+@@ -224,10 +303,16 @@ int board_late_init(void)
+ 	val = env_get_hex("disable_ooo", 0);
+ 	smc_configure_ooo(val);
+ 
+-#ifdef CONFIG_OCTEONTX_SERIAL_BOOTCMD
+-	board_init_serial_bootcmd();
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
++	if (init_bootcmd_console())
++		printf("Failed to init bootcmd input\n");
++#endif
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
++	if (init_pcie_console())
++		printf("Failed to init pci console\n");
+ #endif
+ 	env_save();
++
+ 	return 0;
+ }
+ 
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 0db4facb03..78272a69d5 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -119,3 +119,12 @@ CONFIG_USB_ETHER_ASIX88179=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
++CONFIG_CMD_SHA1SUM=y
++CONFIG_SHA1SUM_VERIFY=y
++CONFIG_CMD_MD5SUM=y
++CONFIG_MD5SUM_VERIFY=y
++CONFIG_CMD_TIME=y
++CONFIG_CONSOLE_MUX=y
++CONFIG_SYS_CONSOLE_IS_IN_ENV=y
++CONFIG_CMD_FAILSAFE=y
++CONFIG_OCTEONTX_SERIAL_PCIE_CONSOLE=y
+diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
+index f4bc7ffce2..44f61e020c 100644
+--- a/drivers/serial/Kconfig
++++ b/drivers/serial/Kconfig
+@@ -712,15 +712,24 @@ config OWL_SERIAL
+ 
+ config OCTEONTX_SERIAL_BOOTCMD
+ 	bool "OcteonTX/OcteonTX2 PCI remote bootcmd input"
+-	depends on DM_SERIAL
+ 	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+-	select CONSOLE_MUX
++	depends on DM_SERIAL
+ 	help
+ 	 This driver supports remote input over the PCIe bus from a host
+ 	 to U-Boot for entering commands.  It is utilized by the host
+-	 commands cavm-remote-load and cavm-remote-bootcmd.  This driver
++	 commands cavm-remote-load and mrvl-remote-bootcmd.  This driver
+ 	 should be used in addition to the standard PL011 serial driver.
+ 
++config OCTEONTX_SERIAL_PCIE_CONSOLE
++	bool "OcteonTX/OcteonTX2 PCIE remote console"
++	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
++	depends on DM_SERIAL
++	help
++	 This driver supports remote console over the PCIe bus when the
++	 OcteonTX is running in PCIe target mode.  The host program
++	 mrvl-remote-console can be used to connect to this console.  The
++	 console number will likely be 0 or 1.
++
+ config PXA_SERIAL
+ 	bool "PXA serial port support"
+ 	help
+diff --git a/drivers/serial/Makefile b/drivers/serial/Makefile
+index 2f702cbdf7..e7a9dce01f 100644
+--- a/drivers/serial/Makefile
++++ b/drivers/serial/Makefile
+@@ -63,6 +63,7 @@ obj-$(CONFIG_BCM283X_PL011_SERIAL) += serial_bcm283x_pl011.o
+ obj-$(CONFIG_MSM_SERIAL) += serial_msm.o
+ obj-$(CONFIG_MVEBU_A3700_UART) += serial_mvebu_a3700.o
+ obj-$(CONFIG_MPC8XX_CONS) += serial_mpc8xx.o
++obj-$(CONFIG_OCTEONTX_SERIAL_PCIE_CONSOLE) += serial_octeontx_pcie_console.o
+ obj-$(CONFIG_OCTEONTX_SERIAL_BOOTCMD) += serial_octeontx_bootcmd.o
+ obj-$(CONFIG_NULLDEV_SERIAL) += serial_nulldev.o
+ obj-$(CONFIG_OWL_SERIAL) += serial_owl.o
+diff --git a/drivers/serial/serial_octeontx_pcie_console.c b/drivers/serial/serial_octeontx_pcie_console.c
+new file mode 100644
+index 0000000000..ee7e8166a8
+--- /dev/null
++++ b/drivers/serial/serial_octeontx_pcie_console.c
+@@ -0,0 +1,1127 @@
++// SPDX-License-Identifier: GPL-2.0+    BSD-3-Clause
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <dm/device-internal.h>
++#include <dm/uclass.h>
++#include <dm/lists.h>
++#include <dm/uclass-internal.h>
++#include <linux/ioport.h>
++#include <errno.h>
++#include <asm/io.h>
++#include <serial.h>
++#include <linux/compiler.h>
++#include <watchdog.h>
++#include <stdio_dev.h>
++#include <input.h>
++#include <asm/arch/lock.h>
++#include "serial_octeontx_pcie_console.h"
++
++/* This driver provides a PCIe console for OcteonTX processors.  It behaves
++ * similar to a serial console but it works by using shared memory between
++ * the host controller and the target (this being the target).
++ *
++ * Multiple consoles are supported and the consoles themselves are designed
++ * to be shared.  This design allows for U-Boot and ATF to share a console,
++ * for example, however this initial version does not support this sharing.
++ *
++ * Because the main data structure is shared between ATF, U-Boot and Linux
++ * as well as the host, atomic operations are required.  Locks are also
++ * required for the data structures if they are shared between "processes."
++ *
++ * The pcie lock uses Peterson's algorithm to lock between the host and
++ * the target.
++ *
++ * Memory write barriers are also used and are essential to maintain
++ * the integrity between the host and target.
++ */
++
++#ifndef CONFIG_DM_STDIO
++# error CONFIG_DM_STDIO is required!
++#endif
++
++#define DRIVER_NAME	"pci-console"
++
++struct driver octeontx_pcie_console_nexus;
++struct driver octeontx_pcie_console;
++
++#ifdef DEBUG
++bool in_debug;
++#endif
++
++/**
++ * Returns the number of available bytes in the buffer
++ *
++ * @param buffer_size	size of buffer
++ * @param wr_idx	write index
++ * @param rd_idx	read index
++ *
++ * @return number of bytes free
++ */
++static int octeontx_pcie_console_buffer_free_bytes(size_t buffer_size,
++						   u32 wr_idx, u32 rd_idx)
++{
++	if (rd_idx >= buffer_size || wr_idx >= buffer_size)
++		return -1;
++	return ((buffer_size - 1) - (wr_idx - rd_idx)) % buffer_size;
++}
++
++static int octeontx_pcie_console_buffer_avail_bytes(size_t buffer_size,
++						    u32 wr_idx, u32 rd_idx)
++{
++	if (rd_idx >= buffer_size || wr_idx >= buffer_size)
++		return -1;
++	return buffer_size - 1 -
++	       octeontx_pcie_console_buffer_free_bytes(buffer_size, wr_idx,
++						       rd_idx);
++}
++
++/**
++ * Check that the console version is acceptable.
++ */
++static bool octeontx_pcie_console_check_ver(u8 major, u8 minor)
++{
++	if (major > OCTEONTX_PCIE_CONSOLE_MAJOR)
++		return true;
++	if (major == OCTEONTX_PCIE_CONSOLE_MAJOR &&
++	    minor >= OCTEONTX_PCIE_CONSOLE_MINOR)
++		return true;
++	return false;
++}
++
++/**
++ * Clears bytes from the output buffer if the host console is not connected
++ *
++ * @param console		console to clear output from
++ * @param bytes_to_clear	Number of bytes to free up
++ *
++ * @return	0 for success, -1 on error.  If positive, it returns
++ *		the amount of available space that is less than
++ *		bytes_to_clear.
++ */
++int octeontx_pcie_console_output_trunc(struct octeontx_pcie_console *console,
++				       size_t bytes_to_clear)
++{
++	u64 old_val;
++	u64 new_val;
++	size_t bytes_avail;
++	const u32 out_buf_size = le32_to_cpu(console->output_buf_size);
++	u32 out_wr_idx = le32_to_cpu(console->output_write_index);
++	u32 out_rd_idx = le32_to_cpu(console->output_read_index);
++	int ret;
++
++	if (console->host_console_connected)
++		return -1;
++
++	old_val = cpu_to_le64((u64)out_rd_idx << 32);
++	bytes_avail = octeontx_pcie_console_buffer_avail_bytes(out_buf_size,
++							       out_wr_idx,
++							       out_rd_idx);
++	if (bytes_avail < 0)
++		return bytes_avail;
++	/* Not enough space */
++	if (bytes_to_clear > bytes_avail)
++		return bytes_avail;
++
++	out_rd_idx = (out_rd_idx + bytes_to_clear) % out_buf_size;
++	new_val = cpu_to_le64((u64)out_rd_idx << 32);
++
++	/*
++	 * We need to use an atomic operation here in case the host
++	 * console should connect.  This guarantees that if the host
++	 * connects that it will always see a consistent state.  Normally
++	 * only the host can modify the read pointer.  This assures us
++	 * that the read pointer will only be modified if the host
++	 * is disconnected.
++	 */
++	ret = __atomic_compare_exchange_n
++			((u64 *)(&console->host_console_connected),
++			 &old_val, new_val, 0,
++			 __ATOMIC_RELAXED, __ATOMIC_RELAXED);
++
++	return ret ? 0 : -1;
++}
++
++int octeontx_pcie_console_write(struct octeontx_pcie_console *console,
++				const u8 *buffer, size_t bytes_to_write,
++				u32 flags)
++{
++	u8 *buf_ptr;
++	size_t bytes_available;
++	size_t bytes_written;
++	int ret;
++
++	buf_ptr = (u8 *)le64_to_cpu(console->output_base_addr);
++	bytes_written = 0;
++
++	while (bytes_to_write > 0) {
++		u32 out_size = le32_to_cpu(console->output_buf_size);
++		u32 out_wr_idx = le32_to_cpu(console->output_write_index);
++		u32 out_rd_idx = le32_to_cpu(console->output_read_index);
++
++		bytes_available =
++			octeontx_pcie_console_buffer_free_bytes(out_size,
++								out_wr_idx,
++								out_rd_idx);
++		if (bytes_available > 0) {
++			int write_size = min(bytes_available, bytes_to_write);
++
++			if (out_wr_idx + write_size >= out_size)
++				write_size = out_size - out_wr_idx;
++			memcpy(buf_ptr + out_wr_idx,
++			       buffer + bytes_written, write_size);
++			__iowmb();
++			console->output_write_index =  cpu_to_le32
++					((out_wr_idx + write_size) % out_size);
++			__iowmb();
++			bytes_to_write -= write_size;
++			bytes_written += write_size;
++		} else if (bytes_available == 0) {
++			/* Check to see if we should wait for room, or return
++			 * after partial write
++			 */
++			if (!(flags & OCTEONTX_PCIE_CONSOLE_FLAG_NONBLOCK))
++				continue;
++
++			ret = octeontx_pcie_console_output_trunc(console,
++							bytes_to_write);
++			if (ret < 0) {
++				mdelay(1);
++			} else if (ret > 0) {
++				octeontx_pcie_console_output_trunc(console,
++								   ret);
++				mdelay(1);
++			}
++		} else {
++			bytes_written = -1;
++			goto done;
++		}
++	}
++done:
++	return bytes_written;
++}
++
++static bool
++octeontx_pcie_console_input_empty(struct octeontx_pcie_console *console)
++{
++	/* endian conversion is not needed */
++	return console->input_read_index == console->input_write_index;
++}
++
++static int octeontx_pcie_console_readc(struct octeontx_pcie_console *console,
++				       u32 flags)
++{
++	const u32 in_buf_size = le32_to_cpu(console->input_buf_size);
++	u32 in_rd_idx = le32_to_cpu(console->input_read_index);
++	u8 *buf_ptr = (u8 *)le64_to_cpu(console->input_base_addr);
++	int ret;
++
++	assert(in_rd_idx < in_buf_size);
++
++	if (octeontx_pcie_console_input_empty(console)) {
++		debug("input empty: rd_idx: %#x\n", in_rd_idx);
++		return -1;
++	}
++
++	ret = buf_ptr[in_rd_idx++];
++	if (in_rd_idx >= in_buf_size)
++		in_rd_idx = 0;
++	console->input_read_index = cpu_to_le32(in_rd_idx);
++	assert(le32_to_cpu(console->input_write_index) < in_buf_size);
++	__iowmb();
++
++	return ret;
++}
++
++static int octeontx_pcie_console_read_avail
++				(const struct octeontx_pcie_console *console)
++{
++	int bytes_available;
++	u32 in_size = le32_to_cpu(console->input_buf_size);
++	u32 in_wr_idx = le32_to_cpu(console->input_write_index);
++	u32 in_rd_idx = le32_to_cpu(console->input_read_index);
++
++	bytes_available =
++		octeontx_pcie_console_buffer_avail_bytes(in_size, in_wr_idx,
++							 in_rd_idx);
++	assert(bytes_available < in_size);
++	return (bytes_available >= 0) ? bytes_available : 0;
++}
++
++static int octeontx_pcie_console_write_avail
++				(const struct octeontx_pcie_console *console)
++{
++	int bytes_available;
++	u32 out_size = le32_to_cpu(console->output_buf_size);
++	u32 out_wr_idx = le32_to_cpu(console->output_write_index);
++	u32 out_rd_idx = le32_to_cpu(console->output_read_index);
++
++	bytes_available =
++		octeontx_pcie_console_buffer_free_bytes(out_size, out_wr_idx,
++							out_rd_idx);
++	assert(bytes_available < out_size);
++	return (bytes_available >= 0) ? bytes_available : 0;
++}
++
++static int octeontx_pcie_console_clear_rx(struct octeontx_pcie_console *console)
++{
++	/* No need for endian conversion */
++	console->input_read_index = console->input_write_index;
++	__iowmb();
++	return 0;
++}
++
++static int octeontx_pcie_console_stdio_start(struct stdio_dev *dev)
++{
++	debug("%s(%s)\n", __func__, dev->name);
++	return 0;
++}
++
++/**
++ * Removes the console
++ *
++ * @param	dev	stdio device
++ *
++ * @return	0 for success, -EINVAL if the console descriptor is corrupt
++ */
++static int octeontx_pcie_console_stdio_stop(struct stdio_dev *dev)
++{
++	struct udevice *udev = dev->priv;
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(udev);
++	struct octeontx_pcie_console *console = priv->console;
++	struct octeontx_pcie_console_nexus *desc = priv->nexus;
++	u32 old_in_use;
++	u64 old_val;
++	u64 mask = (1 << priv->console_num);
++
++	debug("%s(%s)\n", __func__, dev->name);
++	if (!(le32_to_cpu(desc->exclusive) & 1 << priv->console_num))
++		if (le32_to_cpu(console->owner_id) !=
++					OCTEONTX_PCIE_CONSOLE_OWNER_UBOOT) {
++			debug("Console %d is shared, not shutting it down\n",
++			      priv->console_num);
++			return 0;
++		}
++
++	console->owner_id = cpu_to_le32(OCTEONTX_PCIE_CONSOLE_OWNER_UNUSED);
++
++	mask |= mask << 32;
++	debug("%s(%s): mask: %#llx\n", __func__, dev->name, mask);
++	/* Atomically remove ourselves from the nexus descriptor */
++#ifdef __LITTLE_ENDIAN
++	old_val = __atomic_fetch_nand((u64 *)&(desc->in_use), mask,
++				      __ATOMIC_SEQ_CST);
++#else
++	old_val = __atomic_fetch_nand((u64 *)&(desc->exclusive), mask,
++				      __ATOMIC_SEQ_CST);
++#endif
++	old_val = le64_to_cpu(old_val);
++	old_in_use = lower_32_bits(old_val);
++
++	if (!(old_in_use & mask)) {
++		dev_err(udev,
++			"Error: console %d not in descriptor usage mask %#x\n",
++			priv->console_num, old_in_use);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int octeontx_pcie_console_stdio_getc(struct stdio_dev *dev)
++{
++	struct udevice *udev = dev->priv;
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(udev);
++	struct octeontx_pcie_console *console = priv->console;
++
++	return octeontx_pcie_console_readc(console, 0);
++}
++
++static int octeontx_pcie_console_stdio_tstc(struct stdio_dev *dev)
++{
++	struct udevice *udev = dev->priv;
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(udev);
++	struct octeontx_pcie_console *console = priv->console;
++
++	return !octeontx_pcie_console_input_empty(console);
++}
++
++static void octeontx_pcie_console_stdio_putc(struct stdio_dev *dev,
++					     const char c)
++{
++	struct udevice *udev = dev->priv;
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(udev);
++	struct octeontx_pcie_console *console = priv->console;
++	u8 v = c;
++
++#ifdef DEBUG
++	if (in_debug)
++		return;
++#endif
++	octeontx_pcie_console_write(console, &v, 1,
++				    OCTEONTX_PCIE_CONSOLE_FLAG_NONBLOCK);
++}
++
++static void octeontx_pcie_console_stdio_puts(struct stdio_dev *dev,
++					     const char *s)
++{
++	struct udevice *udev = dev->priv;
++	size_t len = strlen(s);
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(udev);
++	struct octeontx_pcie_console *console = priv->console;
++
++#ifdef DEBUG
++	if (in_debug)
++		return;
++#endif
++	octeontx_pcie_console_write(console, (u8 *)s, len,
++				    OCTEONTX_PCIE_CONSOLE_FLAG_NONBLOCK);
++}
++
++static int octeontx_pcie_console_setbrg(struct udevice *dev, int baudrate)
++{
++	return 0;
++}
++
++static int octeontx_pcie_console_getc(struct udevice *dev)
++{
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(dev);
++	struct octeontx_pcie_console *console = priv->console;
++	int ret;
++
++#ifdef DEBUG
++	if (in_debug)
++		return 0;
++#endif
++	ret = octeontx_pcie_console_readc(console, 0);
++	debug("%s(%s): ret=%d\n", __func__, dev->name, ret);
++	return ret;
++}
++
++static int octeontx_pcie_console_putc(struct udevice *dev, const char c)
++{
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(dev);
++	struct octeontx_pcie_console *console = priv->console;
++	int ret;
++	u8 v = (u8)c;
++
++#ifdef DEBUG
++	if (in_debug)
++		return 0;
++#endif
++	ret = octeontx_pcie_console_write(console, &v, 1,
++					  OCTEONTX_PCIE_CONSOLE_FLAG_NONBLOCK);
++	return ret > 0 ? 0 : -1;
++}
++
++static int octeontx_pcie_console_pending(struct udevice *dev, bool input)
++{
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(dev);
++	struct octeontx_pcie_console *console = priv->console;
++	bool ret;
++
++#ifdef DEBUG
++	if (in_debug)
++		return 0;
++#endif
++
++	if (input)
++		ret = octeontx_pcie_console_read_avail(console);
++	else
++		ret = octeontx_pcie_console_write_avail(console);
++
++#ifdef DEBUG
++	if (!in_debug)
++		debug("%s(%s, %d): %d\n", __func__, dev->name, input, ret);
++#endif
++	return ret;
++}
++
++static int octeontx_pcie_console_clear(struct udevice *dev)
++{
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(dev);
++	struct octeontx_pcie_console *console = priv->console;
++	int ret;
++
++#ifdef DEBUG
++	if (in_debug)
++		return 0;
++#endif
++	/* We cannot cleanly clear the write buffer */
++	ret = octeontx_pcie_console_clear_rx(console);
++	if (ret < 0)
++		return ret;
++	if (octeontx_pcie_console_write_avail(console) > 0)
++		return -EAGAIN;
++	return 0;
++}
++
++/**
++ * Initialize the nexus console descriptor
++ *
++ * If it is not already initialized, this parses the device tree and
++ * initializes the nexus console descriptor.  We need it to point to
++ * all of the consoles since the remote console utility does not have
++ * access to the device tree.
++ *
++ * Note that this tries to initialize the magic number and version atomically.
++ *
++ * The order this is written tries to minimize any locking needed
++ * or atomic operations.  It should be safe for multiple clients to try and
++ * initialize this at the same time.
++ */
++int octeontx_pcie_console_available(struct udevice *ndev, int console_num,
++				    bool *in_use, bool *exclusive)
++{
++	struct octeontx_pcie_console_nexus_priv *npriv = dev_get_priv(ndev);
++	struct octeontx_pcie_console_nexus *cdesc = npriv->nexus;
++	bool used;
++
++	if ((le64_to_cpu(cdesc->magic) != OCTEONTX_PCIE_CONSOLE_NEXUS_MAGIC) ||
++	    !octeontx_pcie_console_check_ver(cdesc->major_version,
++					     cdesc->minor_version)) {
++		dev_warn(ndev,
++			 "Console nexus not initialized or invalid version\n");
++		return -1;
++	}
++
++	used = !!(le32_to_cpu(cdesc->in_use) & (1 << console_num));
++	if (in_use)
++		*in_use = used;
++	if (exclusive)
++		*exclusive =
++			!!(le32_to_cpu(cdesc->exclusive) & (1 << console_num));
++	return !used;
++}
++
++/**
++ * Extracts the platform data from the device tree
++ *
++ * @param	dev	serial device
++ *
++ * @return	0 for success, otherwise error
++ */
++/**
++ * Initializes a PCIe console
++ *
++ * @param	dev	console device
++ * @param	pcd	console descriptor
++ * @param	console_num	console number
++ *
++ * NOTE: When this is called it is assumed that we already have exclusive
++ * access to this console.
++ */
++static int octeontx_pcie_console_init(struct udevice *dev)
++{
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(dev);
++	struct octeontx_pcie_console *cons;
++	ofnode node = dev_ofnode(dev);
++	fdt_addr_t addr;
++	fdt_addr_t size;
++	u32 input_buf_size, output_buf_size;
++	int ret = 0;
++
++	addr = ofnode_get_addr_size_index(node, 0, &size);
++	if (addr == FDT_ADDR_T_NONE) {
++		dev_err("%s: Could not read address and size\n", __func__);
++		return -EINVAL;
++	}
++	input_buf_size = ofnode_read_u32_default(node, "rx-buffer-size", 0);
++	output_buf_size = ofnode_read_u32_default(node, "tx-buffer-size", 0);
++	debug("%s(%s) addr: %#llx, size: %#llx, input_buf_size: %#x, output_buf_size: %#x\n",
++	      __func__, dev->name, addr, size, input_buf_size, output_buf_size);
++	if (!input_buf_size) {
++		dev_err(dev, "input-buf-size not defined for console %s\n",
++			ofnode_get_name(node));
++		return -EINVAL;
++	}
++	if (!output_buf_size) {
++		dev_err(dev, "output-buf-size not defined for console %s\n",
++			ofnode_get_name(node));
++		return -ENOMEM;
++	}
++	if (size < sizeof(struct octeontx_pcie_console) +
++			input_buf_size + output_buf_size) {
++		dev_err(dev, "Not enough space reserved for buffers for %s, %#llx < %#lx + %#x + %#x\n",
++			ofnode_get_name(node), size, sizeof(*cons),
++			input_buf_size, output_buf_size);
++		return -ENOMEM;
++	}
++
++	cons = (struct octeontx_pcie_console *)addr;
++	if (cons->magic != OCTEONTX_PCIE_CONSOLE_MAGIC) {
++		memset(cons, 0, sizeof(*cons));
++		/*
++		 * Note that the locks are not used yet but are planned
++		 * in a future release update.
++		 */
++		octeontx_init_spin_lock(&cons->excl_lock);
++		octeontx_pcie_init_target_lock(&cons->pcie_lock);
++	}
++
++	octeontx_pcie_target_lock(&cons->pcie_lock);
++	snprintf(cons->name, sizeof(cons->name), dev->name);
++	cons->owner_id = cpu_to_le32(OCTEONTX_PCIE_CONSOLE_OWNER_UBOOT);
++
++	if (cons->host_console_connected) {
++		/*
++		 * If we're here then a host console is already connected
++		 * so we can't change the pointers manipulated by the host.
++		 */
++		if (le32_to_cpu(cons->input_buf_size) != input_buf_size) {
++			dev_err(dev,
++				"host connected, input buffer size mismatch\n");
++			ret = -EINVAL;
++			goto error;
++		}
++		if (le32_to_cpu(cons->output_buf_size) != output_buf_size) {
++			dev_err(dev,
++				"host connected, output buffer size mismatch\n");
++			ret = -EINVAL;
++			goto error;
++		}
++		if (le64_to_cpu(cons->input_base_addr) +
++		    le32_to_cpu(cons->input_buf_size) > size) {
++			dev_err(dev, "Input buffer address invalid\n");
++			ret = -EINVAL;
++			goto error;
++		}
++		if (le64_to_cpu(cons->output_base_addr) +
++		    le32_to_cpu(cons->output_buf_size) > size) {
++			dev_err(dev, "Output buffer address invalid\n");
++			ret = -EINVAL;
++			goto error;
++		}
++		/* We should check for overlaps */
++		/* Verify indices */
++		/*
++		 * We don't clear the indices so any data still in them can
++		 * be read from input or printed from the output by the
++		 * host client.
++		 */
++		if (le32_to_cpu(cons->input_write_index) >=
++		    le32_to_cpu(cons->input_buf_size)) {
++			dev_err(dev, "Input write index %u out of range\n",
++				cons->input_write_index);
++			ret = -EINVAL;
++			goto error;
++		}
++		if (cons->input_read_index >= cons->input_buf_size) {
++			dev_err(dev, "Input read index %u out of range\n",
++				cons->input_read_index);
++			ret = -EINVAL;
++			goto error;
++		}
++		if (cons->output_write_index >= cons->output_buf_size) {
++			dev_err(dev, "Output write index %u out of range\n",
++				cons->output_write_index);
++			ret = -EINVAL;
++			goto error;
++		}
++
++		if (cons->output_read_index >= cons->output_buf_size) {
++			dev_err(dev, "Output read index %u out of range\n",
++				cons->output_read_index);
++			ret = -EINVAL;
++			goto error;
++		}
++	} else {
++		debug("%s: Initializing console at %p\n", __func__, cons);
++		/* Allocate input buffer immediately after the header */
++		cons->input_base_addr = cpu_to_le64(addr + sizeof(*cons));
++		cons->input_buf_size = cpu_to_le32(input_buf_size);
++		/* Allocate the output buffer immediately after the input */
++		cons->output_base_addr =
++			cpu_to_le64(cons->input_base_addr + input_buf_size);
++		cons->output_buf_size = cpu_to_le32(output_buf_size);
++
++		cons->input_read_index = 0;
++		cons->input_write_index = 0;
++		cons->output_read_index = 0;
++		cons->output_write_index = 0;
++		cons->user = dev;
++		debug("%s: input buffer: %#llx, %#x bytes, output buffer: %#llx, %#x bytes\n",
++		      __func__, cons->input_base_addr, cons->input_buf_size,
++		      cons->output_base_addr, cons->output_buf_size);
++		__iowmb();
++		cons->magic = OCTEONTX_PCIE_CONSOLE_MAGIC;
++		__iowmb();
++	}
++error:
++	octeontx_pcie_target_unlock(&cons->pcie_lock);
++
++	if (!ret)
++		priv->console = cons;
++
++	return ret;
++}
++
++/**
++ * Probe function for the PCIe console driver
++ *
++ * @param	dev	console device
++ *
++ * @return	0 for success, otherwise error
++ */
++static int octeontx_pcie_console_probe(struct udevice *dev)
++{
++	ofnode node = dev_ofnode(dev);
++	struct udevice *parent = dev_get_parent(dev);
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(dev);
++	struct octeontx_pcie_console_nexus_priv *ppriv = dev_get_priv(parent);
++	struct octeontx_pcie_console_nexus *nexus = ppriv->nexus;
++	fdt_addr_t addr, size;
++	struct stdio_dev sdev;
++	int console_num;
++#ifdef DEBUG
++	struct stdio_dev *_sdev;
++#endif
++	u64 old_mask, new_mask;
++	bool ok;
++	ulong start;
++	int ret;
++
++	debug("%s(%s), parent: %p, ppriv: %p\n", __func__, dev->name,
++	      parent, ppriv);
++	if (!parent) {
++		dev_err(dev, "Parent not available!\n");
++		return -EINVAL;
++	}
++	if (ppriv->console) {
++		debug("%s: console already bound\n", dev->name);
++		return -ENODEV;
++	}
++
++	console_num = (int)dev_read_u32_default(dev, "reg", -1);
++	if (console_num < 0) {
++		dev_err(dev, "Invalid console number from reg\n");
++		return -EINVAL;
++	}
++	debug("%s(%s): console number %d\n", __func__, dev->name, console_num);
++
++	addr = ofnode_get_addr_size_index(node, 0, &size);
++	if (addr == FDT_ADDR_T_NONE) {
++		dev_err(dev, "Invalid address in device tree\n");
++		return -EINVAL;
++	}
++
++
++	priv->nexus = ppriv->nexus;
++	ret = ofnode_read_s32(node, "reg", &priv->console_num);
++	if (ret) {
++		dev_err(dev,
++			"Could not read \"reg\" property from device tree!\n");
++		return -EINVAL;
++	}
++	debug("%s(%s): console #%d\n", __func__, dev->name, priv->console_num);
++
++	ret = octeontx_pcie_console_init(dev);
++	if (ret) {
++		dev_err(dev, "Error initializing console %s\n", dev->name);
++		return ret;
++	}
++
++	if (ppriv->console) {
++		debug("%s: Console already selected\n", __func__);
++		return -ENODEV;
++	}
++
++	/* Set both in_use and exclusive */
++	new_mask = 1ULL << console_num;
++	new_mask |= (new_mask << 32);
++	start = get_timer(0);
++	do {
++		if (nexus->in_use & (1 << console_num)) {
++			debug("%s: console %d already in use\n",
++			      __func__, console_num);
++			return -ENODEV;
++		}
++		old_mask = nexus->in_use | (u64)(nexus->exclusive) << 32;
++		debug("%s: in_use: %p, exclusive: %p\n", __func__,
++		      &nexus->in_use, &nexus->exclusive);
++		ok = __atomic_compare_exchange_n((u64 *)&nexus->in_use,
++						 &old_mask, new_mask, false,
++						 __ATOMIC_SEQ_CST,
++						 __ATOMIC_SEQ_CST);
++		debug("%s: ok: %d in_use: %#x, exclusive: %#x\n",
++		      __func__, ok, nexus->in_use, nexus->exclusive);
++	} while (!ok && get_timer(start) < 10);
++
++	if (!ok) {
++		dev_err(dev,
++			"Atomic in_use failed, old_mask: %#llx, new_mask: %#llx\n",
++				old_mask, new_mask);
++		return -EIO;
++	}
++
++	memset(&sdev, 0, sizeof(sdev));
++
++	sdev.flags = DEV_FLAGS_INPUT | DEV_FLAGS_OUTPUT | DEV_FLAGS_DM;
++	strncpy(sdev.name, "pci-console", sizeof(sdev.name));
++	sdev.start = octeontx_pcie_console_stdio_start;
++	sdev.stop = octeontx_pcie_console_stdio_stop;
++	sdev.putc = octeontx_pcie_console_stdio_putc;
++	sdev.puts = octeontx_pcie_console_stdio_puts;
++	sdev.getc = octeontx_pcie_console_stdio_getc;
++	sdev.tstc = octeontx_pcie_console_stdio_tstc;
++	sdev.priv = dev;
++	debug("%s: Registering stdio driver %s\n", __func__, sdev.name);
++#ifndef DEBUG
++	ret = stdio_register(&sdev);
++#else
++	ret = stdio_register_dev(&sdev, &_sdev);
++	debug("%s: stdio_register_dev returned %d, output: %p\n", __func__,
++	      ret, _sdev);
++	if (!ret) {
++		struct list_head *pos;
++		struct list_head *list = stdio_get_list();
++
++		debug("%s: _sdev: %p, list: %p, next: %p, _sdev->next: %p, _sdev->prev: %p\n",
++		      __func__, _sdev, list, list->next,
++		      _sdev->list.next, _sdev->list.prev);
++		list_for_each(pos, list) {
++			debug("  pos: %p\n", pos);
++			_sdev = list_entry(pos, struct stdio_dev, list);
++			printf("stdio dev %s, %p, next: %p, prev: %p\n",
++			       _sdev->name, _sdev, _sdev->list.next,
++			       _sdev->list.prev);
++		}
++	}
++#endif
++	if (ret)
++		dev_err(dev, "Error registering stdio device\n");
++	else if (!ppriv->console)
++		ppriv->console = priv->console;
++
++	return ret;
++}
++
++int octeontx_pcie_console_ofdata_to_platdata(struct udevice *dev)
++{
++	struct octeontx_pcie_console_plat_data *plat = dev_get_platdata(dev);
++	struct octeontx_pcie_console_plat_data *pplat;
++	ofnode node = dev_ofnode(dev);
++	fdt_addr_t addr;
++	fdt_size_t size;
++	int ret;
++
++	addr = devfdt_get_addr_size_index(dev, 0, &size);
++	debug("%s(%s): base: %#llx, size: %#llx\n", __func__, dev->name,
++	      addr, size);
++	if (addr == FDT_ADDR_T_NONE) {
++		dev_err(dev, "Address and/or size not found in reg field\n");
++		return -EINVAL;
++	}
++	pplat = dev_get_parent_platdata(dev);
++
++	plat->nexus = pplat->nexus;
++	plat->addr = ofnode_get_addr_size_index(node, 0, &plat->size);
++	plat->base = (void *)plat->addr;
++	plat->console = plat->base;
++	ret = ofnode_read_resource(node, 0, &plat->res);
++	debug("%s(%s): ret: %d\n", __func__, dev->name, ret);
++
++	return ret;
++}
++
++static int octeontx_pcie_console_remove(struct udevice *dev)
++{
++	struct octeontx_pcie_console_priv *priv = dev_get_priv(dev);
++	struct octeontx_pcie_console *cons = priv->console;
++	struct octeontx_pcie_console_nexus *desc = priv->nexus;
++	u64 mask = (1ULL << priv->console_num);
++
++	mask |= mask << 32;
++	memset(cons->name, 0, sizeof(cons->name));
++	if (cons->owner_id == OCTEONTX_PCIE_CONSOLE_OWNER_UBOOT)
++		cons->owner_id = OCTEONTX_PCIE_CONSOLE_OWNER_UNUSED;
++
++	/* Remove console from being in-use atomically */
++#ifdef __LITTLE_ENDIAN
++	__atomic_fetch_nand((u64 *)&(desc->in_use), mask, __ATOMIC_SEQ_CST);
++#else
++	__atomic_fetch_nand((u64 *)&(desc->exclusive), mask, __ATOMIC_SEQ_CST);
++#endif
++	return 0;
++}
++
++int octeontx_pcie_console_init_nexus(struct udevice *dev)
++{
++	struct octeontx_pcie_console_plat_data *pdata = dev_get_platdata(dev);
++	struct octeontx_pcie_console_nexus *pcd = pdata->nexus;
++	ofnode node;
++	fdt_addr_t addr;
++	fdt_size_t size = 0;
++	u64 new_hi, new_lo;
++	u64 prev_hi, prev_lo;
++	int num_consoles = 0;
++	bool cmp;
++
++	debug("%s(%s): Initializing main console descriptor\n",
++	      __func__, dev->name);
++
++#ifdef DEBUG
++	debug("Start PCD\n");
++	print_buffer(0, pcd, 1, sizeof(*pcd), 0);
++#endif
++
++	if (pcd->magic == cpu_to_le64(OCTEONTX_PCIE_CONSOLE_NEXUS_MAGIC)) {
++		if (!octeontx_pcie_console_check_ver(pcd->major_version,
++						     pcd->minor_version)) {
++			dev_err(dev,
++				"Error: console descriptor previously initialized to an unsupported version %u.%u\n",
++				pcd->major_version, pcd->minor_version);
++			return -EINVAL;
++		}
++		debug("%s: console descriptor already initialized\n",
++		      dev->name);
++		/* If already initialized then we're done. */
++		if (pcd->num_consoles)
++			return 0;
++	}
++
++	/*
++	 * Fill in the number of consoles and their addresses.  This
++	 * should be safe without requiring locks since if this is being
++	 * initialized elsewhere the values will be identical.
++	 */
++	dev_for_each_subnode(node, dev) {
++		if (num_consoles >= OCTEONTX_PCIE_MAX_CONSOLES) {
++			dev_err(dev, "Too many PCIe consoles!  Max is %d\n",
++				OCTEONTX_PCIE_MAX_CONSOLES);
++			return -EINVAL;
++		}
++		addr = ofnode_get_addr_size_index(node, 0, &size);
++		debug("%s: Address: %#llx, size: %#llx\n",
++		      __func__, addr, size);
++		if (addr == FDT_ADDR_T_NONE) {
++			dev_err(dev, "Could not get console %s address\n",
++				ofnode_get_name(node));
++			return -EINVAL;
++		}
++		debug("%s: %s addr: %#llx, size: %#llx\n", __func__,
++		      ofnode_get_name(node), addr, size);
++		if (!addr || !size) {
++			dev_err(dev, "Console %s resources are 0!\n",
++				ofnode_get_name(node));
++			return -EINVAL;
++		}
++		/*
++		 * It's safe to write to this even if previously initialized
++		 * because the values are the same.
++		 */
++		pcd->console_addr[num_consoles++] = addr;
++	}
++
++	/*
++	 * Make sure to flush the addresses before updating the number
++	 * of consoles.
++	 */
++	__iowmb();
++	/*
++	 * It's safe to override this also since the value should be the same.
++	 */
++	if (num_consoles == 0) {
++		dev_err(dev, "No consoles found in device tree!\n");
++		return -ENODEV;
++	}
++
++	new_hi = cpu_to_le64(OCTEONTX_PCIE_CONSOLE_NEXUS_MAGIC);
++	new_lo = ((u64)OCTEONTX_PCIE_CONSOLE_MAJOR << 56) |
++		  (u64)OCTEONTX_PCIE_CONSOLE_MINOR << 48 |
++		  (u64)num_consoles << 32;
++	new_lo = cpu_to_le64(new_lo);
++
++	debug("%s: Writing %#llx %#llx to %p\n", __func__, new_hi, new_lo, pcd);
++	/* Now fill in the header atomically */
++	cmp = octeontx_cmpxchg_atomic128(pcd, 0, 0, new_hi, new_lo,
++					 &prev_hi, &prev_lo);
++	/* If the old header is non-zero and the magic number matches... */
++	if (!cmp && le64_to_cpu(prev_hi) == OCTEONTX_PCIE_CONSOLE_NEXUS_MAGIC) {
++		prev_hi = le64_to_cpu(prev_hi);
++		prev_lo = le64_to_cpu(prev_lo);
++		debug("%s(%s): Pevious header: %#llx %#llx\n",
++		      __func__, dev->name, prev_hi, prev_lo);
++		if (!octeontx_pcie_console_check_ver(pcd->major_version,
++						     pcd->minor_version)) {
++			dev_err(dev,
++				"Version mismatch during atomic operation, other version is %u.%u\n",
++				pcd->major_version, pcd->minor_version);
++			return -EINVAL;
++		}
++	}
++
++#ifdef DEBUG
++	debug("PCD after cmpxchg 128, cmp: %d\n", cmp);
++	print_buffer(0, pcd, 1, sizeof(*pcd), 0);
++#endif
++
++	return 0;
++}
++
++static int octeontx_pcie_console_nexus_child_pre_probe(struct udevice *dev)
++{
++	debug("%s(%s)\n", __func__, dev->name);
++	return 0;
++}
++
++static int octeontx_pcie_console_nexus_probe(struct udevice *dev)
++{
++	struct octeontx_pcie_console_nexus_priv *priv = dev_get_priv(dev);
++	struct octeontx_pcie_console_plat_data *plat = dev_get_platdata(dev);
++	struct octeontx_pcie_console_nexus *pcd;
++	struct uclass *uc;
++	struct udevice *sdev, *next;
++	ofnode node = dev_ofnode(dev);
++	int ret;
++	static bool recursive_probe;
++
++	debug("%s(%s)\n", __func__, dev->name);
++	if (recursive_probe) {
++		debug("%s(%s): recursive\n", __func__, dev->name);
++		return 0;
++	}
++
++	debug("%s: dev: %p, priv: %p\n", __func__, dev, priv);
++	pcd = (struct octeontx_pcie_console_nexus *)plat->nexus;
++	if (!plat->nexus) {
++		dev_err(dev, "Nexus pointer NULL!\n");
++		return -ENODEV;
++	}
++
++	priv->console = NULL;
++	priv->nexus = pcd;
++	priv->console_node = node;
++	ret = dev_read_resource(dev, 0, &priv->res);
++	if (ret) {
++		dev_err(dev, "Could not read resources\n");
++		return -EINVAL;
++	}
++
++	ret = octeontx_pcie_console_init_nexus(dev);
++	if (ret) {
++		dev_err(dev,
++			"Could not initialize PCIE console nexus descriptor\n");
++		return -ENOENT;
++	}
++
++	ret = uclass_get(UCLASS_SERIAL, &uc);
++	if (ret) {
++		dev_err(dev, "%s: Could not get serial uclass\n", __func__);
++		return ret;
++	}
++	device_foreach_child_safe(sdev, next, dev) {
++		debug("%s: probing %s\n", __func__, sdev->name);
++		ret = device_probe(sdev);
++		if (!ret) {
++			debug("%s(%s): Probed %s, done.\n",
++			      __func__, dev->name, sdev->name);
++			break;
++		}
++		if (ret != -ENODEV)
++			dev_err(dev, "Error %d probing %s\n", ret, sdev->name);
++	}
++	return 0;
++}
++
++static int octeontx_pcie_console_nexus_bind(struct udevice *parent)
++{
++	int ret;
++
++	debug("%s(%s): bind\n", __func__, parent->name);
++
++	ret = dm_scan_fdt_dev(parent);
++	if (ret) {
++		dev_err(parent, "Error scanning child nodes\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++/**
++ * Read device tree data for the platform data
++ *
++ * @param	dev	device to read
++ *
++ * @return	0 for success, -EINVAL if invalid address
++ */
++static int octeontx_pcie_console_nexus_ofdata_to_platdata(struct udevice *dev)
++{
++	struct octeontx_pcie_console_plat_data *plat = dev_get_platdata(dev);
++	fdt_addr_t addr;
++	fdt_size_t size;
++	ofnode node = dev_ofnode(dev);
++
++	if (!dev_of_valid(dev) || !dev_read_enabled(dev))
++		return -ENOENT;
++
++
++	addr = ofnode_get_addr_size_index(node, 0, &size);
++	dev_dbg(dev, "%s(%s): base: 0x%llx, size: 0x%llx\n", __func__,
++		dev->name, addr, size);
++	if (addr == FDT_ADDR_T_NONE) {
++		dev_err(dev, "Address and/or size not found in reg field\n");
++		return -EINVAL;
++	}
++	if (size < sizeof(struct octeontx_pcie_console_nexus)) {
++		dev_err(dev, "Nexus device tree size too small\n");
++		return -EINVAL;
++	}
++
++	plat->size = size;
++	plat->base = (void *)addr;
++	plat->nexus = (struct octeontx_pcie_console_nexus *)addr;
++	debug("%s(%s): address: %#llx, size: %#llx\n",
++	      __func__, dev->name, addr, size);
++	return 0;
++}
++
++static const struct udevice_id octeontx_pcie_console_nexus_serial_id[] = {
++	{ .compatible = "marvell,pci-console-nexus", },
++	{ },
++};
++
++U_BOOT_DRIVER(octeontx_pcie_console_nexus) = {
++	.name = DRIVER_NAME "-nexus",
++	.id = UCLASS_MISC,
++	.flags = DM_FLAG_PRE_RELOC,
++	.of_match = of_match_ptr(octeontx_pcie_console_nexus_serial_id),
++	.ofdata_to_platdata = octeontx_pcie_console_nexus_ofdata_to_platdata,
++	.platdata_auto_alloc_size =
++				sizeof(struct octeontx_pcie_console_plat_data),
++	.bind = octeontx_pcie_console_nexus_bind,
++	.probe = octeontx_pcie_console_nexus_probe,
++	.priv_auto_alloc_size = sizeof(struct octeontx_pcie_console_nexus_priv),
++	.child_pre_probe = octeontx_pcie_console_nexus_child_pre_probe,
++};
++
++static const struct dm_serial_ops octeontx_pcie_console_ops = {
++	.setbrg = octeontx_pcie_console_setbrg,
++	.getc = octeontx_pcie_console_getc,
++	.putc = octeontx_pcie_console_putc,
++	.pending = octeontx_pcie_console_pending,
++	.clear = octeontx_pcie_console_clear,
++};
++
++static const struct udevice_id octeontx_pcie_console_serial_id[] = {
++	{ .compatible = "marvell,pci-console", },
++	{ },
++};
++
++U_BOOT_DRIVER(octeontx_pcie_console) = {
++	.name = DRIVER_NAME,
++	.id = UCLASS_SERIAL,
++	.ops = &octeontx_pcie_console_ops,
++	.of_match = of_match_ptr(octeontx_pcie_console_serial_id),
++	.probe = octeontx_pcie_console_probe,
++	.ofdata_to_platdata = octeontx_pcie_console_ofdata_to_platdata,
++	.remove = octeontx_pcie_console_remove,
++	.priv_auto_alloc_size = sizeof(struct octeontx_pcie_console_priv),
++	.platdata_auto_alloc_size =
++				sizeof(struct octeontx_pcie_console_plat_data),
++	.flags = DM_FLAG_OS_PREPARE | DM_FLAG_PRE_RELOC,
++};
+diff --git a/drivers/serial/serial_octeontx_pcie_console.h b/drivers/serial/serial_octeontx_pcie_console.h
+new file mode 100644
+index 0000000000..355f55efbe
+--- /dev/null
++++ b/drivers/serial/serial_octeontx_pcie_console.h
+@@ -0,0 +1,270 @@
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier: GPL-2.0+    BSD-3-Clause
++ */
++#ifndef __SERIAL_OCTEONTX_PCIE_CONSOLE_H__
++#define __SERIAL_OCTEONTX_PCIE_CONSOLE_H__
++
++/** CONSOLE! converted to little-endian */
++#define OCTEONTX_PCIE_CONSOLE_MAGIC		0x21454C4F534E4F43
++
++/** CONDSCR! converted to little-endian */
++#define OCTEONTX_PCIE_CONSOLE_NEXUS_MAGIC	0x21524353444E4F43
++
++#define OCTEONTX_PCIE_CONSOLE_MAJOR		1
++#define OCTEONTX_PCIE_CONSOLE_MINOR		0
++
++#define TURN_HOST				0
++#define TURN_TARGET				1
++
++/** Maximum number of supported consoles */
++#define OCTEONTX_PCIE_MAX_CONSOLES		16
++
++/** Set if writes should not block if the buffer is full */
++#define OCTEONTX_PCIE_CONSOLE_FLAG_NONBLOCK	BIT(0)
++
++/** Set if the PCIE console cannot be shared */
++#define OCTEONTX_PCIE_CONSOLE_FLAG_EXCLUSIVE	BIT(1)
++
++#define OCTEONTX_PCIE_CONSOLE_NAME_LEN		16
++
++#define OCTEONTX_PCIE_CONSOLE_NAME		"U-Boot"
++
++#define OCTEONTX_PCIE_CONSOLE_OWNER_UNUSED	0
++#define OCTEONTX_PCIE_CONSOLE_OWNER_UBOOT	1
++
++/**
++ * Use Peterson's algorithm since atomics aren't supported by
++ * most PCIe hosts (i.e. X86)
++ *
++ * @param	turn		Set to whoever is modifying it
++ * @param	host_lock	Set if the host has it
++ * @param	target_lock	Set if the target has it
++ * @param	pad		padding
++ *
++ * NOTE: This data structure is 64-bits for endian purposes and alignment.
++ */
++struct octeontx_pcie_lock {
++#ifdef __LITTLE_ENDIAN
++	volatile u8	turn;
++	volatile u8	host_lock;
++	volatile u8	target_lock;
++	u8		pad[5];
++#else
++	u8		pad[5];
++	volatile u8	target_lock;
++	volatile u8	host_lock;
++	volatile u8	turn;
++#endif
++} __aligned(8);
++
++/**
++ * Structure that defines a single console.
++ *
++ * Note: when read_index == write_index, the buffer is empty.
++ * The actual usable size  of each console is console_buf_size -1;
++ *
++ * There are two different types of locks.  pcie_lock is for locking
++ * between the host and target.  excl_lock should always be acquired
++ * before pcie_lock is acquired and released after pcie_lock is released.
++ *
++ * excl_lock is a spinlock held between different tasks, such as u-boot
++ * and atf or the atf and the Linux kernel.  It should be held whenever
++ * any of the indices are changed or when the pcie_lock is held.
++ *
++ * @param magic		console magic number OCTEONTX_PCIE_CONSOLE_MAGIC
++ * @param name		name assigned to the console, i.e. "ATF" or "U-Boot"
++ * @param flags		flags associated with console, see
++ *			OCTEONTX_PCIE_CONSOLE_FLAG_...
++ * @param owner_id		owning task id of last user, 0 if unused.
++ * @param input_buf_size	Input buffer size in bytes
++ * @param output_buf_size	Output buffer size in bytes
++ * @param input_base_addr	Base address of input buffer
++ * @param input_read_index	index target begins reading data from
++ * @param input_write_index	index host starts writing from
++ * @param output_base_addr	Base address of output buffer
++ * @param host_console_connected	non-zero if host console is connected
++ * @param output_read_index	index host reads from
++ * @param output_write_index	index target writes to
++ * @param pcie_lock		lock held whenever the indices are updated
++ *				using Peterson's algorithm.  Use
++ *				octeontx_pcie_target_lock() and
++ *				octeontx_pcie_target_unlock() to lock and
++ *				unlock this data structure.
++ * @param user			User-defined pointer
++ *				(octeontx_pcie_console_priv *) for U-Boot
++ * @param excl_lock		cpu core lock.  This lock should be held
++ *				whenever this data structure is updated by
++ *				the target since it can be shared by multiple
++ *				targets.
++ * @param pad			pads header to 128 bytes
++ *
++ * Typically the input and output buffers immediately follow this data
++ * structure, however, this is not a requirement.
++ *
++ * Note that the host_console_connected and output_read_index MUST be
++ * next to each other and should be 64-bit aligned. This is due to the
++ * fact that if the output buffer fills up and no host is connected that
++ * the read pointer must be modified atomically in case the host should
++ * connect within that window.
++ */
++struct octeontx_pcie_console {
++	__le64			magic;
++	char			name[OCTEONTX_PCIE_CONSOLE_NAME_LEN];
++	volatile __le32		flags;
++	volatile __le32		owner_id;
++	__le32			input_buf_size;
++	__le32			output_buf_size;
++	__le64			input_base_addr;
++	__le32			input_read_index;
++	volatile __le32		input_write_index;
++	__le64			output_base_addr;
++	volatile __le32		host_console_connected;
++	volatile __le32		output_read_index;
++	__le32			output_write_index;
++	octeontx_spinlock_t	excl_lock;
++	void			*user;
++	struct octeontx_pcie_lock	pcie_lock;
++	u32			pad[7];
++} __packed;
++
++/**
++ * This is the main container structure that contains all the information
++ * about all PCI consoles.  The address of this structure is passed to
++ * various routines that operation on PCI consoles.
++ *
++ * @param magic		console descriptor magic number
++ * @param major_version	major version of console data structure
++ * @param minor_version	minor version of console data structure
++ * @param flags		flags applied to all consoles
++ * @param num_consoles	number of console data structures available
++ * @param excl_lock	lock between cores for this data structure
++ * @param in_use	Set if the console is claimed by anyone (shared or not)
++ * @param exclusive	bitmap of consoles exclusively used
++ * @param pad		padding for header for future versions
++ * @param console_addr	array of addresses for each console, 0 if unavailable.
++ *
++ * Note that in_use and exclusive need to be next to each other and that
++ * they must remain in the same cacheline due to the need for atomic operations.
++ */
++struct octeontx_pcie_console_nexus {
++	__le64		magic;
++	u8		major_version;
++	u8		minor_version;
++	u8		flags;
++	u8		num_consoles;
++	octeontx_spinlock_t excl_lock;
++	volatile __le32	in_use;
++	volatile __le32	exclusive;
++	u64		pad[13];
++	/* Starts at offset 128 */
++	__le64		console_addr[OCTEONTX_PCIE_MAX_CONSOLES];
++} __packed;
++
++struct octeontx_pcie_console_priv {
++	struct resource res;
++	struct octeontx_pcie_console *console;
++	struct octeontx_pcie_console_nexus *nexus;
++	int console_num;
++};
++
++/**
++ * Platform data
++ *
++ * @param addr	PCIe console descriptor address
++ * @param size	PCIe console descriptor size (including all consoles)
++ * @param base	user base address (if different) but usually the same as addr
++ * @param desc	PCIe console descriptor pointer
++ * @param console U-Boot's pcie console
++ */
++struct octeontx_pcie_console_plat_data {
++	fdt_addr_t addr;
++	fdt_addr_t size;
++	void *base;
++	struct octeontx_pcie_console_nexus *nexus;
++	struct octeontx_pcie_console *console;	/* Only one console in U-Boot */
++	struct resource res;
++};
++
++struct octeontx_pcie_console_nexus_priv {
++	struct octeontx_pcie_console *console;
++	struct octeontx_pcie_console_nexus *nexus;
++	struct resource res;
++	ofnode console_node;
++};
++
++/**
++ * Peterson's algorithm for locking of data structures shared with PCIe host.
++ * See https://en.wikipedia.org/wiki/Peterson%27s_algorithm
++ *
++ * The two flags are instead called target_lock and host_lock.  Since it's
++ * possible that multiple CPU cores (target) may want to acquire this lock,
++ * use octeontx_spin_lock() and octeontx_spin_unlock() around any PCIe locks.
++ *
++ * @param	lock	pointer to PCIe lock datastructure
++ *
++ */
++static inline void octeontx_pcie_init_target_lock(
++				struct octeontx_pcie_lock *lock)
++{
++	lock->host_lock = 0;
++	lock->target_lock = 0;
++	lock->turn = TURN_TARGET;
++
++}
++
++/**
++ * Peterson's algorithm for locking of data structures shared with PCIe host.
++ * See https://en.wikipedia.org/wiki/Peterson%27s_algorithm
++ *
++ * The two flags are instead called target_lock and host_lock.  Since it's
++ * possible that multiple CPU cores (target) may want to acquire this lock,
++ * use octeontx_spin_lock() and octeontx_spin_unlock() around any PCIe locks.
++ *
++ * @param	lock	pointer to PCIe lock datastructure
++ *
++ */
++static inline void octeontx_pcie_target_lock(struct octeontx_pcie_lock *lock)
++{
++	lock->target_lock = 1;
++	__iowmb();
++	lock->turn = TURN_TARGET;
++	__iowmb();
++	while (lock->host_lock && lock->turn == TURN_TARGET)
++		__iormb();
++}
++
++/**
++ * Peterson's algorithm for unlocking of data structures shared with PCIe host
++ *
++ * @param	lock	pointer to PCIe lock datastructure
++ *
++ */
++static inline void octeontx_pcie_target_unlock(struct octeontx_pcie_lock *lock)
++{
++	lock->target_lock = 0;
++	__iowmb();
++}
++
++/**
++ * This is basically the algorithm that should be called on the PCIe host
++ */
++static inline void octeontx_pcie_host_lock(struct octeontx_pcie_lock *lock)
++{
++	lock->host_lock = 1;
++	__iowmb();
++	lock->turn = TURN_HOST;
++	__iowmb();
++}
++
++/**
++ * This is basically the algorithm that should be called on the PCIe host
++ */
++static inline void octeontx_pcie_host_unlock(struct octeontx_pcie_lock *lock)
++{
++	lock->host_lock = 0;
++	__iowmb();
++}
++
++#endif /* __SERIAL_OCTEONTX_PCIE_CONSOLE_H__ */
+-- 
+2.29.0
+

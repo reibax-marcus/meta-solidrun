@@ -1,0 +1,341 @@
+From 82222cbd2bcabb01cdf5c25c96336d52e46f8fff Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Tue, 17 Dec 2019 20:56:25 -0800
+Subject: [PATCH 1037/1239] Add PCIe console support
+
+This enables PCIe console support for the SFF83XX board.
+
+Change-Id: I0210c77ef4a14be944a1ff0888511da683bbdbfc
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20467
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx/lock.h | 139 ++++++++++++++++++++++
+ board/Marvell/octeontx/board.c            | 121 ++++++++++++++++++-
+ configs/octeontx_83xx_defconfig           |   1 +
+ 3 files changed, 256 insertions(+), 5 deletions(-)
+ create mode 100644 arch/arm/include/asm/arch-octeontx/lock.h
+
+diff --git a/arch/arm/include/asm/arch-octeontx/lock.h b/arch/arm/include/asm/arch-octeontx/lock.h
+new file mode 100644
+index 0000000000..65fab6865f
+--- /dev/null
++++ b/arch/arm/include/asm/arch-octeontx/lock.h
+@@ -0,0 +1,139 @@
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ */
++
++#ifndef __OCTEONTX2_LOCK_H__
++#define __OCTEONTX2_LOCK_H__
++
++/**
++ * U-Boot doesn't implement spinlocks but we need them here since
++ * we could be sharing with other processes (i.e. ATF)
++ *
++ * This is copied from the Linux kernel arm64 implementation.
++ */
++typedef struct octeontx_spinlock {
++	u16 next;
++	u16 owner;
++} __aligned(4) octeontx_spinlock_t;
++
++/**
++ * Atomic compare and exchange, derived from atomic_ll_sc.h in Linux
++ *
++ * @param	ptr	pointer to 128 bits to compare and exchange
++ * @param	old_hi	expected old value first 64 bits
++ * @param	old_lo	expected old value second 64 bits
++ * @param	new_hi	new first 64-bit value to set
++ * @param	new_lo	new second 64-bit value to set
++ * @param	last_hi	pointer to previous first 64-bit value
++ * @param	last_lo	pointer previous second 64-bit value
++ *
++ * @return	true if successful, false if the old values mismatched
++ *
++ * last_hi and last_lo may be NULL.
++ */
++static inline bool octeontx_cmpxchg_atomic128(volatile void *ptr,
++					      u64 old_hi, u64 old_lo,
++					      u64 new_hi, u64 new_lo,
++					      u64 *last_hi, u64 *last_lo)
++{
++	u64 tmp_hi, tmp_lo, oldval_hi, oldval_lo;
++	u32 tmp;
++
++	asm volatile (
++		"	prfm	pstl1strm, %[v]				\n"
++		"1:	ldaxp	%[oldval_lo], %[oldval_hi], %[v]	\n"
++		"	eor	%[tmp_lo], %[oldval_lo], %[old_lo]	\n"
++		"	eor	%[tmp_hi], %[oldval_hi], %[old_hi]	\n"
++		"	cbnz	%[tmp_lo], 2f				\n"
++		"	cbnz	%[tmp_hi], 2f				\n"
++		"	stxp	%w[tmp],  %[new_hi], %[new_lo], %[v]	\n"
++		"	cbnz	%w[tmp], 1b				\n"
++		"2:							\n"
++		: [tmp] "=&r" (tmp),
++		  [oldval_lo] "=&r" (oldval_lo),
++		  [oldval_hi] "=&r" (oldval_hi),
++		  [v] "+Q" (*(u64 *)ptr),
++		  [tmp_lo] "=&r" (tmp_lo), [tmp_hi] "=&r" (tmp_hi)
++		: [old_lo] "Lr" (old_lo), [old_hi] "Lr" (old_hi),
++		  [new_lo] "r" (new_lo), [new_hi] "r" (new_hi)
++		: "memory");
++	if (last_hi)
++		*last_hi = oldval_hi;
++	if (last_lo)
++		*last_lo = oldval_lo;
++	return !(tmp_hi | tmp_lo);
++}
++
++static inline void octeontx_init_spin_lock(octeontx_spinlock_t *lock)
++{
++	*(u32 *)lock = 0;
++	__iowmb();
++}
++
++/**
++ * Acquires a spinlock
++ *
++ * @param	lock	pointer to lock
++ *
++ * This code is copied from the Linux aarch64 spinlock.h file
++ * and is compatible with it.
++ */
++static inline void octeontx_spin_lock(octeontx_spinlock_t *lock)
++{
++	unsigned int tmp;
++	octeontx_spinlock_t lockval, newval;
++
++	asm volatile (
++	/* Atomically increment the next ticket. */
++	/* LL/SC */
++"	prfm	pstl1strm, %3		\n"
++"1:	ldaxr	%w0, %3			\n"
++"	add	%w1, %w0, %w5		\n"
++"	stxr	%w2, %w1, %3		\n"
++"	cbnz	%w2, 1b			\n"
++
++	/* Did we get the lock? */
++"	eor	%w1, %w0, %w0, ror #16	\n"
++"	cbz	%w1, 3f			\n"
++	/*
++	 * No: spin on the owner. Send a local event to avoid missing an
++	 * unlock before the exclusive load.
++	 */
++"	sevl				\n"
++"2:	wfe				\n"
++"	ldaxrh	%w2, %4			\n"
++"	eor	%w1, %w2, %w0, lsr #16	\n"
++"	cbnz	%w1, 2b			\n"
++	/* We got the lock. Critical section starts here. */
++"3:"
++	: "=&r" (lockval), "=&r" (newval), "=&r" (tmp), "+Q" (*lock)
++	: "Q" (lock->owner), "I" (1 << 16)
++	: "memory");
++}
++
++/**
++ * Releases a spinlock
++ *
++ * @param	lock	pointer to lock
++ *
++ * This code is copied from the Linux aarch64 spinlock.h file.
++ */
++static inline void octeontx_spin_unlock(octeontx_spinlock_t *lock)
++{
++	unsigned long tmp;
++
++	asm volatile (
++		"	ldrh	%w1, %0		\n"
++		"	add	%w1, %w1, #1	\n"
++		"	stlrh	%w1, %0		\n"
++		"	nop			\n"
++		: "=Q" (lock->owner), "=&r" (tmp)
++		:
++		: "memory"
++
++	);
++}
++
++#endif /* __OCTEONTX2_LOCK_H__ */
+diff --git a/board/Marvell/octeontx/board.c b/board/Marvell/octeontx/board.c
+index 709d40d349..7658b1eadf 100644
+--- a/board/Marvell/octeontx/board.c
++++ b/board/Marvell/octeontx/board.c
+@@ -8,6 +8,7 @@
+ #include <common.h>
+ #include <console.h>
+ #include <dm.h>
++#include <dm/uclass-internal.h>
+ #include <malloc.h>
+ #include <errno.h>
+ #include <netdev.h>
+@@ -20,8 +21,11 @@
+ #include <asm/arch/board.h>
+ #include <dm/util.h>
+ 
+-#define BOOTCMD_NAME	"pci-bootcmd"
+ DECLARE_GLOBAL_DATA_PTR;
++
++#define BOOTCMD_NAME	"pci-bootcmd"
++#define CONSOLE_NAME	"pci-console@0"
++
+ extern unsigned long fdt_base_addr;
+ 
+ void octeontx_cleanup_ethaddr(void)
+@@ -95,8 +99,9 @@ void board_late_probe_devices(void)
+ }
+ #endif
+ 
+-#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) &&	\
+-	!CONFIG_IS_ENABLED(CONSOLE_MUX))
++#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
++	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
++	!CONFIG_IS_ENABLED(CONSOLE_MUX)
+ # error CONFIG_CONSOLE_MUX must be enabled!
+ #endif
+ 
+@@ -141,6 +146,108 @@ static int init_bootcmd_console(void)
+ }
+ #endif
+ 
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
++static int init_pcie_console(void)
++{
++	int ret = 0;
++	char *stdinname = env_get("stdin");
++	char *stdoutname = env_get("stdout");
++	char *stderrname = env_get("stderr");
++	struct udevice *pcie_console_dev = NULL;
++	bool stdin_set, stdout_set, stderr_set;
++	char iomux_name[128];
++
++	debug("%s: stdin: %s, stdout: %s, stderr: %s\n", __func__, stdinname,
++	      stdoutname, stderrname);
++	if (!stdinname) {
++		env_set("stdin", "serial");
++		stdinname = env_get("stdin");
++	}
++	if (!stdoutname) {
++		env_set("stdout", "serial");
++		stdoutname = env_get("stdout");
++	}
++	if (!stderrname) {
++		env_set("stderr", "serial");
++		stderrname = env_get("stderr");
++	}
++
++	if (!stdinname || !stdoutname || !stderrname) {
++		printf("%s: Error setting environment variables for serial\n",
++		       __func__);
++		return -1;
++	}
++
++	stdin_set = !!strstr(stdinname, CONSOLE_NAME);
++	stdout_set = !!strstr(stdoutname, CONSOLE_NAME);
++	stderr_set = !!strstr(stderrname, CONSOLE_NAME);
++
++	pr_debug("stdin: %d, \"%s\", stdout: %d, \"%s\", stderr: %d, \"%s\"\n",
++		 stdin_set, stdinname, stdout_set, stdoutname,
++		 stderr_set, stderrname);
++	ret = uclass_get_device_by_name(UCLASS_SERIAL, CONSOLE_NAME,
++					&pcie_console_dev);
++	if (ret || !pcie_console_dev) {
++		debug("%s: No PCI console device %s found\n", __func__,
++		      CONSOLE_NAME);
++		return 0;
++	}
++
++	if (stdin_set)
++		strncpy(iomux_name, stdinname, sizeof(iomux_name));
++	else
++		snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
++			 stdinname, pcie_console_dev->name);
++
++	ret = iomux_doenv(stdin, iomux_name);
++	if (ret) {
++		pr_err("%s: Error setting I/O stdin MUX to %s\n",
++		       __func__, iomux_name);
++		return ret;
++	}
++
++	if (!stdin_set)
++		env_set("stdin", iomux_name);
++
++	if (stdout_set)
++		strncpy(iomux_name, stdoutname, sizeof(iomux_name));
++	else
++		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stdoutname,
++			 pcie_console_dev->name);
++
++	ret = iomux_doenv(stdout, iomux_name);
++	if (ret) {
++		pr_err("%s: Error setting I/O stdout MUX to %s\n",
++		       __func__, iomux_name);
++		return ret;
++	}
++	if (!stdout_set)
++		env_set("stdout", iomux_name);
++
++	if (stderr_set)
++		strncpy(iomux_name, stderrname, sizeof(iomux_name));
++	else
++		snprintf(iomux_name, sizeof(iomux_name), "%s,%s", stderrname,
++			 pcie_console_dev->name);
++
++	ret = iomux_doenv(stderr, iomux_name);
++	if (ret) {
++		pr_err("%s: Error setting I/O stderr MUX to %s\n",
++		       __func__, iomux_name);
++		return ret;
++	}
++
++	if (!stderr_set)
++		env_set("stderr", iomux_name);
++
++	debug("%s: stdin: %s, stdout: %s, stderr: %s, ret: %d\n",
++	      __func__, env_get("stdin"), env_get("stdout"),
++	      env_get("stderr"), ret);
++
++	return ret;
++}
++#endif
++
+ /**
+  * Board late initialization routine.
+  */
+@@ -180,12 +287,16 @@ int board_late_init(void)
+ 		env_set("serial#", boardserial);
+ 	}
+ 
++#ifdef CONFIG_NET_OCTEONTX
++	board_late_probe_devices();
++#endif
+ #if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
+ 	if (init_bootcmd_console())
+ 		printf("Failed to init bootcmd input\n");
+ #endif
+-#ifdef CONFIG_NET_OCTEONTX
+-	board_late_probe_devices();
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)
++	if (init_pcie_console())
++		printf("Failed to init pci console\n");
+ #endif
+ 	if (save_env)
+ 		env_save();
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index fe0f1873b2..c412ce1d15 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -134,3 +134,4 @@ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
+ CONFIG_CONSOLE_MUX=y
+ CONFIG_SYS_CONSOLE_IS_IN_ENV=y
++CONFIG_OCTEONTX_SERIAL_PCIE_CONSOLE=y
+-- 
+2.29.0
+

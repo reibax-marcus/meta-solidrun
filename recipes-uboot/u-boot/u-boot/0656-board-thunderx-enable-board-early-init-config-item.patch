@@ -1,0 +1,54 @@
+From a87d750caa5734b4e9314cc51e050a1856b3e983 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 28 Jun 2017 11:34:46 -0700
+Subject: [PATCH 0656/1239] board: thunderx: enable board early init config
+ item
+
+use board_early_init_r to call pci_init to probe all pci
+devices before env is accessed.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/cavium/thunderx/thunderx.c | 3 ++-
+ include/configs/thunderx_93xx.h  | 4 +++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 6c1458ba04..64cebcf9c8 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -60,10 +60,11 @@ DECLARE_GLOBAL_DATA_PTR;
+ char thunderx_prompt[CONFIG_THUNDERX_PROMPT_SIZE] = "ThunderX> ";
+ 
+ #ifdef CONFIG_BOARD_EARLY_INIT_R
+-extern void eth_common_init(void);
++extern void eth_common_init();
+ int board_early_init_r(void)
+ {
+ 	eth_common_init();
++	pci_init();
+ 	return 0;
+ }
+ #endif
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index 645de5e332..af5e1c4251 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -384,11 +384,13 @@
+ /* Use uboot SPI APIs for env variables */
+ #define CONFIG_SPI_ENV
+ 
++/* Use early board init for pci_init call */
++#define CONFIG_BOARD_EARLY_INIT_R
++
+ #if defined(CONFIG_ATF)
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+ #elif defined(CONFIG_SPI_ENV)
+-#define CONFIG_BOARD_EARLY_INIT_R
+ #define CONFIG_ENV_IS_IN_SPI_FLASH
+ #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
+ #define CONFIG_ENV_SPI_MAX_HZ		12500000
+-- 
+2.29.0
+

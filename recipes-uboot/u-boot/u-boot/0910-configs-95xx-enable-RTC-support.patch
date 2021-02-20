@@ -1,0 +1,30 @@
+From 05c2a14f9e091227027c88b1d01025bea5cbddf4 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 22 May 2019 13:58:33 -0700
+Subject: [PATCH 0910/1239] configs: 95xx: enable RTC support
+
+Change-Id: I87f0167fb8bfe7610ec0ea094af3289c5ba971a6
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/9788
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/octeontx2_95xx_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/octeontx2_95xx_defconfig b/configs/octeontx2_95xx_defconfig
+index 4b60574309..4d754f208b 100644
+--- a/configs/octeontx2_95xx_defconfig
++++ b/configs/octeontx2_95xx_defconfig
+@@ -61,6 +61,8 @@ CONFIG_DM_MMC=y
+ CONFIG_DM_REGULATOR=y
+ CONFIG_DM_REGULATOR_FIXED=y
+ CONFIG_DM_REGULATOR_GPIO=y
++CONFIG_DM_RTC=y
++CONFIG_RTC_DS1337=y
+ CONFIG_MTD=y
+ CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH=y
+-- 
+2.29.0
+

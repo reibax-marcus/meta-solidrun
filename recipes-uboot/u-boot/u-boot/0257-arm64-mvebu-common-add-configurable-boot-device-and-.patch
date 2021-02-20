@@ -1,0 +1,85 @@
+From 666b14bb3e260affa6b1abb0f29532accfb1df19 Mon Sep 17 00:00:00 2001
+From: Alex Leibovich <alexl@marvell.com>
+Date: Mon, 6 May 2019 14:07:45 +0300
+Subject: [PATCH 0257/1239] arm64: mvebu: common: add configurable boot device
+ and partition
+
+Adding ability to configure boot device and
+partition with configuration file.
+
+Change-Id: I96789ef288d6db1156418c73f72bab3773cc24a4
+Signed-off-by: Alex Leibovich <alexl@marvell.com>
+---
+ cmd/mvebu/Kconfig                     | 15 +++++++++++++++
+ include/configs/mvebu_armada-8k.h     |  3 ---
+ include/configs/mvebu_armada-common.h | 14 +++++---------
+ 3 files changed, 20 insertions(+), 12 deletions(-)
+
+diff --git a/cmd/mvebu/Kconfig b/cmd/mvebu/Kconfig
+index 6beddfc462..32215dca8a 100644
+--- a/cmd/mvebu/Kconfig
++++ b/cmd/mvebu/Kconfig
+@@ -78,6 +78,21 @@ config MVEBU_MMC_BOOT
+ 
+ endchoice
+ 
++config MVEBU_BOOT_PART
++	int "boot partition"
++	default 0
++	help
++	  sets boot partition, and sets a specific
++	  partition as a target for "bubt" command.
++	  For details about bubt command please see the documentation
++	  in doc/mvebu/cmd/bubt.txt
++
++config MVEBU_BOOT_DEVICE
++	int "boot device id"
++	default 0
++	help
++	  Used for setting boot device id.
++
+ config MVEBU_UBOOT_DFLT_NAME
+ 	string "Default image name for bubt command"
+ 	default "flash-image.bin"
+diff --git a/include/configs/mvebu_armada-8k.h b/include/configs/mvebu_armada-8k.h
+index 8fc03e286e..e63e53e665 100644
+--- a/include/configs/mvebu_armada-8k.h
++++ b/include/configs/mvebu_armada-8k.h
+@@ -16,9 +16,6 @@
+  */
+ #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
+ 
+-/* When runtime detection fails this is the default */
+-#define CONFIG_SYS_MMC_ENV_DEV		0
+-
+ #define CONFIG_BOARD_EARLY_INIT_R
+ 
+ #define CONFIG_SYS_MAX_NAND_DEVICE	1
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index 484724f71c..4796fdd1c2 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -136,15 +136,11 @@ defined(CONFIG_TARGET_MVEBU_ARMADA_37XX) && defined(CONFIG_MV88E6XXX_SWITCH)
+ #endif
+ #endif
+ 
+-#ifdef CONFIG_ENV_IS_IN_MMC
+-#ifdef CONFIG_TARGET_MVEBU_ARMADA_37XX
+-#define CONFIG_SYS_MMC_ENV_DEV		1 /* A3700 emmc is on sdhci-1*/
+-#define CONFIG_SYS_MMC_ENV_PART		1 /* 0-DATA, 1-BOOT0, 2-BOOT1 */
+-#else
+-#define CONFIG_SYS_MMC_ENV_DEV		0
+-#define CONFIG_SYS_MMC_ENV_PART		0 /* 0-DATA, 1-BOOT0, 2-BOOT1 */
+-#endif
+-#endif
++/*
++ * Device ID and Boot partition defined in external script
++ */
++#define CONFIG_SYS_MMC_ENV_DEV		(CONFIG_MVEBU_BOOT_DEVICE)
++#define CONFIG_SYS_MMC_ENV_PART		(CONFIG_MVEBU_BOOT_PART)
+ 
+ /*
+  * SATA/SCSI/AHCI configuration
+-- 
+2.29.0
+

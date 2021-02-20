@@ -1,0 +1,658 @@
+From 1feeb934d9657572bc3121137184c554db37a10a Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 8 Nov 2019 17:13:48 +0100
+Subject: [PATCH 1021/1239] arm: mvebu: Add armada DB-88F6820-AP support
+
+This patch adds basic support for DB-88F6820-AP development board.
+
+Supported and tested peripherals are:
+- UART
+- USB 2.0 (CON10)
+- NAND (detected, boot from nand works and read/write tested)
+- I2C (i2c probe works)
+- Ethernet (mvneta - added but not functional)
+- PCIe (CON5 miniPCIe0 port: link goes up and Atheros wireless network
+	card detected).
+
+Change-Id: I53ae826bf3b4cb5480a55f0dd8962bdf1a8db037
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/19340
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/Makefile                       |   1 +
+ arch/arm/dts/armada-385-ap.dts              | 181 ++++++++++++++++++++
+ arch/arm/mach-mvebu/Kconfig                 |   7 +
+ board/Marvell/db-88f6820-ap/Makefile        |   8 +
+ board/Marvell/db-88f6820-ap/db-88f6820-ap.c | 140 +++++++++++++++
+ board/Marvell/db-88f6820-ap/kwbimage.cfg    |  12 ++
+ configs/db-88f6820-ap_defconfig             |  58 +++++++
+ include/configs/db-88f6820-ap.h             | 131 ++++++++++++++
+ 8 files changed, 538 insertions(+)
+ create mode 100644 arch/arm/dts/armada-385-ap.dts
+ create mode 100644 board/Marvell/db-88f6820-ap/Makefile
+ create mode 100644 board/Marvell/db-88f6820-ap/db-88f6820-ap.c
+ create mode 100644 board/Marvell/db-88f6820-ap/kwbimage.cfg
+ create mode 100644 configs/db-88f6820-ap_defconfig
+ create mode 100644 include/configs/db-88f6820-ap.h
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index d811240757..7b7811110f 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -188,6 +188,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
+ 	armada-375-db.dtb			\
+ 	armada-388-clearfog.dtb			\
+ 	armada-388-gp.dtb			\
++	armada-385-ap.dtb			\
+ 	armada-388-helios4.dtb			\
+ 	armada-385-db-88f6820-amc.dtb		\
+ 	armada-385-turris-omnia.dtb		\
+diff --git a/arch/arm/dts/armada-385-ap.dts b/arch/arm/dts/armada-385-ap.dts
+new file mode 100644
+index 0000000000..dc527d548a
+--- /dev/null
++++ b/arch/arm/dts/armada-385-ap.dts
+@@ -0,0 +1,181 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ */
++
++/dts-v1/;
++#include "armada-385.dtsi"
++
++#include <dt-bindings/gpio/gpio.h>
++
++/ {
++	model = "Marvell Armada 385 Access Point Development Board";
++	compatible = "marvell,a385-db-ap", "marvell,armada385",
++		     "marvell,armada380";
++
++	aliases {
++		ethernet0 = &eth0;
++		ethernet1 = &eth1;
++		ethernet2 = &eth2;
++		serial0 = &uart0;
++		serial1 = &uart1;
++	};
++
++	chosen {
++		stdout-path = "serial1:115200n8";
++	};
++
++	memory {
++		device_type = "memory";
++		reg = <0x00000000 0x80000000>; /* 2GB */
++	};
++
++	soc {
++		ranges = <MBUS_ID(0xf0, 0x01) 0 0xf1000000 0x100000
++			  MBUS_ID(0x01, 0x1d) 0 0xfff00000 0x100000>;
++
++		internal-regs {
++
++			i2c0: i2c@11000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&i2c0_pins>;
++				status = "okay";
++
++				/*
++				 * This bus is wired to two EEPROM
++				 * sockets, one of which holding the
++				 * board ID used by the	bootloader.
++				 * Erasing this EEPROM's content will
++				 * brick the board.
++				 * Use this bus with caution.
++				 */
++			};
++			mdio@72004 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&mdio_pins>;
++
++				phy0: ethernet-phy@1 {
++					reg = <1>;
++				};
++
++				phy1: ethernet-phy@4 {
++					reg = <4>;
++				};
++
++				phy2: ethernet-phy@6 {
++					reg = <6>;
++				};
++			};
++
++			/* UART0 is exposed through the JP8 connector */
++			uart0: serial@12000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&uart0_pins>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++			};
++
++			/*
++			 * UART1 is exposed through a FTDI chip
++			 * wired to the mini-USB connector
++			 */
++			uart1: serial@12100 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&uart1_pins>;
++				status = "okay";
++				u-boot,dm-pre-reloc;
++			};
++
++			pinctrl@18000 {
++				xhci0_vbus_pins: xhci0-vbus-pins {
++					marvell,pins = "mpp44";
++					marvell,function = "gpio";
++				};
++			};
++
++			ethernet@30000 {
++				status = "okay";
++				phy = <&phy2>;
++				phy-mode = "sgmii";
++			};
++
++			ethernet@34000 {
++				status = "okay";
++				phy = <&phy1>;
++				phy-mode = "sgmii";
++			};
++
++			usb@58000 {
++				status = "okay";
++			};
++
++			ethernet@70000 {
++				pinctrl-names = "default";
++
++				/*
++				 * The Reference Clock 0 is used to
++				 * provide a clock to the PHY
++				 */
++				pinctrl-0 = <&ge0_rgmii_pins>, <&ref_clk0_pins>;
++				status = "okay";
++				phy = <&phy0>;
++				phy-mode = "rgmii-id";
++			};
++
++			nand_controller: nand-controller@d0000 {
++				status = "okay";
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				num-cs = <1>;
++				nand-ecc-strength = <4>;
++				nand-ecc-step-size = <512>;
++				marvell,nand-keep-config;
++				marvell,nand-enable-arbiter;
++				nand-on-flash-bbt;
++
++				partition@0 {
++					label = "U-Boot";
++					reg = <0x00000000 0x00800000>;
++					read-only;
++				};
++
++				partition@800000 {
++					label = "uImage";
++					reg = <0x00800000 0x00400000>;
++					read-only;
++				};
++
++				partition@c00000 {
++					label = "Root";
++					reg = <0x00c00000 0x3f400000>;
++				};
++			};
++
++		};
++
++		pciec: pcie {
++			status = "okay";
++
++			/*
++			 * The three PCIe units are accessible through
++			 * standard mini-PCIe slots on the board.
++			 */
++			pcie@1,0 {
++				/* Port 0, Lane 0 */
++				status = "okay";
++			};
++
++			pcie@2,0 {
++				/* Port 1, Lane 0 */
++				status = "okay";
++			};
++
++			pcie@3,0 {
++				/* Port 2, Lane 0 */
++				status = "okay";
++			};
++		};
++	};
++};
+diff --git a/arch/arm/mach-mvebu/Kconfig b/arch/arm/mach-mvebu/Kconfig
+index cabe48dd94..1b650888f7 100644
+--- a/arch/arm/mach-mvebu/Kconfig
++++ b/arch/arm/mach-mvebu/Kconfig
+@@ -110,6 +110,10 @@ config TARGET_DB_88F6820_AMC
+ 	bool "Support DB-88F6820-AMC"
+ 	select 88F6820
+ 
++config TARGET_DB_88F6820_AP
++	bool "Support DB-88F6820-AP"
++	select 88F6820
++
+ config TARGET_TURRIS_OMNIA
+ 	bool "Support Turris Omnia"
+ 	select 88F6820
+@@ -180,6 +184,7 @@ config SYS_BOARD
+ 	default "db-88f6720" if TARGET_DB_88F6720
+ 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
+ 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
++	default "db-88f6820-ap" if TARGET_DB_88F6820_AP
+ 	default "turris_omnia" if TARGET_TURRIS_OMNIA
+ 	default "turris_mox" if TARGET_TURRIS_MOX
+ 	default "mvebu_armada-8k" if TARGET_MVEBU_ARMADA_8K
+@@ -200,6 +205,7 @@ config SYS_CONFIG_NAME
+ 	default "db-88f6720" if TARGET_DB_88F6720
+ 	default "db-88f6820-gp" if TARGET_DB_88F6820_GP
+ 	default "db-88f6820-amc" if TARGET_DB_88F6820_AMC
++	default "db-88f6820-ap" if TARGET_DB_88F6820_AP
+ 	default "mvebu_armada-8k" if TARGET_MVEBU_ARMADA_8K
+ 	default "octeontx2_cn913x" if TARGET_OCTEONTX2_CN913x
+ 	default "db-mv784mp-gp" if TARGET_DB_MV784MP_GP
+@@ -219,6 +225,7 @@ config SYS_VENDOR
+ 	default "Marvell" if TARGET_DB_88F6720
+ 	default "Marvell" if TARGET_DB_88F6820_GP
+ 	default "Marvell" if TARGET_DB_88F6820_AMC
++	default "Marvell" if TARGET_DB_88F6820_AP
+ 	default "Marvell" if TARGET_MVEBU_ARMADA_8K
+ 	default "Marvell" if TARGET_DB_XC3_24G4XG
+ 	default "Marvell" if TARGET_MVEBU_DB_88F7040
+diff --git a/board/Marvell/db-88f6820-ap/Makefile b/board/Marvell/db-88f6820-ap/Makefile
+new file mode 100644
+index 0000000000..8d565ec718
+--- /dev/null
++++ b/board/Marvell/db-88f6820-ap/Makefile
+@@ -0,0 +1,8 @@
++#
++# Copyright (C) 2018 Grzegorz Jaszczyk <jaz@semihalf.com>
++#
++# SPDX-License-Identifier:	GPL-2.0+
++#
++
++ccflags-y += -Idrivers/ddr/marvell/a38x/ -Iarch/arm/mach-mvebu/serdes/a38x/
++obj-y	:= db-88f6820-ap.o
+diff --git a/board/Marvell/db-88f6820-ap/db-88f6820-ap.c b/board/Marvell/db-88f6820-ap/db-88f6820-ap.c
+new file mode 100644
+index 0000000000..ac35832e9a
+--- /dev/null
++++ b/board/Marvell/db-88f6820-ap/db-88f6820-ap.c
+@@ -0,0 +1,140 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ */
++
++#include <common.h>
++#include <i2c.h>
++#include <miiphy.h>
++#include <netdev.h>
++#include <asm/io.h>
++#include <asm/arch/cpu.h>
++#include <asm/arch/soc.h>
++
++#include "../drivers/ddr/marvell/a38x/ddr3_init.h"
++#include <high_speed_env_spec.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define ETH_PHY_CTRL_REG		0
++#define ETH_PHY_CTRL_POWER_DOWN_MASK	BIT(11)
++
++/*
++ * Those values and defines are taken from the Marvell U-Boot version
++ * "u-boot-2013.01-2014_T3.0"
++ */
++
++#define DB_AP_88F68XX_GPP_OUT_ENA_LOW					\
++	(~(BIT(21)))
++#define DB_AP_88F68XX_GPP_OUT_ENA_MID					\
++	(~(BIT(1) | BIT(2) | BIT(3) | BIT(5) | BIT(15)))
++#define DB_AP_88F68XX_GPP_OUT_ENA_HIGH	(~(BIT(1)))
++
++#define DB_AP_88F68XX_GPP_OUT_VAL_LOW	0x0
++#define DB_AP_88F68XX_GPP_OUT_VAL_MID	BIT(15)
++#define DB_AP_88F68XX_GPP_OUT_VAL_HIGH	0x0
++#define DB_AP_88F68XX_GPP_POL_LOW	0x0
++#define DB_AP_88F68XX_GPP_POL_MID	0x0
++#define DB_AP_88F68XX_GPP_POL_HIGH	0x0
++
++static struct serdes_map board_serdes_map[] = {
++	{PEX0, SERDES_SPEED_5_GBPS, PEX_ROOT_COMPLEX_X1, 0, 0},
++	{SGMII1, SERDES_SPEED_3_125_GBPS, SERDES_DEFAULT_MODE, 0, 0},
++	{PEX1, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
++	{SGMII2, SERDES_SPEED_3_125_GBPS, SERDES_DEFAULT_MODE, 0, 0},
++	{USB3_HOST0, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
++	{PEX2, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0}
++};
++
++int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
++{
++	*serdes_map_array = board_serdes_map;
++	*count = ARRAY_SIZE(board_serdes_map);
++	return 0;
++}
++
++/*
++ * Define the DDR layout / topology here in the board file. This will
++ * be used by the DDR3 init code in the SPL U-Boot version to configure
++ * the DDR3 controller.
++ */
++static struct mv_ddr_topology_map board_topology_map = {
++	DEBUG_LEVEL_ERROR,
++	0x1, /* active interfaces */
++	/* cs_mask, mirror, dqs_swap, ck_swap X PUPs */
++	{ { { {0x1, 0, 0, 0},
++	      {0x1, 0, 0, 0},
++	      {0x1, 0, 0, 0},
++	      {0x1, 0, 0, 0},
++	      {0x1, 0, 0, 0} },
++	    SPEED_BIN_DDR_1866L,	/* speed_bin */
++	    MV_DDR_DEV_WIDTH_8BIT,	/* memory_width */
++	    MV_DDR_DIE_CAP_4GBIT,	/* mem_size */
++	    MV_DDR_FREQ_800,		/* frequency */
++	    0, 0,			/* cas_l cas_wl */
++	    MV_DDR_TEMP_LOW,		/* temperature */
++	    MV_DDR_TIM_DEFAULT} },	/* timing */
++	BUS_MASK_32BIT,			/* Busses mask */
++	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
++	{ {0} },			/* raw spd data */
++	{0}				/* timing parameters */
++};
++
++struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
++{
++	/* Return the board topology as defined in the board code */
++	return &board_topology_map;
++}
++
++int board_early_init_f(void)
++{
++	/* Configure MPP */
++	writel(0x11111111, MVEBU_MPP_BASE + 0x00);
++	writel(0x11111111, MVEBU_MPP_BASE + 0x04);
++	writel(0x55066011, MVEBU_MPP_BASE + 0x08);
++	writel(0x05050050, MVEBU_MPP_BASE + 0x0c);
++	writel(0x05055555, MVEBU_MPP_BASE + 0x10);
++	writel(0x01100565, MVEBU_MPP_BASE + 0x14);
++	writel(0x00000000, MVEBU_MPP_BASE + 0x18);
++	writel(0x00004444, MVEBU_MPP_BASE + 0x1c);
++
++	/* Set GPP Out value */
++	writel(DB_AP_88F68XX_GPP_OUT_VAL_LOW, MVEBU_GPIO0_BASE + 0x00);
++	writel(DB_AP_88F68XX_GPP_OUT_VAL_MID, MVEBU_GPIO1_BASE + 0x00);
++	writel(DB_AP_88F68XX_GPP_OUT_VAL_HIGH, MVEBU_GPIO1_BASE + 0x40 + 0x00);
++
++	/* Set GPP Polarity */
++	writel(DB_AP_88F68XX_GPP_POL_LOW, MVEBU_GPIO0_BASE + 0x0c);
++	writel(DB_AP_88F68XX_GPP_POL_MID, MVEBU_GPIO1_BASE + 0x0c);
++	writel(DB_AP_88F68XX_GPP_POL_HIGH, (MVEBU_GPIO1_BASE + 0x40) + 0x0c);
++
++	/* Set GPP Out Enable */
++	writel(DB_AP_88F68XX_GPP_OUT_ENA_LOW, MVEBU_GPIO0_BASE + 0x04);
++	writel(DB_AP_88F68XX_GPP_OUT_ENA_MID, MVEBU_GPIO1_BASE + 0x04);
++	writel(DB_AP_88F68XX_GPP_OUT_ENA_HIGH, (MVEBU_GPIO1_BASE + 0x40) +
++	       0x04);
++
++	return 0;
++}
++
++int board_init(void)
++{
++	/* address of boot parameters */
++	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
++
++	return 0;
++}
++
++int checkboard(void)
++{
++	puts("Board: Marvell DB-88F6820-AP\n");
++
++	return 0;
++}
++
++int board_eth_init(bd_t *bis)
++{
++	cpu_eth_init(bis); /* Built in controller(s) come first */
++	return pci_eth_init(bis);
++}
+diff --git a/board/Marvell/db-88f6820-ap/kwbimage.cfg b/board/Marvell/db-88f6820-ap/kwbimage.cfg
+new file mode 100644
+index 0000000000..9d271469d3
+--- /dev/null
++++ b/board/Marvell/db-88f6820-ap/kwbimage.cfg
+@@ -0,0 +1,12 @@
++#
++# Copyright (C) 2018 Grzegorz Jaszczyk <jaz@semihalf.com>
++#
++
++# Armada XP uses version 1 image format
++VERSION		1
++
++# Boot Media configurations
++BOOT_FROM	nand
++
++# Binary Header (bin_hdr) with DDR3 training code
++BINARY spl/u-boot-spl-dtb.bin 0000005b 00000068
+diff --git a/configs/db-88f6820-ap_defconfig b/configs/db-88f6820-ap_defconfig
+new file mode 100644
+index 0000000000..ecb39f22f3
+--- /dev/null
++++ b/configs/db-88f6820-ap_defconfig
+@@ -0,0 +1,58 @@
++CONFIG_ARM=y
++CONFIG_ARCH_CPU_INIT=y
++CONFIG_ARCH_MVEBU=y
++CONFIG_SYS_TEXT_BASE=0x00800000
++CONFIG_SPL_LIBCOMMON_SUPPORT=y
++CONFIG_SPL_LIBGENERIC_SUPPORT=y
++CONFIG_TARGET_DB_88F6820_AP=y
++CONFIG_MVEBU_SPL_BOOT_DEVICE_NAND=y
++CONFIG_SPL_SERIAL_SUPPORT=y
++CONFIG_SPL=y
++CONFIG_DEBUG_UART_BASE=0xd0012000
++CONFIG_DEBUG_UART_CLOCK=250000000
++CONFIG_SPL_SPI_FLASH_SUPPORT=y
++CONFIG_SPL_SPI_SUPPORT=y
++CONFIG_DEBUG_UART=y
++CONFIG_SPL_TEXT_BASE=0x40000030
++CONFIG_DISTRO_DEFAULTS=y
++CONFIG_FIT=y
++CONFIG_FIT_VERBOSE=y
++CONFIG_NAND_BOOT=y
++CONFIG_BOOTDELAY=3
++CONFIG_SYS_CONSOLE_INFO_QUIET=y
++# CONFIG_DISPLAY_BOARDINFO is not set
++CONFIG_ARCH_EARLY_INIT_R=y
++CONFIG_SPL_I2C_SUPPORT=y
++CONFIG_SYS_PROMPT="Marvell>> "
++# CONFIG_CMD_FLASH is not set
++CONFIG_CMD_I2C=y
++CONFIG_CMD_SF=y
++CONFIG_CMD_SPI=y
++CONFIG_CMD_USB=y
++# CONFIG_CMD_SETEXPR is not set
++CONFIG_CMD_TFTPPUT=y
++CONFIG_CMD_CACHE=y
++CONFIG_CMD_TIME=y
++CONFIG_CMD_MVEBU_BUBT=y
++CONFIG_MVEBU_NAND_BOOT=y
++# CONFIG_SPL_PARTITION_UUIDS is not set
++CONFIG_DEFAULT_DEVICE_TREE="armada-385-ap"
++CONFIG_ENV_IS_IN_NAND=y
++CONFIG_SPL_OF_TRANSLATE=y
++# CONFIG_MMC is not set
++CONFIG_NAND_PXA3XX=y
++CONFIG_SPI_FLASH=y
++CONFIG_SPI_FLASH_MACRONIX=y
++CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_PHY_GIGE=y
++CONFIG_E1000=y
++CONFIG_MVNETA=y
++CONFIG_PCI=y
++CONFIG_PCI_MVEBU=y
++CONFIG_SCSI=y
++CONFIG_DEBUG_UART_SHIFT=2
++CONFIG_SYS_NS16550=y
++CONFIG_KIRKWOOD_SPI=y
++CONFIG_USB=y
++CONFIG_DM_USB=y
++CONFIG_USB_EHCI_HCD=y
+diff --git a/include/configs/db-88f6820-ap.h b/include/configs/db-88f6820-ap.h
+new file mode 100644
+index 0000000000..9170ef7464
+--- /dev/null
++++ b/include/configs/db-88f6820-ap.h
+@@ -0,0 +1,131 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ */
++
++#ifndef _CONFIG_DB_88F6820_AP_H
++#define _CONFIG_DB_88F6820_AP_H
++
++/*
++ * High Level Configuration Options (easy to change)
++ */
++
++#define CONFIG_DISPLAY_BOARDINFO_LATE
++
++/*
++ * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
++ * for DDR ECC byte filling in the SPL before loading the main
++ * U-Boot into it.
++ */
++/* #define	CONFIG_SYS_TEXT_BASE	0x01800000 */
++#define	CONFIG_SYS_TEXT_BASE	0x00800000
++#define CONFIG_SYS_TCLK		250000000	/* 250MHz */
++
++/*
++ * Commands configuration
++ */
++#define CONFIG_CMD_PCI
++
++/* I2C */
++#define CONFIG_SYS_I2C
++#define CONFIG_SYS_I2C_MVTWSI
++#define CONFIG_I2C_MVTWSI_BASE0		MVEBU_TWSI_BASE
++#define CONFIG_SYS_I2C_SLAVE		0x0
++#define CONFIG_SYS_I2C_SPEED		100000
++
++/* SPI NOR flash default params, used by sf commands */
++#define CONFIG_SF_DEFAULT_SPEED		1000000
++
++/*
++ * SDIO/MMC Card Configuration
++ */
++#define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
++
++/*
++ * SATA/SCSI/AHCI configuration
++ */
++#define CONFIG_LIBATA
++#define CONFIG_SCSI_AHCI
++#define CONFIG_SCSI_AHCI_PLAT
++#define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
++#define CONFIG_SYS_SCSI_MAX_LUN		1
++#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
++					 CONFIG_SYS_SCSI_MAX_LUN)
++
++/* Partition support */
++
++/* USB/EHCI configuration */
++#define CONFIG_EHCI_IS_TDI
++
++/* NAND configuration */
++#define CONFIG_SYS_MAX_NAND_DEVICE	1
++#define CONFIG_SYS_NAND_MAX_CHIPS	1
++#define CONFIG_SYS_NAND_ONFI_DETECTION
++#define CONFIG_SYS_NAND_USE_FLASH_BBT
++
++/* Environment in NAND flash */
++#define CONFIG_ENV_OFFSET		(5 << 20) /* 5MiB in */
++#define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
++#define CONFIG_ENV_SECT_SIZE		(256 << 10) /* 256KiB sectors */
++
++#define CONFIG_PHY_MARVELL		/* there is a marvell phy */
++#define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
++
++/* PCIe support */
++#ifndef CONFIG_SPL_BUILD
++#define CONFIG_PCI_SCAN_SHOW
++#endif
++
++#define CONFIG_SYS_ALT_MEMTEST
++#define CONFIG_DEFAULT_CONSOLE		"console=ttyS0,115200 "\
++					"earlyprintk=ttyS0,115200"
++
++/* SPL */
++/*
++ * Select the boot device here
++ *
++ * Currently supported are:
++ * SPL_BOOT_SPI_NOR_FLASH	- Booting via SPI NOR flash
++ * SPL_BOOT_SDIO_MMC_CARD	- Booting via SDIO/MMC card (partition 1)
++ */
++#define SPL_BOOT_SPI_NOR_FLASH		1
++#define SPL_BOOT_SDIO_MMC_CARD		2
++#define SPL_BOOT_SDIO_NAND		3
++#define CONFIG_SPL_BOOT_DEVICE		SPL_BOOT_SDIO_NAND
++
++/* Defines for SPL */
++#define CONFIG_SPL_SIZE			(150 << 10)
++#define CONFIG_SPL_TEXT_BASE		0x40000030
++#define CONFIG_SPL_MAX_SIZE		(CONFIG_SPL_SIZE - 0x0030)
++
++#ifdef CONFIG_SPL_BUILD
++#define CONFIG_SYS_MALLOC_SIMPLE
++#endif
++
++#define CONFIG_SPL_STACK		(0x40000000 + ((192 - 16) << 10))
++#define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
++
++#if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SPI_NOR_FLASH
++/* SPL related SPI defines */
++#define CONFIG_SPL_SPI_LOAD
++#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x26000
++#define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
++#endif
++
++#if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SDIO_MMC_CARD
++/* SPL related MMC defines */
++#define CONFIG_SYS_MMC_U_BOOT_OFFS		(160 << 10)
++#define CONFIG_SYS_U_BOOT_OFFS			CONFIG_SYS_MMC_U_BOOT_OFFS
++#ifdef CONFIG_SPL_BUILD
++#define CONFIG_FIXED_SDHCI_ALIGNED_BUFFER	0x00180000	/* in SDRAM */
++#endif
++#endif
++
++/*
++ * mv-common.h should be defined after CMD configs since it used them
++ * to enable certain macros
++ */
++#include "mv-common.h"
++
++#endif /* _CONFIG_DB_88F6820_AP_H */
+-- 
+2.29.0
+

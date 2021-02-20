@@ -1,0 +1,233 @@
+From ae1f971be44e1911b39f087d15d9171db2067a93 Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Mon, 9 Apr 2018 09:45:46 +0800
+Subject: [PATCH 0169/1239] arm64: dts: a8k: update SPI max frequency
+
+This patch sets SPI controller's frequency to its maximum stable
+value(50MHz), and sets SPI flash frequency to its maximum stable
+value(108MHz) to get better performance.
+
+Change-Id: Iaa797705863b708768b6b345e713696c024ce6ee
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ arch/arm/dts/armada-7020-amc.dts   | 2 +-
+ arch/arm/dts/armada-7040-db-B.dts  | 2 +-
+ arch/arm/dts/armada-7040-db-C.dts  | 2 +-
+ arch/arm/dts/armada-7040-db-E.dts  | 2 +-
+ arch/arm/dts/armada-7040-db.dts    | 2 +-
+ arch/arm/dts/armada-7040-pcac.dts  | 2 +-
+ arch/arm/dts/armada-8040-db-B.dts  | 2 +-
+ arch/arm/dts/armada-8040-db-C.dts  | 2 +-
+ arch/arm/dts/armada-8040-db-E.dts  | 2 +-
+ arch/arm/dts/armada-8040-db-F.dts  | 2 +-
+ arch/arm/dts/armada-8040-db.dts    | 2 +-
+ arch/arm/dts/armada-8040-mcbin.dts | 2 +-
+ arch/arm/dts/armada-8040-ocp.dts   | 2 +-
+ arch/arm/dts/armada-ap80x.dtsi     | 1 +
+ arch/arm/dts/armada-cp110.dtsi     | 2 ++
+ 15 files changed, 16 insertions(+), 13 deletions(-)
+
+diff --git a/arch/arm/dts/armada-7020-amc.dts b/arch/arm/dts/armada-7020-amc.dts
+index c5efea8666..b0682e7d9e 100644
+--- a/arch/arm/dts/armada-7020-amc.dts
++++ b/arch/arm/dts/armada-7020-amc.dts
+@@ -89,7 +89,7 @@
+ 		#size-cells = <0x1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0x0>;
+-		spi-max-frequency = <20000000>;
++		spi-max-frequency = <108000000>;
+ 	};
+ };
+ 
+diff --git a/arch/arm/dts/armada-7040-db-B.dts b/arch/arm/dts/armada-7040-db-B.dts
+index e367ba4f38..46518e1ae8 100644
+--- a/arch/arm/dts/armada-7040-db-B.dts
++++ b/arch/arm/dts/armada-7040-db-B.dts
+@@ -109,7 +109,7 @@
+ 		#size-cells = <0x1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0x0>;
+-		spi-max-frequency = <20000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-7040-db-C.dts b/arch/arm/dts/armada-7040-db-C.dts
+index 20b6204c92..75649c38fc 100644
+--- a/arch/arm/dts/armada-7040-db-C.dts
++++ b/arch/arm/dts/armada-7040-db-C.dts
+@@ -110,7 +110,7 @@
+ 		#size-cells = <0x1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0x0>;
+-		spi-max-frequency = <20000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-7040-db-E.dts b/arch/arm/dts/armada-7040-db-E.dts
+index 87a24ed707..31b57d8a93 100644
+--- a/arch/arm/dts/armada-7040-db-E.dts
++++ b/arch/arm/dts/armada-7040-db-E.dts
+@@ -123,7 +123,7 @@
+ 		#size-cells = <0x1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0x0>;
+-		spi-max-frequency = <20000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index 7edc741edb..7868fbb8f6 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -141,7 +141,7 @@
+ 		#size-cells = <0x1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0x0>;
+-		spi-max-frequency = <20000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-7040-pcac.dts b/arch/arm/dts/armada-7040-pcac.dts
+index cd10b9ca88..3b429a5178 100644
+--- a/arch/arm/dts/armada-7040-pcac.dts
++++ b/arch/arm/dts/armada-7040-pcac.dts
+@@ -123,7 +123,7 @@
+ 		#size-cells = <0x1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0x0>;
+-		spi-max-frequency = <20000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-8040-db-B.dts b/arch/arm/dts/armada-8040-db-B.dts
+index 166c3e3cec..0a0679b0fa 100644
+--- a/arch/arm/dts/armada-8040-db-B.dts
++++ b/arch/arm/dts/armada-8040-db-B.dts
+@@ -280,7 +280,7 @@
+ 		#size-cells = <1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0>;
+-		spi-max-frequency = <10000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-8040-db-C.dts b/arch/arm/dts/armada-8040-db-C.dts
+index 06c0f92a10..e6ad878139 100644
+--- a/arch/arm/dts/armada-8040-db-C.dts
++++ b/arch/arm/dts/armada-8040-db-C.dts
+@@ -288,7 +288,7 @@
+ 		#size-cells = <1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0>;
+-		spi-max-frequency = <10000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-8040-db-E.dts b/arch/arm/dts/armada-8040-db-E.dts
+index 664976a8df..d1f43a7ec5 100644
+--- a/arch/arm/dts/armada-8040-db-E.dts
++++ b/arch/arm/dts/armada-8040-db-E.dts
+@@ -272,7 +272,7 @@
+ 		#size-cells = <1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0>;
+-		spi-max-frequency = <10000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-8040-db-F.dts b/arch/arm/dts/armada-8040-db-F.dts
+index b8230268d7..f6b8e9265b 100644
+--- a/arch/arm/dts/armada-8040-db-F.dts
++++ b/arch/arm/dts/armada-8040-db-F.dts
+@@ -334,7 +334,7 @@
+ 		#size-cells = <1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0>;
+-		spi-max-frequency = <10000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index 12cfeb4431..04745e5f7d 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -304,7 +304,7 @@
+ 		#size-cells = <1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0>;
+-		spi-max-frequency = <10000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index cfff455e24..9b4240993d 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -326,7 +326,7 @@
+ 		#size-cells = <1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0>;
+-		spi-max-frequency = <10000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-8040-ocp.dts b/arch/arm/dts/armada-8040-ocp.dts
+index 386e6dded9..460f2d49bf 100644
+--- a/arch/arm/dts/armada-8040-ocp.dts
++++ b/arch/arm/dts/armada-8040-ocp.dts
+@@ -248,7 +248,7 @@
+ 		#size-cells = <1>;
+ 		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0>;
+-		spi-max-frequency = <10000000>;
++		spi-max-frequency = <108000000>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+diff --git a/arch/arm/dts/armada-ap80x.dtsi b/arch/arm/dts/armada-ap80x.dtsi
+index 1f6fe6477d..282fa16fd7 100644
+--- a/arch/arm/dts/armada-ap80x.dtsi
++++ b/arch/arm/dts/armada-ap80x.dtsi
+@@ -89,6 +89,7 @@
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				cell-index = <0>;
++				spi-max-frequency = <50000000>;
+ 				status = "disabled";
+ 			};
+ 
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index 86dec35db7..1381910431 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -131,6 +131,7 @@
+ 				#address-cells = <0x1>;
+ 				#size-cells = <0x0>;
+ 				cell-index = <1>;
++				spi-max-frequency = <50000000>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -140,6 +141,7 @@
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				cell-index = <2>;
++				spi-max-frequency = <50000000>;
+ 				status = "disabled";
+ 			};
+ 
+-- 
+2.29.0
+

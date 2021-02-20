@@ -1,0 +1,50 @@
+From e001fa90cdea1a4ebbd88478603acd861abec96d Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Wed, 28 Nov 2018 16:06:11 +0200
+Subject: [PATCH 0222/1239] arm64: mvebu: espressobin: fix eMMC configuration
+ offset
+
+The eMMC device found on EspressoBIN V7 has 2MB HW boot partition.
+Therefore the location of u-boot environment should be moved to
+the last 64KB of 2MB space from previously selected last 64KB
+of 4MB space.
+
+Change-Id: I4486f16e7f1f628e4f38272d84e942a1524a2c76
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ include/configs/mvebu_armada-common.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index b9605bf7d5..884cf8b95c 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -113,14 +113,25 @@
+ /*
+  * Assume minimum flash/eMMC boot partition size of 4MB
+  * and save the environment at the end of the boot device
++ * There is one exclusion from this rule - the EspressoBIN board with eMMC.
++ * The eMMC device found on some EspressoBIN V7 boards has 2MB boot partition.
+  */
+ #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
+ #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
+ #ifdef CONFIG_MVEBU_NAND_BOOT
++/* In case of NAND, we want to start the environment on page boundary */
+ #define CONFIG_ENV_OFFSET		0x400000
+ #else
++#if defined(CONFIG_ENV_IS_IN_MMC) && \
++defined(CONFIG_TARGET_MVEBU_ARMADA_37XX) && defined(CONFIG_MV88E6XXX_SWITCH)
++/* This one should be EspressoBin, since A3700 DB does not have
++ * MV88E6XXX switch enabled. Is there any other way to detect it?
++ */
++#define CONFIG_ENV_OFFSET		(0x200000 - CONFIG_ENV_SIZE)
++#else
+ #define CONFIG_ENV_OFFSET		(0x400000 - CONFIG_ENV_SIZE)
+ #endif
++#endif
+ 
+ #ifdef CONFIG_ENV_IS_IN_MMC
+ #ifdef CONFIG_TARGET_MVEBU_ARMADA_37XX
+-- 
+2.29.0
+

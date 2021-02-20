@@ -1,0 +1,1102 @@
+From 04e7789ea115e5b452794aff54d5a8f872b074bf Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 14 Sep 2018 11:36:15 -0700
+Subject: [PATCH 0825/1239] octeontx/tx2: move from cavium to marvell
+
+Sadly, move from vendor cavium to Marvell and make necessary
+changes to code, usage of Cavium is discarded instead OcteonTX/TX2
+will be used.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ arch/arm/Kconfig                              |  15 +-
+ arch/arm/mach-octeontx/Kconfig                |   2 +-
+ arch/arm/mach-octeontx2/Kconfig               |   2 +-
+ board/{cavium => Marvell}/octeontx/Kconfig    |   0
+ .../{cavium => Marvell}/octeontx/MAINTAINERS  |   0
+ board/{cavium => Marvell}/octeontx/Makefile   |   0
+ board/{cavium => Marvell}/octeontx/atf.c      |   0
+ board/{cavium => Marvell}/octeontx/fdt.c      |   4 +-
+ board/{cavium => Marvell}/octeontx/octeontx.c |   1 -
+ board/{cavium => Marvell}/octeontx2/Kconfig   |   0
+ .../{cavium => Marvell}/octeontx2/MAINTAINERS |   0
+ board/{cavium => Marvell}/octeontx2/Makefile  |   0
+ board/{cavium => Marvell}/octeontx2/atf.c     |   0
+ board/{cavium => Marvell}/octeontx2/fdt.c     |   0
+ .../{cavium => Marvell}/octeontx2/octeontx2.c |   0
+ board/cavium/common/Makefile                  |   4 -
+ board/cavium/common/env_atf.c                 | 273 ------------------
+ configs/octeontx2_95xx_defconfig              |  21 +-
+ configs/octeontx2_96xx_defconfig              |   7 +-
+ configs/octeontx_81xx_defconfig               |   8 +-
+ configs/octeontx_83xx_defconfig               |  10 +-
+ drivers/net/Kconfig                           |  16 +-
+ drivers/net/Makefile                          |   4 +-
+ drivers/net/cavium/Kconfig                    |  37 ---
+ drivers/net/cavium/Makefile                   |   9 -
+ drivers/net/cavium/octeontx2/Kconfig          |  21 --
+ drivers/net/cavium/octeontx2/Makefile         |   8 -
+ drivers/net/octeontx/Makefile                 |   7 +
+ drivers/net/{cavium => octeontx}/nic.h        |   0
+ drivers/net/{cavium => octeontx}/nic_main.c   |   0
+ drivers/net/{cavium => octeontx}/nic_reg.h    |   0
+ drivers/net/{cavium => octeontx}/nicvf_main.c |   0
+ .../net/{cavium => octeontx}/nicvf_queues.c   |   0
+ .../net/{cavium => octeontx}/nicvf_queues.h   |   0
+ .../net/{cavium => octeontx}/octeontx_bgx.c   |   0
+ .../net/{cavium => octeontx}/octeontx_bgx.h   |   0
+ .../net/{cavium => octeontx}/octeontx_smi.c   |   0
+ .../net/{cavium => octeontx}/octeontx_xcv.c   |   0
+ drivers/net/{cavium => octeontx}/q_struct.h   |   0
+ drivers/net/octeontx2/Makefile                |   7 +
+ .../{cavium => }/octeontx2/cavm-csrs-cgx.h    |   0
+ .../{cavium => }/octeontx2/cavm-csrs-lmt.h    |   0
+ .../{cavium => }/octeontx2/cavm-csrs-nix.h    |   0
+ .../{cavium => }/octeontx2/cavm-csrs-npa.h    |   0
+ .../{cavium => }/octeontx2/cavm-csrs-npc.h    |   0
+ .../{cavium => }/octeontx2/cavm-csrs-rvu.h    |   0
+ drivers/net/{cavium => }/octeontx2/cgx.c      |   0
+ drivers/net/{cavium => }/octeontx2/cgx.h      |   0
+ drivers/net/{cavium => }/octeontx2/cgx_intf.c |   0
+ drivers/net/{cavium => }/octeontx2/cgx_intf.h |   0
+ drivers/net/{cavium => }/octeontx2/lmt.h      |   0
+ drivers/net/{cavium => }/octeontx2/nix.c      |   0
+ drivers/net/{cavium => }/octeontx2/nix.h      |   0
+ drivers/net/{cavium => }/octeontx2/nix_af.c   |   0
+ drivers/net/{cavium => }/octeontx2/npc.c      |   0
+ drivers/net/{cavium => }/octeontx2/npc.h      |   0
+ .../net/{cavium => }/octeontx2/npc_profile.h  |   0
+ drivers/net/{cavium => }/octeontx2/npc_reg.h  |   0
+ drivers/net/{cavium => }/octeontx2/rvu.h      |   0
+ drivers/net/{cavium => }/octeontx2/rvu_af.c   |   0
+ .../net/{cavium => }/octeontx2/rvu_common.c   |   0
+ drivers/net/{cavium => }/octeontx2/rvu_pf.c   |   0
+ drivers/spi/Kconfig                           |   6 +-
+ drivers/spi/Makefile                          |   2 +-
+ drivers/spi/{cavium_spi.c => octeontx_spi.c}  |   0
+ include/configs/octeontx_81xx.h               |   1 +
+ 66 files changed, 51 insertions(+), 414 deletions(-)
+ rename board/{cavium => Marvell}/octeontx/Kconfig (100%)
+ rename board/{cavium => Marvell}/octeontx/MAINTAINERS (100%)
+ rename board/{cavium => Marvell}/octeontx/Makefile (100%)
+ rename board/{cavium => Marvell}/octeontx/atf.c (100%)
+ rename board/{cavium => Marvell}/octeontx/fdt.c (98%)
+ rename board/{cavium => Marvell}/octeontx/octeontx.c (99%)
+ rename board/{cavium => Marvell}/octeontx2/Kconfig (100%)
+ rename board/{cavium => Marvell}/octeontx2/MAINTAINERS (100%)
+ rename board/{cavium => Marvell}/octeontx2/Makefile (100%)
+ rename board/{cavium => Marvell}/octeontx2/atf.c (100%)
+ rename board/{cavium => Marvell}/octeontx2/fdt.c (100%)
+ rename board/{cavium => Marvell}/octeontx2/octeontx2.c (100%)
+ delete mode 100644 board/cavium/common/Makefile
+ delete mode 100755 board/cavium/common/env_atf.c
+ delete mode 100644 drivers/net/cavium/Kconfig
+ delete mode 100644 drivers/net/cavium/Makefile
+ delete mode 100644 drivers/net/cavium/octeontx2/Kconfig
+ delete mode 100644 drivers/net/cavium/octeontx2/Makefile
+ create mode 100644 drivers/net/octeontx/Makefile
+ rename drivers/net/{cavium => octeontx}/nic.h (100%)
+ rename drivers/net/{cavium => octeontx}/nic_main.c (100%)
+ rename drivers/net/{cavium => octeontx}/nic_reg.h (100%)
+ rename drivers/net/{cavium => octeontx}/nicvf_main.c (100%)
+ rename drivers/net/{cavium => octeontx}/nicvf_queues.c (100%)
+ rename drivers/net/{cavium => octeontx}/nicvf_queues.h (100%)
+ rename drivers/net/{cavium => octeontx}/octeontx_bgx.c (100%)
+ rename drivers/net/{cavium => octeontx}/octeontx_bgx.h (100%)
+ rename drivers/net/{cavium => octeontx}/octeontx_smi.c (100%)
+ rename drivers/net/{cavium => octeontx}/octeontx_xcv.c (100%)
+ rename drivers/net/{cavium => octeontx}/q_struct.h (100%)
+ create mode 100644 drivers/net/octeontx2/Makefile
+ rename drivers/net/{cavium => }/octeontx2/cavm-csrs-cgx.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/cavm-csrs-lmt.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/cavm-csrs-nix.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/cavm-csrs-npa.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/cavm-csrs-npc.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/cavm-csrs-rvu.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/cgx.c (100%)
+ rename drivers/net/{cavium => }/octeontx2/cgx.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/cgx_intf.c (100%)
+ rename drivers/net/{cavium => }/octeontx2/cgx_intf.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/lmt.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/nix.c (100%)
+ rename drivers/net/{cavium => }/octeontx2/nix.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/nix_af.c (100%)
+ rename drivers/net/{cavium => }/octeontx2/npc.c (100%)
+ rename drivers/net/{cavium => }/octeontx2/npc.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/npc_profile.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/npc_reg.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/rvu.h (100%)
+ rename drivers/net/{cavium => }/octeontx2/rvu_af.c (100%)
+ rename drivers/net/{cavium => }/octeontx2/rvu_common.c (100%)
+ rename drivers/net/{cavium => }/octeontx2/rvu_pf.c (100%)
+ rename drivers/spi/{cavium_spi.c => octeontx_spi.c} (100%)
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index a01d97fa73..eeb90ce179 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1627,17 +1627,6 @@ config ARCH_ASPEED
+ 	select OF_CONTROL
+ 	imply CMD_DM
+ 
+-config ARCH_THUNDERX
+-	bool "Support Cavium ThunderX SoCs"
+-	select THUNDERX
+-	select OF_CONTROL
+-	select DM
+-	select DM_SERIAL
+-	select DM_PCI
+-	select DM_PCI_COMPAT
+-	select OF_SEPARATE
+-	select ARM64
+-
+ endchoice
+ 
+ config ARCH_SUPPORT_TFABOOT
+@@ -1785,6 +1774,8 @@ source "board/bosch/guardian/Kconfig"
+ source "board/CarMediaLab/flea3/Kconfig"
+ source "board/Marvell/aspenite/Kconfig"
+ source "board/Marvell/gplugd/Kconfig"
++source "board/Marvell/octeontx/Kconfig"
++source "board/Marvell/octeontx2/Kconfig"
+ source "board/armadeus/apf27/Kconfig"
+ source "board/armltd/vexpress/Kconfig"
+ source "board/armltd/vexpress64/Kconfig"
+@@ -1795,8 +1786,6 @@ source "board/broadcom/bcm968580xref/Kconfig"
+ source "board/broadcom/bcmcygnus/Kconfig"
+ source "board/broadcom/bcmnsp/Kconfig"
+ source "board/broadcom/bcmns2/Kconfig"
+-source "board/cavium/octeontx/Kconfig"
+-source "board/cavium/octeontx2/Kconfig"
+ source "board/cirrus/edb93xx/Kconfig"
+ source "board/eets/pdu001/Kconfig"
+ source "board/emulation/qemu-arm/Kconfig"
+diff --git a/arch/arm/mach-octeontx/Kconfig b/arch/arm/mach-octeontx/Kconfig
+index e060512e7f..cb520f5ed9 100644
+--- a/arch/arm/mach-octeontx/Kconfig
++++ b/arch/arm/mach-octeontx/Kconfig
+@@ -2,7 +2,7 @@ if ARCH_OCTEONTX
+ 
+ config SYS_VENDOR
+ 	string
+-	default	"cavium"
++	default	"Marvell"
+ 
+ config SYS_SOC
+ 	string
+diff --git a/arch/arm/mach-octeontx2/Kconfig b/arch/arm/mach-octeontx2/Kconfig
+index 0fafa244e0..9605ddd5c3 100644
+--- a/arch/arm/mach-octeontx2/Kconfig
++++ b/arch/arm/mach-octeontx2/Kconfig
+@@ -2,7 +2,7 @@ if ARCH_OCTEONTX2
+ 
+ config SYS_VENDOR
+ 	string
+-	default	"cavium"
++	default	"Marvell"
+ 
+ config SYS_SOC
+ 	string
+diff --git a/board/cavium/octeontx/Kconfig b/board/Marvell/octeontx/Kconfig
+similarity index 100%
+rename from board/cavium/octeontx/Kconfig
+rename to board/Marvell/octeontx/Kconfig
+diff --git a/board/cavium/octeontx/MAINTAINERS b/board/Marvell/octeontx/MAINTAINERS
+similarity index 100%
+rename from board/cavium/octeontx/MAINTAINERS
+rename to board/Marvell/octeontx/MAINTAINERS
+diff --git a/board/cavium/octeontx/Makefile b/board/Marvell/octeontx/Makefile
+similarity index 100%
+rename from board/cavium/octeontx/Makefile
+rename to board/Marvell/octeontx/Makefile
+diff --git a/board/cavium/octeontx/atf.c b/board/Marvell/octeontx/atf.c
+similarity index 100%
+rename from board/cavium/octeontx/atf.c
+rename to board/Marvell/octeontx/atf.c
+diff --git a/board/cavium/octeontx/fdt.c b/board/Marvell/octeontx/fdt.c
+similarity index 98%
+rename from board/cavium/octeontx/fdt.c
+rename to board/Marvell/octeontx/fdt.c
+index 355bc43310..06881177c4 100644
+--- a/board/cavium/octeontx/fdt.c
++++ b/board/Marvell/octeontx/fdt.c
+@@ -21,7 +21,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ extern unsigned long fdt_base_addr;
+ 
+-#ifdef CONFIG_OCTEONTX_BGX
++#ifdef CONFIG_NET_OCTEONTX
+ static int octeontx_get_mdio_bus(const void *fdt, int phy_offset)
+ {
+ 	int node, bus = -1;
+@@ -56,7 +56,7 @@ static int octeontx_get_phy_addr(const void *fdt, int phy_offset)
+ 
+ void octeontx_parse_phy_info(void)
+ {
+-#ifdef CONFIG_OCTEONTX_BGX
++#ifdef CONFIG_NET_OCTEONTX
+ 	const void *fdt = gd->fdt_blob;
+ 	int offset = 0, node, bgx_id = 0, lmacid = 0;
+ 	const u32 *val;
+diff --git a/board/cavium/octeontx/octeontx.c b/board/Marvell/octeontx/octeontx.c
+similarity index 99%
+rename from board/cavium/octeontx/octeontx.c
+rename to board/Marvell/octeontx/octeontx.c
+index 1ffe084745..e62454acdb 100644
+--- a/board/cavium/octeontx/octeontx.c
++++ b/board/Marvell/octeontx/octeontx.c
+@@ -2,7 +2,6 @@
+ /**
+  * (C) Copyright 2014, Cavium Inc.
+ **/
+-#define DEBUG
+ #include <common.h>
+ #include <dm.h>
+ #include <malloc.h>
+diff --git a/board/cavium/octeontx2/Kconfig b/board/Marvell/octeontx2/Kconfig
+similarity index 100%
+rename from board/cavium/octeontx2/Kconfig
+rename to board/Marvell/octeontx2/Kconfig
+diff --git a/board/cavium/octeontx2/MAINTAINERS b/board/Marvell/octeontx2/MAINTAINERS
+similarity index 100%
+rename from board/cavium/octeontx2/MAINTAINERS
+rename to board/Marvell/octeontx2/MAINTAINERS
+diff --git a/board/cavium/octeontx2/Makefile b/board/Marvell/octeontx2/Makefile
+similarity index 100%
+rename from board/cavium/octeontx2/Makefile
+rename to board/Marvell/octeontx2/Makefile
+diff --git a/board/cavium/octeontx2/atf.c b/board/Marvell/octeontx2/atf.c
+similarity index 100%
+rename from board/cavium/octeontx2/atf.c
+rename to board/Marvell/octeontx2/atf.c
+diff --git a/board/cavium/octeontx2/fdt.c b/board/Marvell/octeontx2/fdt.c
+similarity index 100%
+rename from board/cavium/octeontx2/fdt.c
+rename to board/Marvell/octeontx2/fdt.c
+diff --git a/board/cavium/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+similarity index 100%
+rename from board/cavium/octeontx2/octeontx2.c
+rename to board/Marvell/octeontx2/octeontx2.c
+diff --git a/board/cavium/common/Makefile b/board/cavium/common/Makefile
+deleted file mode 100644
+index 0bf279dfb1..0000000000
+--- a/board/cavium/common/Makefile
++++ /dev/null
+@@ -1,4 +0,0 @@
+-
+-ccflags-y += -Icsr/include
+-
+-obj-$(CONFIG_ENV_IS_IN_ATF) 			+= env_atf.o
+diff --git a/board/cavium/common/env_atf.c b/board/cavium/common/env_atf.c
+deleted file mode 100755
+index 553757728f..0000000000
+--- a/board/cavium/common/env_atf.c
++++ /dev/null
+@@ -1,273 +0,0 @@
+-/** @file
+-#
+-#  Copyright (c) 2014, Cavium Inc. All rights reserved.<BR>
+-#  This program and the accompanying materials
+-#  are licensed and made available under the terms and conditions of the BSD License
+-#  which accompanies this distribution.  The full text of the license may be found at
+-#  http://opensource.org/licenses/bsd-license.php
+-#
+-#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+-#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+-#
+-#**/
+-
+-/* #define DEBUG */
+-
+-#include <common.h>
+-
+-#include <command.h>
+-#include <environment.h>
+-#include <linux/stddef.h>
+-#include <memalign.h>
+-
+-#include <asm/arch/atf.h>
+-#include <asm/arch/atf_part.h>
+-#include <asm/arch/octeontx_svc.h>
+-
+-#include <search.h>
+-#include <errno.h>
+-
+-#if defined(CONFIG_ENV_SIZE_REDUND) &&  \
+-	(CONFIG_ENV_SIZE_REDUND != CONFIG_ENV_SIZE)
+-#error CONFIG_ENV_SIZE_REDUND should be the same as CONFIG_ENV_SIZE
+-#endif
+-
+-char *env_name_spec = "ATF";
+-
+-#ifdef ENV_IS_EMBEDDED
+-env_t *env_ptr = &environment;
+-#else /* ! ENV_IS_EMBEDDED */
+-env_t *env_ptr;
+-#endif /* ENV_IS_EMBEDDED */
+-
+-DECLARE_GLOBAL_DATA_PTR;
+-
+-#if !defined(CONFIG_ENV_OFFSET)
+-#define CONFIG_ENV_OFFSET 0
+-#endif
+-
+-__weak int atf_get_env_addr(int copy, ulong *env_addr)
+-{
+-	s64 offset;
+-
+-/* TODO: Create a special partition */
+-	offset = CONFIG_ENV_OFFSET;
+-#ifdef CONFIG_ENV_OFFSET_REDUND
+-	if (copy)
+-		offset = CONFIG_ENV_OFFSET_REDUND;
+-#endif
+-
+-#if 0
+-	if (offset < 0)
+-#endif
+-
+-	*env_addr = offset;
+-
+-	return 0;
+-}
+-
+-int env_init(void)
+-{
+-	/* use default */
+-	gd->env_addr	= (ulong)&default_environment[0];
+-	gd->env_valid	= 1;
+-
+-	return 0;
+-}
+-
+-#ifdef CONFIG_CMD_SAVEENV
+-
+-static inline int write_env(unsigned long offset, const void *buffer, size_t size)
+-{
+-	/* FIXME: Remove this when ATF gets a decent MMU setup */
+-	void *lowmem_buff = (void *)CONFIG_SYS_LOWMEM_BASE;
+-	int ret;
+-
+-	memcpy(lowmem_buff, buffer, size);
+-#if defined(CONFIG_SYS_ENV_ATF_MMC)
+-	ret = atf_write_mmc(offset, lowmem_buff, size);
+-#elif defined(CONFIG_SYS_ENV_ATF_NOR)
+-	ret = atf_erase_nor(offset, size);
+-	if (ret < 0) {
+-		return ret;
+-	}
+-	ret = atf_write_nor(offset, lowmem_buff, size);
+-	if (ret < 0) {
+-		return ret;
+-	}
+-#else
+-#error "Unknown storage facility"
+-#endif
+-
+-	return 0;
+-}
+-
+-#ifdef CONFIG_ENV_OFFSET_REDUND
+-static unsigned char env_flags;
+-#endif
+-
+-int saveenv(void)
+-{
+-	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
+-	u32	offset;
+-	int	ret, copy = 0;
+-
+-	ret = env_export(env_new);
+-	if (ret)
+-		goto err;
+-
+-#ifdef CONFIG_ENV_OFFSET_REDUND
+-	env_new->flags	= ++env_flags; /* increase the serial */
+-
+-	if (gd->env_valid == 1)
+-		copy = 1;
+-#endif
+-
+-	if (atf_get_env_addr(copy, (ulong *)&offset)) {
+-		ret = 1;
+-		goto err;
+-	}
+-
+-	printf("Writing to %s environment block... ", copy ? "redundant " : "");
+-
+-	if (write_env(offset, (u_char *)env_new, CONFIG_ENV_SIZE)) {
+-		puts("failed\n");
+-		ret = 1;
+-		goto err;
+-	}
+-
+-	puts("done\n");
+-	ret = 0;
+-
+-#ifdef CONFIG_ENV_OFFSET_REDUND
+-	gd->env_valid = gd->env_valid == 2 ? 1 : 2;
+-#endif
+-
+-err:
+-	return ret;
+-}
+-#endif /* CONFIG_CMD_SAVEENV */
+-
+-static inline int read_env(unsigned long offset, void *buffer, unsigned long size)
+-{
+-	/* FIXME: Remove this when ATF gets a decent MMU setup */
+-	void *lowmem_buff = (void *)CONFIG_SYS_LOWMEM_BASE;
+-	int ret;
+-
+-#if defined(CONFIG_SYS_ENV_ATF_MMC)
+-	ret = atf_read_mmc(offset, lowmem_buff, size);
+-#elif defined(CONFIG_SYS_ENV_ATF_NOR)
+-	ret = atf_read_nor(offset, lowmem_buff, size);
+-#else
+-#error "Unknown storage facility"
+-#endif
+-
+-	memcpy(buffer, lowmem_buff, size);
+-
+-	return (ret < 0) ? ret : 0;
+-}
+-
+-#ifdef CONFIG_ENV_OFFSET_REDUND
+-void env_relocate_spec(void)
+-{
+-#if !defined(ENV_IS_EMBEDDED)
+-	ulong offset1, offset2;
+-	int read1_fail = 0, read2_fail = 0;
+-	int crc1_ok = 0, crc2_ok = 0;
+-	env_t *ep;
+-	int ret;
+-
+-	ALLOC_CACHE_ALIGN_BUFFER(env_t, tmp_env1, 1);
+-	ALLOC_CACHE_ALIGN_BUFFER(env_t, tmp_env2, 1);
+-
+-	if (tmp_env1 == NULL || tmp_env2 == NULL) {
+-		puts("Can't allocate buffers for environment\n");
+-		ret = 1;
+-		goto err;
+-	}
+-
+-	if (atf_get_env_addr(0, &offset1) ||
+-		atf_get_env_addr(1, &offset2)) {
+-		ret = 1;
+-		goto err;
+-	}
+-
+-	read1_fail = read_env(offset1, tmp_env1, CONFIG_ENV_SIZE);
+-	read2_fail = read_env(offset2, tmp_env2, CONFIG_ENV_SIZE);
+-
+-	if (read1_fail && read2_fail)
+-		puts("*** Error - No Valid Environment Area found\n");
+-	else if (read1_fail || read2_fail)
+-		puts("*** Warning - some problems detected "
+-		     "reading environment; recovered successfully\n");
+-
+-	crc1_ok = !read1_fail &&
+-		(crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
+-	crc2_ok = !read2_fail &&
+-		(crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
+-
+-	if (!crc1_ok && !crc2_ok) {
+-		ret = 1;
+-		goto err;
+-	} else if (crc1_ok && !crc2_ok) {
+-		gd->env_valid = 1;
+-	} else if (!crc1_ok && crc2_ok) {
+-		gd->env_valid = 2;
+-	} else {
+-		/* both ok - check serial */
+-		if (tmp_env1->flags == 255 && tmp_env2->flags == 0)
+-			gd->env_valid = 2;
+-		else if (tmp_env2->flags == 255 && tmp_env1->flags == 0)
+-			gd->env_valid = 1;
+-		else if (tmp_env1->flags > tmp_env2->flags)
+-			gd->env_valid = 1;
+-		else if (tmp_env2->flags > tmp_env1->flags)
+-			gd->env_valid = 2;
+-		else /* flags are equal - almost impossible */
+-			gd->env_valid = 1;
+-	}
+-
+-	free(env_ptr);
+-
+-	if (gd->env_valid == 1)
+-		ep = tmp_env1;
+-	else
+-		ep = tmp_env2;
+-
+-	env_flags = ep->flags;
+-	env_import((char *)ep, 0);
+-	ret = 0;
+-
+-err:
+-	if (ret)
+-		set_default_env(NULL);
+-
+-#endif
+-}
+-#else /* ! CONFIG_ENV_OFFSET_REDUND */
+-void env_relocate_spec(void)
+-{
+-#if !defined(ENV_IS_EMBEDDED)
+-	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
+-	ulong offset;
+-	int ret;
+-
+-	if (atf_get_env_addr(0, &offset)) {
+-		ret = 1;
+-		goto err;
+-	}
+-
+-	if (read_env(offset, buf, CONFIG_ENV_SIZE)) {
+-		ret = 1;
+-		goto err;
+-	}
+-
+-	env_import(buf, 1);
+-	ret = 0;
+-
+-err:
+-	if (ret)
+-		set_default_env(NULL);
+-#endif
+-}
+-#endif /* CONFIG_ENV_OFFSET_REDUND */
+diff --git a/configs/octeontx2_95xx_defconfig b/configs/octeontx2_95xx_defconfig
+index 51841403db..57aab8a2d4 100644
+--- a/configs/octeontx2_95xx_defconfig
++++ b/configs/octeontx2_95xx_defconfig
+@@ -2,10 +2,8 @@ CONFIG_ARM=y
+ # CONFIG_ARM64_SUPPORT_AARCH32 is not set
+ CONFIG_ARCH_OCTEONTX2=y
+ CONFIG_SYS_TEXT_BASE=0x04000000
+-CONFIG_IDENT_STRING=" for Cavium OcteonTX2 CNF95XX ARM V8 Core"
+ CONFIG_TARGET_OCTEONTX2_95XX=y
+ CONFIG_DEBUG_UART=y
+-# CONFIG_AHCI is not set
+ CONFIG_FIT=y
+ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
+@@ -14,7 +12,6 @@ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=6 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+-# CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="Cavium> "
+@@ -22,14 +19,12 @@ CONFIG_SYS_PROMPT="Cavium> "
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+ # CONFIG_CMD_FLASH is not set
+-# CONFIG_CMD_FPGA is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
+ CONFIG_CMD_PART=y
+ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+-# CONFIG_CMD_USB is not set
+ CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_TFTPSRV=y
+ CONFIG_CMD_RARP=y
+@@ -52,8 +47,6 @@ CONFIG_PARTITION_TYPE_GUID=y
+ CONFIG_OF_BOARD=y
+ CONFIG_ENV_IS_IN_SPI_FLASH=y
+ CONFIG_NET_RANDOM_ETHADDR=y
+-# CONFIG_SCSI_AHCI is not set
+-# CONFIG_AHCI_PCI is not set
+ CONFIG_BLOCK_CACHE=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DM_I2C=y
+@@ -69,15 +62,12 @@ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_SPI_FLASH_WINBOND=y
+-CONFIG_NETDEVICES=y
+-CONFIG_CAVIUM_NET_OCTEONTX2=y
+-CONFIG_OCTEONTX2_CGX=y
++CONFIG_DM_ETH=y
++CONFIG_NET_OCTEONTX2=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+ CONFIG_PCI_OCTEONTX_ECAM=y
+-CONFIG_SCSI=y
+-CONFIG_DM_SCSI=y
+ CONFIG_DM_SERIAL=y
+ CONFIG_DEBUG_UART_PL011=y
+ CONFIG_DEBUG_UART_BASE=0x87e028000000
+@@ -85,11 +75,6 @@ CONFIG_DEBUG_UART_CLOCK=24000000
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+ CONFIG_PL01X_SERIAL=y
+ CONFIG_DM_SPI=y
+-CONFIG_CAVIUM_SPI=y
+-# CONFIG_USB is not set
+-# CONFIG_DM_USB is not set
+-# CONFIG_USB_XHCI_HCD is not set
+-# CONFIG_USB_XHCI_PCI is not set
+-# CONFIG_USB_STORAGE is not set
++CONFIG_OCTEONTX_SPI=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index eb230d5a4f..8bf610a72e 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -20,7 +20,6 @@ CONFIG_SYS_PROMPT="Cavium> "
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+ # CONFIG_CMD_FLASH is not set
+-# CONFIG_CMD_FPGA is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
+@@ -68,9 +67,7 @@ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_DM_ETH=y
+-CONFIG_CAVIUM_NET_OCTEONTX2=y
+-CONFIG_OCTEONTX2_CGX=y
+-CONFIG_OCTEONTX2_RVU=y
++CONFIG_NET_OCTEONTX2=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+@@ -84,7 +81,7 @@ CONFIG_DEBUG_UART_CLOCK=24000000
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+ CONFIG_PL01X_SERIAL=y
+ CONFIG_DM_SPI=y
+-CONFIG_CAVIUM_SPI=y
++CONFIG_OCTEONTX_SPI=y
+ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_XHCI_HCD=y
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index 4e82de11fd..5728bb9108 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -81,12 +81,8 @@ CONFIG_DM_ETH=y
+ CONFIG_E1000=y
+ CONFIG_E1000_SPI=y
+ CONFIG_CMD_E1000=y
++CONFIG_NET_OCTEONTX=y
+ CONFIG_RTL8169=y
+-CONFIG_CAVIUM_NET=y
+-CONFIG_OCTEONTX_VNIC=y
+-CONFIG_OCTEONTX_BGX=y
+-CONFIG_OCTEONTX_XCV=y
+-CONFIG_OCTEONTX_SMI=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+@@ -103,7 +99,7 @@ CONFIG_DEBUG_UART_CLOCK=24000000
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+ CONFIG_PL01X_SERIAL=y
+ CONFIG_DM_SPI=y
+-CONFIG_CAVIUM_SPI=y
++CONFIG_OCTEONTX_SPI=y
+ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_XHCI_HCD=y
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index 7a6edb8678..4fdf9eb06b 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -22,7 +22,6 @@ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+ CONFIG_CMD_SHA1SUM=y
+ # CONFIG_CMD_FLASH is not set
+-# CONFIG_CMD_FPGA is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
+@@ -55,6 +54,7 @@ CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_SCSI_AHCI=y
+ CONFIG_AHCI_PCI=y
+ CONFIG_BLOCK_CACHE=y
++CONFIG_NVME=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DM_I2C=y
+ CONFIG_MISC=y
+@@ -81,12 +81,8 @@ CONFIG_DM_ETH=y
+ CONFIG_E1000=y
+ CONFIG_E1000_SPI=y
+ CONFIG_CMD_E1000=y
++CONFIG_NET_OCTEONTX=y
+ CONFIG_RTL8169=y
+-CONFIG_CAVIUM_NET=y
+-CONFIG_OCTEONTX_VNIC=y
+-CONFIG_OCTEONTX_BGX=y
+-CONFIG_OCTEONTX_SMI=y
+-CONFIG_NVME=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+@@ -102,7 +98,7 @@ CONFIG_DEBUG_UART_CLOCK=24000000
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+ CONFIG_PL01X_SERIAL=y
+ CONFIG_DM_SPI=y
+-CONFIG_CAVIUM_SPI=y
++CONFIG_OCTEONTX_SPI=y
+ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_XHCI_HCD=y
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 61791d4502..184a6aaa13 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -326,6 +326,20 @@ config MT7628_ETH
+ 	  The MediaTek MT7628 ethernet interface is used on MT7628 and
+ 	  MT7688 based boards.
+ 
++config NET_OCTEONTX
++	bool "OcteonTX Ethernet support"
++	depends on ARCH_OCTEONTX
++	help
++	  You must select Y to enable network device support for
++	  OcteonTX SoCs. If unsure, say n
++
++config NET_OCTEONTX2
++	bool "OcteonTX2 Ethernet support"
++	depends on ARCH_OCTEONTX2
++	help
++	  You must select Y to enable network device support for
++	  OcteonTX2 SoCs. If unsure, say n
++
+ config PCH_GBE
+ 	bool "Intel Platform Controller Hub EG20T GMAC driver"
+ 	depends on DM_ETH && DM_PCI
+@@ -614,6 +628,4 @@ config MVMDIO
+ 
+ 	  This driver is used by the MVPP2 and MVNETA drivers.
+ 
+-source drivers/net/cavium/Kconfig
+-
+ endif # NETDEVICES
+diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+index d6a19c2554..3d81b114b2 100644
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -62,8 +62,8 @@ obj-$(CONFIG_RENESAS_RAVB) += ravb.o
+ obj-$(CONFIG_SMC91111) += smc91111.o
+ obj-$(CONFIG_SMC911X) += smc911x.o
+ obj-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
+-obj-$(CONFIG_CAVIUM_NET) += cavium/
+-obj-$(CONFIG_CAVIUM_NET_OCTEONTX2) += cavium/octeontx2/
++obj-$(CONFIG_NET_OCTEONTX) += octeontx/
++obj-$(CONFIG_NET_OCTEONTX2) += octeontx2/
+ obj-$(CONFIG_FMAN_ENET) += fsl_mdio.o
+ obj-$(CONFIG_ULI526X) += uli526x.o
+ obj-$(CONFIG_VSC7385_ENET) += vsc7385.o
+diff --git a/drivers/net/cavium/Kconfig b/drivers/net/cavium/Kconfig
+deleted file mode 100644
+index aa04ba90c9..0000000000
+--- a/drivers/net/cavium/Kconfig
++++ /dev/null
+@@ -1,37 +0,0 @@
+-config CAVIUM_NET
+-	bool "Cavium Ethernet support"
+-	depends on NET && ARCH_OCTEONTX
+-	help
+-	  You must select Y to enable cavium network device support
+-
+-	  If unsure, say n
+-
+-if CAVIUM_NET
+-
+-config OCTEONTX_VNIC
+-	bool "Enable vNIC device support"
+-	depends on CAVIUM_NET
+-	help
+-	  Enables support for NIC controller
+-
+-config OCTEONTX_BGX
+-	bool "Enable BGX device support"
+-	depends on CAVIUM_NET
+-	help
+-	  Enables support for LMAC layer
+-
+-config OCTEONTX_XCV
+-	bool "Enable RGMII(XCV) device support"
+-	depends on CAVIUM_NET
+-	help
+-	  Enables support for RGMII
+-
+-config OCTEONTX_SMI
+-	bool "Enable MDIO device support"
+-	depends on CAVIUM_NET
+-	help
+-	  Enables support for SMI/MDIO bus controller
+-
+-endif
+-
+-source drivers/net/cavium/octeontx2/Kconfig
+diff --git a/drivers/net/cavium/Makefile b/drivers/net/cavium/Makefile
+deleted file mode 100644
+index 5662682da1..0000000000
+--- a/drivers/net/cavium/Makefile
++++ /dev/null
+@@ -1,9 +0,0 @@
+-#
+-# (C) Copyright 2014, Cavium Inc.
+-#
+-# SPDX-License-Identifier:	GPL-2.0+
+-#
+-obj-$(CONFIG_OCTEONTX_BGX) += octeontx_bgx.o
+-obj-$(CONFIG_OCTEONTX_VNIC) += nic_main.o nicvf_queues.o nicvf_main.o
+-obj-$(CONFIG_OCTEONTX_SMI) += octeontx_smi.o
+-obj-$(CONFIG_OCTEONTX_XCV) += octeontx_xcv.o
+diff --git a/drivers/net/cavium/octeontx2/Kconfig b/drivers/net/cavium/octeontx2/Kconfig
+deleted file mode 100644
+index e2c6bb301b..0000000000
+--- a/drivers/net/cavium/octeontx2/Kconfig
++++ /dev/null
+@@ -1,21 +0,0 @@
+-config CAVIUM_NET_OCTEONTX2
+-	bool "Cavium Ethernet support for OCTEONTX2 chips"
+-	depends on NET && ARCH_OCTEONTX2
+-	help
+-	  You must select Y to enable cavium network device support
+-
+-	  If unsure, say n
+-
+-if CAVIUM_NET_OCTEONTX2
+-
+-config OCTEONTX2_CGX
+-	bool "Enable CGX device support"
+-	help
+-	  Enables support for LMAC layer
+-
+-config OCTEONTX2_RVU
+-	bool "Enable RVU support"
+-	help
+-	  Enables support for Resource Virtualization Co-processor Unit
+-
+-endif
+diff --git a/drivers/net/cavium/octeontx2/Makefile b/drivers/net/cavium/octeontx2/Makefile
+deleted file mode 100644
+index 3cc3ad8132..0000000000
+--- a/drivers/net/cavium/octeontx2/Makefile
++++ /dev/null
+@@ -1,8 +0,0 @@
+-#
+-# (C) Copyright 2018, Cavium Inc.
+-#
+-# SPDX-License-Identifier:	GPL-2.0+
+-#
+-obj-$(CONFIG_OCTEONTX2_CGX) += cgx_intf.o cgx.o nix_af.o nix.o
+-obj-$(CONFIG_OCTEONTX2_RVU) += rvu_pf.o rvu_af.o rvu_common.o
+-#obj-y += cgx_intf.o cgx.o rvu_pf.o rvu_af.o
+diff --git a/drivers/net/octeontx/Makefile b/drivers/net/octeontx/Makefile
+new file mode 100644
+index 0000000000..2367d30999
+--- /dev/null
++++ b/drivers/net/octeontx/Makefile
+@@ -0,0 +1,7 @@
++#
++# (C) Copyright 2014, Cavium Inc.
++#
++# SPDX-License-Identifier:	GPL-2.0+
++#
++obj-$(CONFIG_NET_OCTEONTX) += octeontx_bgx.o nic_main.o nicvf_queues.o \
++		nicvf_main.o octeontx_smi.o octeontx_xcv.o
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/octeontx/nic.h
+similarity index 100%
+rename from drivers/net/cavium/nic.h
+rename to drivers/net/octeontx/nic.h
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/octeontx/nic_main.c
+similarity index 100%
+rename from drivers/net/cavium/nic_main.c
+rename to drivers/net/octeontx/nic_main.c
+diff --git a/drivers/net/cavium/nic_reg.h b/drivers/net/octeontx/nic_reg.h
+similarity index 100%
+rename from drivers/net/cavium/nic_reg.h
+rename to drivers/net/octeontx/nic_reg.h
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/octeontx/nicvf_main.c
+similarity index 100%
+rename from drivers/net/cavium/nicvf_main.c
+rename to drivers/net/octeontx/nicvf_main.c
+diff --git a/drivers/net/cavium/nicvf_queues.c b/drivers/net/octeontx/nicvf_queues.c
+similarity index 100%
+rename from drivers/net/cavium/nicvf_queues.c
+rename to drivers/net/octeontx/nicvf_queues.c
+diff --git a/drivers/net/cavium/nicvf_queues.h b/drivers/net/octeontx/nicvf_queues.h
+similarity index 100%
+rename from drivers/net/cavium/nicvf_queues.h
+rename to drivers/net/octeontx/nicvf_queues.h
+diff --git a/drivers/net/cavium/octeontx_bgx.c b/drivers/net/octeontx/octeontx_bgx.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx_bgx.c
+rename to drivers/net/octeontx/octeontx_bgx.c
+diff --git a/drivers/net/cavium/octeontx_bgx.h b/drivers/net/octeontx/octeontx_bgx.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx_bgx.h
+rename to drivers/net/octeontx/octeontx_bgx.h
+diff --git a/drivers/net/cavium/octeontx_smi.c b/drivers/net/octeontx/octeontx_smi.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx_smi.c
+rename to drivers/net/octeontx/octeontx_smi.c
+diff --git a/drivers/net/cavium/octeontx_xcv.c b/drivers/net/octeontx/octeontx_xcv.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx_xcv.c
+rename to drivers/net/octeontx/octeontx_xcv.c
+diff --git a/drivers/net/cavium/q_struct.h b/drivers/net/octeontx/q_struct.h
+similarity index 100%
+rename from drivers/net/cavium/q_struct.h
+rename to drivers/net/octeontx/q_struct.h
+diff --git a/drivers/net/octeontx2/Makefile b/drivers/net/octeontx2/Makefile
+new file mode 100644
+index 0000000000..bc72ea17b4
+--- /dev/null
++++ b/drivers/net/octeontx2/Makefile
+@@ -0,0 +1,7 @@
++#
++# (C) Copyright 2018, Cavium Inc.
++#
++# SPDX-License-Identifier:	GPL-2.0+
++#
++obj-$(CONFIG_NET_OCTEONTX2) += cgx_intf.o cgx.o nix_af.o nix.o rvu_pf.o \
++				rvu_af.o rvu_common.o
+diff --git a/drivers/net/cavium/octeontx2/cavm-csrs-cgx.h b/drivers/net/octeontx2/cavm-csrs-cgx.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cavm-csrs-cgx.h
+rename to drivers/net/octeontx2/cavm-csrs-cgx.h
+diff --git a/drivers/net/cavium/octeontx2/cavm-csrs-lmt.h b/drivers/net/octeontx2/cavm-csrs-lmt.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cavm-csrs-lmt.h
+rename to drivers/net/octeontx2/cavm-csrs-lmt.h
+diff --git a/drivers/net/cavium/octeontx2/cavm-csrs-nix.h b/drivers/net/octeontx2/cavm-csrs-nix.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cavm-csrs-nix.h
+rename to drivers/net/octeontx2/cavm-csrs-nix.h
+diff --git a/drivers/net/cavium/octeontx2/cavm-csrs-npa.h b/drivers/net/octeontx2/cavm-csrs-npa.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cavm-csrs-npa.h
+rename to drivers/net/octeontx2/cavm-csrs-npa.h
+diff --git a/drivers/net/cavium/octeontx2/cavm-csrs-npc.h b/drivers/net/octeontx2/cavm-csrs-npc.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cavm-csrs-npc.h
+rename to drivers/net/octeontx2/cavm-csrs-npc.h
+diff --git a/drivers/net/cavium/octeontx2/cavm-csrs-rvu.h b/drivers/net/octeontx2/cavm-csrs-rvu.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cavm-csrs-rvu.h
+rename to drivers/net/octeontx2/cavm-csrs-rvu.h
+diff --git a/drivers/net/cavium/octeontx2/cgx.c b/drivers/net/octeontx2/cgx.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cgx.c
+rename to drivers/net/octeontx2/cgx.c
+diff --git a/drivers/net/cavium/octeontx2/cgx.h b/drivers/net/octeontx2/cgx.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cgx.h
+rename to drivers/net/octeontx2/cgx.h
+diff --git a/drivers/net/cavium/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cgx_intf.c
+rename to drivers/net/octeontx2/cgx_intf.c
+diff --git a/drivers/net/cavium/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/cgx_intf.h
+rename to drivers/net/octeontx2/cgx_intf.h
+diff --git a/drivers/net/cavium/octeontx2/lmt.h b/drivers/net/octeontx2/lmt.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/lmt.h
+rename to drivers/net/octeontx2/lmt.h
+diff --git a/drivers/net/cavium/octeontx2/nix.c b/drivers/net/octeontx2/nix.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/nix.c
+rename to drivers/net/octeontx2/nix.c
+diff --git a/drivers/net/cavium/octeontx2/nix.h b/drivers/net/octeontx2/nix.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/nix.h
+rename to drivers/net/octeontx2/nix.h
+diff --git a/drivers/net/cavium/octeontx2/nix_af.c b/drivers/net/octeontx2/nix_af.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/nix_af.c
+rename to drivers/net/octeontx2/nix_af.c
+diff --git a/drivers/net/cavium/octeontx2/npc.c b/drivers/net/octeontx2/npc.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/npc.c
+rename to drivers/net/octeontx2/npc.c
+diff --git a/drivers/net/cavium/octeontx2/npc.h b/drivers/net/octeontx2/npc.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/npc.h
+rename to drivers/net/octeontx2/npc.h
+diff --git a/drivers/net/cavium/octeontx2/npc_profile.h b/drivers/net/octeontx2/npc_profile.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/npc_profile.h
+rename to drivers/net/octeontx2/npc_profile.h
+diff --git a/drivers/net/cavium/octeontx2/npc_reg.h b/drivers/net/octeontx2/npc_reg.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/npc_reg.h
+rename to drivers/net/octeontx2/npc_reg.h
+diff --git a/drivers/net/cavium/octeontx2/rvu.h b/drivers/net/octeontx2/rvu.h
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/rvu.h
+rename to drivers/net/octeontx2/rvu.h
+diff --git a/drivers/net/cavium/octeontx2/rvu_af.c b/drivers/net/octeontx2/rvu_af.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/rvu_af.c
+rename to drivers/net/octeontx2/rvu_af.c
+diff --git a/drivers/net/cavium/octeontx2/rvu_common.c b/drivers/net/octeontx2/rvu_common.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/rvu_common.c
+rename to drivers/net/octeontx2/rvu_common.c
+diff --git a/drivers/net/cavium/octeontx2/rvu_pf.c b/drivers/net/octeontx2/rvu_pf.c
+similarity index 100%
+rename from drivers/net/cavium/octeontx2/rvu_pf.c
+rename to drivers/net/octeontx2/rvu_pf.c
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index 813b629638..bc1d79743f 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -101,10 +101,10 @@ config CF_SPI
+           Enable the ColdFire SPI driver. This driver can be used on
+           some m68k SoCs.
+ 
+-config CAVIUM_SPI
+-	bool "Cavium SPI driver"
++config OCTEONTX_SPI
++	bool "OcteonTX SPI driver"
+ 	help
+-	  Enable the Cavium SPI driver. This driver can be used to
++	  Enable the OcteonTX SPI driver. This driver can be used to
+ 	  access the SPI NOR flash on OcteonTX SoC platforms.
+ 
+ config DESIGNWARE_SPI
+diff --git a/drivers/spi/Makefile b/drivers/spi/Makefile
+index 057c4a5c82..296eb11da8 100644
+--- a/drivers/spi/Makefile
++++ b/drivers/spi/Makefile
+@@ -24,7 +24,7 @@ obj-$(CONFIG_BCM63XX_HSSPI) += bcm63xx_hsspi.o
+ obj-$(CONFIG_BCM63XX_SPI) += bcm63xx_spi.o
+ obj-$(CONFIG_BCMSTB_SPI) += bcmstb_spi.o
+ obj-$(CONFIG_CADENCE_QSPI) += cadence_qspi.o cadence_qspi_apb.o
+-obj-$(CONFIG_CAVIUM_SPI) += cavium_spi.o
++obj-$(CONFIG_OCTEONTX_SPI) += octeontx_spi.o
+ obj-$(CONFIG_CF_SPI) += cf_spi.o
+ obj-$(CONFIG_DAVINCI_SPI) += davinci_spi.o
+ obj-$(CONFIG_DESIGNWARE_SPI) += designware_spi.o
+diff --git a/drivers/spi/cavium_spi.c b/drivers/spi/octeontx_spi.c
+similarity index 100%
+rename from drivers/spi/cavium_spi.c
+rename to drivers/spi/octeontx_spi.c
+diff --git a/include/configs/octeontx_81xx.h b/include/configs/octeontx_81xx.h
+index 73c536dda7..8ded0736b1 100644
+--- a/include/configs/octeontx_81xx.h
++++ b/include/configs/octeontx_81xx.h
+@@ -49,6 +49,7 @@
+ 
+ /** Maximum total number of BGX interfaces across all nodes */
+ #define CONFIG_MAX_BGX			3
++#define CONFIG_OCTEONTX_XCV
+ 
+ #define CONFIG_MISC_INIT_R
+ 
+-- 
+2.29.0
+

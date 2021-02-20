@@ -1,0 +1,29 @@
+From e4efb66a095c1190fd95be8f21a02aa91b2946d8 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Sun, 10 Mar 2019 13:57:45 -0700
+Subject: [PATCH 0895/1239] configs: cn96xx: Enable mmc driver
+
+Change-Id: Ia69b439a34516326b6611f1e74077fcc9900e94a
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/5461
+Tested-by: sa_ip-sw-jenkins
+---
+ configs/octeontx2_96xx_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 53765c6c4f..7f39f2542c 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -69,7 +69,7 @@ CONFIG_I2C_MUX_PCA954x=y
+ CONFIG_MISC=y
+ CONFIG_MMC=y
+ CONFIG_DM_MMC=y
+-CONFIG_MMC_OCTEONTX is not set
++CONFIG_MMC_OCTEONTX=y
+ CONFIG_MTD=y
+ CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH=y
+-- 
+2.29.0
+

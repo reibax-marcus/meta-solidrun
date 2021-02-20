@@ -1,0 +1,28 @@
+From 3512d3bc06e58696f6a1d377920762ede62a0a98 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Fri, 27 May 2016 15:05:36 -0700
+Subject: [PATCH 0488/1239] Hide printing NOPs when printing device tree if
+ 'fdt-hide-nop' env variable is set
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ cmd/fdt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/cmd/fdt.c b/cmd/fdt.c
+index 25a6ed40d2..bf6c670234 100644
+--- a/cmd/fdt.c
++++ b/cmd/fdt.c
+@@ -1090,7 +1090,8 @@ static int fdt_print(const char *pathp, char *prop, int depth)
+ 			}
+ 			break;
+ 		case FDT_NOP:
+-			printf("%s/* NOP */\n", &tabs[MAX_LEVEL - level]);
++			if (!getenv("fdt_hide_nop"))
++				printf("%s/* NOP */\n", &tabs[MAX_LEVEL - level]);
+ 			break;
+ 		case FDT_END:
+ 			return 1;
+-- 
+2.29.0
+

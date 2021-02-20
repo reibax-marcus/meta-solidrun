@@ -1,0 +1,30 @@
+From 2f58b389f44cd464f61b3d71d4d95474b1fde209 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Sun, 5 Jun 2016 22:54:17 -0700
+Subject: [PATCH 0492/1239] thunderx: mdio: Fix operation type for SMI write
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/net/cavium/thunderx_smi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/cavium/thunderx_smi.c b/drivers/net/cavium/thunderx_smi.c
+index 2fa7c64f55..243bf5ecd6 100644
+--- a/drivers/net/cavium/thunderx_smi.c
++++ b/drivers/net/cavium/thunderx_smi.c
+@@ -230,10 +230,10 @@ int thunderx_phy_write(struct mii_dev *bus, int addr, int devad, int regnum,
+ 
+ 	if (mode == CLAUSE45) {
+ 		smix_cmd.s.reg_adr = devad;
+-		smix_cmd.s.phy_op = SMI_OP_C45_READ;
++		smix_cmd.s.phy_op = SMI_OP_C45_WRITE;
+ 	} else {
+ 		smix_cmd.s.reg_adr = regnum;
+-		smix_cmd.s.phy_op = SMI_OP_C22_READ;
++		smix_cmd.s.phy_op = SMI_OP_C22_WRITE;
+ 	}
+ 
+ 	writeq(smix_cmd.u, priv->baseaddr + SMI_X_CMD);
+-- 
+2.29.0
+

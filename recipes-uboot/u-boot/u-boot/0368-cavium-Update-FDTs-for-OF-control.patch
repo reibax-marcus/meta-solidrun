@@ -1,0 +1,85 @@
+From 5a824419a523eadad92171fd445fd16f78d2d974 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 10 Nov 2015 12:45:57 -0800
+Subject: [PATCH 0368/1239] cavium: Update FDTs for OF control
+
+---
+ arch/arm/dts/thunder-88xx-2n.dts  | 4 ++++
+ arch/arm/dts/thunder-88xx-2n.dtsi | 2 ++
+ arch/arm/dts/thunder-88xx.dts     | 4 ++++
+ arch/arm/dts/thunder-88xx.dtsi    | 2 ++
+ 4 files changed, 12 insertions(+)
+
+diff --git a/arch/arm/dts/thunder-88xx-2n.dts b/arch/arm/dts/thunder-88xx-2n.dts
+index ae1933eee9..7dba5a9577 100644
+--- a/arch/arm/dts/thunder-88xx-2n.dts
++++ b/arch/arm/dts/thunder-88xx-2n.dts
+@@ -61,6 +61,10 @@
+ 		serial1 = &uaa1;
+ 	};
+ 
++	chosen {
++		stdout-path = &uaa0;
++	};
++
+ 	memory@00000000 {
+ 		device_type = "memory";
+ 		reg = <0x0 0x01400000 0x3 0xFEC00000>;
+diff --git a/arch/arm/dts/thunder-88xx-2n.dtsi b/arch/arm/dts/thunder-88xx-2n.dtsi
+index 6160b80e6a..6eb461f68e 100644
+--- a/arch/arm/dts/thunder-88xx-2n.dtsi
++++ b/arch/arm/dts/thunder-88xx-2n.dtsi
+@@ -1093,6 +1093,7 @@
+ 			interrupts = <0 5 4>;
+ 			clocks = <&refclkuaa>;
+ 			clock-names = "apb_pclk";
++			uboot,skip-init;
+ 		};
+ 
+ 		uaa1: serial@87e0,25000000 {
+@@ -1101,6 +1102,7 @@
+ 			interrupts = <0 6 4>;
+ 			clocks = <&refclkuaa>;
+ 			clock-names = "apb_pclk";
++			uboot,skip-init;
+ 		};
+ 
+ 		smmu0@8300,00000000 {
+diff --git a/arch/arm/dts/thunder-88xx.dts b/arch/arm/dts/thunder-88xx.dts
+index 05fc39e065..91bb24b27b 100644
+--- a/arch/arm/dts/thunder-88xx.dts
++++ b/arch/arm/dts/thunder-88xx.dts
+@@ -61,6 +61,10 @@
+ 		serial1 = &uaa1;
+ 	};
+ 
++	chosen {
++		stdout-path = &uaa0;
++	};
++
+ 	memory@00000000 {
+ 		device_type = "memory";
+ 		reg = <0x0 0x01400000 0x3 0xFEC00000>;
+diff --git a/arch/arm/dts/thunder-88xx.dtsi b/arch/arm/dts/thunder-88xx.dtsi
+index 2225a31585..0fc2e64374 100644
+--- a/arch/arm/dts/thunder-88xx.dtsi
++++ b/arch/arm/dts/thunder-88xx.dtsi
+@@ -602,6 +602,7 @@
+ 			interrupts = <0 5 4>;
+ 			clocks = <&refclkuaa>;
+ 			clock-names = "apb_pclk";
++			uboot,skip-init;
+ 		};
+ 
+ 		uaa1: serial@87e0,25000000 {
+@@ -610,6 +611,7 @@
+ 			interrupts = <0 6 4>;
+ 			clocks = <&refclkuaa>;
+ 			clock-names = "apb_pclk";
++			uboot,skip-init;
+ 		};
+ 
+ 		smmu0@8300,00000000 {
+-- 
+2.29.0
+

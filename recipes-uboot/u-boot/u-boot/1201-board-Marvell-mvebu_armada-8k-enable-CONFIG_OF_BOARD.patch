@@ -1,0 +1,210 @@
+From af112f27b8c450bd96f9793179f3ca938d68831c Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Sun, 26 Jul 2020 14:37:30 +0300
+Subject: [PATCH 1201/1239] board/Marvell/mvebu_armada-8k: enable
+ CONFIG_OF_BOARD_SETUP
+
+Add support for ft_board_setup() call to all Armad-8K boards.
+The ft_board_setup implements call to fdt_fixup_kaslr for
+KASLR seed insertion into the board DTB.
+The TF-A FW should support the SIP_RNG_64 SMC call for returning
+the TRNG seed value from the HW generator.
+
+Change-Id: Ia1c6fc50674fb421caacd2984a699a80d814e2db
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32679
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ board/Marvell/mvebu_armada-8k/board.c      | 16 ++++++++++++++++
+ board/Marvell/octeontx2_cn913x/board.c     | 16 ++++++++++++++++
+ configs/mvebu_comexpress-88f7020_defconfig |  3 ++-
+ configs/mvebu_crb_cn9130_defconfig         |  3 ++-
+ configs/mvebu_crb_ep_cn9130_defconfig      |  3 ++-
+ configs/mvebu_db_armada8k_defconfig        |  3 ++-
+ configs/mvebu_db_cn91xx_defconfig          |  3 ++-
+ configs/mvebu_db_ep_cn91xx_defconfig       |  3 ++-
+ configs/mvebu_mcbin-88f8040_defconfig      |  1 +
+ configs/mvebu_ocp-88f8040_defconfig        |  3 ++-
+ configs/mvebu_ucpe-88f8040_defconfig       |  3 ++-
+ 11 files changed, 49 insertions(+), 8 deletions(-)
+
+diff --git a/board/Marvell/mvebu_armada-8k/board.c b/board/Marvell/mvebu_armada-8k/board.c
+index c348b8c630..7896219352 100644
+--- a/board/Marvell/mvebu_armada-8k/board.c
++++ b/board/Marvell/mvebu_armada-8k/board.c
+@@ -14,6 +14,9 @@
+ #ifdef CONFIG_BOARD_CONFIG_EEPROM
+ #include <mvebu/cfg_eeprom.h>
+ #endif
++#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
++#include <asm/armv8/sec_firmware.h>
++#endif
+ 
+ #define CP_USB20_BASE_REG(cp, p)	(MVEBU_REGS_BASE_CP(0, cp) + \
+ 						0x00580000 + 0x1000 * (p))
+@@ -130,3 +133,16 @@ int board_late_init(void)
+ #endif
+ 	return 0;
+ }
++
++void ft_cpu_setup(void *blob, bd_t *bd)
++{
++#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
++	fdt_fixup_kaslr(blob);
++#endif
++}
++
++int ft_board_setup(void *blob, bd_t *bd)
++{
++	ft_cpu_setup(blob, bd);
++	return 0;
++}
+diff --git a/board/Marvell/octeontx2_cn913x/board.c b/board/Marvell/octeontx2_cn913x/board.c
+index 00b475769b..457f9d4a36 100644
+--- a/board/Marvell/octeontx2_cn913x/board.c
++++ b/board/Marvell/octeontx2_cn913x/board.c
+@@ -16,6 +16,9 @@
+ #ifdef CONFIG_BOARD_CONFIG_EEPROM
+ #include <mvebu/cfg_eeprom.h>
+ #endif
++#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
++#include <asm/armv8/sec_firmware.h>
++#endif
+ 
+ #define CP_USB20_BASE_REG(cp, p)	(MVEBU_REGS_BASE_CP(0, cp) + \
+ 						0x00580000 + 0x1000 * (p))
+@@ -119,3 +122,16 @@ int board_late_init(void)
+ #endif
+ 	return 0;
+ }
++
++void ft_cpu_setup(void *blob, bd_t *bd)
++{
++#ifdef CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT
++	fdt_fixup_kaslr(blob);
++#endif
++}
++
++int ft_board_setup(void *blob, bd_t *bd)
++{
++	ft_cpu_setup(blob, bd);
++	return 0;
++}
+diff --git a/configs/mvebu_comexpress-88f7020_defconfig b/configs/mvebu_comexpress-88f7020_defconfig
+index 2366e379d3..be7c609a0e 100644
+--- a/configs/mvebu_comexpress-88f7020_defconfig
++++ b/configs/mvebu_comexpress-88f7020_defconfig
+@@ -101,4 +101,5 @@ CONFIG_SMBIOS_MANUFACTURER=""
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+-CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
++CONFIG_UPDATE_TFTP=y
++CONFIG_OF_BOARD_SETUP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_crb_cn9130_defconfig b/configs/mvebu_crb_cn9130_defconfig
+index 2033e24609..b699ca0024 100644
+--- a/configs/mvebu_crb_cn9130_defconfig
++++ b/configs/mvebu_crb_cn9130_defconfig
+@@ -106,4 +106,5 @@ CONFIG_SMBIOS_MANUFACTURER=""
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+-CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
++CONFIG_UPDATE_TFTP=y
++CONFIG_OF_BOARD_SETUP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_crb_ep_cn9130_defconfig b/configs/mvebu_crb_ep_cn9130_defconfig
+index 060642d896..b18b96d38a 100644
+--- a/configs/mvebu_crb_ep_cn9130_defconfig
++++ b/configs/mvebu_crb_ep_cn9130_defconfig
+@@ -109,4 +109,5 @@ CONFIG_SMBIOS_MANUFACTURER=""
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+-CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
++CONFIG_UPDATE_TFTP=y
++CONFIG_OF_BOARD_SETUP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index 1a4d9675af..a09f5f1e1d 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -112,4 +112,5 @@ CONFIG_SMBIOS_MANUFACTURER=""
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+-CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
++CONFIG_UPDATE_TFTP=y
++CONFIG_OF_BOARD_SETUP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_db_cn91xx_defconfig b/configs/mvebu_db_cn91xx_defconfig
+index 65810a2535..cc314efe33 100644
+--- a/configs/mvebu_db_cn91xx_defconfig
++++ b/configs/mvebu_db_cn91xx_defconfig
+@@ -102,4 +102,5 @@ CONFIG_SMBIOS_MANUFACTURER=""
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+-CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
++CONFIG_UPDATE_TFTP=y
++CONFIG_OF_BOARD_SETUP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_db_ep_cn91xx_defconfig b/configs/mvebu_db_ep_cn91xx_defconfig
+index 390f48309f..caf8cb6899 100644
+--- a/configs/mvebu_db_ep_cn91xx_defconfig
++++ b/configs/mvebu_db_ep_cn91xx_defconfig
+@@ -106,4 +106,5 @@ CONFIG_SMBIOS_MANUFACTURER=""
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+-CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
++CONFIG_UPDATE_TFTP=y
++CONFIG_OF_BOARD_SETUP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_mcbin-88f8040_defconfig b/configs/mvebu_mcbin-88f8040_defconfig
+index 0799c0d5a0..8b3d7b57ab 100644
+--- a/configs/mvebu_mcbin-88f8040_defconfig
++++ b/configs/mvebu_mcbin-88f8040_defconfig
+@@ -102,3 +102,4 @@ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+ CONFIG_UPDATE_TFTP=y
++CONFIG_OF_BOARD_SETUP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_ocp-88f8040_defconfig b/configs/mvebu_ocp-88f8040_defconfig
+index 6ac4fb002c..b550ef1ad2 100644
+--- a/configs/mvebu_ocp-88f8040_defconfig
++++ b/configs/mvebu_ocp-88f8040_defconfig
+@@ -97,4 +97,5 @@ CONFIG_SMBIOS_MANUFACTURER=""
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+-CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
++CONFIG_UPDATE_TFTP=y
++CONFIG_OF_BOARD_SETUP=y
+\ No newline at end of file
+diff --git a/configs/mvebu_ucpe-88f8040_defconfig b/configs/mvebu_ucpe-88f8040_defconfig
+index ed15f5129a..bd84651db8 100644
+--- a/configs/mvebu_ucpe-88f8040_defconfig
++++ b/configs/mvebu_ucpe-88f8040_defconfig
+@@ -90,4 +90,5 @@ CONFIG_SMBIOS_MANUFACTURER=""
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+-CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
++CONFIG_UPDATE_TFTP=y
++CONFIG_OF_BOARD_SETUP=y
+\ No newline at end of file
+-- 
+2.29.0
+

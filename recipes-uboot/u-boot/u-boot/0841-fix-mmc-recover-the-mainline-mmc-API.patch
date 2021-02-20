@@ -1,0 +1,184 @@
+From 8486e1690c5c1af3b150e1f83daf65b33936c29e Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Wed, 5 Dec 2018 13:54:18 +0200
+Subject: [PATCH 0841/1239] fix: mmc: recover the mainline mmc API
+
+Surround Octeon-specific code with #ifdef and allow the original
+mmc driver API for passing "bubt" compilation.
+
+Change-Id: Ia4039c29fb42dd482fe9fbc3bd4c627171acb3ad
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ cmd/mmc.c                | 20 ++++++++++++++++++++
+ drivers/mmc/mmc-uclass.c | 17 ++++++++++++++++-
+ env/mmc.c                | 14 ++++++++++++--
+ include/mmc.h            |  5 ++++-
+ 4 files changed, 52 insertions(+), 4 deletions(-)
+
+diff --git a/cmd/mmc.c b/cmd/mmc.c
+index 6ee11e0b25..1048bc495b 100644
+--- a/cmd/mmc.c
++++ b/cmd/mmc.c
+@@ -284,7 +284,11 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
+ #ifndef CONFIG_BLK
+ 	original_part = mmc->block_dev.hwpart;
+ #else
++#ifdef CONFIG_MMC_CAVIUM
+ 	original_part = mmc_get_blk_desc(mmc, curr_device)->hwpart;
++#else
++	original_part = mmc_get_blk_desc(mmc)->hwpart;
++#endif
+ #endif
+ 	if (blk_select_hwpart_devnum(IF_TYPE_MMC, curr_device, MMC_PART_RPMB) !=
+ 	    0)
+@@ -320,7 +324,11 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
+ 	printf("\nMMC read: dev # %d, block # %d, count %d ... ",
+ 	       curr_device, blk, cnt);
+ 
++#ifdef CONFIG_MMC_CAVIUM
+ 	n = blk_dread(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
++#else
++	n = blk_dread(mmc_get_blk_desc(mmc), blk, cnt, addr);
++#endif
+ 	printf("%d blocks read: %s\n", n, (n == cnt) ? "OK" : "ERROR");
+ 
+ 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+@@ -417,7 +425,11 @@ static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
+ 		printf("Error: card is write protected!\n");
+ 		return CMD_RET_FAILURE;
+ 	}
++#ifdef CONFIG_MMC_CAVIUM
+ 	n = blk_dwrite(mmc_get_blk_desc(mmc, curr_device), blk, cnt, addr);
++#else
++	n = blk_dwrite(mmc_get_blk_desc(mmc), blk, cnt, addr);
++#endif
+ 	printf("%d blocks written: %s\n", n, (n == cnt) ? "OK" : "ERROR");
+ 
+ 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+@@ -445,7 +457,11 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
+ 		printf("Error: card is write protected!\n");
+ 		return CMD_RET_FAILURE;
+ 	}
++#ifdef CONFIG_MMC_CAVIUM
+ 	n = blk_derase(mmc_get_blk_desc(mmc, curr_device), blk, cnt);
++#else
++	n = blk_derase(mmc_get_blk_desc(mmc), blk, cnt);
++#endif
+ 	printf("%d blocks erased: %s\n", n, (n == cnt) ? "OK" : "ERROR");
+ 
+ 	return (n == cnt) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+@@ -520,7 +536,11 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
+ 	else
+ 		printf("mmc%d(part %d) is current device\n",
+ 		       curr_device,
++#ifdef CONFIG_MMC_CAVIUM
+ 		       mmc_get_blk_desc(mmc, curr_device)->hwpart);
++#else
++		       mmc_get_blk_desc(mmc)->hwpart);
++#endif
+ 
+ 	return CMD_RET_SUCCESS;
+ }
+diff --git a/drivers/mmc/mmc-uclass.c b/drivers/mmc/mmc-uclass.c
+index 69e69b5fcd..37253830af 100644
+--- a/drivers/mmc/mmc-uclass.c
++++ b/drivers/mmc/mmc-uclass.c
+@@ -256,6 +256,7 @@ int mmc_get_next_devnum(void)
+ 	return blk_find_max_devnum(IF_TYPE_MMC);
+ }
+ 
++#ifdef CONFIG_MMC_CAVIUM
+ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum)
+ {
+ 	struct blk_desc *desc;
+@@ -271,6 +272,20 @@ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum)
+ 	}
+ 	return NULL;
+ }
++#else
++struct blk_desc *mmc_get_blk_desc(struct mmc *mmc)
++{
++	struct blk_desc *desc;
++	struct udevice *dev;
++ 
++	device_find_first_child(mmc->dev, &dev);
++	if (!dev)
++		return NULL;
++	desc = dev_get_uclass_platdata(dev);
++
++	return desc;
++}
++#endif
+ 
+ void mmc_do_preinit(void)
+ {
+@@ -419,8 +434,8 @@ int mmc_unbind(struct udevice *dev)
+ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
+ {
+ 	struct udevice *mmc_dev = dev_get_parent(bdev);
+-#ifdef CONFIG_MMC_OCTEONTX
+ 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
++#ifdef CONFIG_MMC_OCTEONTX
+ 	struct octeontx_mmc_host *host = dev_get_priv(mmc_dev);
+ 	struct mmc *mmc = host->slots[desc->devnum].mmc;
+ 
+diff --git a/env/mmc.c b/env/mmc.c
+index 25eac2abd7..fe26dab09e 100644
+--- a/env/mmc.c
++++ b/env/mmc.c
+@@ -143,7 +143,11 @@ static int mmc_set_env_part(struct mmc *mmc)
+ 	int ret = 0;
+ 
+ 	env_mmc_orig_hwpart =
++#ifdef CONFIG_MMC_CAVIUM
+ 		mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV)->hwpart;
++#else
++		mmc_get_blk_desc(mmc)->hwpart;
++#endif
+ 	ret = blk_select_hwpart_devnum(IF_TYPE_MMC, dev, part);
+ 	if (ret)
+ 		puts("MMC partition switch failed\n");
+@@ -188,8 +192,11 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
+ 			    unsigned long offset, const void *buffer)
+ {
+ 	uint blk_start, blk_cnt, n;
++#ifdef CONFIG_MMC_CAVIUM
+ 	struct blk_desc *desc = mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV);
+-
++#else
++	struct blk_desc *desc = mmc_get_blk_desc(mmc);
++#endif
+ 	blk_start	= ALIGN(offset, mmc->write_bl_len) / mmc->write_bl_len;
+ 	blk_cnt		= ALIGN(size, mmc->write_bl_len) / mmc->write_bl_len;
+ 
+@@ -298,8 +305,11 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
+ 			   unsigned long offset, const void *buffer)
+ {
+ 	uint blk_start, blk_cnt, n;
++#ifdef CONFIG_MMC_CAVIUM
+ 	struct blk_desc *desc = mmc_get_blk_desc(mmc, CONFIG_SYS_MMC_ENV_DEV);
+-
++#else
++	struct blk_desc *desc = mmc_get_blk_desc(mmc);
++#endif
+ 	blk_start	= ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
+ 	blk_cnt		= ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
+ 
+diff --git a/include/mmc.h b/include/mmc.h
+index fd0463f0f2..f37bc3057b 100644
+--- a/include/mmc.h
++++ b/include/mmc.h
+@@ -888,6 +888,9 @@ int mmc_get_env_dev(void);
+  * @devnum:	device number
+  * @return block device if found, else NULL
+  */
++#ifdef CONFIG_MMC_CAVIUM
+ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum);
+-
++#else
++struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
++#endif
+ #endif /* _MMC_H_ */
+-- 
+2.29.0
+

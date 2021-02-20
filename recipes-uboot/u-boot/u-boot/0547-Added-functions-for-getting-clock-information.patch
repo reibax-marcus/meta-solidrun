@@ -1,0 +1,106 @@
+From bc1e64e0fddc85da5558a782a4c84e8b8f6b37a0 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Sun, 30 Oct 2016 21:49:02 -0700
+Subject: [PATCH 0547/1239] Added functions for getting clock information.
+
+---
+ arch/arm/include/asm/arch-thunderx/clock.h | 19 +++++++
+ arch/arm/mach-thunderx/clock.c             | 60 ++++++++++++++++++++++
+ 2 files changed, 79 insertions(+)
+ create mode 100644 arch/arm/include/asm/arch-thunderx/clock.h
+ create mode 100644 arch/arm/mach-thunderx/clock.c
+
+diff --git a/arch/arm/include/asm/arch-thunderx/clock.h b/arch/arm/include/asm/arch-thunderx/clock.h
+new file mode 100644
+index 0000000000..c495323602
+--- /dev/null
++++ b/arch/arm/include/asm/arch-thunderx/clock.h
+@@ -0,0 +1,19 @@
++/**
++ * (C) Copyright 2016, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ **/
++
++#ifndef __THUNDERX_CLOCK_H__
++
++/**
++ * Returns the I/O clock speed in Hz
++ */
++u64 thunderx_get_io_clock(void);
++
++/**
++ * Returns the core clock speed in Hz
++ */
++u64 thunderx_get_core_clock(void);
++
++#endif /* __THUNDERX_CLOCK_H__ */
+diff --git a/arch/arm/mach-thunderx/clock.c b/arch/arm/mach-thunderx/clock.c
+new file mode 100644
+index 0000000000..2ecc941600
+--- /dev/null
++++ b/arch/arm/mach-thunderx/clock.c
+@@ -0,0 +1,60 @@
++/**
++ * (C) Copyright 2016, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ **/
++
++#include <common.h>
++#include <asm/io.h>
++
++#define RST_BOOT	0x87e006001600ll
++
++union rst_boot {
++	u64 u;
++	struct {
++		int rboot_pin:1;
++		int rboot:1;
++		int lboot:10;
++		int lboot_ext23:6;
++		int lboot_ext45:6;
++		int reserved_24_29:6;
++		int lboot_oci:3;
++		int pnr_mul:6;
++		int reserved_39_39:1;
++		int c_mul:7;
++		int reserved_47_54:8;
++		int dis_scan:1;
++		int dis_huk:1;
++		int vrm_err:1;
++		int jt_tstmode:1;
++		int ckill_ppdis:1;
++		int trusted_mode:1;
++		int ejtagdis:1;
++		int jtcsrdis:1;
++		int chipkill:1;
++	} s;
++};
++
++/**
++ * Returns the I/O clock speed in Hz
++ */
++u64 thunderx_get_io_clock(void)
++{
++	union rst_boot rst_boot;
++
++	rst_boot.u = readq(RST_BOOT);
++
++	return rst_boot.s.pnr_mul * PLL_REF_CLK;
++}
++
++/**
++ * Returns the core clock speed in Hz
++ */
++u64 thunderx_get_core_clock(void)
++{
++	union rst_boot rst_boot;
++
++	rst_boot.u = readq(RST_BOOT);
++
++	return rst_boot.s.c_mul * PLL_REF_CLK;
++}
+-- 
+2.29.0
+

@@ -1,0 +1,76 @@
+From 3cb39a25240ea4c2247ca95e337dff52d303a072 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 6 Mar 2018 13:42:56 -0800
+Subject: [PATCH 0767/1239] configs: enable autoboot missed while kconfig
+ cleanup
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/octeontx2_93xx_defconfig | 2 +-
+ configs/octeontx_81xx_defconfig  | 2 +-
+ configs/octeontx_83xx_defconfig  | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/configs/octeontx2_93xx_defconfig b/configs/octeontx2_93xx_defconfig
+index a391f43d28..963bb65034 100644
+--- a/configs/octeontx2_93xx_defconfig
++++ b/configs/octeontx2_93xx_defconfig
+@@ -10,6 +10,7 @@ CONFIG_AHCI=y
+ CONFIG_FIT=y
+ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
++CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=24 rootwait rw root=/dev/sda2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+@@ -18,7 +19,6 @@ CONFIG_VERSION_VARIABLE=y
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="Cavium> "
+-# CONFIG_AUTOBOOT is not set
+ # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index afd34948c3..20c925fed7 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -10,6 +10,7 @@ CONFIG_AHCI=y
+ CONFIG_FIT=y
+ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
++CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=4 rootwait rw root=/dev/sda2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+@@ -18,7 +19,6 @@ CONFIG_VERSION_VARIABLE=y
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="Cavium> "
+-# CONFIG_AUTOBOOT is not set
+ # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index d9a8a4e3a1..ec2744e2a6 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -10,6 +10,7 @@ CONFIG_AHCI=y
+ CONFIG_FIT=y
+ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
++CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+ CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=24 rootwait rw root=/dev/sda2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+@@ -18,7 +19,6 @@ CONFIG_VERSION_VARIABLE=y
+ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="Cavium> "
+-# CONFIG_AUTOBOOT is not set
+ # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+-- 
+2.29.0
+

@@ -1,0 +1,35 @@
+From f5dcd027b838d590c5d701f511e52e14e667e54d Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
+Date: Fri, 13 Mar 2015 14:44:31 +0300
+Subject: [PATCH 0304/1239] Added MAC overwrite config option
+
+---
+ include/configs/thunderx_88xx.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 9fcb6d6c6f..77bf502c3f 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -53,6 +53,18 @@
+ 
+ #define CONFIG_BAUDRATE			115200
+ 
++/* Net */
++#define CONFIG_THUNDER_BGX
++#define CONFIG_THUNDER_SMI
++#define CONFIG_RANDOM_MACADDR
++
++#ifndef CONFIG_RANDOM_MACADDR
++#define CONFIG_ETHADDR			aa:d3:31:40:11:00
++#endif
++#define CONFIG_OVERWRITE_ETHADDR_ONCE
++
++#define CONFIG_PHYLIB
++
+ /* Command line configuration */
+ #define CONFIG_MENU
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,77 @@
+From 0885dd7d0a251e653a8fa8de6361d4ea5f462bbb Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 21 Dec 2018 12:31:27 -0800
+Subject: [PATCH 0859/1239] octeontx2: 96xx: use misc_init_r for smi driver
+ probe
+
+This helps in no re-init of eth_common_init.
+
+Change-Id: I78c87c9917151874f97469531fbab356c2feaa56
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1474
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ board/Marvell/octeontx2/octeontx2.c | 7 ++++---
+ include/configs/octeontx2_96xx.h    | 2 ++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index c565e0e055..cba3db2df6 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -23,6 +23,7 @@ struct cavm_bdt g_cavm_bdt;
+ 
+ extern unsigned long fdt_base_addr;
+ extern void cgx_intf_shutdown(void);
++extern void eth_common_init(void);
+ 
+ void octeontx_parse_board_info(void)
+ {
+@@ -139,10 +140,11 @@ int dram_init(void)
+ /**
+  * Board misc devices initialization routine.
+  */
+-void board_misc_init(void)
++int misc_init_r(void)
+ {
+ 	struct udevice *bus;
+ 
++	eth_common_init();
+ 	/*
+ 	 * Enumerate all known miscellaneous devices.
+ 	 * Enumeration has the side-effect of probing them,
+@@ -153,6 +155,7 @@ void board_misc_init(void)
+ 	     uclass_next_device(&bus)) {
+ 		;
+ 	}
++	return 0;
+ }
+ 
+ /**
+@@ -173,8 +176,6 @@ int board_late_init(void)
+ 	env_set("prompt", boardname);
+ 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+ 
+-	board_misc_init();
+-
+ 	return 0;
+ }
+ 
+diff --git a/include/configs/octeontx2_96xx.h b/include/configs/octeontx2_96xx.h
+index 0c9e7d4796..acd890ab67 100644
+--- a/include/configs/octeontx2_96xx.h
++++ b/include/configs/octeontx2_96xx.h
+@@ -40,6 +40,8 @@
+ 
+ #define CONFIG_NR_DRAM_BANKS		1
+ 
++#define CONFIG_MISC_INIT_R
++
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+  * overwritten once.
+-- 
+2.29.0
+

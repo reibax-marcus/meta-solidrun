@@ -1,0 +1,32 @@
+From 8138221449febcf8cfac4987d80aabfd833c3cb0 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Sat, 9 Nov 2019 23:49:16 -0800
+Subject: [PATCH 0996/1239] driver: spi: octeontx: Set tritx by default
+
+Change-Id: I4089a06120a19a744382d3f51b0aac9c98fcafec
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/18436
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+(cherry picked from commit 4cb4c8514a287cf7c891c44f67da3163f297e48a)
+Reviewed-on: https://sj1git1.cavium.com/18573
+---
+ drivers/spi/octeontx_spi.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/spi/octeontx_spi.c b/drivers/spi/octeontx_spi.c
+index 1fb4989349..15df8d7c13 100644
+--- a/drivers/spi/octeontx_spi.c
++++ b/drivers/spi/octeontx_spi.c
+@@ -465,6 +465,8 @@ static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+ 
+ 	mpi_cfg = octeontx_spi_set_mpicfg(dev);
+ 
++	/* TRITX must be set to 1 for proper operation */
++	mpi_cfg.s.tritx = 1;
+ 	mpi_cfg.s.legacy_dis = 1;
+ 	mpi_cfg.s.cs_sticky = 1;
+ #ifdef USE_TBI_CLK
+-- 
+2.29.0
+

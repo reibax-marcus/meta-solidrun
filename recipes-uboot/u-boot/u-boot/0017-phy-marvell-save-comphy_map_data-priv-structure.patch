@@ -1,0 +1,99 @@
+From 24da8a9c48c8314bee3be4c6d92ac7de74300146 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Mon, 21 Aug 2017 16:58:21 +0300
+Subject: [PATCH 0017/1239] phy: marvell: save comphy_map_data priv structure
+
+This allows the lower level driver access to comphy map data
+(required for RX training support, which is introduced
+in the following patches).
+
+Change-Id: Ib7ffdc4b32076c01c3a5d33f59552c9dfc6b12fa
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ drivers/phy/marvell/comphy_core.c | 20 ++++++++++----------
+ drivers/phy/marvell/comphy_core.h |  1 +
+ 2 files changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/phy/marvell/comphy_core.c b/drivers/phy/marvell/comphy_core.c
+index 8b0de902de..902238d79f 100644
+--- a/drivers/phy/marvell/comphy_core.c
++++ b/drivers/phy/marvell/comphy_core.c
+@@ -77,7 +77,6 @@ static int comphy_probe(struct udevice *dev)
+ 	const void *blob = gd->fdt_blob;
+ 	int node = dev_of_offset(dev);
+ 	struct chip_serdes_phy_config *chip_cfg = dev_get_priv(dev);
+-	struct comphy_map comphy_map_data[MAX_LANE_OPTIONS];
+ 	int subnode;
+ 	int lane;
+ 	int last_idx = 0;
+@@ -132,45 +131,46 @@ static int comphy_probe(struct udevice *dev)
+ 		if (!fdtdec_get_is_enabled(blob, subnode))
+ 			continue;
+ 
+-		comphy_map_data[lane].type =
++		chip_cfg->comphy_map_data[lane].type =
+ 			fdtdec_get_int(blob, subnode, "phy-type",
+ 				       COMPHY_TYPE_INVALID);
+ 
+-		if (comphy_map_data[lane].type == COMPHY_TYPE_INVALID) {
++		if (chip_cfg->comphy_map_data[lane].type ==
++		    COMPHY_TYPE_INVALID) {
+ 			printf("no phy type for lane %d, setting lane as unconnected\n",
+ 			       lane + 1);
+ 			continue;
+ 		}
+ 
+-		comphy_map_data[lane].speed =
++		chip_cfg->comphy_map_data[lane].speed =
+ 			fdtdec_get_int(blob, subnode, "phy-speed",
+ 				       COMPHY_SPEED_INVALID);
+ 
+-		comphy_map_data[lane].invert =
++		chip_cfg->comphy_map_data[lane].invert =
+ 			fdtdec_get_int(blob, subnode, "phy-invert",
+ 				       COMPHY_POLARITY_NO_INVERT);
+ 
+-		comphy_map_data[lane].clk_src =
++		chip_cfg->comphy_map_data[lane].clk_src =
+ 			fdtdec_get_bool(blob, subnode, "clk-src");
+ 
+-		comphy_map_data[lane].end_point =
++		chip_cfg->comphy_map_data[lane].end_point =
+ 			fdtdec_get_bool(blob, subnode, "end_point");
+ 
+ 		lane++;
+ 	}
+ 
+-	res = comphy_update_map(comphy_map_data, chip_cfg->comphy_lanes_count);
++	res = comphy_update_map(chip_cfg->comphy_map_data, chip_cfg->comphy_lanes_count);
+ 	if (res < 0)
+ 		return res;
+ 
+ 	/* Save CP index for MultiCP devices (A8K) */
+ 	chip_cfg->cp_index = current_idx++;
+ 	/* PHY power UP sequence */
+-	chip_cfg->ptr_comphy_chip_init(chip_cfg, comphy_map_data);
++	chip_cfg->ptr_comphy_chip_init(chip_cfg, chip_cfg->comphy_map_data);
+ 	/* PHY print SerDes status */
+ 	if (of_machine_is_compatible("marvell,armada8040"))
+ 		printf("Comphy chip #%d:\n", chip_cfg->cp_index);
+-	comphy_print(chip_cfg, comphy_map_data);
++	comphy_print(chip_cfg, chip_cfg->comphy_map_data);
+ 
+ 	/*
+ 	 * Only run the dedicated PHY init code once, in the last PHY init call
+diff --git a/drivers/phy/marvell/comphy_core.h b/drivers/phy/marvell/comphy_core.h
+index 12ab921d24..c08677e56d 100644
+--- a/drivers/phy/marvell/comphy_core.h
++++ b/drivers/phy/marvell/comphy_core.h
+@@ -90,6 +90,7 @@ struct chip_serdes_phy_config {
+ 	u32 comphy_mux_bitcount;
+ 	const fdt32_t *comphy_mux_lane_order;
+ 	u32 cp_index;
++	struct comphy_map comphy_map_data[MAX_LANE_OPTIONS];
+ };
+ 
+ /* Register helper functions */
+-- 
+2.29.0
+

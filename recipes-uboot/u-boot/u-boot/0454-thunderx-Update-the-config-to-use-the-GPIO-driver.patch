@@ -1,0 +1,49 @@
+From 42f087a06aa08fc3147d9528104914d10a7bf6d6 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 16 May 2016 20:45:55 -0400
+Subject: [PATCH 0454/1239] thunderx: Update the config to use the GPIO driver
+
+Add necessary config options to use the DM-based GPIO driver
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ configs/thunderx_81xx_defconfig | 2 ++
+ include/configs/thunderx_81xx.h | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/configs/thunderx_81xx_defconfig b/configs/thunderx_81xx_defconfig
+index 345844969b..31c988f647 100644
+--- a/configs/thunderx_81xx_defconfig
++++ b/configs/thunderx_81xx_defconfig
+@@ -1,6 +1,7 @@
+ CONFIG_ARM=y
+ CONFIG_TARGET_THUNDERX_81XX=y
+ CONFIG_DM_I2C=y
++CONFIG_DM_GPIO=y
+ CONFIG_DEFAULT_DEVICE_TREE="thunder-81xx"
+ CONFIG_SYS_EXTRA_OPTIONS="ARM64"
+ CONFIG_HUSH_PARSER=y
+@@ -11,6 +12,7 @@ CONFIG_CMD_MX_CYCLIC=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_USB=y
+ # CONFIG_CMD_FPGA is not set
++CONFIG_CMD_GPIO=y
+ CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_TFTPSRV=y
+ CONFIG_CMD_RARP=y
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 781ab6a912..2eedaf48ef 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -7,6 +7,8 @@
+ #ifndef __THUNDERX_81XX_H__
+ #define __THUNDERX_81XX_H__
+ 
++#define DEBUG
++
+ #define CONFIG_SPECIAL_SYNC_HANDLER
+ 
+ /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
+-- 
+2.29.0
+

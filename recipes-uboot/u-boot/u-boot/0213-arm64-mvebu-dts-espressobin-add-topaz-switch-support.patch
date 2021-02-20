@@ -1,0 +1,54 @@
+From b521b318217bb19b5435b62dd5f44754ff5ec0a1 Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Tue, 6 Jun 2017 16:32:52 +0800
+Subject: [PATCH 0213/1239] arm64: mvebu: dts: espressobin: add topaz switch
+ support
+
+Espressobin board has a SOHO switch which is connected in multi-chip
+addressing mode with phy address of 1. The switch has 4 ports, port 0
+is connected to neta0 and forced link-up.
+
+Change-Id: I3ddcc7ca117a37e924420760be0fac429d3444e0
+Signed-off-by: Ken Ma <make@marvell.com>
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/armada-3720-espressobin.dts | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/arch/arm/dts/armada-3720-espressobin.dts b/arch/arm/dts/armada-3720-espressobin.dts
+index 94cab2f4d1..669edbb106 100644
+--- a/arch/arm/dts/armada-3720-espressobin.dts
++++ b/arch/arm/dts/armada-3720-espressobin.dts
+@@ -67,6 +67,20 @@
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x00000000 0x00000000 0x20000000>;
+ 	};
++
++	mdio@32004 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		status = "okay";
++
++		mvswitch: switch@000000{
++			compatible = "marvell,mv88e6xxx";
++			status = "okay";
++			phy-addr = <1>;
++			cpu-port = <0x0>;
++			port-mask = <0xf>;
++		};
++	};
+ };
+ 
+ &comphy {
+@@ -93,6 +107,8 @@
+ 	pinctrl-0 = <&rgmii_pins>, <&smi_pins>;
+ 	phy-mode = "rgmii";
+ 	phy_addr = <0x1>;
++	phy = <&mvswitch>;
++
+ 	fixed-link {
+ 		speed = <1000>;
+ 		full-duplex;
+-- 
+2.29.0
+

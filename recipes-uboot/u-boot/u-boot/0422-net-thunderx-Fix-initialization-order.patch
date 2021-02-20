@@ -1,0 +1,34 @@
+From 5b0cde4dd34f6ef06565b1481715e0931c6820e1 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 11 May 2016 20:09:18 -0400
+Subject: [PATCH 0422/1239] net: thunderx: Fix initialization order
+
+This commit fixes the NICPF initialization order to get
+the correct VF-LMAC-BGX mappings
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/net/cavium/nic_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index f033748bff..894ff8c5ca 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -736,11 +736,11 @@ struct nicpf *nic_initialize(unsigned int node)
+ 	/* By default set NIC in TNS bypass mode */
+ 	nic->flags &= ~NIC_TNS_ENABLED;
+ 
+-	nic_set_lmac_vf_mapping(nic);
+-
+ 	/* Initialize hardware */
+ 	nic_init_hw(nic);
+ 
++	nic_set_lmac_vf_mapping(nic);
++
+ 	/* Set RSS TBL size for each VF */
+ 	nic->rss_ind_tbl_size = NIC_MAX_RSS_IDR_TBL_SIZE;
+ 
+-- 
+2.29.0
+

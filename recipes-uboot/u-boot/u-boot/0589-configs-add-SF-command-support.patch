@@ -1,0 +1,26 @@
+From 1f9389f1d7565ab9599e5eab8a71fb96b4e7951b Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Mon, 9 Jan 2017 16:15:01 -0800
+Subject: [PATCH 0589/1239] configs: add SF command support
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index a59f7c67c8..c0442caad0 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -304,6 +304,8 @@
+ #define CONFIG_SF_DEFAULT_MODE	0
+ #define CONFIG_SF_DEFAULT_BUS	0
+ #define CONFIG_SF_DEFAULT_CS	0
++/** Enable sf command */
++#define CONFIG_CMD_SF
+ 
+ /**************************/
+ #define CONFIG_CMD_SAVES
+-- 
+2.29.0
+

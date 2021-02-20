@@ -1,0 +1,66 @@
+From 9e90534a64369a0b91002211f801f1c6ca6eb322 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Sun, 2 Feb 2020 15:23:34 +0200
+Subject: [PATCH 1084/1239] include/configs/mvebu: fix NAND environment
+ location
+
+NAND environment should be aligned to the flash erase size.
+For Armada boards with 1GB 4KB page NAND the ersase size
+is 256KB.
+Additionally the u-boot partition size according to kernel
+device tree is 2MB and not 4MB as was stated in the common
+config file.
+This patch fixes the above sizes.
+
+Change-Id: I8a176d48ceef8b69b03f2cd4277d2f6ec11d013d
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/22747
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+---
+ include/configs/mvebu_armada-common.h | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index c034b657f5..d3669ff022 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -113,6 +113,14 @@
+ /* SPI NOR flash default params, used by sf commands */
+ #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
+ 
++#ifdef CONFIG_MVEBU_NAND_BOOT
++/* In case of NAND, we want to start the environment on page boundary
++ * Linux DTS uses 2MB partition size for u-boot.
++ */
++#define CONFIG_ENV_SIZE			(256 << 10)
++#define CONFIG_ENV_OFFSET		(0x200000 - CONFIG_ENV_SIZE)
++
++#else /* !CONFIG_MVEBU_NAND_BOOT */
+ /*
+  * Assume minimum flash/eMMC boot partition size of 4MB
+  * and save the environment at the end of the boot device
+@@ -121,10 +129,7 @@
+  */
+ #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
+ #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
+-#ifdef CONFIG_MVEBU_NAND_BOOT
+-/* In case of NAND, we want to start the environment on page boundary */
+-#define CONFIG_ENV_OFFSET		0x400000
+-#else
++
+ #if defined(CONFIG_ENV_IS_IN_MMC) && \
+ ((defined(CONFIG_TARGET_MVEBU_ARMADA_37XX) && \
+ 	defined(CONFIG_MV88E6XXX_SWITCH))  || \
+@@ -136,7 +141,7 @@ defined(CONFIG_TARGET_OCTEONTX2_CN913x) && (CONFIG_MVEBU_BOOT_PART != 0))
+ #else
+ #define CONFIG_ENV_OFFSET		(0x400000 - CONFIG_ENV_SIZE)
+ #endif
+-#endif
++#endif /* CONFIG_MVEBU_NAND_BOOT */
+ 
+ /*
+  * Device ID and Boot partition defined in external script
+-- 
+2.29.0
+

@@ -1,0 +1,56 @@
+From 814378555d3150fdd379962c444e8325751e539d Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Sat, 16 Feb 2019 20:19:18 -0800
+Subject: [PATCH 0884/1239] board: octeontx/tx2: use _check variant for misc
+ devices
+
+Do not stop probing misc uclass devices if one fails,
+iterate over all devices in list with use of _check variants
+of uclass_find_device and uclass_next_device, boot log will
+anyway hint on the errors.
+
+Change-Id: Ifef9a92f3799cd182defad802ad2e969f10c12ee
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/4189
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx/octeontx.c   | 4 ++--
+ board/Marvell/octeontx2/octeontx2.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/board/Marvell/octeontx/octeontx.c b/board/Marvell/octeontx/octeontx.c
+index 67cfc4206f..303497887c 100644
+--- a/board/Marvell/octeontx/octeontx.c
++++ b/board/Marvell/octeontx/octeontx.c
+@@ -145,9 +145,9 @@ int misc_init_r(void)
+ 	 * Enumerate all miscellaneous devices.
+ 	 * So BGX/NIC/vNIC devices will be enumerated too.
+ 	 */
+-	for (uclass_first_device(UCLASS_MISC, &bus);
++	for (uclass_first_device_check(UCLASS_MISC, &bus);
+ 	     bus;
+-	     uclass_next_device(&bus)) {
++	     uclass_next_device_check(&bus)) {
+ 		;
+ 	}
+ 	return 0;
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index 37baa11f38..20ed369bae 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -194,9 +194,9 @@ int misc_init_r(void)
+ 	 * Enumeration has the side-effect of probing them,
+ 	 * so CGX and RVU AF devices will get enumerated.
+ 	 */
+-	for (uclass_first_device(UCLASS_MISC, &bus);
++	for (uclass_first_device_check(UCLASS_MISC, &bus);
+ 	     bus;
+-	     uclass_next_device(&bus)) {
++	     uclass_next_device_check(&bus)) {
+ 		;
+ 	}
+ 	return 0;
+-- 
+2.29.0
+

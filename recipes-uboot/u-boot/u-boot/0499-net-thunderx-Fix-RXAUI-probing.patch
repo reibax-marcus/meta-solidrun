@@ -1,0 +1,169 @@
+From 1887923e790e829231b199eff5dd656726e8dcfd Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 7 Jun 2016 14:30:26 -0700
+Subject: [PATCH 0499/1239] net: thunderx: Fix RXAUI probing.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ arch/arm/lib/bootm.c             |  9 +++++++++
+ board/cavium/thunderx/psci.c     |  1 +
+ configs/thunderx_81xx_defconfig  | 10 +++++-----
+ drivers/net/cavium/thunder_bgx.c | 10 +++++-----
+ include/configs/thunderx_81xx.h  |  5 +++--
+ 5 files changed, 23 insertions(+), 12 deletions(-)
+
+diff --git a/arch/arm/lib/bootm.c b/arch/arm/lib/bootm.c
+index 1638f1e81d..70bc68e82f 100644
+--- a/arch/arm/lib/bootm.c
++++ b/arch/arm/lib/bootm.c
+@@ -11,6 +11,7 @@
+  * Copyright (C) 2001  Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
+  */
+ 
++#define DEBUG
+ #include <common.h>
+ #include <command.h>
+ #include <dm.h>
+@@ -90,12 +91,15 @@ __weak void board_quiesce_devices(void)
+ static void announce_and_cleanup(int fake)
+ {
+ 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
++printf("done with bootstage\n");
+ #ifdef CONFIG_BOOTSTAGE_FDT
+ 	bootstage_fdt_add_report();
+ #endif
++printf("done iwth fdt\n");
+ #ifdef CONFIG_BOOTSTAGE_REPORT
+ 	bootstage_report();
+ #endif
++printf("Done with bootstage\n");
+ 
+ #ifdef CONFIG_USB_DEVICE
+ 	udc_disconnect();
+@@ -112,7 +116,9 @@ static void announce_and_cleanup(int fake)
+ 	 */
+ 	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+ 
++printf("done with usb device\n");
+ 	cleanup_before_linux();
++printf("Done with cleanup\n");
+ }
+ 
+ static void setup_start_tag (bd_t *bd)
+@@ -219,7 +225,9 @@ __weak void setup_board_tags(struct tag **in_params) {}
+ #ifdef CONFIG_ARM64
+ static void do_nonsec_virt_switch(void)
+ {
++printf("virt_switch:\n");
+ 	smp_kick_all_cpus();
++printf("1.\n");
+ 	dcache_disable();	/* flush cache before swtiching to EL2 */
+ }
+ #endif
+@@ -336,6 +344,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
+ 
+ 	announce_and_cleanup(fake);
+ 
++printf("fake = %d\n", fake);
+ 	if (!fake) {
+ #ifdef CONFIG_ARMV8_PSCI
+ 		armv8_setup_psci();
+diff --git a/board/cavium/thunderx/psci.c b/board/cavium/thunderx/psci.c
+index bbbb876d9e..6c3d7b9086 100644
+--- a/board/cavium/thunderx/psci.c
++++ b/board/cavium/thunderx/psci.c
+@@ -4,6 +4,7 @@
+  * SPDX-License-Identifier:	GPL-2.0+
+ **/
+ 
++#define DEBUG
+ #include <common.h>
+ #include <asm/io.h>
+ #include <linux/psci.h>
+diff --git a/configs/thunderx_81xx_defconfig b/configs/thunderx_81xx_defconfig
+index aa97947a91..03effe5e22 100644
+--- a/configs/thunderx_81xx_defconfig
++++ b/configs/thunderx_81xx_defconfig
+@@ -10,7 +10,7 @@ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+ # CONFIG_CMD_FLASH is not set
+ CONFIG_CMD_I2C=y
+-CONFIG_CMD_USB=y
++#CONFIG_CMD_USB=y
+ # CONFIG_CMD_FPGA is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_TFTPPUT=y
+@@ -33,7 +33,7 @@ CONFIG_DEBUG_UART_PL011=y
+ CONFIG_DEBUG_UART_BASE=0x87e028000000
+ CONFIG_DEBUG_UART_CLOCK=24000000
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+-CONFIG_USB=y
+-CONFIG_DM_USB=y
+-CONFIG_USB_XHCI_HCD=y
+-CONFIG_USB_STORAGE=y
++#CONFIG_USB=y
++#CONFIG_DM_USB=y
++#CONFIG_USB_XHCI_HCD=y
++#CONFIG_USB_STORAGE=y
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 3acdf945e6..a82e564b4d 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -755,7 +755,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 		lmac->last_link = lmac->link_up;
+ 	}
+ 
+-	printf("LMAC %u link %s\n", lmacid,  (lmac->link_up) ? "up" : "down");
++	printf("BGX%d:LMAC %u link %s\n", bgx_idx, lmacid,  (lmac->link_up) ? "up" : "down");
+ 
+ 	return lmac->link_up;
+ }
+@@ -845,7 +845,7 @@ static void bgx_init_hw(struct bgx *bgx)
+ 			lmac_count = 1;
+ 			break;
+ 		case QLM_MODE_RXAUI:
+-			if (lmacid < 2) {
++			if ((lmacid == 0) || (lmacid == 2)) {
+ 				lmac->lmac_type = 2;
+ 				lmac->lane_to_sds = (lmacid) ? 0xE : 0x4;
+ 				lmac_count++;
+@@ -979,10 +979,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+ 			break;
+ 		case 2:
+-			lmac->qlm_mode = QLM_MODE_RXAUI;
+-			if (lmacid < 2) {
++			if (index == lmacid) {
++				lmac->qlm_mode = QLM_MODE_RXAUI;
+ 				printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
+-					bgx->bgx_id, lmac->qlm+1, lmacid);
++					bgx->bgx_id, lmac->qlm, lmacid);
+ 			}
+ 			break;
+ 		case 3:
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index cbdd6736bb..b315208e3a 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -10,6 +10,7 @@
+ #define CONFIG_SPECIAL_SYNC_HANDLER
+ 
+ /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
++//#define DEBUG
+ 
+ #define CONFIG_SYS_64BIT
+ 
+@@ -222,8 +223,8 @@
+ #define PHYS_SDRAM_1_SIZE		(0x80000000-MEM_BASE)	/* 2048 MB */
+ #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+ 
+-#define CONFIG_USB_XHCI_PCI
+-#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
++//#define CONFIG_USB_XHCI_PCI
++//#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
+ 
+ 
+ 
+-- 
+2.29.0
+

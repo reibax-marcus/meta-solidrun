@@ -1,0 +1,29 @@
+From 26dc3de8c9ac1f92137a88426b489b441608b006 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 5 Jun 2019 19:30:20 -0700
+Subject: [PATCH 0925/1239] octeontx2: Fix warning
+
+Change-Id: Ic4416e476ea5340c97962aec9adafa5efe9be0c0
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/10555
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ board/Marvell/octeontx2/octeontx2.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index 4d41c7cb45..51d61b3dd5 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -27,6 +27,7 @@ u8 board_mac_addr[6];
+ extern unsigned long fdt_base_addr;
+ extern void cgx_intf_shutdown(void);
+ extern void eth_common_init(void);
++extern ssize_t atf_configure_ooo(unsigned int val);
+ 
+ void octeontx2_cleanup_ethaddr(void)
+ {
+-- 
+2.29.0
+

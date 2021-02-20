@@ -1,0 +1,35 @@
+From bafef2c3fbf3cde6946223123d7ef14701828ec5 Mon Sep 17 00:00:00 2001
+From: zachary zhang <zhangzg@marvell.com>
+Date: Tue, 22 May 2018 15:43:20 +0800
+Subject: [PATCH 0117/1239] arm64: mvebu: config: a8k: enable sar command by
+ default
+
+Change-Id: I7a9caa0f8b444a4c0b2ffc78eaad3d9ca03c896a
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ configs/mvebu_db_armada8k_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index 591ec6982c..b47b6c3dfb 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -7,6 +7,7 @@ CONFIG_TARGET_MVEBU_ARMADA_8K=y
+ CONFIG_NR_DRAM_BANKS=2
+ CONFIG_DEBUG_UART_BASE=0xf0512000
+ CONFIG_DEBUG_UART_CLOCK=200000000
++CONFIG_MVEBU_SAR=y
+ CONFIG_SMBIOS_PRODUCT_NAME=""
+ CONFIG_DEBUG_UART=y
+ CONFIG_AHCI=y
+@@ -21,6 +22,7 @@ CONFIG_DISPLAY_BOARDINFO_LATE=y
+ CONFIG_ARCH_EARLY_INIT_R=y
+ CONFIG_BOARD_EARLY_INIT_F=y
+ CONFIG_SYS_PROMPT="Marvell>> "
++CONFIG_CMD_MVEBU_SAR=y
+ # CONFIG_CMD_FLASH is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+-- 
+2.29.0
+

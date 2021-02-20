@@ -1,0 +1,34 @@
+From 4e36ead7751aaaf92d0b4884a38d1c6cd741f178 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 29 May 2019 11:27:40 -0700
+Subject: [PATCH 0914/1239] configs: octeontx2_96xx: update bootargs to use mmc
+ for root partition
+
+Native SATA is completely removed from SDK sources, so move the
+default selection of rootfs partition to MMC device.
+
+Change-Id: I53a4ed0c21a22db5454ddc8707ed5859d03e1e97
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/10198
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/octeontx2_96xx_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 3bdcc78f73..e4c229736f 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -11,7 +11,7 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+-CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=24 rootwait rw root=/dev/sda2 coherent_pool=16M"
++CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=24 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+-- 
+2.29.0
+

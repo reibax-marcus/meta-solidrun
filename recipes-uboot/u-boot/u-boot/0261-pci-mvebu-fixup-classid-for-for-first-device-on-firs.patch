@@ -1,0 +1,79 @@
+From 3c1d68f716122c40ec4325d25a57619d2ee83d15 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 24 May 2019 14:40:29 +0200
+Subject: [PATCH 0261/1239] pci: mvebu: fixup classid for for first device on
+ first bus
+
+Without this patch the mvebu pcie didn't work since the transaction to
+new PCI DM was done. With old DM model it worked since the whole pci
+enumeration was done via legacy pci_hose_scan_bus which allowed to
+pci_skip_dev. New PCI DM the generic enumeration process doesn't provide
+this kind of functionality but skipping BDF 0.0.0 in case of mvebu pci
+controller can be achived by faking it class to "bridge other" and
+setting CONFIG_PCIAUTO_SKIP_HOST_BRIDGE, which allows to skip
+autoconfiguration of this pci endpoint device.
+
+Thanks to that, the driver settings will not be overwritten as it happen
+with defaults configuration where the pcie under BDF 0.0.0 introduce
+itself as Memory controller with classid "0x0580" and in reality was
+allowing to overwrite some pcie controller registers during device
+autoconfiguration.
+
+Change-Id: Ic5251c74c5ffb8f0c77de3ba23fd57cd9a3c1014
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ drivers/pci/pci_mvebu.c     | 16 ++++++++++++++++
+ include/configs/mv-common.h |  5 +++++
+ 2 files changed, 21 insertions(+)
+
+diff --git a/drivers/pci/pci_mvebu.c b/drivers/pci/pci_mvebu.c
+index f9b08f38a1..31dcfc2814 100644
+--- a/drivers/pci/pci_mvebu.c
++++ b/drivers/pci/pci_mvebu.c
+@@ -272,6 +272,19 @@ static void mvebu_pcie_setup_wins(struct mvebu_pcie *pcie)
+ 	       pcie->base + PCIE_BAR_CTRL_OFF(1));
+ }
+ 
++static void mvebu_pci_fixup_classid(struct mvebu_pcie *pcie)
++{
++	/* Setting pci class id to "bridge other" together with defining flag
++	 * CONFIG_PCIAUTO_SKIP_HOST_BRIDGE allows to skip autoconfiguration
++	 * of BDF=0.0.0 during pci enumeration. Thanks to that the driver
++	 * settings will not be overwritten as it happen with defaults
++	 * configuration where the pcie under BDF 0.0.0 introduce itself as
++	 * Memory controller with classid "0x0580" and in reality is pointing to
++	 * RC itself.
++	 */
++	writew(PCI_CLASS_BRIDGE_OTHER, pcie->base + PCI_CLASS_DEVICE);
++}
++
+ static int mvebu_pcie_probe(struct udevice *dev)
+ {
+ 	struct mvebu_pcie *pcie = dev_get_platdata(dev);
+@@ -313,6 +326,9 @@ static int mvebu_pcie_probe(struct udevice *dev)
+ 	reg |= BIT(10);		/* disable interrupts */
+ 	writel(reg, pcie->base + PCIE_CMD_OFF);
+ 
++	/* Fixup classid */
++	mvebu_pci_fixup_classid(pcie);
++
+ 	/* PCI memory space */
+ 	pci_set_region(hose->regions + 0, pcie->mem.start,
+ 		       pcie->mem.start, PCIE_MEM_SIZE, PCI_REGION_MEM);
+diff --git a/include/configs/mv-common.h b/include/configs/mv-common.h
+index a041ddb79b..dceaa179aa 100644
+--- a/include/configs/mv-common.h
++++ b/include/configs/mv-common.h
+@@ -75,4 +75,9 @@
+ #define CONFIG_SYS_MAX_NAND_DEVICE     1
+ #endif
+ 
++/*
++ * PCI
++ */
++#define CONFIG_PCIAUTO_SKIP_HOST_BRIDGE     1
++
+ #endif /* _MV_COMMON_H */
+-- 
+2.29.0
+

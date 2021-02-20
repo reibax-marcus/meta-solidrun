@@ -1,0 +1,55 @@
+From aabcf118b37eff4a958eff44c4436cee15f43032 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Mon, 2 Dec 2019 12:28:57 -0800
+Subject: [PATCH 1018/1239] drivers: serial: pcie-console: remove redundant
+ dm_fdt_scan in bind
+
+With upgrade to v2019.10, no need for explicit probe of child nodes
+using bind call, otherwise duplicate entries are created.
+
+Change-Id: Ie526cde33b9f681baa71f6f3c050e0625f8f1728
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19680
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/serial/serial_octeontx_pcie_console.c | 16 ----------------
+ 1 file changed, 16 deletions(-)
+
+diff --git a/drivers/serial/serial_octeontx_pcie_console.c b/drivers/serial/serial_octeontx_pcie_console.c
+index a358a79c1d..e80f9cf3d4 100644
+--- a/drivers/serial/serial_octeontx_pcie_console.c
++++ b/drivers/serial/serial_octeontx_pcie_console.c
+@@ -1016,21 +1016,6 @@ static int octeontx_pcie_console_nexus_probe(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static int octeontx_pcie_console_nexus_bind(struct udevice *parent)
+-{
+-	int ret;
+-
+-	debug("%s(%s): bind\n", __func__, parent->name);
+-
+-	ret = dm_scan_fdt_dev(parent);
+-	if (ret) {
+-		dev_err(parent, "Error scanning child nodes\n");
+-		return ret;
+-	}
+-
+-	return 0;
+-}
+-
+ /**
+  * Read device tree data for the platform data
+  *
+@@ -1082,7 +1067,6 @@ U_BOOT_DRIVER(octeontx_pcie_console_nexus) = {
+ 	.ofdata_to_platdata = octeontx_pcie_console_nexus_ofdata_to_platdata,
+ 	.platdata_auto_alloc_size =
+ 				sizeof(struct octeontx_pcie_console_plat_data),
+-	.bind = octeontx_pcie_console_nexus_bind,
+ 	.probe = octeontx_pcie_console_nexus_probe,
+ 	.priv_auto_alloc_size = sizeof(struct octeontx_pcie_console_nexus_priv),
+ 	.child_pre_probe = octeontx_pcie_console_nexus_child_pre_probe,
+-- 
+2.29.0
+

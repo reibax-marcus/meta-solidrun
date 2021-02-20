@@ -1,0 +1,40 @@
+From aa75cfcfe8b2f5fc8428ba9dbab06e68315dcb7c Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Thu, 26 May 2016 12:26:57 -0700
+Subject: [PATCH 0487/1239] Disable function tracing for e1000 driver.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ include/configs/thunderx_81xx.h | 2 +-
+ include/configs/thunderx_88xx.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index c3a36c4ef8..52673e2218 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -232,7 +232,7 @@
+ #define CONFIG_E1000_SPI
+ #define CONFIG_CMD_E1000
+ 
+-#define E1000_DEBUG
++/* #define E1000_DEBUG */
+ 
+ #define CONFIG_RTL8169
+ 
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 9bcd5b92a8..9810f60f41 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -244,7 +244,7 @@
+ #define CONFIG_E1000_SPI
+ #define CONFIG_CMD_E1000
+ 
+-#define E1000_DEBUG
++/* #define E1000_DEBUG */
+ 
+ /* Initial environment variables */
+ #define UBOOT_IMG_HEAD_SIZE		0x40
+-- 
+2.29.0
+

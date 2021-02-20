@@ -1,0 +1,33 @@
+From a52e9fe20d89033e10612173bc800a7b6daa2534 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 30 Oct 2019 13:19:05 -0700
+Subject: [PATCH 0980/1239] configs: 96xx: remove duplicate entries
+
+Change-Id: I5aa98dcb60e9c1505aaebe8613b3ec0cd0db62ca
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/18054
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/octeontx2_96xx_defconfig | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 78272a69d5..bf4d55f4e8 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -119,11 +119,6 @@ CONFIG_USB_ETHER_ASIX88179=y
+ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
+-CONFIG_CMD_SHA1SUM=y
+-CONFIG_SHA1SUM_VERIFY=y
+-CONFIG_CMD_MD5SUM=y
+-CONFIG_MD5SUM_VERIFY=y
+-CONFIG_CMD_TIME=y
+ CONFIG_CONSOLE_MUX=y
+ CONFIG_SYS_CONSOLE_IS_IN_ENV=y
+ CONFIG_CMD_FAILSAFE=y
+-- 
+2.29.0
+

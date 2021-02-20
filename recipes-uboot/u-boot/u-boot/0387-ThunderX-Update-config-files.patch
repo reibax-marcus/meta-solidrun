@@ -1,0 +1,87 @@
+From 882d4c6ea4d8bbce2929bb7f3eea8d6809e86dae Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 21 Apr 2016 21:26:25 +0300
+Subject: [PATCH 0387/1239] ThunderX: Update config files
+
+Update config files for U-Boot 2016.03
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ configs/thunderx_88xx_defconfig | 17 +++++++++++++++++
+ include/configs/thunderx_88xx.h | 12 ++++--------
+ 2 files changed, 21 insertions(+), 8 deletions(-)
+
+diff --git a/configs/thunderx_88xx_defconfig b/configs/thunderx_88xx_defconfig
+index 5065845475..b890a3010d 100644
+--- a/configs/thunderx_88xx_defconfig
++++ b/configs/thunderx_88xx_defconfig
+@@ -22,6 +22,23 @@ CONFIG_SYS_PROMPT="ThunderX_88XX> "
+ # CONFIG_CMD_FLASH is not set
+ # CONFIG_CMD_NET is not set
+ CONFIG_DEFAULT_DEVICE_TREE="thunderx-88xx"
++# CONFIG_CMD_NFS is not set
++CONFIG_CMD_MEMTEST=y
++CONFIG_CMD_MX_CYCLIC=y
++# CONFIG_CMD_FLASH is not set
++CONFIG_CMD_I2C=y
++CONFIG_CMD_USB=y
++# CONFIG_CMD_FPGA is not set
++CONFIG_CMD_TFTPPUT=y
++CONFIG_CMD_TFTPSRV=y
++CONFIG_CMD_RARP=y
++CONFIG_CMD_DHCP=y
++CONFIG_CMD_PING=y
++CONFIG_CMD_CDP=y
++CONFIG_CMD_SNTP=y
++CONFIG_CMD_DNS=y
++CONFIG_CMD_LINK_LOCAL=y
++CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_DM=y
+ # CONFIG_MMC is not set
+ CONFIG_DM_SERIAL=y
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 47c0683ace..adfa3da641 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -154,26 +154,23 @@
+ #undef  CONFIG_CMD_IMLS
+ #define CONFIG_CMD_BOOTI
+ 
+-#define CONFIG_CMD_I2C
+-
+-#define CONFIG_CMD_DHCP
+ #define CONFIG_CMD_MII
+-#define CONFIG_CMD_PING
+ #define CONFIG_CMD_TFTP
+-#define CONFIG_CMD_TFTPPUT
+ 
+ #define CONFIG_CMD_FAT
+ #define CONFIG_CMD_EXT2
+ #define CONFIG_CMD_EXT4
+ #define CONFIG_CMD_DIAG
+-#define CONFIG_CMD_USB
+ #define CONFIG_CMD_PART
+ #define CONFIG_CMD_SATA
+ 
+ #define CONFIG_CMD_ATF
+ #define CONFIG_CMD_PCI
+ 
+-#define CONFIG_CMD_NET
++#define CONFIG_CMD_ASKENV
++#define CONFIG_CMD_ENV_FLAGS
++#define CONFIG_CMD_GREPENV
++#define CONFIG_CMD_ENV_CALLBACK
+ 
+ /* AHCI support Definitions */
+ #ifdef CONFIG_CMD_SATA
+@@ -246,7 +243,6 @@
+ #define CONFIG_CMD_E1000
+ 
+ #define E1000_DEBUG
+-//#define CONFIG_RTL8169
+ 
+ /* Initial environment variables */
+ #define UBOOT_IMG_HEAD_SIZE		0x40
+-- 
+2.29.0
+

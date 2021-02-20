@@ -1,0 +1,43 @@
+From c16019c1f93af9e4298d870b00b791b5d7e605c4 Mon Sep 17 00:00:00 2001
+From: David Sniatkiwicz <davidsn@marvell.com>
+Date: Mon, 19 Jun 2017 17:01:45 +0300
+Subject: [PATCH 0109/1239] arm64: mvebu: a8k: config: enable tsen command
+
+Change-Id: I660f30efcb9b8f72c81f1f9933c386f1784fc126
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ configs/mvebu_db_armada8k_defconfig   | 3 +++
+ configs/mvebu_mcbin-88f8040_defconfig | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index b83c36a66f..d9db1b1a36 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -77,6 +77,9 @@ CONFIG_DEBUG_UART_SHIFT=2
+ CONFIG_DEBUG_UART_ANNOUNCE=y
+ CONFIG_SYS_NS16550=y
+ CONFIG_KIRKWOOD_SPI=y
++CONFIG_DM_THERMAL=y
++CONFIG_MVEBU_THERMAL_SENSOR_28NM=y
++CONFIG_MVEBU_THERMAL_EXT_SENSOR_28NM=y
+ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_XHCI_HCD=y
+diff --git a/configs/mvebu_mcbin-88f8040_defconfig b/configs/mvebu_mcbin-88f8040_defconfig
+index e6ed48b1d2..d0b9630ac2 100644
+--- a/configs/mvebu_mcbin-88f8040_defconfig
++++ b/configs/mvebu_mcbin-88f8040_defconfig
+@@ -73,6 +73,9 @@ CONFIG_DEBUG_UART_SHIFT=2
+ CONFIG_DEBUG_UART_ANNOUNCE=y
+ CONFIG_SYS_NS16550=y
+ CONFIG_KIRKWOOD_SPI=y
++CONFIG_DM_THERMAL=y
++CONFIG_MVEBU_THERMAL_SENSOR_28NM=y
++CONFIG_MVEBU_THERMAL_EXT_SENSOR_28NM=y
+ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_XHCI_HCD=y
+-- 
+2.29.0
+

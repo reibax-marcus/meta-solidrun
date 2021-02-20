@@ -1,0 +1,28 @@
+From 1a6059dfd579e592a10d387223d3dffcef3066d4 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 4 Nov 2015 15:10:18 -0800
+Subject: [PATCH 0335/1239] cavium: Initialize SMI only when enabled in the
+ config file
+
+---
+ board/cavium/thunderx/thunderx.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 9a7543d7b7..c7a06a7c60 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -176,8 +176,10 @@ int board_eth_init(bd_t *bis)
+ 	}
+ #endif
+ #endif
++#if defined(CONFIG_THUNDERX_SMI)
+ 	thunderx_smi_initialize(bis, 0);
+ 	thunderx_smi_initialize(bis, 1);
++#endif
+ 
+ #if defined(CONFIG_THUNDERX_VNIC)
+ #define VNIC_PER_NODE 8
+-- 
+2.29.0
+

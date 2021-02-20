@@ -1,0 +1,31 @@
+From bf699c58543b55fd902ddc3ef54a656bac1744db Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 3 Nov 2015 19:15:10 -0800
+Subject: [PATCH 0330/1239] armv8: Add more CPU state information to the
+ show_regs() routine
+
+This commit adds displaying more debug information if an exception
+occurs
+---
+ arch/arm/lib/interrupts_64.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm/lib/interrupts_64.c b/arch/arm/lib/interrupts_64.c
+index 33ec856087..a89f397f2a 100644
+--- a/arch/arm/lib/interrupts_64.c
++++ b/arch/arm/lib/interrupts_64.c
+@@ -34,6 +34,11 @@ void show_regs(struct pt_regs *regs)
+ {
+ 	int i;
+ 
++	printf("MPIDR:     %lx\n", read_mpidr());
++	printf("FAR:       %lx\n", read_far());
++	printf("SPSR:      %lx\n", read_spsr());
++	printf("Rel. offs: %lx\n", gd->reloc_off);
++
+ 	if (gd->flags & GD_FLG_RELOC)
+ 		printf("elr: %016lx lr : %016lx (reloc)\n",
+ 		       regs->elr - gd->reloc_off,
+-- 
+2.29.0
+

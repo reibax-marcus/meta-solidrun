@@ -1,0 +1,79 @@
+From 1c53068d7010e087f46dcede6290d95cf3fbe57b Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Tue, 26 Nov 2019 10:39:16 +0200
+Subject: [PATCH 1029/1239] arch/arm/dts: add support for PCIe EP
+
+Change-Id: I0c5f35ebdd7363c4a2733da732863e0440b7d823
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19275
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ arch/arm/dts/armada-8040-ocp.dts |  8 ++++++++
+ arch/arm/dts/armada-cp110.dtsi   | 25 +++++++++++++++++++++++++
+ 2 files changed, 33 insertions(+)
+
+diff --git a/arch/arm/dts/armada-8040-ocp.dts b/arch/arm/dts/armada-8040-ocp.dts
+index 642d095430..7a489f29c3 100644
+--- a/arch/arm/dts/armada-8040-ocp.dts
++++ b/arch/arm/dts/armada-8040-ocp.dts
+@@ -96,6 +96,14 @@
+ 	status = "okay";
+ };
+ 
++&cp0_pci_ep_uio {
++	status = "okay";
++};
++
++&cp0_pcie_ep {
++	status = "okay";
++};
++
+ &cp0_pinctl {
+ /*
+  * [0-32] = 0xff: Keep default CP1_shared_pins
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index c92c8d4f9d..9b29938f11 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -15,6 +15,9 @@
+ 	(CP110_BASE + 0x600000 + (iface) * 0x20000)
+ #define CP110_PCIEx_REG1_BASE(iface)	\
+ 	(CP110_PCIEx_CPU_MEM_BASE(iface) + CP110_PCIE_MEM_SIZE(iface))
++#define CP110_PCIE_EP_REG_BASE(iface)	(CP110_BASE + 0x600000 + \
++					 (iface) * 0x4000)
++
+ / {
+ 	CP110_NAME {
+ 		#address-cells = <2>;
+@@ -257,6 +260,28 @@
+ 			};
+ 		};
+ 
++		CP110_LABEL(pcie_ep): pcie-ep@600000 {
++			compatible = "marvell,armada-pcie-ep", "snps,dw-pcie";
++			reg =	<U64_TO_U32_H(CP110_PCIE_EP_REG_BASE(0))
++				U64_TO_U32_L(CP110_PCIE_EP_REG_BASE(0)) 0 0x4000>,
++				<U64_TO_U32_H(CP110_PCIE_EP_REG_BASE(2))
++				U64_TO_U32_L(CP110_PCIE_EP_REG_BASE(2)) 0 0x80000>,
++				<U64_TO_U32_H(CP110_PCIE_EP_REG_BASE(1))
++				U64_TO_U32_L(CP110_PCIE_EP_REG_BASE(1)) 0 0x1000>;
++			reg-names = "core", "lm", "shadow_core";
++			status = "disabled";
++		};
++
++		CP110_LABEL(pci_ep_uio): pci-ep-uio {
++			compatible = "marvell,pci-ep-uio";
++			reg = <0 0 0 0x100000>, <0x80 0x00000000 0x8 0x000000000>;
++			reg-names = "bar0", "host-map";
++			device-id = <0x7080>;
++			class-code = <0x2>;
++			subclass-code = <0x0>;
++			status = "disabled";
++		};
++
+ 		CP110_LABEL(pcie0): pcie0@600000 {
+ 			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
+ 			reg =
+-- 
+2.29.0
+

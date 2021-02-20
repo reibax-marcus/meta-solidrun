@@ -1,0 +1,156 @@
+From a8aff5c0e7361daa10c25223deec909eb7c4e9ac Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 6 Dec 2018 17:29:20 -0800
+Subject: [PATCH 0845/1239] drivers: spi: add flash arbitration logic for 9xx
+ chips
+
+Add logic to claim ownership on SPI bus using CPC_BOOT_OWNERX
+register.
+
+Change-Id: I03f01a1c47f25755030ee5dbf082eb872e933b8e
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1458
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ .../include/asm/arch-octeontx2/octeontx2.h    | 26 +++++++++++++++++--
+ board/Marvell/octeontx2/octeontx2.c           | 19 ++++++++++++++
+ drivers/spi/octeontx_spi.c                    | 20 ++++++++++++++
+ 3 files changed, 63 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2.h b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+index 29d320a8f3..454d2ed60c 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+@@ -18,16 +18,38 @@
+ #define CAVM_RST_BOOT		0x87E006001600ULL
+ #define CAVM_RST_CHIP_DOM_W1S	0x87E006001810ULL
+ 
++#define CAVM_CPC_BOOT_OWNERX(a)	0x86D000000160ULL + (8 * a)
++
+ #define CAVM_GTI_CWD_POKEX	0x802000050000ULL
+ #define CAVM_GTI_CWD_WDOGX	0x802000040000ULL
+ 
+ /** Structure definitions */
+-
+-
++/**
++ * Register (NCB32b) cpc_boot_owner#
++ *
++ * CPC Boot Owner Registers These registers control an external arbiter
++ * for the boot device (SPI/eMMC) across multiple external devices. There
++ * is a register for each requester: _ \<0\> - SCP          - reset on
++ * SCP reset _ \<1\> - MCP          - reset on MCP reset _ \<2\> - AP
++ * Secure    - reset on core reset _ \<3\> - AP Nonsecure - reset on core
++ * reset  These register is only writable to the corresponding
++ * requestor(s) permitted with CPC_PERMIT.
++ */
++union cavm_cpc_boot_ownerx {
++        u32 u;
++        struct cavm_cpc_boot_ownerx_s {
++                u32 boot_req                         : 1;
++                u32 reserved_1_7                     : 7;
++                u32 boot_wait                        : 1;
++                u32 reserved_9_31                    : 23;
++        } s;
++        /* struct cavm_cpc_boot_ownerx_s cn; */
++};
+ 
+ 
+ /** Function definitions */
+ void octeontx2_parse_board_info(void);
++void acquire_flash_arb(bool acquire);
+ 
+ /** Board data definitions */
+ struct cavm_bdt {
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index faa6fea2b3..819333a5d5 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -224,6 +224,25 @@ int show_board_info(void)
+ 	return 0;
+ }
+ 
++void acquire_flash_arb(bool acquire)
++{
++	union cavm_cpc_boot_ownerx ownerx;
++
++	if (acquire == false) {
++		ownerx.u = readl(CAVM_CPC_BOOT_OWNERX(3));
++		ownerx.s.boot_req = 0;
++		writel(ownerx.u, CAVM_CPC_BOOT_OWNERX(3));
++	} else {
++		ownerx.u = 0;
++		ownerx.s.boot_req = 1;
++		writel(ownerx.u, CAVM_CPC_BOOT_OWNERX(3));
++		udelay(1);
++		do {
++			ownerx.u = readl(CAVM_CPC_BOOT_OWNERX(3));
++		} while (ownerx.s.boot_wait);
++	}
++}
++
+ #ifdef CONFIG_HW_WATCHDOG
+ void hw_watchdog_reset(void)
+ {
+diff --git a/drivers/spi/octeontx_spi.c b/drivers/spi/octeontx_spi.c
+index fb4c6cd78b..8061473fab 100755
+--- a/drivers/spi/octeontx_spi.c
++++ b/drivers/spi/octeontx_spi.c
+@@ -14,6 +14,10 @@
+ #include <asm/unaligned.h>
+ #include <watchdog.h>
+ 
++#if defined(CONFIG_ARCH_OCTEONTX2)
++#include <asm/arch/octeontx2.h>
++#endif
++
+ #define OCTEONTX_SPI_MAX_BYTES		9
+ #define OCTEONTX_SPI_MAX_CLOCK_HZ	50000000
+ 
+@@ -314,12 +318,20 @@ static void octeontx_spi_wait_ready(struct udevice *dev)
+ static int octeontx_spi_claim_bus(struct udevice *dev)
+ {
+ 	void *baseaddr = octeontx_spi_get_baseaddr(dev);
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	struct octeontx_spi *priv = dev_get_priv(dev->parent);
++#endif
+ 	union mpi_cfg mpi_cfg;
+ 
+ 	debug("%s(%s)\n", __func__, dev->name);
+ 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
+ 		return -EINVAL;
+ 
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	if (priv->is_otx2)
++		acquire_flash_arb(true);
++#endif
++
+ 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
+ 	mpi_cfg.s.tritx = 0;
+ 	mpi_cfg.s.enable = 1;
+@@ -338,12 +350,20 @@ static int octeontx_spi_claim_bus(struct udevice *dev)
+ static int octeontx_spi_release_bus(struct udevice *dev)
+ {
+ 	void *baseaddr = octeontx_spi_get_baseaddr(dev);
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	struct octeontx_spi *priv = dev_get_priv(dev->parent);
++#endif
+ 	union mpi_cfg mpi_cfg;
+ 
+ 	debug("%s(%s)\n", __func__, dev->name);
+ 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
+ 		return -EINVAL;
+ 
++#if defined(CONFIG_ARCH_OCTEONTX2)
++	if (priv->is_otx2)
++		acquire_flash_arb(false);
++#endif
++
+ 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
+ 	mpi_cfg.s.enable = 0;
+ 	writeq(mpi_cfg.u, baseaddr + MPI_CFG);
+-- 
+2.29.0
+

@@ -1,0 +1,102 @@
+From de273b3a4f27c173213fee4783c5a9ecb1aa092e Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 10 Aug 2017 20:24:40 -0700
+Subject: [PATCH 0686/1239] board: thunderx: call bgx/phy device tree parsing
+ in board_init
+
+use board_early_init_r to call pci_init as all are pci devices.
+parse device tree for bgx/phy info before pci_init is invoked
+using board_init.
+update configs to use env in spi flash instead of atf.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/cavium/thunderx/thunderx.c | 7 ++++---
+ include/configs/thunderx_81xx.h  | 5 ++---
+ include/configs/thunderx_83xx.h  | 6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index d6bb59c7e4..06e81a18e7 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -58,6 +58,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ #define BOARD_TYPE "BOARD="
+ 
+ char thunderx_prompt[CONFIG_THUNDERX_PROMPT_SIZE] = "ThunderX> ";
++extern unsigned long fdt_base_addr;
+ 
+ #ifdef CONFIG_BOARD_EARLY_INIT_R
+ extern void eth_common_init();
+@@ -71,8 +72,10 @@ int board_early_init_r(void)
+ 
+ int board_init(void)
+ {
+-	ulong fdt_addr = (ulong)gd->fdt_blob;
++	ulong fdt_addr = (ulong)fdt_base_addr;
+ 	set_working_fdt_addr(fdt_addr);
++	thunderx_parse_bdk_config();
++	thunderx_parse_phy_info();
+ 
+ 	return 0;
+ }
+@@ -138,8 +141,6 @@ int board_late_init(void)
+ {
+ 	const char *board;
+ 	debug("%s()\n", __func__);
+-	thunderx_parse_bdk_config();
+-	thunderx_parse_phy_info();
+ 	board = getenv("board");
+ 	printf("Board type: %s\n", getenv("board"));
+ 
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 1b591705ba..629d95898e 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -276,17 +276,16 @@
+ /** Where the environment is located */
+ 
+ /* Use ATF based calls for env variables */
+-#define CONFIG_ATF
++/* #define CONFIG_ATF */
+ #define CONFIG_BOARD_EARLY_INIT_R
+ 
+ /* Use uboot SPI APIs for env variables */
+-/* #define CONFIG_SPI_ENV */
++#define CONFIG_SPI_ENV
+ 
+ #if defined(CONFIG_ATF)
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+ #elif defined(CONFIG_SPI_ENV)
+-#define CONFIG_BOARD_EARLY_INIT_R
+ #define CONFIG_ENV_IS_IN_SPI_FLASH
+ #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
+ #define CONFIG_ENV_SPI_MAX_HZ		12500000
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 647104a54b..cad22dcc96 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -263,16 +263,16 @@
+ 
+ 
+ /* Use ATF based calls for env variables */
+-#define CONFIG_ATF
++/* #define CONFIG_ATF */
++#define CONFIG_BOARD_EARLY_INIT_R
+ 
+ /* Use uboot SPI APIs for env variables */
+-/*#define CONFIG_SPI_ENV*/
++#define CONFIG_SPI_ENV
+ 
+ #if defined(CONFIG_ATF)
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+ #elif defined(CONFIG_SPI_ENV)
+-#define CONFIG_BOARD_EARLY_INIT_R
+ #define CONFIG_ENV_IS_IN_SPI_FLASH
+ #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
+ #define CONFIG_ENV_SPI_MAX_HZ		12500000
+-- 
+2.29.0
+

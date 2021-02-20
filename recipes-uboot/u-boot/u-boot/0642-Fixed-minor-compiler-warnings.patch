@@ -1,0 +1,27 @@
+From 753106e738e61fde0009eece28d2617cf86ed83d Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 28 Jun 2017 18:52:33 -0700
+Subject: [PATCH 0642/1239] Fixed minor compiler warnings.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ drivers/gpio/thunderx_gpio.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/gpio/thunderx_gpio.c b/drivers/gpio/thunderx_gpio.c
+index d0bb20f1a8..04d5720cef 100644
+--- a/drivers/gpio/thunderx_gpio.c
++++ b/drivers/gpio/thunderx_gpio.c
+@@ -60,9 +60,6 @@ union gpio_const {
+ 	} s;
+ };
+ 
+-static const int DIRECTION_INPUT  = 0;
+-static const int DIRECTION_OUTPUT = 1;
+-
+ struct octeontx_gpio {
+ 	void __iomem *baseaddr;
+ };
+-- 
+2.29.0
+

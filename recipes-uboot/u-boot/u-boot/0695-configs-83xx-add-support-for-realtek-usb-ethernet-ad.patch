@@ -1,0 +1,26 @@
+From 3edf45ccb3831778e403c1cc8543e1fd29043ae2 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 18 Aug 2017 17:47:45 -0700
+Subject: [PATCH 0695/1239] configs: 83xx: add support for realtek usb ethernet
+ adapter
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/thunderx_83xx.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 8575cb376d..f440709e96 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -239,6 +239,7 @@
+ #define CONFIG_USB_HOST_ETHER
+ #define CONFIG_USB_ETHER_ASIX
+ #define CONFIG_USB_ETHER_ASIX88179
++#define CONFIG_USB_ETHER_RTL8152
+ 
+ /* PCIe network controller drivers */
+ /** Intel E1000 network card */
+-- 
+2.29.0
+

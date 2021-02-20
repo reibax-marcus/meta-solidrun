@@ -1,0 +1,36 @@
+From a392ec17fc5bb4d73d74b376ebd25956e86669ed Mon Sep 17 00:00:00 2001
+From: Rick Farrington <rfarrington@marvell.com>
+Date: Wed, 13 May 2020 23:17:00 -0400
+Subject: [PATCH 1149/1239] drivers: net: otx2: support up to five (5) CGX
+ blocks (i.e. T98)
+
+Change CGX_PER_NODE from 3 to 5; this definition
+simply bounds the PCI scan loop which locates devices
+having the CGX PCI ID.  So, it is safe to execute
+on other T9x platforms.
+
+Change-Id: Ica431518fa93b29131a74edc1ede9837be1bb77d
+Signed-off-by: Rick Farrington <rfarrington@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28464
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/net/octeontx2/cgx.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/octeontx2/cgx.h b/drivers/net/octeontx2/cgx.h
+index d2ce7e04a4..fdb039e09b 100644
+--- a/drivers/net/octeontx2/cgx.h
++++ b/drivers/net/octeontx2/cgx.h
+@@ -13,7 +13,7 @@
+ #define PCI_DEVICE_ID_OCTEONTX2_CGX	0xA059
+ 
+ #define MAX_LMAC_PER_CGX		4
+-#define CGX_PER_NODE			3
++#define CGX_PER_NODE			5
+ 
+ enum lmac_type {
+ 	LMAC_MODE_SGMII		= 0,
+-- 
+2.29.0
+

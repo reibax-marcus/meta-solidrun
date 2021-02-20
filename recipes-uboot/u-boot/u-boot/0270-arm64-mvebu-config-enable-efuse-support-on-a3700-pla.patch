@@ -1,0 +1,40 @@
+From 40ab0268be9517682644a5228a2b9110e1c57acd Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Sun, 1 Sep 2019 10:50:33 +0300
+Subject: [PATCH 0270/1239] arm64: mvebu: config: enable efuse support on a3700
+ platforms
+
+Change-Id: I98700515b942b2bd143f299b00c62604e271c04f
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ configs/mvebu_db-88f3720_defconfig          | 1 +
+ configs/mvebu_espressobin-88f3720_defconfig | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index b270412b1c..b5c9cbf9e8 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -32,6 +32,7 @@ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
+ CONFIG_CMD_MVEBU_HW_INFO=y
++CONFIG_CMD_MVEBU_EFUSE=y
+ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_MAC_PARTITION=y
+ CONFIG_ENV_IS_IN_SPI_FLASH=y
+diff --git a/configs/mvebu_espressobin-88f3720_defconfig b/configs/mvebu_espressobin-88f3720_defconfig
+index 962c2a738c..489d1e45b6 100644
+--- a/configs/mvebu_espressobin-88f3720_defconfig
++++ b/configs/mvebu_espressobin-88f3720_defconfig
+@@ -31,6 +31,7 @@ CONFIG_CMD_USB=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
++CONFIG_CMD_MVEBU_EFUSE=y
+ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_MAC_PARTITION=y
+ CONFIG_ENV_IS_IN_SPI_FLASH=y
+-- 
+2.29.0
+

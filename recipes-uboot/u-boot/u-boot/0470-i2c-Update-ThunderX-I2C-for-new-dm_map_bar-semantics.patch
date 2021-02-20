@@ -1,0 +1,31 @@
+From 866b2067b44790ada8809f216384839370638abd Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 18 May 2016 23:25:32 -0400
+Subject: [PATCH 0470/1239] i2c: Update ThunderX I2C for new dm_map_bar()
+ semantics Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
+---
+ drivers/i2c/thunderx_i2c.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/thunderx_i2c.c b/drivers/i2c/thunderx_i2c.c
+index 597ddcde54..3c23e48f00 100644
+--- a/drivers/i2c/thunderx_i2c.c
++++ b/drivers/i2c/thunderx_i2c.c
+@@ -334,11 +334,12 @@ static int thunderx_i2c_probe(struct udevice *dev)
+ {
+ 	struct thunderx_twsi *twsi = dev_get_priv(dev);
+ 	pci_dev_t bdf = dm_pci_get_bdf(dev);
++	size_t size;
+ 
+ 	debug("TWSI PCI device: %x\n", bdf);
+ 	dev->req_seq = PCI_FUNC(bdf);
+ 
+-	twsi->baseaddr = dm_pci_map_bar(dev, 0, PCI_REGION_MEM);
++	twsi->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+ 
+ 	debug("TWSI bus %d at %p\n",dev->seq, twsi->baseaddr);
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,79 @@
+From 45e714c216566c2b7342b1ff28ce8ad718d7c911 Mon Sep 17 00:00:00 2001
+From: David Sniatkiwicz <davidsn@marvell.com>
+Date: Mon, 25 Jun 2018 11:14:43 +0300
+Subject: [PATCH 0135/1239] arm64: mvebu: soc: a8k: correct the print of AP80x
+ new revision
+
+- AP806 with revision > 1, is named B0 and not A2
+  as it was for AP806-A0/A1.
+
+- AP807 with device_id 0x6025 is AP807 revision A1
+  and not A0.
+
+Change-Id: Ice1d3f44177e7b2dd5ae081e7cb2a617dc67dec0
+Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+---
+ arch/arm/mach-mvebu/armada8k/soc.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
+
+diff --git a/arch/arm/mach-mvebu/armada8k/soc.c b/arch/arm/mach-mvebu/armada8k/soc.c
+index 8a359eb0a9..fbe3d7b716 100644
+--- a/arch/arm/mach-mvebu/armada8k/soc.c
++++ b/arch/arm/mach-mvebu/armada8k/soc.c
+@@ -65,6 +65,10 @@ static int get_soc_table_index(u32 *index)
+ 		}
+ 	}
+ 
++	if (ret)
++		pr_err("using default SoC info: %s\n",
++		       soc_info_table[*index].soc_name);
++
+ 	return ret;
+ }
+ 
+@@ -78,17 +82,6 @@ static int get_soc_name(char **soc_name)
+ 	return 0;
+ }
+ 
+-static int get_ap_cp_num(u32 *ap_num, u32 *cp_num)
+-{
+-	u32 index;
+-
+-	get_soc_table_index(&index);
+-	*ap_num = soc_info_table[index].ap_num;
+-	*cp_num = soc_info_table[index].cp_num;
+-
+-	return 0;
+-}
+-
+ int soc_get_ap_cp_num(void *ap_num, void *cp_num)
+ {
+ 	u32 index;
+@@ -130,16 +123,20 @@ void soc_print_device_info(void)
+ 	u32 ap_num, cp_num, ap_type, ap_rev, cp_type, cp_rev;
+ 	char *soc_name = NULL;
+ 
+-	get_ap_cp_num(&ap_num, &cp_num);
++	soc_get_ap_cp_num(&ap_num, &cp_num);
+ 
+ 	get_soc_name(&soc_name);
+ 	get_ap_type_rev(&ap_type, &ap_rev);
+ 	get_cp_type_rev(&cp_type, &cp_rev);
+ 
+-	printf("SoC: %s; AP%x-A%d; ", soc_name, ap_type, ap_rev);
++	if (ap_rev > 1)
++		printf("SoC: %s; AP%x-B0; ", soc_name, ap_type);
++	else
++		printf("SoC: %s; AP%x-A%d; ", soc_name, ap_type, ap_rev);
++
+ 	/* more than one cp module */
+ 	if (cp_num > 1)
+-		printf("%dx CP%x-A%d\n", cp_num, cp_type, cp_rev);
++		printf("%dxCP%x-A%d\n", cp_num, cp_type, cp_rev);
+ 	else
+ 		printf("CP%x-A%d\n", cp_type, cp_rev);
+ }
+-- 
+2.29.0
+

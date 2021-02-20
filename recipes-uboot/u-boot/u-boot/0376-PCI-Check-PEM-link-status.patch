@@ -1,0 +1,25 @@
+From 84b425e10b337a23672511d0b7b8dd714bb4251b Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Fri, 29 Jan 2016 15:09:32 -0800
+Subject: [PATCH 0376/1239] PCI: Check PEM link status
+
+---
+ board/cavium/thunderx/pcie.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/cavium/thunderx/pcie.c b/board/cavium/thunderx/pcie.c
+index dc79836462..c897a3f472 100644
+--- a/board/cavium/thunderx/pcie.c
++++ b/board/cavium/thunderx/pcie.c
+@@ -377,7 +377,7 @@ void pci_init_board(void)
+ 		if (pem / RCS_PER_NODE >= atf_node_count())
+ 			break;
+ 
+-		if (!rc_is_on(pem))
++		if (!rc_is_ready(pem))
+ 			continue;
+ 
+ 		thunderx_read_rc_u32(pem, PCI_PRIMARY_BUS, &reg);
+-- 
+2.29.0
+

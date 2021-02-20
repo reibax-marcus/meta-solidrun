@@ -1,0 +1,35 @@
+From 50e7d22ff0d8d40ece4a9d1054ee31c26b08220c Mon Sep 17 00:00:00 2001
+From: Alex Leibovich <alexl@marvell.com>
+Date: Mon, 13 Jul 2020 12:35:32 +0300
+Subject: [PATCH 1192/1239] cmd/mvebu: map: fixed window size bug
+
+According to spec window size is a 16 bit field.
+It was defined as 8 bit, which caused showing
+max size of 0x1000000((0xff + 1) * 64KB)).
+
+Signed-off-by: Alex Leibovich <alexl@marvell.com>
+Change-Id: I5a2ee6ec62f81dd3385537a450281bfcedba267f
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/31809
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ cmd/mvebu/map.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/mvebu/map.c b/cmd/mvebu/map.c
+index 4ffa2e3974..43e855c0b1 100644
+--- a/cmd/mvebu/map.c
++++ b/cmd/mvebu/map.c
+@@ -76,7 +76,7 @@
+ #define AMB_ATTR_OFFSET			8
+ #define AMB_ATTR_MASK			0xFF
+ #define AMB_SIZE_OFFSET			16
+-#define AMB_SIZE_MASK			0xFF
++#define AMB_SIZE_MASK			0xFFFF
+ 
+ #define AMB_WIN_BASE_OFFSET(ap, cp, win) (MVEBU_AMB_ADEC_BASE(ap, cp) + \
+ 						0x4 + 0x8 * (win))
+-- 
+2.29.0
+

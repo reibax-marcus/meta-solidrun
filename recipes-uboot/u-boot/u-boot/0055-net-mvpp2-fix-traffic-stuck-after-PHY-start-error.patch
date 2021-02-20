@@ -1,0 +1,111 @@
+From 972e4706d764e77dcf6965c36b3895e66cbcd85a Mon Sep 17 00:00:00 2001
+From: Stefan Chulski <stefanc@marvell.com>
+Date: Thu, 13 Jul 2017 17:43:56 +0300
+Subject: [PATCH 0055/1239] net: mvpp2: fix traffic stuck after PHY start error
+
+Issue:
+- Network stuck if autonegotion fails
+
+Issue root cause:
+- During port open procedure if autonegotion fails, configuration of
+  packet processor won't be finished and open procedure exits with error.
+- However this won't prevent u-boot network framework from
+  calling send and receive procedures.
+- Using of transmit and receive function of not configured properly
+  packet processor will cause traffic stuck.
+
+Fix:
+- Don't stop packet processor configuration if autonegotion failed.
+  Only error message would be triggered.
+- Exit transmit and receive function if there are no PHY link
+  indication.
+- U-boot network framework would call open procedure during next
+  transmit initiation.
+
+Change-Id: I8656d8f36d002b18ffa88568a65f4a0416d22686
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+---
+ drivers/net/mvpp2.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/net/mvpp2.c b/drivers/net/mvpp2.c
+index bd89725e77..f36c8236b1 100644
+--- a/drivers/net/mvpp2.c
++++ b/drivers/net/mvpp2.c
+@@ -4494,7 +4494,7 @@ static void mvpp2_stop_dev(struct mvpp2_port *port)
+ 		gop_port_enable(port, 0);
+ }
+ 
+-static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
++static void mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
+ {
+ 	struct phy_device *phy_dev;
+ 
+@@ -4504,7 +4504,7 @@ static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
+ 		port->phy_dev = phy_dev;
+ 		if (!phy_dev) {
+ 			netdev_err(port->dev, "cannot connect to phy\n");
+-			return -ENODEV;
++			return;
+ 		}
+ 		phy_dev->supported &= PHY_GBIT_FEATURES;
+ 		phy_dev->advertising = phy_dev->supported;
+@@ -4516,18 +4516,14 @@ static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
+ 
+ 		phy_config(phy_dev);
+ 		phy_startup(phy_dev);
+-		if (!phy_dev->link) {
++		if (!phy_dev->link)
+ 			printf("%s: No link\n", phy_dev->dev->name);
+-			return -1;
+-		}
+-
+-		port->init = 1;
++		else
++			port->init = 1;
+ 	} else {
+ 		mvpp2_egress_enable(port);
+ 		mvpp2_ingress_enable(port);
+ 	}
+-
+-	return 0;
+ }
+ 
+ static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
+@@ -4567,10 +4563,7 @@ static int mvpp2_open(struct udevice *dev, struct mvpp2_port *port)
+ 	}
+ 
+ 	if (port->phy_node) {
+-		err = mvpp2_phy_connect(dev, port);
+-		if (err < 0)
+-			return err;
+-
++		mvpp2_phy_connect(dev, port);
+ 		mvpp2_link_event(port);
+ 	} else {
+ 		mvpp2_egress_enable(port);
+@@ -5175,6 +5168,10 @@ static int mvpp2_recv(struct udevice *dev, int flags, uchar **packetp)
+ 	struct mvpp2_rx_queue *rxq;
+ 	u8 *data;
+ 
++	if (port->phy_node)
++		if (!port->phy_dev->link)
++			return 0;
++
+ 	/* Process RX packets */
+ 	rxq = port->rxqs[0];
+ 
+@@ -5240,6 +5237,10 @@ static int mvpp2_send(struct udevice *dev, void *packet, int length)
+ 	int tx_done;
+ 	int timeout;
+ 
++	if (port->phy_node)
++		if (!port->phy_dev->link)
++			return 0;
++
+ 	txq = port->txqs[0];
+ 	aggr_txq = &port->priv->aggr_txqs[smp_processor_id()];
+ 
+-- 
+2.29.0
+

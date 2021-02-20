@@ -1,0 +1,38 @@
+From f9974c5f192423d2b6ed33d38a23675e5f511c44 Mon Sep 17 00:00:00 2001
+From: Guo Yi <yi.guo@cavium.com>
+Date: Fri, 31 Jan 2020 11:05:41 -0800
+Subject: [PATCH 1080/1239] spi: use 4B opcode for mx66l1g45g
+
+Without 4B Opcode flag, when u-boot access the mx66l1g45g
+spi flash, it will change the mode of the spi flash to 4B mode.
+On "reset" command, BootROM would not know the flash is already in
+4B mode and still issue 3B address in READ, causing boot failure.
+
+Now with 4B Opcode flag added, a special 4B Read command will be
+used by spi flash driver instead of entering 4B mode.
+
+Change-Id: I209d2f591fc8f0a2db08a8142ff3192a7335a7b0
+Signed-off-by: Yi Guo <yig@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/22697
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/mtd/spi/spi-nor-ids.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/spi/spi-nor-ids.c b/drivers/mtd/spi/spi-nor-ids.c
+index 6f18519ef4..d55fc79cca 100644
+--- a/drivers/mtd/spi/spi-nor-ids.c
++++ b/drivers/mtd/spi/spi-nor-ids.c
+@@ -149,7 +149,7 @@ const struct flash_info spi_nor_ids[] = {
+ 	{ INFO("mx66l51235l", 0xc2201a, 0, 64 * 1024, 1024, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
+ 	{ INFO("mx66u51235f", 0xc2253a, 0, 64 * 1024, 1024, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
+ 	{ INFO("mx66u2g45g",  0xc2253c, 0, 64 * 1024, 4096, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
+-	{ INFO("mx66l1g45g",  0xc2201b, 0, 64 * 1024, 2048, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ) },
++	{ INFO("mx66l1g45g",  0xc2201b, 0, 64 * 1024, 2048, SECT_4K | SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
+ 	{ INFO("mx25l1633e", 0xc22415, 0, 64 * 1024,   32, SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES | SECT_4K) },
+ #endif
+ 
+-- 
+2.29.0
+

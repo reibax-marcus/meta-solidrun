@@ -1,0 +1,29 @@
+From cfa7cb984686169d5594ebe2882260750da1852f Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 16 May 2016 12:41:26 -0700
+Subject: [PATCH 0448/1239] net: thunderx: Fix BGX_CMRX_CONFIG for QSGMII mode
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index eefe0a9c00..baed38df12 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -841,9 +841,9 @@ static void bgx_init_hw(struct bgx *bgx)
+ 					l = &bgx->lmac[i];
+ 					l->lmac_type = 6;
+ 					l->qlm_mode = QLM_MODE_QSGMII;
+-					l->lane_to_sds = lmacid;
++					l->lane_to_sds = lmacid + i;
+ 					bgx_reg_write(bgx, i, BGX_CMRX_CFG,
+-						(l->lmac_type << 8) | lmacid);
++						(l->lmac_type << 8) | l->lane_to_sds);
+ 				}
+ 			}
+ 			continue;
+-- 
+2.29.0
+

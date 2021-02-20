@@ -1,0 +1,95 @@
+From 52b70fc2d0a712b8c98a39986367ac8046fae369 Mon Sep 17 00:00:00 2001
+From: aaronw <awilliams@marvell.com>
+Date: Fri, 18 Oct 2019 20:06:29 -0700
+Subject: [PATCH 0972/1239] octeontx: Move bootimgup to marvell command
+ directory
+
+Since this command is currently specific to the OcteonTX and
+OcteonTX2 SoCs this command should be under the marvell
+directory.
+
+Change-Id: I937608aad8c5351bbfc2036fe5507de8ba3ff985
+Signed-off-by: aaronw <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/17581
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ cmd/Kconfig                   | 7 -------
+ cmd/Makefile                  | 1 -
+ cmd/marvell/Kconfig           | 7 +++++++
+ cmd/marvell/Makefile          | 4 ++++
+ cmd/{ => marvell}/bootimgup.c | 0
+ 5 files changed, 11 insertions(+), 8 deletions(-)
+ rename cmd/{ => marvell}/bootimgup.c (100%)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index ea172e7da7..afb1d079cd 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1530,13 +1530,6 @@ endif
+ 
+ menu "Misc commands"
+ 
+-config CMD_BOOTIMGUP
+-	depends on ARCH_OCTEONTX || ARCH_OCTEONTX2
+-	depends on MMC_OCTEONTX || SPI_FLASH
+-	bool "bootimgup"
+-	help
+-	  bootimgup command support
+-
+ config CMD_BMP
+ 	bool "Enable 'bmp' command"
+ 	depends on LCD || DM_VIDEO || VIDEO
+diff --git a/cmd/Makefile b/cmd/Makefile
+index 199bfb9def..e17a9ded6b 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -122,7 +122,6 @@ obj-$(CONFIG_CMD_NVME) += nvme.o
+ obj-$(CONFIG_SANDBOX) += sb.o
+ obj-$(CONFIG_CMD_SF) += sf.o
+ obj-$(CONFIG_CMD_SCSI) += scsi.o disk.o
+-obj-$(CONFIG_CMD_BOOTIMGUP) += bootimgup.o
+ obj-$(CONFIG_CMD_SHA1SUM) += sha1sum.o
+ obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
+ obj-$(CONFIG_CMD_SPI) += spi.o
+diff --git a/cmd/marvell/Kconfig b/cmd/marvell/Kconfig
+index d14d6725ae..9ce9a0a469 100644
+--- a/cmd/marvell/Kconfig
++++ b/cmd/marvell/Kconfig
+@@ -29,4 +29,11 @@ config CMD_ATTEST
+ 	   Support for Software Attestation on Marvell's OcteonTX2 platforms.
+ 	   Displays Secure Boot software component version information.
+ 
++config CMD_BOOTIMGUP
++	depends on ARCH_OCTEONTX || ARCH_OCTEONTX2
++	depends on MMC_OCTEONTX || SPI_FLASH
++	bool "bootimgup"
++	help
++	  bootimgup command support
++
+ endmenu
+diff --git a/cmd/marvell/Makefile b/cmd/marvell/Makefile
+index 72a0098165..0f0bf73355 100644
+--- a/cmd/marvell/Makefile
++++ b/cmd/marvell/Makefile
+@@ -4,9 +4,13 @@
+ #
+ 
+ ifdef CONFIG_ARCH_OCTEONTX2
++obj-$(CONFIG_CMD_BOOTIMGUP) += bootimgup.o
+ obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_failsafe_cmds.o
+ obj-$(CONFIG_CMD_ETH) += eth_cmds.o
+ obj-$(CONFIG_CMD_MDIO_DBG) += mdio_dbg.o
+ obj-$(CONFIG_OCTEONTX2_CGX_INTF) += octeontx2_qlm_cmds.o
+ obj-$(CONFIG_CMD_ATTEST) += octeontx2_attest_cmds.o
+ endif
++ifdef CONFIG_ARCH_OCTEONTX
++obj-$(CONFIG_CMD_BOOTIMGUP) += bootimgup.o
++endif
+diff --git a/cmd/bootimgup.c b/cmd/marvell/bootimgup.c
+similarity index 100%
+rename from cmd/bootimgup.c
+rename to cmd/marvell/bootimgup.c
+-- 
+2.29.0
+

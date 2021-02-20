@@ -1,0 +1,71 @@
+From f712cb4023d9d55902f4db865815fb33f71d2aa6 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Fri, 26 Apr 2019 22:58:09 -0700
+Subject: [PATCH 0902/1239] board: octeontx2: Enable/disable Out of Order
+
+Change-Id: I231a7ad1c6e33da69e24760557c937cf12da3c75
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/8168
+Reviewed-by: Andrew Pinski <apinski@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h |  2 ++
+ board/Marvell/octeontx2/atf.c                       | 11 +++++++++++
+ board/Marvell/octeontx2/octeontx2.c                 |  3 +++
+ 3 files changed, 16 insertions(+)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+index 79e88781ce..4fbe549db7 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+@@ -25,4 +25,6 @@
+ #define OCTEONTX2_NODE_COUNT		0xc2000601
+ #define OCTEONTX2_DISABLE_RVU_LFS	0xc2000b01
+ 
++#define OCTEONTX2_CONFIG_OOO		0xc2000b07
++
+ #endif /* __OCTEONTX2_SVC_H__ */
+diff --git a/board/Marvell/octeontx2/atf.c b/board/Marvell/octeontx2/atf.c
+index 18531be621..15f04808d4 100644
+--- a/board/Marvell/octeontx2/atf.c
++++ b/board/Marvell/octeontx2/atf.c
+@@ -49,3 +49,14 @@ ssize_t atf_disable_rvu_lfs(unsigned int node)
+ 
+ 	return regs.regs[0];
+ }
++
++ssize_t atf_configure_ooo(unsigned int val)
++{
++	struct pt_regs regs;
++	regs.regs[0] = OCTEONTX2_CONFIG_OOO;
++	regs.regs[1] = val;
++
++	smc_call(&regs);
++
++	return regs.regs[0];
++}
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index d76d2b044d..ff5ff591e1 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -208,6 +208,7 @@ int misc_init_r(void)
+ int board_late_init(void)
+ {
+ 	char boardname[20];
++	long val;
+ 
+ 	debug("%s()\n", __func__);
+ 
+@@ -223,6 +224,8 @@ int board_late_init(void)
+ 	env_set("prompt", boardname);
+ 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+ 
++	val = env_get_hex("disable_ooo", 0);
++	atf_configure_ooo(val);
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

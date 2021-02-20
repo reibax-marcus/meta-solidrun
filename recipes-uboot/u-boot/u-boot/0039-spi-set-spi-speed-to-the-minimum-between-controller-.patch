@@ -1,0 +1,53 @@
+From a831f00b52cf1b3c5ce1bb1ad8739fc3da4a4a50 Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Fri, 13 Apr 2018 15:53:02 +0800
+Subject: [PATCH 0039/1239] spi: set spi speed to the minimum between
+ controller's and flash's frequency
+
+Both spi controller and flash have got the maximum working freq, the
+correct freq should be the lower one of these two.
+Now there is a bug that when flash's freq is higher than controller's,
+spi uclass sets the working freq to flash's, instead of controller's.
+This patch sets spi speed to the minimum between controller's and
+flash's frequency.
+
+Change-Id: Ibb9c54795cd7022fd0f8106f0c16cb976fd97266
+Signed-off-by: Ken Ma <make@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ drivers/spi/spi-uclass.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/spi/spi-uclass.c b/drivers/spi/spi-uclass.c
+index 76c4b53c16..77c54c3b30 100644
+--- a/drivers/spi/spi-uclass.c
++++ b/drivers/spi/spi-uclass.c
+@@ -296,6 +296,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
+ {
+ 	struct udevice *bus, *dev;
+ 	struct dm_spi_slave_platdata *plat;
++	struct dm_spi_bus *spi;
+ 	bool created = false;
+ 	int ret;
+ 
+@@ -309,6 +310,7 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
+ 		return ret;
+ 	}
+ 	ret = spi_find_chip_select(bus, cs, &dev);
++	spi = dev_get_uclass_priv(bus);
+ 
+ 	/*
+ 	 * If there is no such device, create one automatically. This means
+@@ -358,6 +360,9 @@ int spi_get_bus_and_cs(int busnum, int cs, int speed, int mode,
+ 		speed = plat->max_hz;
+ 		mode = plat->mode;
+ 	}
++	if (spi->max_hz)
++		speed = min(speed, (int)spi->max_hz);
++
+ 	ret = spi_set_speed_mode(bus, speed, mode);
+ 	if (ret)
+ 		goto err;
+-- 
+2.29.0
+

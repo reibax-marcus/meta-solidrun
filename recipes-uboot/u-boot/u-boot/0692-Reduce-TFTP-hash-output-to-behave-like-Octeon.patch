@@ -1,0 +1,42 @@
+From 63b0a63fbfa950d0349901cef958cb084cfd35c5 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Sat, 12 Aug 2017 02:22:22 -0700
+Subject: [PATCH 0692/1239] Reduce TFTP hash output to behave like Octeon.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 3 +++
+ include/configs/thunderx_83xx.h | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 4edbb373b7..26892c40e3 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -142,6 +142,9 @@
+ /** Enable tftp command */
+ #define CONFIG_CMD_TFTP
+ 
++/** Reduce hashes printed out */
++#define CONFIG_TFTP_TSIZE
++
+ /** Enable sata command */
+ 
+ /** Enable pci command */
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 11d8c2733a..8575cb376d 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -131,6 +131,9 @@
+ /** Enable tftp command */
+ #define CONFIG_CMD_TFTP
+ 
++/** Reduce hashes printed out */
++#define CONFIG_TFTP_TSIZE
++
+ /** Enable pci command */
+ #define CONFIG_CMD_PCI
+ 
+-- 
+2.29.0
+

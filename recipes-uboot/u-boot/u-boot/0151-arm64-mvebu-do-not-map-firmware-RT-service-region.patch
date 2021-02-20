@@ -1,0 +1,102 @@
+From e2a436b927d5512a58329b03045b118626bc1528 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Mon, 11 Jun 2018 17:52:52 +0200
+Subject: [PATCH 0151/1239] arm64: mvebu: do not map firmware RT service region
+
+There is region left by ATF, which needs to remain in memory to provide RT
+services. To prevent overwriting it by u-boot, do not provide any mapping
+for this memory region, so any attempt to access it will trigger
+synchronous exception.
+
+Change-Id: Ica4584306519d5905ee8dc02e228b8e868a40229
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ arch/arm/mach-mvebu/armada3700/cpu.c       | 10 ++++++++++
+ arch/arm/mach-mvebu/armada8k/cpu.c         | 12 +++++++++++-
+ arch/arm/mach-mvebu/include/mach/fw_info.h | 14 ++++++++++++++
+ 3 files changed, 35 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/mach-mvebu/include/mach/fw_info.h
+
+diff --git a/arch/arm/mach-mvebu/armada3700/cpu.c b/arch/arm/mach-mvebu/armada3700/cpu.c
+index 7c8e4cade1..371caf47f2 100644
+--- a/arch/arm/mach-mvebu/armada3700/cpu.c
++++ b/arch/arm/mach-mvebu/armada3700/cpu.c
+@@ -12,6 +12,7 @@
+ #include <asm/arch/cpu.h>
+ #include <asm/arch/soc.h>
+ #include <asm/armv8/mmu.h>
++#include <mach/fw_info.h>
+ 
+ /* Armada 3700 */
+ #define MVEBU_GPIO_NB_REG_BASE		(MVEBU_REGISTER(0x13800))
+@@ -30,6 +31,15 @@ static struct mm_region mvebu_mem_map[] = {
+ 		/* RAM */
+ 		.phys = 0x0UL,
+ 		.virt = 0x0UL,
++		.size = ATF_REGION_START,
++		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
++			 PTE_BLOCK_INNER_SHARE
++	},
++	/* ATF and TEE region 0x4000000-0x5400000 not mapped */
++	{
++		/* RAM */
++		.phys = ATF_REGION_END,
++		.virt = ATF_REGION_END,
+ 		.size = 0x80000000UL,
+ 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+ 			 PTE_BLOCK_INNER_SHARE
+diff --git a/arch/arm/mach-mvebu/armada8k/cpu.c b/arch/arm/mach-mvebu/armada8k/cpu.c
+index e4b453a1cf..bcb18d2e47 100644
+--- a/arch/arm/mach-mvebu/armada8k/cpu.c
++++ b/arch/arm/mach-mvebu/armada8k/cpu.c
+@@ -15,6 +15,7 @@
+ #include <asm/armv8/mmu.h>
+ #include <mach/clock.h>
+ #include <mach/soc.h>
++#include <mach/fw_info.h>
+ 
+ /* Armada 7k/8k */
+ #define MVEBU_RFU_BASE			(MVEBU_REGISTER(0x6f0000))
+@@ -28,9 +29,18 @@
+ static struct mm_region mvebu_mem_map[] = {
+ 	/* Armada 80x0 memory regions include the CP1 (slave) units */
+ 	{
+-		/* RAM */
++		/* RAM 0-64MB */
+ 		.phys = 0x0UL,
+ 		.virt = 0x0UL,
++		.size = ATF_REGION_START,
++		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
++			 PTE_BLOCK_INNER_SHARE
++	},
++	/* ATF and TEE region 0x4000000-0x5400000 not mapped */
++	{
++		/* RAM 66MB-2GB */
++		.phys = ATF_REGION_END,
++		.virt = ATF_REGION_END,
+ 		.size = SZ_2G,
+ 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+ 			 PTE_BLOCK_INNER_SHARE
+diff --git a/arch/arm/mach-mvebu/include/mach/fw_info.h b/arch/arm/mach-mvebu/include/mach/fw_info.h
+new file mode 100644
+index 0000000000..28da19f5da
+--- /dev/null
++++ b/arch/arm/mach-mvebu/include/mach/fw_info.h
+@@ -0,0 +1,14 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++#ifndef _FW_INFO_H_
++#define _FW_INFO_H_
++
++/* Protected ATF and TEE region */
++#define ATF_REGION_START		0x4000000
++#define ATF_REGION_END			0x5400000
++
++#endif /* _FW_INFO_H_ */
+-- 
+2.29.0
+

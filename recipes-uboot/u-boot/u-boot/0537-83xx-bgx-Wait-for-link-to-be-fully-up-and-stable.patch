@@ -1,0 +1,34 @@
+From ed2206dc519bd35af575c6ffa220530961f2e1a3 Mon Sep 17 00:00:00 2001
+From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+Date: Fri, 4 Nov 2016 05:58:15 +0530
+Subject: [PATCH 0537/1239] 83xx, bgx: Wait for link to be fully up and stable.
+
+wait for BGX_SMUX_RX_CTL STATUS till link OK.
+this fixes the XLAUI init issue.
+
+Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 67447d995f..0ac693610d 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -567,6 +567,13 @@ static int bgx_xaui_check_link(struct lmac *lmac)
+ 		return -1;
+ 	}
+ 
++	/* Wait for MAC RX to be ready */
++	if (bgx_poll_reg(bgx, lmacid, BGX_SMUX_RX_CTL,
++			 SMU_RX_CTL_STATUS, true)) {
++		printf( "SMU RX link not okay\n");
++		return -1;
++	}
++
+ 	/* Wait for BGX RX to be idle */
+ 	if (bgx_poll_reg(bgx, lmacid, BGX_SMUX_CTL, SMU_CTL_RX_IDLE, false)) {
+ 		dev_err(&bgx->pdev->dev, "SMU RX not idle\n");
+-- 
+2.29.0
+

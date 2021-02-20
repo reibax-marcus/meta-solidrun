@@ -1,0 +1,30 @@
+From 12b6c8ac599479ae5308b763dff630a107b12a2b Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Tue, 18 Sep 2018 11:11:52 +0200
+Subject: [PATCH 0195/1239] arm64: mvebu: config: a3700: do not use default
+ device tree
+
+Because there are plenty of armada 3720 device-tree version, do not add
+default one and force the user to specify desired one intentionally.
+
+Change-Id: I494fd573f6a9ff615059afefc3eaf2966267e65b
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ configs/mvebu_db-88f3720_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index d7f0bc769f..3a36871a9e 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -35,7 +35,6 @@ CONFIG_CMD_MVEBU_BUBT=y
+ CONFIG_CMD_MVEBU_HW_INFO=y
+ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_MAC_PARTITION=y
+-CONFIG_DEFAULT_DEVICE_TREE="armada-3720-db"
+ CONFIG_ENV_IS_IN_SPI_FLASH=y
+ CONFIG_AHCI_MVEBU=y
+ CONFIG_CLK=y
+-- 
+2.29.0
+

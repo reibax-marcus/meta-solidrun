@@ -1,0 +1,25 @@
+From 1561849a279692e4572fc37dd57034c3afed1b25 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 5 Nov 2015 20:36:20 -0800
+Subject: [PATCH 0350/1239] Remove writeq_relaxed() reference
+
+---
+ drivers/net/cavium/thunder_bgx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 5318c95476..39e2cc7f45 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -178,7 +178,7 @@ static void bgx_flush_dmac_addrs(struct bgx *bgx, uint64_t lmac)
+ 			(lmac * MAX_DMAC_PER_LMAC * sizeof(dmac));
+ 		addr = (uintptr_t)bgx->reg_base + 
+ 				BGX_CMR_RX_DMACX_CAM + offset;
+-		writeq_relaxed(dmac, (void *)addr);
++		writeq(dmac, (void *)addr);
+ 		bgx->lmac[lmac].dmac--;
+ 	}
+ }
+-- 
+2.29.0
+

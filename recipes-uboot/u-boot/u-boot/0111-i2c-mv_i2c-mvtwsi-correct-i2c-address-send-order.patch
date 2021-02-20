@@ -1,0 +1,94 @@
+From 9a2d0afaaf38ac541ec4b795b0e051caa7ba6d3a Mon Sep 17 00:00:00 2001
+From: Evan Wang <xswang@marvell.com>
+Date: Mon, 17 Apr 2017 18:24:53 +0800
+Subject: [PATCH 0111/1239] i2c: mv_i2c/mvtwsi: correct i2c address send order
+
+Currently in marvell I2C drivers, if the offset width
+more than 1 bytes, the lower byte are sent first,
+which is wrong according to I2C protocol.
+The patch fixes the issue.
+
+Change-Id: I072cd8a933b9b83968237655233df95d67780499
+Signed-off-by: Evan Wang <xswang@marvell.com>
+---
+ drivers/i2c/mv_i2c.c | 6 ++++--
+ drivers/i2c/mvtwsi.c | 6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/mv_i2c.c b/drivers/i2c/mv_i2c.c
+index 8a56ef9a24..9bde9cd599 100644
+--- a/drivers/i2c/mv_i2c.c
++++ b/drivers/i2c/mv_i2c.c
+@@ -238,6 +238,7 @@ static int __i2c_read(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
+ 		      uchar *buffer, int len)
+ {
+ 	struct mv_i2c_msg msg;
++	int i = 0;
+ 
+ 	debug("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
+ 	      "len=0x%02x)\n", chip, *addr, alen, len);
+@@ -269,7 +270,7 @@ static int __i2c_read(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
+ 		msg.condition = I2C_COND_NORMAL;
+ 		msg.acknack   = I2C_ACKNAK_WAITACK;
+ 		msg.direction = I2C_WRITE;
+-		msg.data      = addr[alen];
++		msg.data      = addr[i++];
+ 		if (i2c_transfer(base, &msg))
+ 			return -1;
+ 	}
+@@ -314,6 +315,7 @@ static int __i2c_write(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
+ 		       uchar *buffer, int len)
+ {
+ 	struct mv_i2c_msg msg;
++	int i = 0;
+ 
+ 	debug("i2c_write(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
+ 	      "len=0x%02x)\n", chip, *addr, alen, len);
+@@ -340,7 +342,7 @@ static int __i2c_write(struct mv_i2c *base, uchar chip, u8 *addr, int alen,
+ 		msg.condition = I2C_COND_NORMAL;
+ 		msg.acknack   = I2C_ACKNAK_WAITACK;
+ 		msg.direction = I2C_WRITE;
+-		msg.data      = addr[alen];
++		msg.data      = addr[i++];
+ 		if (i2c_transfer(base, &msg))
+ 			return -1;
+ 	}
+diff --git a/drivers/i2c/mvtwsi.c b/drivers/i2c/mvtwsi.c
+index 0a2dafcec6..69244b890c 100644
+--- a/drivers/i2c/mvtwsi.c
++++ b/drivers/i2c/mvtwsi.c
+@@ -615,13 +615,14 @@ static int __twsi_i2c_read(struct mvtwsi_registers *twsi, uchar chip,
+ 	int status = 0;
+ 	int stop_status;
+ 	int expected_start = MVTWSI_STATUS_START;
++	int i = 0;
+ 
+ 	if (alen > 0) {
+ 		/* Begin i2c write to send the address bytes */
+ 		status = i2c_begin(twsi, expected_start, (chip << 1), tick);
+ 		/* Send address bytes */
+ 		while ((status == 0) && alen--)
+-			status = twsi_send(twsi, addr[alen],
++			status = twsi_send(twsi, addr[i++],
+ 					   MVTWSI_STATUS_DATA_W_ACK, tick);
+ 		/* Send repeated STARTs after the initial START */
+ 		expected_start = MVTWSI_STATUS_REPEATED_START;
+@@ -662,13 +663,14 @@ static int __twsi_i2c_write(struct mvtwsi_registers *twsi, uchar chip,
+ 			    uint tick)
+ {
+ 	int status, stop_status;
++	int i = 0;
+ 
+ 	/* Begin i2c write to send first the address bytes, then the
+ 	 * data bytes */
+ 	status = i2c_begin(twsi, MVTWSI_STATUS_START, (chip << 1), tick);
+ 	/* Send address bytes */
+ 	while ((status == 0) && (alen-- > 0))
+-		status = twsi_send(twsi, addr[alen], MVTWSI_STATUS_DATA_W_ACK,
++		status = twsi_send(twsi, addr[i++], MVTWSI_STATUS_DATA_W_ACK,
+ 				   tick);
+ 	/* Send data bytes */
+ 	while ((status == 0) && (length-- > 0))
+-- 
+2.29.0
+

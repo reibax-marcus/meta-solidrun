@@ -1,0 +1,30 @@
+From bbb4e0f57327ab9b233f91922f52eb304f1ad07e Mon Sep 17 00:00:00 2001
+From: Nithya <nithya.mani@caviumnetworks.com>
+Date: Wed, 8 Feb 2017 19:44:57 -0800
+Subject: [PATCH 0609/1239] bgx: remove resetting the qlm
+
+commit #2c251a9 handled the special case of adjusting
+the lmac count and it was resetting the qlm. This patch
+removes resetting the qlm so that interfaces like XFI, RXAUI,
+XLAUI which uses qlm don't crash.
+
+Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index f8298d8c6d..92d41bb36a 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -1101,7 +1101,6 @@ static void bgx_init_hw(struct bgx *bgx)
+ 		tlmac->lane_to_sds = lmac->lane_to_sds;
+ 		tlmac->qlm = lmac->qlm;
+ 		tlmac->qlm_mode = lmac->qlm_mode;
+-		lmac->qlm = -1;
+ 
+ 		/* Initialize lmac_type and lane_to_sds */
+ 		bgx_reg_write(bgx, count, BGX_CMRX_CFG,
+-- 
+2.29.0
+

@@ -1,0 +1,44 @@
+From 6d477b71458e9ef37283b4b13f0eb61bc97c796a Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 16 May 2016 14:39:48 -0700
+Subject: [PATCH 0450/1239] net: thunderx: Set disparity only for QSGMII mode.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index d4b31ca767..89161f54bd 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -258,6 +258,9 @@ static int get_qlm_for_bgx(int node, int bgx_id, int index)
+ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
+ {
+ 	u64 cfg;
++	struct lmac *lmac;
++
++	lmac = &bgx->lmac[lmacid];
+ 
+ 	bgx_reg_modify(bgx, lmacid, BGX_GMP_GMI_TXX_THRESH, 0x30);
+ 	/* max packet size */
+@@ -287,9 +290,13 @@ static int bgx_lmac_sgmii_init(struct bgx *bgx, int lmacid)
+ 
+ 	/* Disable disparity for QSGMII mode, to prevent propogation across
+ 	   ports. */
+-	cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL);
+-	cfg &= ~PCS_MISCX_CTL_DISP_EN;
+-	bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL, cfg);
++
++	if (lmac->qlm_mode == QLM_MODE_QSGMII) {
++		cfg = bgx_reg_read(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL);
++		cfg &= ~PCS_MISCX_CTL_DISP_EN;
++		bgx_reg_write(bgx, lmacid, BGX_GMP_PCS_MISCX_CTL, cfg);
++		return 0; /* Skip checking AN_CPT */
++	}
+ 
+ 	if (bgx_poll_reg(bgx, lmacid, BGX_GMP_PCS_MRX_STATUS,
+ 			 PCS_MRX_STATUS_AN_CPT, false)) {
+-- 
+2.29.0
+

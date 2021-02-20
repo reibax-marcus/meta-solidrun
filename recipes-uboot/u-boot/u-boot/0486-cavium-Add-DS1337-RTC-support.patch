@@ -1,0 +1,39 @@
+From 68169a6421a23269e4567295eff918cfba1ac7ca Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 24 May 2016 12:51:59 -0700
+Subject: [PATCH 0486/1239] cavium: Add DS1337 RTC support
+
+Add necessary definitions to access the DS1337 RTC and the
+RTC infrastructure
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ include/configs/thunderx_81xx.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 8c00a3627d..c3a36c4ef8 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -157,6 +157,8 @@
+ #define CONFIG_CMD_GREPENV
+ #define CONFIG_CMD_ENV_CALLBACK
+ 
++#define CONFIG_CMD_DATE
++
+ #define CONFIG_ENV_CALLBACK_LIST_STATIC "txsmi\\d?mode:smimode"
+ 
+ /* AHCI support Definitions */
+@@ -186,6 +188,9 @@
+ #define CONFIG_SYS_CACHELINE_SIZE 128
+ 
+ #define CONFIG_SYS_I2C_THUNDERX
++#define CONFIG_SYS_RTC_BUS_NUM 0
++#define CONFIG_SYS_I2C_RTC_ADDR 0x68
++#define CONFIG_RTC_DS1337
+ 
+ #define CONFIG_DDR_SPD
+ #define CONFIG_SYS_SPD_ADDR_LIST {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}
+-- 
+2.29.0
+

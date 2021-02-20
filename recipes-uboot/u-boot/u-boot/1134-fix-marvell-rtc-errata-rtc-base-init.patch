@@ -1,0 +1,35 @@
+From f40051a1d355255536c0b7f19e44886cbde54c30 Mon Sep 17 00:00:00 2001
+From: Ben Peled <bpeled@marvell.com>
+Date: Mon, 20 Apr 2020 21:20:51 +0300
+Subject: [PATCH 1134/1239] fix: marvell: rtc errata: rtc base init
+
+rtc errata rtc init was missing.
+
+Change-Id: I29c28b45d264382063663bf0341734c0ebd0023d
+Signed-off-by: Ben Peled <bpeled@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27187
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ drivers/rtc/marvell_rtc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/marvell_rtc.c b/drivers/rtc/marvell_rtc.c
+index 9017537fd2..a4bb3762b0 100644
+--- a/drivers/rtc/marvell_rtc.c
++++ b/drivers/rtc/marvell_rtc.c
+@@ -96,7 +96,10 @@ void marvell_rtc_errata(struct udevice *dev)
+ 
+ 	/* Get the rtc register base address */
+ 	struct rtc_unit_config *rtc_cfg = dev_get_priv(dev);
+-	uintptr_t rtc_base = (uintptr_t)rtc_cfg->rtc_base;
++	uintptr_t rtc_base;
++
++	rtc_cfg->rtc_base = (void *)devfdt_get_addr_index(dev, 0);
++	rtc_base = (uintptr_t)rtc_cfg->rtc_base;
+ 
+ 	/* Update RTC-MBUS bridge timing parameters */
+ 	/* Functional Errata Ref #:
+-- 
+2.29.0
+

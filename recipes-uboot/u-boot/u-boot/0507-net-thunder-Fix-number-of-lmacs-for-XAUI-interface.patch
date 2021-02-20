@@ -1,0 +1,29 @@
+From dd5f612ef6f2de26c87732e5a159aa36b0021458 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 14 Jun 2016 13:03:24 -0700
+Subject: [PATCH 0507/1239] net: thunder: Fix number of lmacs for XAUI
+ interface.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index e129e2a65c..8ff61a1924 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -976,9 +976,9 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 			}
+ 			break;
+ 		case 1:
++			lmac->qlm_mode = QLM_MODE_XAUI;
+ 			if (lmacid != 0)
+ 				continue;
+-			lmac->qlm_mode = QLM_MODE_XAUI;
+ 			printf("BGX%d QLM%d LMAC%d mode: XAUI\n",
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+ 			break;
+-- 
+2.29.0
+

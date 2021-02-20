@@ -1,0 +1,87 @@
+From 30dd60c009651feeafa81f59e4e3cb6aad2d4c19 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Wed, 8 Jun 2016 11:37:57 -0700
+Subject: [PATCH 0503/1239] Revert more local changes.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ arch/arm/lib/bootm.c         | 13 ++++---------
+ board/cavium/thunderx/psci.c |  1 -
+ 2 files changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/arch/arm/lib/bootm.c b/arch/arm/lib/bootm.c
+index 70bc68e82f..2a8c84cd46 100644
+--- a/arch/arm/lib/bootm.c
++++ b/arch/arm/lib/bootm.c
+@@ -11,7 +11,6 @@
+  * Copyright (C) 2001  Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
+  */
+ 
+-#define DEBUG
+ #include <common.h>
+ #include <command.h>
+ #include <dm.h>
+@@ -91,15 +90,12 @@ __weak void board_quiesce_devices(void)
+ static void announce_and_cleanup(int fake)
+ {
+ 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
+-printf("done with bootstage\n");
+ #ifdef CONFIG_BOOTSTAGE_FDT
+ 	bootstage_fdt_add_report();
+ #endif
+-printf("done iwth fdt\n");
+ #ifdef CONFIG_BOOTSTAGE_REPORT
+ 	bootstage_report();
+ #endif
+-printf("Done with bootstage\n");
+ 
+ #ifdef CONFIG_USB_DEVICE
+ 	udc_disconnect();
+@@ -116,9 +112,7 @@ printf("Done with bootstage\n");
+ 	 */
+ 	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+ 
+-printf("done with usb device\n");
+ 	cleanup_before_linux();
+-printf("Done with cleanup\n");
+ }
+ 
+ static void setup_start_tag (bd_t *bd)
+@@ -225,10 +219,12 @@ __weak void setup_board_tags(struct tag **in_params) {}
+ #ifdef CONFIG_ARM64
+ static void do_nonsec_virt_switch(void)
+ {
+-printf("virt_switch:\n");
+ 	smp_kick_all_cpus();
+-printf("1.\n");
+ 	dcache_disable();	/* flush cache before swtiching to EL2 */
++	armv8_switch_to_el2();
++#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
++	armv8_switch_to_el1();
++#endif
+ }
+ #endif
+ 
+@@ -344,7 +340,6 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
+ 
+ 	announce_and_cleanup(fake);
+ 
+-printf("fake = %d\n", fake);
+ 	if (!fake) {
+ #ifdef CONFIG_ARMV8_PSCI
+ 		armv8_setup_psci();
+diff --git a/board/cavium/thunderx/psci.c b/board/cavium/thunderx/psci.c
+index 6c3d7b9086..bbbb876d9e 100644
+--- a/board/cavium/thunderx/psci.c
++++ b/board/cavium/thunderx/psci.c
+@@ -4,7 +4,6 @@
+  * SPDX-License-Identifier:	GPL-2.0+
+ **/
+ 
+-#define DEBUG
+ #include <common.h>
+ #include <asm/io.h>
+ #include <linux/psci.h>
+-- 
+2.29.0
+

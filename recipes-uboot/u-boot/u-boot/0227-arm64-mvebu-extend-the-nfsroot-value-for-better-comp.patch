@@ -1,0 +1,37 @@
+From 0b1a563de1e39331add517ea7e28f46331885239 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Tue, 4 Dec 2018 09:47:32 +0200
+Subject: [PATCH 0227/1239] arm64: mvebu: extend the nfsroot value for better
+ compatibility
+
+With modern NFS servers found on Debian 10, Ubuntu 18.04 and
+higher, the target board with root on NFS may fail to connect to
+its server upon startup.
+Such issue is hard to debug, since the authentication with server
+completes successfully, but root FS mount fails without error report.
+This patch makes sure that target always uses TCP connection type
+and NFSv3 protocol, which eliminates the connection problem
+mentioned above.
+
+Change-Id: I48056b1cb2666473cbfb63a125c79605f3297130
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ include/configs/mvebu_armada-common.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index 884cf8b95c..3210ebdfad 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -65,7 +65,7 @@
+ 						" $root ip=$ipaddr:$serverip:" \
+ 						"$gatewayip:$netmask:$hostname"\
+ 						":$netdev:none nfsroot="\
+-						"$serverip:$rootpath " \
++						"$serverip:$rootpath,tcp,v3 " \
+ 						"$extra_params " \
+ 						"$cpuidle"
+ 
+-- 
+2.29.0
+

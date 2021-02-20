@@ -1,0 +1,109 @@
+From 2a42e2527d885af0ceeb51724228217f0c36240a Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Wed, 6 Dec 2017 16:06:49 -0800
+Subject: [PATCH 0726/1239] Remove BGX defines from T93.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ board/cavium/thunderx/fdt.c     | 8 ++++++--
+ drivers/net/cavium/Makefile     | 2 +-
+ include/configs/thunderx_93xx.h | 9 ---------
+ 3 files changed, 7 insertions(+), 12 deletions(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index 29e2c32ccf..c439a7abd6 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -96,6 +96,7 @@ static int thunderx_get_phy_addr(const void *fdt, int phy_offset)
+ 
+ void thunderx_parse_phy_info(void)
+ {
++#ifdef CONFIG_THUNDERX_BGX
+ 	const void *fdt = gd->fdt_blob;
+ 	int offset = 0, node, bgx_id = 0, lmacid = 0;
+ 	const u32 *val;
+@@ -120,7 +121,7 @@ void thunderx_parse_phy_info(void)
+ 					 "rgx%d", rgx_id);
+ 				node = fdt_subnode_offset(fdt, offset, bgxname);
+ 				if (node < 0) {
+-					printf("bgx%d/rgx0 node not found\n",
++					debug("bgx%d/rgx0 node not found\n",
+ 					       bgx_id);
+ 					return;
+ 				}
+@@ -178,6 +179,7 @@ void thunderx_parse_phy_info(void)
+ 					   autoneg_dis, lmac_reg);
+ 		}
+ 	}
++#endif
+ }
+ 
+ int ethaddr_delete(const char *name)
+@@ -200,6 +202,7 @@ int ethaddr_exists(const char *name)
+ 
+ void thunderx_parse_mac_addr(void)
+ {
++#ifdef CONFIG_THUNDERX_BGX
+ 	const char *mac_addr;
+ 	const void *fdt = gd->fdt_blob;
+ 	int subnode, mismatch = 0;
+@@ -223,7 +226,7 @@ void thunderx_parse_mac_addr(void)
+ 				 "rgx%d", rgx_id);
+ 			node = fdt_subnode_offset(fdt, offset, bgxname);
+ 			if (node < 0) {
+-				printf("bgx%d/rgx0 node not found\n", bgx_id);
++				debug("bgx%d/rgx0 node not found\n", bgx_id);
+ 				continue;
+ 			}
+ 		}
+@@ -307,6 +310,7 @@ void thunderx_parse_mac_addr(void)
+ 			" changed, saving env...\n");
+ 		saveenv();
+ 	}
++#endif
+ }
+ 
+ int arch_fixup_memory_node(void *blob)
+diff --git a/drivers/net/cavium/Makefile b/drivers/net/cavium/Makefile
+index df90cdc55d..6f19482086 100644
+--- a/drivers/net/cavium/Makefile
++++ b/drivers/net/cavium/Makefile
+@@ -3,7 +3,7 @@
+ #
+ # SPDX-License-Identifier:	GPL-2.0+
+ #
+-obj-y = thunder_bgx.o nic_main.o nicvf_queues.o \
++obj-$(CONFIG_THUNDERX_BGX) = thunder_bgx.o nic_main.o nicvf_queues.o \
+ 		nicvf_main.o thunderx_smi.o
+ obj-$(CONFIG_THUNDERX_XCV) += thunder_xcv.o
+ 
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index 6e46bb4533..c7c343a43d 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -81,9 +81,6 @@
+ #define CONFIG_BAUDRATE			115200
+ 
+ /* Net */
+-/** Enable ThunderX BGX networking support */
+-#define CONFIG_THUNDERX_BGX
+-
+ /** Enable ThunderX SMI MDIO driver */
+ #define CONFIG_THUNDERX_SMI
+ 
+@@ -104,12 +101,6 @@
+  */
+ #define CONFIG_OVERWRITE_ETHADDR_ONCE
+ 
+-/** Maximum number of BGX interfaces per CPU node */
+-#define CONFIG_MAX_BGX_PER_NODE		4
+-
+-/** Maximum total number of BGX interfaces across all nodes */
+-#define CONFIG_MAX_BGX			4
+-
+ /** Command line configuration */
+ #define CONFIG_MENU
+ 
+-- 
+2.29.0
+

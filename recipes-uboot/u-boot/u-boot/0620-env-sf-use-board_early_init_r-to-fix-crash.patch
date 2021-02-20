@@ -1,0 +1,111 @@
+From 4cbb22938ca295d552d297e66df61699bd68b417 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Wed, 1 Mar 2017 17:08:27 -0800
+Subject: [PATCH 0620/1239] env: sf: use board_early_init_r to fix crash
+
+ENV in SPI Flash crash is fixed using board_early_init_r to
+call eth_common_init, which helps in success of
+probe of all pci devices during early initr_env call.
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ board/cavium/thunderx/thunderx.c |  9 +++++++++
+ common/board_r.c                 | 10 ----------
+ include/configs/thunderx_81xx.h  |  1 +
+ include/configs/thunderx_83xx.h  |  1 +
+ net/eth_legacy.c                 |  3 +++
+ 5 files changed, 14 insertions(+), 10 deletions(-)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 1301e5194a..6c1458ba04 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -59,6 +59,15 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ char thunderx_prompt[CONFIG_THUNDERX_PROMPT_SIZE] = "ThunderX> ";
+ 
++#ifdef CONFIG_BOARD_EARLY_INIT_R
++extern void eth_common_init(void);
++int board_early_init_r(void)
++{
++	eth_common_init();
++	return 0;
++}
++#endif
++
+ int board_init(void)
+ {
+ 	ulong fdt_addr = (ulong)gd->fdt_blob;
+diff --git a/common/board_r.c b/common/board_r.c
+index 7101ec97f5..284a2b773f 100644
+--- a/common/board_r.c
++++ b/common/board_r.c
+@@ -448,24 +448,14 @@ static int should_load_env(void)
+ 
+ static int initr_env(void)
+ {
+-#ifdef CONFIG_SPI_ENV
+-	static int first_time = 0;
+-
+-	/* initialize environment */
+-	if (should_load_env() && first_time == 1)
+-#else
+ 	/* initialize environment */
+ 	if (should_load_env())
+-#endif
+ 		env_relocate();
+ 	else
+ 		env_set_default(NULL, 0);
+ #ifdef CONFIG_OF_CONTROL
+ 	env_set_hex("fdtcontroladdr",
+ 		    (unsigned long)map_to_sysmem(gd->fdt_blob));
+-#endif
+-#ifdef CONFIG_SPI_ENV
+-	first_time = 1;
+ #endif
+ 	/* Initialize from environment */
+ 	load_addr = env_get_ulong("loadaddr", 16, load_addr);
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 785ce8c2e9..2968b49335 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -387,6 +387,7 @@
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+ #elif defined(CONFIG_SPI_ENV)
++#define CONFIG_BOARD_EARLY_INIT_R
+ #define CONFIG_ENV_IS_IN_SPI_FLASH
+ #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
+ #define CONFIG_ENV_SPI_MAX_HZ		12500000
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 76ffc7e771..8e1f080871 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -388,6 +388,7 @@
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+ #elif defined(CONFIG_SPI_ENV)
++#define CONFIG_BOARD_EARLY_INIT_R
+ #define CONFIG_ENV_IS_IN_SPI_FLASH
+ #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
+ #define CONFIG_ENV_SPI_MAX_HZ		12500000
+diff --git a/net/eth_legacy.c b/net/eth_legacy.c
+index 41f5263526..a28032823e 100644
+--- a/net/eth_legacy.c
++++ b/net/eth_legacy.c
+@@ -239,9 +239,12 @@ int eth_initialize(void)
+ {
+ 	int num_devices = 0;
+ 
++#ifndef CONFIG_BOARD_EARLY_INIT_R
+ 	eth_devices = NULL;
+ 	eth_current = NULL;
+ 	eth_common_init();
++#endif
++
+ 	/*
+ 	 * If board-specific initialization exists, call it.
+ 	 * If not, call a CPU-specific one
+-- 
+2.29.0
+

@@ -1,0 +1,66 @@
+From 60d610ba7bfa4277bffcaa85afbf50ea2b23128f Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Tue, 22 Aug 2017 11:14:22 +0300
+Subject: [PATCH 0016/1239] phy: marvell: fix several minor bugs in
+ comphy_probe
+
+If fdtdec_get_int can't find speed, set COMPHY_SPEED_INVALID
+If fdtdec_get_int can't find type, set COMPHY_TYPE_INVALID
+Move the error print if phy-type is invalid
+Add continue to the probe loop (in a case of invalid phy)
+Cosmetic changes
+
+Change-Id: I0c61b40bfe685437426fe907942ed338b7845378
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ drivers/phy/marvell/comphy_core.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/phy/marvell/comphy_core.c b/drivers/phy/marvell/comphy_core.c
+index f3725312b1..8b0de902de 100644
+--- a/drivers/phy/marvell/comphy_core.c
++++ b/drivers/phy/marvell/comphy_core.c
+@@ -132,21 +132,30 @@ static int comphy_probe(struct udevice *dev)
+ 		if (!fdtdec_get_is_enabled(blob, subnode))
+ 			continue;
+ 
+-		comphy_map_data[lane].speed = fdtdec_get_int(
+-			blob, subnode, "phy-speed", COMPHY_TYPE_INVALID);
+-		comphy_map_data[lane].type = fdtdec_get_int(
+-			blob, subnode, "phy-type", COMPHY_SPEED_INVALID);
+-		comphy_map_data[lane].invert = fdtdec_get_int(
+-			blob, subnode, "phy-invert", COMPHY_POLARITY_NO_INVERT);
+-		comphy_map_data[lane].clk_src = fdtdec_get_bool(blob, subnode,
+-								"clk-src");
+-		comphy_map_data[lane].end_point = fdtdec_get_bool(blob, subnode,
+-								  "end_point");
++		comphy_map_data[lane].type =
++			fdtdec_get_int(blob, subnode, "phy-type",
++				       COMPHY_TYPE_INVALID);
++
+ 		if (comphy_map_data[lane].type == COMPHY_TYPE_INVALID) {
+ 			printf("no phy type for lane %d, setting lane as unconnected\n",
+ 			       lane + 1);
++			continue;
+ 		}
+ 
++		comphy_map_data[lane].speed =
++			fdtdec_get_int(blob, subnode, "phy-speed",
++				       COMPHY_SPEED_INVALID);
++
++		comphy_map_data[lane].invert =
++			fdtdec_get_int(blob, subnode, "phy-invert",
++				       COMPHY_POLARITY_NO_INVERT);
++
++		comphy_map_data[lane].clk_src =
++			fdtdec_get_bool(blob, subnode, "clk-src");
++
++		comphy_map_data[lane].end_point =
++			fdtdec_get_bool(blob, subnode, "end_point");
++
+ 		lane++;
+ 	}
+ 
+-- 
+2.29.0
+

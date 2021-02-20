@@ -1,0 +1,41 @@
+From fc17cfe795ece27378011c6c9579e770c8cf8a35 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 27 Oct 2017 17:23:18 -0700
+Subject: [PATCH 0719/1239] configs: 81xx: add support for storing environment
+ in MMC
+
+Disabled by default.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/thunderx_81xx.h | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index eb6a49e7f5..03332ad1de 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -294,10 +294,18 @@
+ /* Use uboot SPI APIs for env variables */
+ #define CONFIG_SPI_ENV
+ 
+-#if defined(CONFIG_ATF)
++#if 0	/* Enable this to put the environment in MMC */
++/** Specifies that the environment is stored in MMC */
++# define CONFIG_ENV_IS_IN_MMC
++
++/** MMC device to store the environment into */
++# define CONFIG_SYS_MMC_ENV_DEV		0
++#endif
++
++#if defined(CONFIG_ATF) && !defined(CONFIG_ENV_IS_IN_MMC)
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+-#elif defined(CONFIG_SPI_ENV)
++#elif defined(CONFIG_SPI_ENV) && !defined(CONFIG_ENV_IS_IN_MMC)
+ #define CONFIG_ENV_IS_IN_SPI_FLASH
+ #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
+ #define CONFIG_ENV_SPI_MAX_HZ		12500000
+-- 
+2.29.0
+

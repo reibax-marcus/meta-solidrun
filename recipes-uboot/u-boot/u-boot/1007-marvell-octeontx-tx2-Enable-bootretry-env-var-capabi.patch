@@ -1,0 +1,60 @@
+From a6c917e4edcdc08370c337ee13222310979a80f7 Mon Sep 17 00:00:00 2001
+From: "Chickles, Derek" <Derek.Chickles@cavium.com>
+Date: Wed, 13 Nov 2019 16:30:10 -0800
+Subject: [PATCH 1007/1239] marvell: octeontx/tx2: Enable bootretry env var
+ capability
+
+Enable the ability to set the bootretry environment variable and
+have it take effect. By default the time is -1, which means it
+is disabled. If enabled, it must be at least 30 seconds so the
+user has time to type in a command.
+
+Change-Id: I3ad40c127f2849765b37b83bd8d4172a73cac18f
+Signed-off-by: Chickles, Derek <Derek.Chickles@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/18668
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+(cherry picked from commit e61713d0f31928aec198ba824fdc4a98a9129510)
+Reviewed-on: https://sj1git1.cavium.com/19361
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/octeontx2_96xx.h  | 5 +++++
+ include/configs/octeontx_common.h | 5 +++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/include/configs/octeontx2_96xx.h b/include/configs/octeontx2_96xx.h
+index 35da1b94e5..411ae7f292 100644
+--- a/include/configs/octeontx2_96xx.h
++++ b/include/configs/octeontx2_96xx.h
+@@ -42,6 +42,11 @@
+ /** Reduce hashes printed out */
+ #define CONFIG_TFTP_TSIZE
+ 
++/* Autoboot options */
++#define CONFIG_RESET_TO_RETRY
++#define CONFIG_BOOT_RETRY_TIME		-1
++#define CONFIG_BOOT_RETRY_MIN		30
++
+ /* BOOTP options */
+ #define CONFIG_BOOTP_BOOTFILESIZE
+ 
+diff --git a/include/configs/octeontx_common.h b/include/configs/octeontx_common.h
+index c8aece1ba6..dcea2d152c 100644
+--- a/include/configs/octeontx_common.h
++++ b/include/configs/octeontx_common.h
+@@ -39,6 +39,11 @@
+ /** Reduce hashes printed out */
+ #define CONFIG_TFTP_TSIZE
+ 
++/* Autoboot options */
++#define CONFIG_RESET_TO_RETRY
++#define CONFIG_BOOT_RETRY_TIME		-1
++#define CONFIG_BOOT_RETRY_MIN		30
++
+ /* BOOTP options */
+ #define CONFIG_BOOTP_BOOTFILESIZE
+ 
+-- 
+2.29.0
+

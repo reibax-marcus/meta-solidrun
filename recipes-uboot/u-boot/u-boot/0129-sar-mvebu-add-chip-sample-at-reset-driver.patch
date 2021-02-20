@@ -1,0 +1,902 @@
+From 8d4320a72c4a2c9b280f8bb7c8d2b4a8205419a5 Mon Sep 17 00:00:00 2001
+From: Christine Gharzuzi <chrisg@marvell.com>
+Date: Wed, 10 May 2017 01:18:13 +0300
+Subject: [PATCH 0129/1239] sar: mvebu: add chip sample-at-reset driver
+
+In order to print soc info at u-boot bootlog, the sampled-at-reset
+driver is needed to fetch the information about the soc.
+
+Add driver to display sar options, includes frequencies data
+of CPU, DDR, RCLK. This driver is used when displaying
+chip info at u-boot early bootlog plus it's used for
+configuring chip frequencies from u-boot using SatR command.
+
+Change-Id: I605dbb3cf913c58cd159924a931c4b627395b7ae
+Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+---
+ arch/arm/dts/armada-ap806.dtsi      |   9 +
+ arch/arm/dts/armada-cp110.dtsi      |   9 +
+ drivers/misc/Makefile               |   1 +
+ drivers/misc/mvebu_sar/Makefile     |   4 +
+ drivers/misc/mvebu_sar/ap806_sar.c  | 251 ++++++++++++++++++++++++++++
+ drivers/misc/mvebu_sar/cp110_sar.c  | 236 ++++++++++++++++++++++++++
+ drivers/misc/mvebu_sar/sar-uclass.c | 140 ++++++++++++++++
+ include/dm/uclass-id.h              |   1 +
+ include/fdtdec.h                    |   3 +
+ include/mvebu/mvebu_chip_sar.h      |  75 +++++++++
+ include/sar-uclass.h                |  27 +++
+ lib/fdtdec.c                        |   4 +
+ 12 files changed, 760 insertions(+)
+ create mode 100644 drivers/misc/mvebu_sar/Makefile
+ create mode 100644 drivers/misc/mvebu_sar/ap806_sar.c
+ create mode 100644 drivers/misc/mvebu_sar/cp110_sar.c
+ create mode 100644 drivers/misc/mvebu_sar/sar-uclass.c
+ create mode 100644 include/mvebu/mvebu_chip_sar.h
+ create mode 100644 include/sar-uclass.h
+
+diff --git a/arch/arm/dts/armada-ap806.dtsi b/arch/arm/dts/armada-ap806.dtsi
+index 584fc91e08..1b7fefa44c 100644
+--- a/arch/arm/dts/armada-ap806.dtsi
++++ b/arch/arm/dts/armada-ap806.dtsi
+@@ -120,6 +120,15 @@
+ 				#gpio-cells = <2>;
+ 			};
+ 
++			sar-reg {
++				compatible = "marvell,sample-at-reset-common",
++					     "marvell,sample-at-reset-ap806";
++				reg = <0x6f8200 0x8>;
++				sar-driver = "ap806_sar";
++				sar-name = "ap806_sar";
++				status = "okay";
++			};
++
+ 			ap_spi0: spi@510600 {
+ 				compatible = "marvell,armada-380-spi";
+ 				reg = <0x510600 0x50>;
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index 74b9a7c2d9..26094b3825 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -46,6 +46,15 @@
+ 				status = "disabled";
+ 			};
+ 
++			CP110_LABEL(sar-reg) {
++				compatible = "marvell,sample-at-reset-common",
++					     "marvell,sample-at-reset-cp110";
++				reg = <0x400200 0x8>;
++				sar-driver = "cp110_sar";
++				sar-name = CP110_STRING_LABEL(sar);
++				status = "okay";
++			};
++
+ 			CP110_LABEL(ld_efuse0): efuse0@400F00 {
+ 				compatible = "marvell,mvebu-fuse-ld-user";
+ 				reg = <0x400008 0x4>;
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index 509c588582..16638fbf23 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -50,6 +50,7 @@ obj-$(CONFIG_NS87308) += ns87308.o
+ obj-$(CONFIG_NUVOTON_NCT6102D) += nuvoton_nct6102d.o
+ obj-$(CONFIG_PCA9551_LED) += pca9551_led.o
+ obj-$(CONFIG_$(SPL_)PWRSEQ) += pwrseq-uclass.o
++obj-$(CONFIG_MVEBU_SAR) += mvebu_sar/
+ obj-$(CONFIG_QFW) += qfw.o
+ obj-$(CONFIG_ROCKCHIP_EFUSE) += rockchip-efuse.o
+ obj-$(CONFIG_SANDBOX) += swap_case.o
+diff --git a/drivers/misc/mvebu_sar/Makefile b/drivers/misc/mvebu_sar/Makefile
+new file mode 100644
+index 0000000000..d0f73dd981
+--- /dev/null
++++ b/drivers/misc/mvebu_sar/Makefile
+@@ -0,0 +1,4 @@
++
++obj-$(CONFIG_MVEBU_SAR) += sar-uclass.o
++obj-$(CONFIG_TARGET_MVEBU_ARMADA_8K) += ap806_sar.o
++obj-$(CONFIG_TARGET_MVEBU_ARMADA_8K) += cp110_sar.o
+diff --git a/drivers/misc/mvebu_sar/ap806_sar.c b/drivers/misc/mvebu_sar/ap806_sar.c
+new file mode 100644
+index 0000000000..d3894a004f
+--- /dev/null
++++ b/drivers/misc/mvebu_sar/ap806_sar.c
+@@ -0,0 +1,251 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:	GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++/* #define DEBUG */
++#include <common.h>
++#include <asm/io.h>
++#include <errno.h>
++#include <fdtdec.h>
++#include <mvebu/mvebu_chip_sar.h>
++
++#include <sar-uclass.h>
++
++#define CPU_CLOCK_ID	0
++#define DDR_CLOCK_ID	1
++#define RING_CLOCK_ID	2
++
++#define MHz			1000000
++#define GHz			1000000000
++
++/* SAR AP806 registers */
++#define SAR_CLOCK_FREQ_MODE_OFFSET	0
++#define SAR_CLOCK_FREQ_MODE_MASK	(0x1f << SAR_CLOCK_FREQ_MODE_OFFSET)
++#define SAR_TEST_MODE_ENABLE_OFFSET	5
++#define SAR_TEST_MODE_ENABLE_MASK	(0x1 << SAR_TEST_MODE_ENABLE_OFFSET)
++#define SAR_SKIP_LINK_I2C_INIT_OFFSET	6
++#define SAR_SKIP_LINK_I2C_INIT_MASK	(0x1 << SAR_SKIP_LINK_I2C_INIT_OFFSET)
++#define SAR_POR_BYPASS_OFFSET		7
++#define SAR_POR_BYPASS_MASK		(0x1 << SAR_POR_BYPASS_OFFSET)
++#define SAR_BOOT_SOURCE_OFFSET		8
++#define SAR_BOOT_SOURCE_MASK		(0x7 << SAR_BOOT_SOURCE_OFFSET)
++#define SAR_PIDI_C2C_IHB_SELECT_OFFSET	11
++#define SAR_PIDI_C2C_IHB_SELECT_MASK	(0x1 << SAR_PIDI_C2C_IHB_SELECT_OFFSET)
++#define SAR_I2C_INIT_ENABLE_OFFSET	12
++#define SAR_I2C_INIT_ENABLE_MASK	(0x1 << SAR_I2C_INIT_ENABLE_OFFSET)
++#define SAR_SSCG_DISABLE_OFFSET		13
++#define SAR_SSCG_DISABLE_MASK		(0x1 << SAR_SSCG_DISABLE_OFFSET)
++#define SAR_PIDI_HW_TRAINING_DIS_OFFSET	14
++#define SAR_PIDI_HW_TRAINING_DIS_MASK	(0x1 << SAR_PIDI_HW_TRAINING_DIS_OFFSET)
++#define SAR_CPU_FMAX_REFCLK_OFFSET	15
++#define SAR_CPU_FMAX_REFCLK_MASK	(0x1 << SAR_CPU_FMAX_REFCLK_OFFSET)
++#define SAR_IHB_DIFF_REFCLK_DIS_OFFSET	16
++#define SAR_IHB_DIFF_REFCLK_DIS_MASK	(0x1 << SAR_IHB_DIFF_REFCLK_DIS_OFFSET)
++#define SAR_REF_CLK_MSTR_OFFSET		17
++#define SAR_REF_CLK_MSTR_MASK		(0x1 << SAR_REF_CLK_MSTR_OFFSET)
++#define SAR_CPU_WAKE_UP_OFFSET		18
++#define SAR_CPU_WAKE_UP_MASK		(0x1 << SAR_CPU_WAKE_UP_OFFSET)
++#define SAR_XTAL_BYPASS_OFFSET		19
++#define SAR_XTAL_BYPASS_MASK		(0x1 << SAR_XTAL_BYPASS_OFFSET)
++#define SAR_PIDI_LOW_SPEED_OFFSET	20
++#define SAR_PIDI_LOW_SPEED_MASK		(0x1 << SAR_PIDI_LOW_SPEED_OFFSET)
++
++#define AP806_SAR_1_REG			4
++#define SAR1_PLL2_OFFSET		(9)
++#define SAR1_PLL2_MASK			(0x1f << SAR1_PLL2_OFFSET)
++#define SAR1_PLL1_OFFSET		(14)
++#define SAR1_PLL1_MASK			(0x1f << SAR1_PLL1_OFFSET)
++#define SAR1_PLL0_OFFSET		(19)
++#define SAR1_PLL0_MASK			(0x1f << SAR1_PLL0_OFFSET)
++#define SAR1_PIDI_CONNECT_OFFSET	(24)
++#define SAR1_PIDI_CONNECT_MASK		(0x1 << SAR1_PIDI_CONNECT_OFFSET)
++
++struct sar_info {
++	char *name;
++	u32 offset;
++	u32 mask;
++};
++
++struct sar_info ap806_sar_0[] = {
++	{"Clock Freq mode		  ",
++		SAR_CLOCK_FREQ_MODE_OFFSET, SAR_CLOCK_FREQ_MODE_MASK },
++	{"Test mode enable		  ",
++		SAR_TEST_MODE_ENABLE_OFFSET, SAR_TEST_MODE_ENABLE_MASK },
++	{"Skip link i2c init		  ",
++		SAR_SKIP_LINK_I2C_INIT_OFFSET, SAR_SKIP_LINK_I2C_INIT_MASK },
++	{"Por ByPass			  ",
++		SAR_POR_BYPASS_OFFSET, SAR_POR_BYPASS_MASK },
++	{"Boot Source			  ",
++		SAR_BOOT_SOURCE_OFFSET, SAR_BOOT_SOURCE_MASK },
++	{"PIDI C2C IHB select		  ",
++		SAR_PIDI_C2C_IHB_SELECT_OFFSET, SAR_PIDI_C2C_IHB_SELECT_MASK },
++	{"I2C init enable		  ",
++		SAR_I2C_INIT_ENABLE_OFFSET, SAR_I2C_INIT_ENABLE_MASK },
++	{"SSCG disable			  ",
++		SAR_SSCG_DISABLE_OFFSET, SAR_SSCG_DISABLE_MASK },
++	{"PIDI hw training disable	  ",
++		SAR_PIDI_HW_TRAINING_DIS_OFFSET,
++		SAR_PIDI_HW_TRAINING_DIS_MASK },
++	{"CPU Fmax refclk select	  ",
++		SAR_CPU_FMAX_REFCLK_OFFSET, SAR_CPU_FMAX_REFCLK_MASK },
++	{"IHB differential refclk disable ",
++		SAR_IHB_DIFF_REFCLK_DIS_OFFSET, SAR_IHB_DIFF_REFCLK_DIS_MASK },
++	{"Ref clk mstr			  ",
++		SAR_REF_CLK_MSTR_OFFSET, SAR_REF_CLK_MSTR_MASK },
++	{"CPU wake up			  ",
++		SAR_CPU_WAKE_UP_OFFSET, SAR_CPU_WAKE_UP_MASK },
++	{"Xtal ByPass			  ",
++		SAR_XTAL_BYPASS_OFFSET, SAR_XTAL_BYPASS_MASK },
++	{"PIDI low speed		  ",
++		SAR_PIDI_LOW_SPEED_OFFSET, SAR_PIDI_LOW_SPEED_MASK },
++	{"",			-1,			-1},
++};
++
++struct sar_info ap806_sar_1[] = {
++	{"PIDI connect       ", SAR1_PIDI_CONNECT_OFFSET,
++				SAR1_PIDI_CONNECT_MASK },
++	{"PLL0 Config        ", SAR1_PLL0_OFFSET, SAR1_PLL0_MASK },
++	{"PLL1 Config        ", SAR1_PLL1_OFFSET, SAR1_PLL1_MASK },
++	{"PLL2 Config        ", SAR1_PLL2_OFFSET, SAR1_PLL2_MASK },
++	{"",			-1,			-1},
++};
++
++enum clocking_options {
++	CPU_2000_DDR_1200_RCLK_1200 = 0x0,
++	CPU_2000_DDR_1050_RCLK_1050 = 0x1,
++	CPU_1600_DDR_800_RCLK_800 = 0x4,
++	CPU_1800_DDR_1200_RCLK_1200 = 0x6,
++	CPU_1800_DDR_1050_RCLK_1050 = 0x7,
++	CPU_1600_DDR_1050_RCLK_1050 = 0x0d,
++	CPU_1000_DDR_650_RCLK_650 = 0x13,
++	CPU_1300_DDR_800_RCLK_800 = 0x14,
++	CPU_1300_DDR_650_RCLK_650 = 0x17,
++	CPU_1200_DDR_800_RCLK_800 = 0x19,
++	CPU_1400_DDR_800_RCLK_800 = 0x1a,
++	CPU_600_DDR_800_RCLK_800 = 0x1b,
++	CPU_800_DDR_800_RCLK_800 = 0x1c,
++	CPU_1000_DDR_800_RCLK_800 = 0x1d,
++};
++
++static const u32 pll_freq_tbl[16][4] = {
++	/* CPU */   /* DDR */   /* Ring */
++	{2.0 * GHz, 1.2  * GHz, 1.2  * GHz, CPU_2000_DDR_1200_RCLK_1200},
++	{2.0 * GHz, 1.05 * GHz, 1.05 * GHz, CPU_2000_DDR_1050_RCLK_1050},
++	{1.8 * GHz, 1.2  * GHz, 1.2  * GHz, CPU_1800_DDR_1200_RCLK_1200},
++	{1.8 * GHz, 1.05 * GHz, 1.05 * GHz, CPU_1800_DDR_1050_RCLK_1050},
++	{1.6 * GHz, 1.05 * GHz, 1.05 * GHz, CPU_1600_DDR_1050_RCLK_1050},
++	{1.3 * GHz, 800  * MHz, 800  * MHz, CPU_1300_DDR_800_RCLK_800},
++	{1.3 * GHz, 650  * MHz, 650  * MHz, CPU_1300_DDR_650_RCLK_650},
++	{1.6 * GHz, 800  * MHz, 800  * MHz, CPU_1600_DDR_800_RCLK_800},
++	{1.0 * GHz, 650  * MHz, 650  * MHz, CPU_1000_DDR_650_RCLK_650},
++	{1.2 * GHz, 800  * MHz, 800  * MHz, CPU_1200_DDR_800_RCLK_800},
++	{1.4 * GHz, 800  * MHz, 800  * MHz, CPU_1400_DDR_800_RCLK_800},
++	{600 * MHz, 800  * MHz, 800  * MHz, CPU_600_DDR_800_RCLK_800},
++	{800 * MHz, 800  * MHz, 800  * MHz, CPU_800_DDR_800_RCLK_800},
++	{1.0 * GHz, 800  * MHz, 800  * MHz, CPU_1000_DDR_800_RCLK_800}
++};
++
++static u32 sar_get_clock_freq_mode(struct udevice *dev)
++{
++	u32 i;
++	struct dm_sar_pdata *priv = dev_get_priv(dev);
++
++	u32 clock_freq = (readl(priv->sar_base) & SAR_CLOCK_FREQ_MODE_MASK) >>
++			  SAR_CLOCK_FREQ_MODE_OFFSET;
++	for (i = 0; i < 16; i++) {
++		if (pll_freq_tbl[i][3] == clock_freq)
++			return i;
++	}
++	pr_err("sar regs: Unsupported clock freq mode %d", clock_freq);
++	return -1;
++}
++
++int ap806_sar_value_get(struct udevice *dev, enum mvebu_sar_opts sar_opt,
++			struct sar_val *val)
++{
++	u32 clock_type, clock_freq_mode;
++
++	switch (sar_opt) {
++	case(SAR_CPU_FREQ):
++		clock_type = CPU_CLOCK_ID;
++		break;
++	case(SAR_DDR_FREQ):
++		clock_type = DDR_CLOCK_ID;
++		break;
++	case(SAR_AP_FABRIC_FREQ):
++		clock_type = RING_CLOCK_ID;
++		break;
++	default:
++		pr_err("AP806-SAR: Unsupported SAR option %d.\n", sar_opt);
++		return -EINVAL;
++	}
++	clock_freq_mode = sar_get_clock_freq_mode(dev);
++	val->raw_sar_val = clock_freq_mode;
++	val->freq = pll_freq_tbl[clock_freq_mode][clock_type];
++	return 0;
++}
++
++static int ap806_sar_dump(struct udevice *dev)
++{
++	u32 reg, val;
++	struct sar_info *sar;
++	struct dm_sar_pdata *priv = dev_get_priv(dev);
++
++	reg = readl(priv->sar_base);
++	printf("AP806 SAR register 0 [0x%08x]:\n", reg);
++	printf("----------------------------------\n");
++	sar = ap806_sar_0;
++	while (sar->offset != -1) {
++		val = (reg & sar->mask) >> sar->offset;
++		printf("%s  0x%x\n", sar->name, val);
++		sar++;
++	}
++
++	reg = readl(priv->sar_base + AP806_SAR_1_REG);
++	printf("\nAP806 SAR register 1 [0x%08x]:\n", reg);
++	printf("----------------------------------\n");
++	sar = ap806_sar_1;
++	while (sar->offset != -1) {
++		val = (reg & sar->mask) >> sar->offset;
++		printf("%s  0x%x\n", sar->name, val);
++		sar++;
++	}
++	return 0;
++}
++
++int ap806_sar_init(struct udevice *dev)
++{
++	int ret, i;
++
++	u32 sar_list[] = {
++		SAR_CPU_FREQ,
++		SAR_DDR_FREQ,
++		SAR_AP_FABRIC_FREQ
++	};
++
++	for (i = 0; i < ARRAY_SIZE(sar_list); i++) {
++		ret = mvebu_sar_id_register(dev, sar_list[i]);
++		if (ret) {
++			pr_err("Failed to register SAR %d, for AP806.\n",
++			       sar_list[i]);
++			return ret;
++		}
++	}
++	return 0;
++}
++
++static const struct sar_ops ap806_sar_ops = {
++	.sar_init_func = ap806_sar_init,
++	.sar_value_get_func = ap806_sar_value_get,
++	.sar_dump_func = ap806_sar_dump,
++};
++
++U_BOOT_DRIVER(ap806_sar) = {
++	.name = "ap806_sar",
++	.id = UCLASS_SAR,
++	.priv_auto_alloc_size = sizeof(struct dm_sar_pdata),
++	.ops = &ap806_sar_ops,
++};
+diff --git a/drivers/misc/mvebu_sar/cp110_sar.c b/drivers/misc/mvebu_sar/cp110_sar.c
+new file mode 100644
+index 0000000000..d319c7d070
+--- /dev/null
++++ b/drivers/misc/mvebu_sar/cp110_sar.c
+@@ -0,0 +1,236 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:	GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++/* #define DEBUG */
++#include <common.h>
++#include <asm/io.h>
++#include <errno.h>
++#include <fdtdec.h>
++#include <mvebu/mvebu_chip_sar.h>
++
++#include <sar-uclass.h>
++
++/* SAR CP1 registers */
++#define SAR1_RST_PCIE0_CLOCK_CONFIG_CP1_OFFSET	(0)
++#define SAR1_RST_PCIE0_CLOCK_CONFIG_CP1_MASK	\
++	(0x1 << SAR1_RST_PCIE0_CLOCK_CONFIG_CP1_OFFSET)
++#define SAR1_RST_PCIE1_CLOCK_CONFIG_CP1_OFFSET	(1)
++#define SAR1_RST_PCIE1_CLOCK_CONFIG_CP1_MASK	\
++	(0x1 << SAR1_RST_PCIE1_CLOCK_CONFIG_CP1_OFFSET)
++
++/* SAR CP0 registers */
++#define SAR1_RST_PCIE0_CLOCK_CONFIG_CP0_OFFSET	(2)
++#define SAR1_RST_PCIE0_CLOCK_CONFIG_CP0_MASK	\
++	(0x1 << SAR1_RST_PCIE0_CLOCK_CONFIG_CP0_OFFSET)
++#define SAR1_RST_PCIE1_CLOCK_CONFIG_CP0_OFFSET	(3)
++#define SAR1_RST_PCIE1_CLOCK_CONFIG_CP0_MASK	\
++	(0x1 << SAR1_RST_PCIE1_CLOCK_CONFIG_CP0_OFFSET)
++
++#define SAR1_RST_BOOT_MODE_AP_CP0_OFFSET	(4)
++#define SAR1_RST_BOOT_MODE_AP_CP0_MASK		\
++	(0x3f << SAR1_RST_BOOT_MODE_AP_CP0_OFFSET)
++
++struct sar_info {
++	char *name;
++	u32 offset;
++	u32 mask;
++};
++
++struct sar_info cp110_sar_1[] = {
++	{"PCIE0 clock config   ", SAR1_RST_PCIE0_CLOCK_CONFIG_CP1_OFFSET,
++				  SAR1_RST_PCIE0_CLOCK_CONFIG_CP1_MASK},
++	{"PCIE1 clock config   ", SAR1_RST_PCIE1_CLOCK_CONFIG_CP1_OFFSET,
++				  SAR1_RST_PCIE1_CLOCK_CONFIG_CP1_MASK},
++	{"",			-1,			-1},
++};
++
++struct sar_info cp110_sar_0[] = {
++	{"PCIE0 clock config   ", SAR1_RST_PCIE0_CLOCK_CONFIG_CP0_OFFSET,
++				  SAR1_RST_PCIE0_CLOCK_CONFIG_CP0_MASK},
++	{"PCIE1 clock config   ", SAR1_RST_PCIE1_CLOCK_CONFIG_CP0_OFFSET,
++				  SAR1_RST_PCIE1_CLOCK_CONFIG_CP0_MASK},
++	{"Reset Boot Mode     ", SAR1_RST_BOOT_MODE_AP_CP0_OFFSET,
++				 SAR1_RST_BOOT_MODE_AP_CP0_MASK },
++	{"",			-1,			-1},
++};
++
++struct bootsrc_idx_info {
++	int start;
++	int end;
++	enum mvebu_bootsrc_type src;
++	int index;
++};
++
++static struct bootsrc_idx_info bootsrc_list[] = {
++	{0x0,	0x5,	BOOTSRC_NOR,		0},
++	{0xA,	0x25,	BOOTSRC_NAND,		0},
++	{0x28,	0x28,	BOOTSRC_AP_SD_EMMC,	0},
++	{0x29,	0x29,	BOOTSRC_SD_EMMC,	0},
++	{0x2A,	0x2A,	BOOTSRC_AP_SD_EMMC,	0},
++	{0x2B,	0x2B,	BOOTSRC_SD_EMMC,	0},
++	{0x30,	0x30,	BOOTSRC_AP_SPI,		0},
++	{0x31,	0x31,	BOOTSRC_AP_SPI,		0}, /* BootRom disabled */
++	{0x32,	0x33,	BOOTSRC_SPI,		1},
++	{0x34,	0x35,	BOOTSRC_SPI,		0},
++	{0x36,	0x37,	BOOTSRC_SPI,		1}, /* BootRom disabled */
++	{-1,	-1,	-1}
++};
++
++int cp110_sar_bootsrc_get(struct udevice *dev, enum mvebu_sar_opts sar_opt,
++			  struct sar_val *val)
++{
++	u32 reg, mode;
++	int i;
++
++	struct dm_sar_pdata *priv = dev_get_priv(dev);
++
++	reg = readl(priv->sar_base);
++	mode = (reg & SAR1_RST_BOOT_MODE_AP_CP0_MASK) >>
++		SAR1_RST_BOOT_MODE_AP_CP0_OFFSET;
++
++	val->raw_sar_val = mode;
++
++	i = 0;
++	while (bootsrc_list[i].start != -1) {
++		if ((mode >= bootsrc_list[i].start) &&
++		    (mode <= bootsrc_list[i].end)) {
++			val->bootsrc.type = bootsrc_list[i].src;
++			val->bootsrc.index = bootsrc_list[i].index;
++			break;
++		}
++		i++;
++	}
++
++	if (bootsrc_list[i].start == -1) {
++		pr_err("Bad CP110 sample at reset mode (%d).\n", mode);
++		return -EINVAL;
++	}
++	return 0;
++}
++
++int cp110_sar_value_get(struct udevice *dev, enum mvebu_sar_opts sar_opt,
++			struct sar_val *val)
++{
++	u32 reg, mode;
++	struct dm_sar_pdata *priv = dev_get_priv(dev);
++
++	reg = readl(priv->sar_base);
++
++	switch (sar_opt) {
++	case SAR_BOOT_SRC:
++		return cp110_sar_bootsrc_get(dev, sar_opt, val);
++	case SAR_CP0_PCIE0_CLK:
++		mode = (reg & SAR1_RST_PCIE0_CLOCK_CONFIG_CP0_MASK) >>
++			SAR1_RST_PCIE0_CLOCK_CONFIG_CP0_OFFSET;
++		val->raw_sar_val = mode;
++		val->clk_direction = mode;
++		break;
++	case SAR_CP0_PCIE1_CLK:
++		mode = (reg & SAR1_RST_PCIE1_CLOCK_CONFIG_CP0_MASK) >>
++			SAR1_RST_PCIE1_CLOCK_CONFIG_CP0_OFFSET;
++		val->raw_sar_val = mode;
++		val->clk_direction = mode;
++		break;
++	case SAR_CP1_PCIE0_CLK:
++		mode = (reg & SAR1_RST_PCIE0_CLOCK_CONFIG_CP1_MASK) >>
++			SAR1_RST_PCIE0_CLOCK_CONFIG_CP1_OFFSET;
++		val->raw_sar_val = mode;
++		val->clk_direction = mode;
++		break;
++	case SAR_CP1_PCIE1_CLK:
++		mode = (reg & SAR1_RST_PCIE1_CLOCK_CONFIG_CP1_MASK) >>
++			SAR1_RST_PCIE1_CLOCK_CONFIG_CP1_OFFSET;
++		val->raw_sar_val = mode;
++		val->clk_direction = mode;
++		break;
++	default:
++		pr_err("AP806-SAR: Unsupported SAR option %d.\n", sar_opt);
++		return -EINVAL;
++	}
++	return 0;
++}
++
++static int cp110_sar_dump(struct udevice *dev)
++{
++	u32 reg, val;
++	struct sar_info *sar;
++	struct dm_sar_pdata *priv = dev_get_priv(dev);
++
++	reg = readl(priv->sar_base);
++	printf("\nCP110 SAR register 0 [0x%08x]:\n", reg);
++	printf("----------------------------------\n");
++
++	if (!strcmp(priv->sar_name, "cp0-sar"))
++		sar = cp110_sar_0;
++	else
++		sar = cp110_sar_1;
++
++	while (sar->offset != -1) {
++		val = (reg & sar->mask) >> sar->offset;
++		printf("%s  0x%x\n", sar->name, val);
++		sar++;
++	}
++	return 0;
++}
++
++static int cp110_sar_register(struct udevice *dev, u32 sar_list[], int size)
++{
++	int ret, i;
++
++	for (i = 0; i < size; i++) {
++		ret = mvebu_sar_id_register(dev, sar_list[i]);
++		if (ret) {
++			pr_err("Failed to register SAR %d, for %s.\n",
++			       sar_list[i], dev->name);
++			return ret;
++		}
++	}
++
++	return 0;
++}
++
++int cp110_sar_init(struct udevice *dev)
++{
++	int ret = 0;
++	struct dm_sar_pdata *priv = dev_get_priv(dev);
++
++	u32 cp0_sar_list[] = {
++		SAR_CP0_PCIE0_CLK,
++		SAR_CP0_PCIE1_CLK,
++		SAR_BOOT_SRC
++	};
++
++	u32 cp1_sar_list[] = {
++		SAR_CP1_PCIE0_CLK,
++		SAR_CP1_PCIE1_CLK,
++	};
++
++	if (!strcmp(priv->sar_name, "cp0-sar"))
++		ret = cp110_sar_register(dev, cp0_sar_list,
++					 ARRAY_SIZE(cp0_sar_list));
++	else if (!strcmp(priv->sar_name, "cp1-sar"))
++		ret = cp110_sar_register(dev, cp1_sar_list,
++					 ARRAY_SIZE(cp1_sar_list));
++
++	if (ret)
++		return -EINVAL;
++
++	return 0;
++}
++
++static const struct sar_ops cp110_sar_ops = {
++	.sar_init_func = cp110_sar_init,
++	.sar_value_get_func = cp110_sar_value_get,
++	.sar_dump_func = cp110_sar_dump,
++};
++
++U_BOOT_DRIVER(cp110_sar) = {
++	.name = "cp110_sar",
++	.id = UCLASS_SAR,
++	.priv_auto_alloc_size = sizeof(struct dm_sar_pdata),
++	.ops = &cp110_sar_ops,
++};
+diff --git a/drivers/misc/mvebu_sar/sar-uclass.c b/drivers/misc/mvebu_sar/sar-uclass.c
+new file mode 100644
+index 0000000000..49557e6c5f
+--- /dev/null
++++ b/drivers/misc/mvebu_sar/sar-uclass.c
+@@ -0,0 +1,140 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:	GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++/* #define DEBUG */
++#include <common.h>
++#include <asm/io.h>
++#include <errno.h>
++#include <sar-uclass.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define SAR_MAX_CHIP	4
++
++UCLASS_DRIVER(sar) = {
++	.name = "sar",
++	.id = UCLASS_SAR,
++};
++
++struct udevice *__attribute__((section(".data")))soc_sar_info[SAR_MAX_IDX];
++
++int mvebu_sar_id_register(struct udevice *dev, u32 sar_id)
++{
++	if (soc_sar_info[sar_id]) {
++		pr_err("sar %d was already registered.\n", sar_id);
++		return -EBUSY;
++	}
++	soc_sar_info[sar_id] = dev;
++
++	return 0;
++}
++
++/* find all drivers for sar device and initialize each driver */
++int mvebu_sar_init(void)
++{
++	int ret, i;
++	int node, chip_count, sar_list[SAR_MAX_CHIP];
++	const void *blob = gd->fdt_blob;
++	struct udevice *sar_chip[SAR_MAX_CHIP];
++	struct dm_sar_pdata *priv;
++	const struct sar_ops *ops;
++	struct udevice *parent;
++	struct driver_info sar_drivers[SAR_MAX_CHIP];
++	void *sar_base = NULL;
++	const char *sar_driver, *sar_name;
++
++	chip_count = fdtdec_find_aliases_for_id(blob, "sar-reg",
++						COMPAT_MVEBU_SAR_REG_COMMON,
++						sar_list, SAR_MAX_CHIP);
++
++	if (chip_count <= 0) {
++		pr_err("Cannot find sample-at-reset dt entry (%d).\n",
++		       chip_count);
++		return -ENODEV;
++	}
++	uclass_get_device_by_name(UCLASS_ROOT, "root_driver", &parent);
++	memset(soc_sar_info, 0, sizeof(soc_sar_info));
++
++	for (i = 0; i < chip_count ; i++) {
++		node = sar_list[i];
++		if (node <= 0)
++			continue;
++
++		/* Skip if Node is disabled */
++		if (!fdtdec_get_is_enabled(blob, node))
++			continue;
++		/* Binding stage */
++		sar_driver = fdt_getprop(blob, node, "sar-driver", NULL);
++		sar_drivers[i].name = sar_driver;
++		ret = device_bind_by_name(parent, false,
++					  &sar_drivers[i], &sar_chip[i]);
++		/* fetch driver info from device-tree */
++		sar_base = (void *)fdtdec_get_addr_size_auto_noparent(blob,
++				node, "reg", 0, NULL, true);
++		if (!sar_base) {
++			pr_err("SAR address isn't found in the device-tree\n");
++			return 0;
++		}
++		sar_name = fdt_getprop(blob, node, "sar-name", NULL);
++		/* Initialize driver priv struct */
++		device_probe(sar_chip[i]);
++		priv = dev_get_priv(sar_chip[i]);
++		priv->sar_base = sar_base;
++		priv->sar_name = sar_name;
++		ops = device_get_ops(sar_chip[i]);
++		if (!ops->sar_init_func)
++			return -EINVAL;
++
++		ret = ops->sar_init_func(sar_chip[i]);
++		if (ret) {
++			pr_err("sar_init failed (%d).\n", ret);
++			return ret;
++		}
++	}
++
++	return 0;
++}
++
++int mvebu_sar_value_get(enum mvebu_sar_opts opt, struct sar_val *val)
++{
++	const struct sar_ops *ops;
++
++	if (soc_sar_info[opt]) {
++		ops = device_get_ops(soc_sar_info[opt]);
++		return ops->sar_value_get_func(soc_sar_info[opt], opt, val);
++	}
++
++	pr_err("SAR - No chip registered on sar %d.\n", opt);
++	return -ENODEV;
++}
++
++char *mvebu_sar_bootsrc_to_name(enum mvebu_bootsrc_type src)
++{
++	switch (src) {
++	case(BOOTSRC_NAND):
++		return "nand";
++	case(BOOTSRC_SPI):
++	case(BOOTSRC_AP_SPI):
++		return "spi";
++	case(BOOTSRC_SD_EMMC):
++	case(BOOTSRC_AP_SD_EMMC):
++		return "mmc";
++	case(BOOTSRC_NOR):
++		return "nor";
++	default:
++		return "unknown";
++	}
++}
++
++void mvebu_sar_dump(struct udevice *dev)
++{
++	const struct sar_ops *ops;
++
++	ops = device_get_ops(dev);
++
++	ops->sar_dump_func(dev);
++}
+diff --git a/include/dm/uclass-id.h b/include/dm/uclass-id.h
+index d4d96106b3..a8d6976be7 100644
+--- a/include/dm/uclass-id.h
++++ b/include/dm/uclass-id.h
+@@ -84,6 +84,7 @@ enum uclass_id {
+ 	UCLASS_REGULATOR,	/* Regulator device */
+ 	UCLASS_REMOTEPROC,	/* Remote Processor device */
+ 	UCLASS_RESET,		/* Reset controller device */
++	UCLASS_SAR,		/* Reset Sample Configuration */
+ 	UCLASS_RTC,		/* Real time clock device */
+ 	UCLASS_SCSI,		/* SCSI device */
+ 	UCLASS_SERIAL,		/* Serial UART */
+diff --git a/include/fdtdec.h b/include/fdtdec.h
+index 89ba763e21..9e00831c02 100644
+--- a/include/fdtdec.h
++++ b/include/fdtdec.h
+@@ -166,6 +166,9 @@ enum fdt_compat_id {
+ 	COMPAT_ALTERA_SOCFPGA_NOC,		/* SOCFPGA Arria 10 NOC */
+ 	COMPAT_ALTERA_SOCFPGA_CLK_INIT,		/* SOCFPGA Arria 10 clk init */
+ 	COMPAT_MVEBU_SAR,
++	COMPAT_MVEBU_SAR_REG_COMMON,
++	COMPAT_MVEBU_SAR_REG_AP806,
++	COMPAT_MVEBU_SAR_REG_CP110,
+ 
+ 	COMPAT_COUNT,
+ };
+diff --git a/include/mvebu/mvebu_chip_sar.h b/include/mvebu/mvebu_chip_sar.h
+new file mode 100644
+index 0000000000..cd78aa55b5
+--- /dev/null
++++ b/include/mvebu/mvebu_chip_sar.h
+@@ -0,0 +1,75 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:	GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++#ifndef _MVEBU_CHIP_SAR_H_
++#define _MVEBU_CHIP_SAR_H_
++
++#include <asm/types.h>
++
++/*
++ * List of boot source options.
++ * Return value for each of the options:
++ *  - SAR_CPU_FREQ: Frequency (Hz)
++ *  - SAR_DDR_FREQ: Frequency (Hz)
++ *  - SAR_AP_FABRIC_FREQ: Frequency (Hz)
++ *  - SAR_CP_FABRIC_FREQ: Frequency (Hz)
++ *  - SAR_BOOT_SRC: Boot source type (see mvebu_bootsrc_type)
++ */
++enum mvebu_sar_opts {
++	SAR_CPU_FREQ = 0,
++	SAR_DDR_FREQ,
++	SAR_AP_FABRIC_FREQ,
++	SAR_CP_FABRIC_FREQ,
++	SAR_CP0_PCIE0_CLK,
++	SAR_CP0_PCIE1_CLK,
++	SAR_CP1_PCIE0_CLK,
++	SAR_CP1_PCIE1_CLK,
++	SAR_BOOT_SRC,
++	SAR_MAX_IDX
++};
++
++enum mvebu_bootsrc_type {
++	BOOTSRC_NAND,
++	BOOTSRC_SPI,
++	BOOTSRC_AP_SPI,
++	BOOTSRC_SD_EMMC,
++	BOOTSRC_AP_SD_EMMC,
++	BOOTSRC_NOR,
++	BOOTSRC_MAX_IDX
++};
++
++/*
++ * sample-at-reset information
++ *  raw_sar_val: Raw value out of the sample-at-reset register.
++ *		This is hw dependent and should not be used for comparison
++ *		purposes (useful for debug, or verbose information).
++ *  bootsrc (SAR_BOOT_SRC):
++ *	type: Boot source interface type.
++ *	index: When applicable, indicates the interface index (e.g. SPI #1,
++ *		NAND #0).
++ *	width: When applicable, indicates the interface bus width (e.g. NAND
++ *	8-bit).
++ *  freq: Frequency in Hz.
++ */
++struct sar_val {
++	u32 raw_sar_val;
++	union {
++		struct {
++			enum mvebu_bootsrc_type type;
++			int index;
++		} bootsrc;
++		u32 freq;
++		u32 clk_direction; /* input = 0 */
++	};
++};
++
++int mvebu_sar_init(void);
++int mvebu_sar_value_get(enum mvebu_sar_opts opt, struct sar_val *val);
++void mvebu_sar_dump(struct udevice *dev);
++char *mvebu_sar_bootsrc_to_name(enum mvebu_bootsrc_type src);
++
++#endif	/* _MVEBU_CHIP_SAR_H_ */
+diff --git a/include/sar-uclass.h b/include/sar-uclass.h
+new file mode 100644
+index 0000000000..35de57d1d5
+--- /dev/null
++++ b/include/sar-uclass.h
+@@ -0,0 +1,27 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:	GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <mvebu/mvebu_chip_sar.h>
++#include <fdtdec.h>
++#include <dm.h>
++#include <dm/device-internal.h>
++
++struct sar_ops {
++	int (*sar_init_func)(struct udevice *dev);
++	int (*sar_dump_func)(struct udevice *dev);
++	int (*sar_value_get_func)(struct udevice *dev, enum mvebu_sar_opts sar,
++				  struct sar_val *val);
++	int (*sar_bootsrc_get)(struct udevice *dev, u32 *idx);
++};
++
++struct dm_sar_pdata {
++	void __iomem *sar_base;
++	const char *sar_name;
++};
++
++int mvebu_sar_id_register(struct udevice *dev, u32 sar_id);
+diff --git a/lib/fdtdec.c b/lib/fdtdec.c
+index ae24245e67..75d18a788e 100644
+--- a/lib/fdtdec.c
++++ b/lib/fdtdec.c
+@@ -70,6 +70,10 @@ static const char * const compat_names[COMPAT_COUNT] = {
+ 	COMPAT(ALTERA_SOCFPGA_NOC, "altr,socfpga-a10-noc"),
+ 	COMPAT(ALTERA_SOCFPGA_CLK_INIT, "altr,socfpga-a10-clk-init"),
+ 	COMPAT(MVEBU_SAR, "marvell,sample-at-reset"),
++	COMPAT(MVEBU_SAR_REG_COMMON, "marvell,sample-at-reset-common"),
++	COMPAT(MVEBU_SAR_REG_AP806, "marvell,sample-at-reset-ap806"),
++	COMPAT(MVEBU_SAR_REG_CP110, "marvell,sample-at-reset-cp110"),
++
+ };
+ 
+ const char *fdtdec_get_compatible(enum fdt_compat_id id)
+-- 
+2.29.0
+

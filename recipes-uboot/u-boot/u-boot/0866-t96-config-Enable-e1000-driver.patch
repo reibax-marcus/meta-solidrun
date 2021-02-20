@@ -1,0 +1,30 @@
+From 9d52edaf5459d09787058c53ba7bbe97182466d8 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Sun, 13 Jan 2019 00:11:51 -0800
+Subject: [PATCH 0866/1239] t96: config: Enable e1000 driver
+
+Change-Id: I2167e49395bcb2cab82e49f829dc236f1b75b923
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/2183
+Tested-by: sa_ip-sw-jenkins
+---
+ configs/octeontx2_96xx_defconfig | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 29847185e8..590ed4eef0 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -75,6 +75,9 @@ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_VITESSE=y
+ CONFIG_DM_ETH=y
+ CONFIG_NET_OCTEONTX2=y
++CONFIG_E1000=y
++CONFIG_E1000_SPI=y
++CONFIG_CMD_E1000=y
+ CONFIG_OCTEONTX2_CGX_INTF=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+-- 
+2.29.0
+

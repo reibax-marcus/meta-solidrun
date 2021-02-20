@@ -1,0 +1,28 @@
+From b13bbcbe294e013e2a9b870318d78a3821f6786d Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 12 Sep 2017 21:27:07 -0700
+Subject: [PATCH 0707/1239] Increase the size of the maximum image supported by
+ bootm
+
+This increases the default maximum size for bootm fit images to 256MiB.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ include/configs/thunderx_83xx.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index f440709e96..1be2a74e2b 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -339,4 +339,7 @@
+ 
+ #define CONFIG_CMD_TIME
+ 
++/** Maximum size of image supported for bootm (and bootable FIT images) */
++#define CONFIG_SYS_BOOTM_LEN		0x10000000	/* 256MiB */
++
+ #endif /* __THUNDERX_83XX_H__ */
+-- 
+2.29.0
+

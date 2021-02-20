@@ -1,0 +1,66 @@
+From 2a27b7adc39fbb381c4a8c3102bed56dcbb754bd Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Wed, 22 Jan 2020 17:55:39 +0100
+Subject: [PATCH 1069/1239] arm64: dts: a8k: add explicit sgmii-2500 support
+
+Now as the 'phy-speed' property is not used
+for describing the SGMII@2.5GHz, update the
+device trees using the deprecated
+property and switch to a proper PHY type.
+
+Change-Id: I4ff178b515f073a5261f4108cf025be5c222327e
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/22244
+Reviewed-by: Grzegorz Jaszczyk <jaszczyk@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/armada-8040-clearfog-gt-8k.dts | 3 +--
+ arch/arm/dts/armada-8040-mcbin.dts          | 3 +--
+ arch/arm/dts/armada-8040-ucpe.dts           | 3 +--
+ 3 files changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/dts/armada-8040-clearfog-gt-8k.dts b/arch/arm/dts/armada-8040-clearfog-gt-8k.dts
+index 6a586dbbba..5db5bb8bea 100644
+--- a/arch/arm/dts/armada-8040-clearfog-gt-8k.dts
++++ b/arch/arm/dts/armada-8040-clearfog-gt-8k.dts
+@@ -317,7 +317,6 @@
+ /* 2.5G to Topaz switch */
+ &cp1_eth2 {
+ 	status = "okay";
+-	phy-mode = "sgmii";
+-	phy-speed = <2500>;
++	phy-mode = "sgmii-2500";
+ 	phy-reset-gpios = <&cp1_gpio0 24 GPIO_ACTIVE_LOW>;
+ };
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index e34e7df525..9c23b04210 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -278,8 +278,7 @@
+ /* 2.5G SGMII */
+ &cp1_eth2 {
+ 	status = "okay";
+-	phy-mode = "sgmii";
+-	phy-speed = <2500>;
++	phy-mode = "sgmii-2500";
+ 	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 24 GPIO_ACTIVE_HIGH>;
+ };
+ 
+diff --git a/arch/arm/dts/armada-8040-ucpe.dts b/arch/arm/dts/armada-8040-ucpe.dts
+index a040288007..5455095179 100644
+--- a/arch/arm/dts/armada-8040-ucpe.dts
++++ b/arch/arm/dts/armada-8040-ucpe.dts
+@@ -368,8 +368,7 @@
+ /* 2.5G SGMii to E6390X port10 - CP1 SRDS[3] */
+ &cp1_eth1 {
+ 	status = "okay";
+-	phy-mode = "sgmii";
+-	phy-speed = <2500>;
++	phy-mode = "sgmii-2500";
+ 	phy = <&mvswitch>;
+ 	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 24 GPIO_ACTIVE_HIGH>;
+ 	fixed-link {
+-- 
+2.29.0
+

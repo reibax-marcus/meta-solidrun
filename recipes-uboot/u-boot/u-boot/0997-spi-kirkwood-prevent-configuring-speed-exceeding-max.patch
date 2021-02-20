@@ -1,0 +1,44 @@
+From 1fe929ed497bcc8975be8d37383ebafd22b99dd2 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Thu, 21 Nov 2019 07:04:31 +0100
+Subject: [PATCH 0997/1239] spi: kirkwood: prevent configuring speed exceeding
+ max controller freq
+
+This patch adds a limitation in the kirkwood_spi driver
+set_speed hook, which prevents setting too high transfer
+speed.
+
+Change-Id: I90b817efc9d3d3fc304448f0771128e45f93658a
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/19039
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ drivers/spi/kirkwood_spi.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/spi/kirkwood_spi.c b/drivers/spi/kirkwood_spi.c
+index f64c693f20..8d151cc171 100644
+--- a/drivers/spi/kirkwood_spi.c
++++ b/drivers/spi/kirkwood_spi.c
+@@ -266,10 +266,17 @@ struct mvebu_spi_priv {
+ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
+ {
+ 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
++	struct dm_spi_bus *spi = dev_get_uclass_priv(bus);
+ 	struct kwspi_registers *reg = plat->spireg;
+ 	u32 data, divider;
+ 	unsigned int spr, sppr;
+ 
++	if (hz > spi->max_hz) {
++		debug("%s: limit speed to the max_hz of the bus %d\n",
++		      __func__, spi->max_hz);
++		hz = spi->max_hz;
++	}
++
+ 	/*
+ 	 * Calculate spi clock prescaller using max_hz.
+ 	 * SPPR is SPI Baud Rate Pre-selection, it holds bits 5 and 7:6 in
+-- 
+2.29.0
+

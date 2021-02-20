@@ -1,0 +1,236 @@
+From ebdbb5ffc5e35fbdc794b202cc80608e9a5feb43 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Wed, 27 Feb 2019 15:35:58 +0100
+Subject: [PATCH 0244/1239] phy: marvell: fix pll initialization for second
+ utmi port
+
+According to Design Reference Specification the PHY PLL and Calibration
+register from PHY0 are shared for multi-port PHY. PLL control registers
+inside other PHY channels are not used.
+
+This commit reworks utmi device tree nodes in a way that common PHY PLL
+registers are moved to main utmi node. Accordingly both child nodes
+utmi-unit range is reduced and register offsets in utmi_phy.h are updated
+to this change.
+
+This fixes issues in scenarios when only utmi port1 was in use, which
+resulted with lack of correct pll initialization.
+
+Change-Id: Icc520dfa719f43a09493ab31f671efbe88872097
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ arch/arm/dts/armada-cp110.dtsi     | 36 +++++++++++++++++-------------
+ drivers/phy/marvell/comphy_cp110.c | 35 ++++++++++++++++++++++-------
+ drivers/phy/marvell/utmi_phy.h     | 10 ++++-----
+ 3 files changed, 53 insertions(+), 28 deletions(-)
+
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index 601c3100a9..7f94538843 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -177,22 +177,28 @@
+ 				max-lanes = <6>;
+ 			};
+ 
+-			CP110_LABEL(utmi0): utmi@580000 {
+-				compatible = "marvell,mvebu-utmi-2.6.0";
+-				reg = <0x580000 0x1000>,	/* utmi-unit */
+-				      <0x440420 0x4>,		/* usb-cfg */
+-				      <0x440440 0x4>;		/* utmi-cfg */
+-				utmi-port = <UTMI_PHY_TO_USB3_HOST0>;
+-				status = "disabled";
+-			};
++			CP110_LABEL(utmi): utmi@580000 {
++				compatible = "marvell,mvebu-utmi";
++				reg = <0x580000 0xc>; /* utmi-common-pll */
++				#address-cells = <1>;
++				#size-cells = <1>;
++				CP110_LABEL(utmi0): utmi@58000c {
++					compatible = "marvell,mvebu-utmi-2.6.0";
++					reg = <0x58000c 0x100>,/* utmi-unit */
++					      <0x440420 0x4>,	/* usb-cfg */
++					      <0x440440 0x4>;	/* utmi-cfg */
++					utmi-port = <UTMI_PHY_TO_USB3_HOST0>;
++					status = "disabled";
++				};
+ 
+-			CP110_LABEL(utmi1): utmi@581000 {
+-				compatible = "marvell,mvebu-utmi-2.6.0";
+-				reg = <0x581000 0x1000>,	/* utmi-unit */
+-				      <0x440420 0x4>,		/* usb-cfg */
+-				      <0x440444 0x4>;		/* utmi-cfg */
+-				utmi-port = <UTMI_PHY_TO_USB3_HOST1>;
+-				status = "disabled";
++				CP110_LABEL(utmi1): utmi@58100c {
++					compatible = "marvell,mvebu-utmi-2.6.0";
++					reg = <0x58100c 0x100>,/* utmi-unit */
++					      <0x440420 0x4>,	/* usb-cfg */
++					      <0x440444 0x4>;	/* utmi-cfg */
++					utmi-port = <UTMI_PHY_TO_USB3_HOST1>;
++					status = "disabled";
++				};
+ 			};
+ 
+ 			CP110_LABEL(sdhci0): sdhci@780000 {
+diff --git a/drivers/phy/marvell/comphy_cp110.c b/drivers/phy/marvell/comphy_cp110.c
+index 57b5b0e589..e55b011b15 100644
+--- a/drivers/phy/marvell/comphy_cp110.c
++++ b/drivers/phy/marvell/comphy_cp110.c
+@@ -51,6 +51,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ #define COMPHY_UNIT_ID3		3
+ 
+ struct utmi_phy_data {
++	void __iomem *utmi_pll_addr;
+ 	void __iomem *utmi_base_addr;
+ 	void __iomem *usb_cfg_addr;
+ 	void __iomem *utmi_cfg_addr;
+@@ -261,7 +262,8 @@ static void comphy_utmi_power_down(u32 utmi_index, void __iomem *utmi_base_addr,
+ 	return;
+ }
+ 
+-static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
++static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_pll_addr,
++				   void __iomem *utmi_base_addr,
+ 				   void __iomem *usb_cfg_addr,
+ 				   void __iomem *utmi_cfg_addr,
+ 				   u32 utmi_phy_port)
+@@ -279,10 +281,10 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
+ 	/* Select LPFR - 0x0 for 25Mhz/5=5Mhz*/
+ 	mask |= UTMI_PLL_CTRL_SEL_LPFR_MASK;
+ 	data |= 0x0 << UTMI_PLL_CTRL_SEL_LPFR_OFFSET;
+-	reg_set(utmi_base_addr + UTMI_PLL_CTRL_REG, data, mask);
++	reg_set(utmi_pll_addr + UTMI_PLL_CTRL_REG, data, mask);
+ 
+ 	/* Impedance Calibration Threshold Setting */
+-	reg_set(utmi_base_addr + UTMI_CALIB_CTRL_REG,
++	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG,
+ 		0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET,
+ 		UTMI_CALIB_CTRL_IMPCAL_VTH_MASK);
+ 
+@@ -319,7 +321,8 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
+ 	return;
+ }
+ 
+-static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
++static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_pll_addr,
++				void __iomem *utmi_base_addr,
+ 				void __iomem *usb_cfg_addr,
+ 				void __iomem *utmi_cfg_addr, u32 utmi_phy_port)
+ {
+@@ -338,7 +341,7 @@ static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
+ 		UTMI_CTRL_STATUS0_TEST_SEL_MASK);
+ 
+ 	debug("stage: Polling for PLL and impedance calibration done, and PLL ready done\n");
+-	addr = utmi_base_addr + UTMI_CALIB_CTRL_REG;
++	addr = utmi_pll_addr + UTMI_CALIB_CTRL_REG;
+ 	data = UTMI_CALIB_CTRL_IMPCAL_DONE_MASK;
+ 	mask = data;
+ 	data = polling_with_timeout(addr, data, mask, 100);
+@@ -357,7 +360,7 @@ static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
+ 		ret = 0;
+ 	}
+ 
+-	addr = utmi_base_addr + UTMI_PLL_CTRL_REG;
++	addr = utmi_pll_addr + UTMI_PLL_CTRL_REG;
+ 	data = UTMI_PLL_CTRL_PLL_RDY_MASK;
+ 	mask = data;
+ 	data = polling_with_timeout(addr, data, mask, 100);
+@@ -408,14 +411,16 @@ static void comphy_utmi_phy_init(u32 utmi_phy_count,
+ 	}
+ 	/* UTMI configure */
+ 	for (i = 0; i < utmi_phy_count; i++) {
+-		comphy_utmi_phy_config(i, cp110_utmi_data[i].utmi_base_addr,
++		comphy_utmi_phy_config(i, cp110_utmi_data[i].utmi_pll_addr,
++				       cp110_utmi_data[i].utmi_base_addr,
+ 				       cp110_utmi_data[i].usb_cfg_addr,
+ 				       cp110_utmi_data[i].utmi_cfg_addr,
+ 				       cp110_utmi_data[i].utmi_phy_port);
+ 	}
+ 	/* UTMI Power up */
+ 	for (i = 0; i < utmi_phy_count; i++) {
+-		if (!comphy_utmi_power_up(i, cp110_utmi_data[i].utmi_base_addr,
++		if (!comphy_utmi_power_up(i, cp110_utmi_data[i].utmi_pll_addr,
++					  cp110_utmi_data[i].utmi_base_addr,
+ 					  cp110_utmi_data[i].usb_cfg_addr,
+ 					  cp110_utmi_data[i].utmi_cfg_addr,
+ 					  cp110_utmi_data[i].utmi_phy_port)) {
+@@ -450,6 +455,7 @@ void comphy_dedicated_phys_init(void)
+ 	struct utmi_phy_data cp110_utmi_data[MAX_UTMI_PHY_COUNT];
+ 	int node = -1;
+ 	int node_idx;
++	int parent = -1;
+ 
+ 	debug_enter();
+ 	debug("Initialize USB UTMI PHYs\n");
+@@ -465,6 +471,19 @@ void comphy_dedicated_phys_init(void)
+ 		if (!fdtdec_get_is_enabled(gd->fdt_blob, node))
+ 			continue;
+ 
++		parent = fdt_parent_offset(gd->fdt_blob, node);
++		if (parent <= 0)
++			break;
++
++		/* get base address of UTMI PLL */
++		cp110_utmi_data[node_idx].utmi_pll_addr =
++			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
++				gd->fdt_blob, parent, "reg", 0, NULL, true);
++		if (!cp110_utmi_data[node_idx].utmi_pll_addr) {
++			pr_err("UTMI PHY PLL address is invalid\n");
++			continue;
++		}
++
+ 		/* get base address of UTMI phy */
+ 		cp110_utmi_data[node_idx].utmi_base_addr =
+ 			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
+diff --git a/drivers/phy/marvell/utmi_phy.h b/drivers/phy/marvell/utmi_phy.h
+index fa6bf3c914..d1cad07cf5 100644
+--- a/drivers/phy/marvell/utmi_phy.h
++++ b/drivers/phy/marvell/utmi_phy.h
+@@ -45,7 +45,7 @@
+ #define UTMI_CALIB_CTRL_PLLCAL_DONE_MASK	\
+ 	(0x1 << UTMI_CALIB_CTRL_PLLCAL_DONE_OFFSET)
+ 
+-#define UTMI_TX_CH_CTRL_REG			0xC
++#define UTMI_TX_CH_CTRL_REG			0x0
+ #define UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET	12
+ #define UTMI_TX_CH_CTRL_DRV_EN_LS_MASK		\
+ 	(0xf << UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET)
+@@ -56,7 +56,7 @@
+ #define UTMI_TX_CH_CTRL_AMP_MASK		\
+ 	(0x7 << UTMI_TX_CH_CTRL_AMP_OFFSET)
+ 
+-#define UTMI_RX_CH_CTRL0_REG			0x14
++#define UTMI_RX_CH_CTRL0_REG			0x8
+ #define UTMI_RX_CH_CTRL0_SQ_DET_OFFSET		15
+ #define UTMI_RX_CH_CTRL0_SQ_DET_MASK		\
+ 	(0x1 << UTMI_RX_CH_CTRL0_SQ_DET_OFFSET)
+@@ -64,7 +64,7 @@
+ #define UTMI_RX_CH_CTRL0_SQ_ANA_DTC_MASK	\
+ 	(0x1 << UTMI_RX_CH_CTRL0_SQ_ANA_DTC_OFFSET)
+ 
+-#define UTMI_RX_CH_CTRL1_REG			0x18
++#define UTMI_RX_CH_CTRL1_REG			0xc
+ #define UTMI_RX_CH_CTRL1_SQ_AMP_CAL_OFFSET	0
+ #define UTMI_RX_CH_CTRL1_SQ_AMP_CAL_MASK	\
+ 	(0x7 << UTMI_RX_CH_CTRL1_SQ_AMP_CAL_OFFSET)
+@@ -72,7 +72,7 @@
+ #define UTMI_RX_CH_CTRL1_SQ_AMP_CAL_EN_MASK	\
+ 	(0x1 << UTMI_RX_CH_CTRL1_SQ_AMP_CAL_EN_OFFSET)
+ 
+-#define UTMI_CTRL_STATUS0_REG			0x24
++#define UTMI_CTRL_STATUS0_REG			0x18
+ #define UTMI_CTRL_STATUS0_SUSPENDM_OFFSET	22
+ #define UTMI_CTRL_STATUS0_SUSPENDM_MASK		\
+ 	(0x1 << UTMI_CTRL_STATUS0_SUSPENDM_OFFSET)
+@@ -80,7 +80,7 @@
+ #define UTMI_CTRL_STATUS0_TEST_SEL_MASK		\
+ 	(0x1 << UTMI_CTRL_STATUS0_TEST_SEL_OFFSET)
+ 
+-#define UTMI_CHGDTC_CTRL_REG			0x38
++#define UTMI_CHGDTC_CTRL_REG			0x2c
+ #define UTMI_CHGDTC_CTRL_VDAT_OFFSET		8
+ #define UTMI_CHGDTC_CTRL_VDAT_MASK		\
+ 	(0x3 << UTMI_CHGDTC_CTRL_VDAT_OFFSET)
+-- 
+2.29.0
+

@@ -1,0 +1,38 @@
+From 80d283bd97487130d10ee7216334e1fb231c3841 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 8 Nov 2016 20:00:14 -0800
+Subject: [PATCH 0554/1239] Fixed an uninitialized variable warning.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ drivers/mmc/cavium_mmc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/mmc/cavium_mmc.c b/drivers/mmc/cavium_mmc.c
+index e412bf1030..5231c9a0b9 100644
+--- a/drivers/mmc/cavium_mmc.c
++++ b/drivers/mmc/cavium_mmc.c
+@@ -1860,10 +1860,10 @@ void print_mmc_devices(char separator)
+  */
+ void print_mmc_device_info(struct mmc *mmc)
+ {
+-	struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
++	const struct cavium_mmc_slot *slot = cavium_get_slot(mmc);
+ 	const char *type;
+ 	const char *version;
+-	uint8_t *ext_csd;
++	const uint8_t *ext_csd = slot->ext_csd;
+ 	uint32_t card_type;
+ 	int prev = 0;
+ 	int i;
+@@ -2151,7 +2151,6 @@ void print_mmc_device_info(struct mmc *mmc)
+ 			}
+ 			puts("\n");
+ 		}
+-		ext_csd = slot->ext_csd;
+ 		printf("Current power Class:   %smA\n",
+ 		       pwr_classes[ext_csd[EXT_CSD_POWER_CLASS] & 0xF]);
+ 		printf("Power 4-bit@52MHz:     %smA\n",
+-- 
+2.29.0
+

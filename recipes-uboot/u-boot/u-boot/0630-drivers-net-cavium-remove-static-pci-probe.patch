@@ -1,0 +1,37 @@
+From c6af009e795b8d3bbf6d16a1e27cbf94c2d9b350 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarpati@caviumnetworks.com>
+Date: Tue, 4 Apr 2017 15:48:07 -0700
+Subject: [PATCH 0630/1239] drivers: net: cavium: remove static pci probe
+
+move xcv to driver-model probe method based on compatible.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_xcv.c | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_xcv.c b/drivers/net/cavium/thunder_xcv.c
+index cbcbf22fb1..aa5aca1a83 100644
+--- a/drivers/net/cavium/thunder_xcv.c
++++ b/drivers/net/cavium/thunder_xcv.c
+@@ -28,7 +28,6 @@
+ #include <asm/arch/thunderx_vnic.h>
+ 
+ #include "cavm-arch.h"
+-#define	PCI_DEVICE_ID_THUNDER_XCV	0xA056
+ 
+ struct lxcv {
+ 	void __iomem		*reg_base;
+@@ -172,9 +171,3 @@ U_BOOT_DRIVER(thunderx_xcv) = {
+         .priv_auto_alloc_size = sizeof(struct lxcv),
+ };
+ 
+-static struct pci_device_id thunderx_xcv_supported[] = {
+-        { PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_XCV) },
+-        {}
+-};
+-
+-U_BOOT_PCI_DEVICE(thunderx_xcv, thunderx_xcv_supported);
+-- 
+2.29.0
+

@@ -1,0 +1,62 @@
+From 5a89cfc9f961d9fc80a71e32c24cb46d5a059cd2 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 14 Nov 2017 17:23:43 -0800
+Subject: [PATCH 0734/1239] nvme: sync with code in v2018.01
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ disk/part.c            | 6 ------
+ drivers/nvme/nvme.c    | 3 ++-
+ include/dm/uclass-id.h | 1 -
+ 3 files changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/disk/part.c b/disk/part.c
+index 47bae0f539..8982ef3bae 100644
+--- a/disk/part.c
++++ b/disk/part.c
+@@ -157,12 +157,6 @@ void dev_print (struct blk_desc *dev_desc)
+ 	case IF_TYPE_DOC:
+ 		puts("device type DOC\n");
+ 		return;
+-	case IF_TYPE_NVME:
+-		printf("Vendor: %s Rev: %s Prod: %s\n",
+-		       dev_desc->vendor,
+-		       dev_desc->revision,
+-		       dev_desc->product);
+-	break;
+ 	case IF_TYPE_UNKNOWN:
+ 		puts("device type unknown\n");
+ 		return;
+diff --git a/drivers/nvme/nvme.c b/drivers/nvme/nvme.c
+index 47f101e280..10b6a06d2f 100644
+--- a/drivers/nvme/nvme.c
++++ b/drivers/nvme/nvme.c
+@@ -776,11 +776,12 @@ static int nvme_probe(struct udevice *udev)
+ {
+ 	int ret;
+ 	struct nvme_dev *ndev = dev_get_priv(udev);
++	size_t size;
+ 
+ 	ndev->instance = trailing_strtol(udev->name);
+ 
+ 	INIT_LIST_HEAD(&ndev->namespaces);
+-	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0,
++	ndev->bar = dm_pci_map_bar(udev, PCI_BASE_ADDRESS_0, &size,
+ 			PCI_REGION_MEM);
+ 	if (readl(&ndev->bar->csts) == -1) {
+ 		ret = -ENODEV;
+diff --git a/include/dm/uclass-id.h b/include/dm/uclass-id.h
+index 35bdf79c79..a8d6976be7 100644
+--- a/include/dm/uclass-id.h
++++ b/include/dm/uclass-id.h
+@@ -87,7 +87,6 @@ enum uclass_id {
+ 	UCLASS_SAR,		/* Reset Sample Configuration */
+ 	UCLASS_RTC,		/* Real time clock device */
+ 	UCLASS_SCSI,		/* SCSI device */
+-	UCLASS_NVME,		/* NVME device */
+ 	UCLASS_SERIAL,		/* Serial UART */
+ 	UCLASS_SIMPLE_BUS,	/* Bus with child devices */
+ 	UCLASS_SMEM,		/* Shared memory interface */
+-- 
+2.29.0
+

@@ -1,0 +1,29 @@
+From 20b43569145414e494e63e5e96f8950cb645ef35 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 24 Jul 2017 16:07:23 -0700
+Subject: [PATCH 0657/1239] mmc: Don't power down each mmc device
+
+All our boards have single GPIO for powering up both the mmc devices.
+If a mmc device is not present, don't power down the mmc device, this
+will power down other mmc device too.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/mmc/cavium_mmc.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/mmc/cavium_mmc.c b/drivers/mmc/cavium_mmc.c
+index 2962ad3b10..c70def96f1 100644
+--- a/drivers/mmc/cavium_mmc.c
++++ b/drivers/mmc/cavium_mmc.c
+@@ -5429,7 +5429,6 @@ int mmc_initialize(bd_t *bis)
+ 			debug("%s: Disabling empty slot %s\n",
+ 			      __func__, mmc->cfg->name);
+ 			/* Disable empty slots */
+-			mmc_set_power(mmc, 0);
+ 			mmc_disable(mmc);
+ 			debug("%s: Setting %s has_init = 0\n",
+ 			      __func__, mmc->cfg->name);
+-- 
+2.29.0
+

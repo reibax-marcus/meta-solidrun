@@ -1,0 +1,25 @@
+From b2eaedf924a2ae65b13bf9b3ca3dc04e5d9827a9 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 18 Aug 2017 17:53:56 -0700
+Subject: [PATCH 0694/1239] configs: 83xx: add support for FLASH_4BAIS
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/t83_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/t83_defconfig b/configs/t83_defconfig
+index d59fa59145..9afe96efde 100644
+--- a/configs/t83_defconfig
++++ b/configs/t83_defconfig
+@@ -49,6 +49,7 @@ CONFIG_DM_MMC=y
+ CONFIG_MMC_CAVIUM=y
+ CONFIG_DM_SPI_FLASH=y
+ CONFIG_SPI_FLASH=y
++CONFIG_SPI_FLASH_4BAIS=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+-- 
+2.29.0
+

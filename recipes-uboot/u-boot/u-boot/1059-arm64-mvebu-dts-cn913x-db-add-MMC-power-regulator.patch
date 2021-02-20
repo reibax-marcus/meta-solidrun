@@ -1,0 +1,100 @@
+From 8ccb770b91bbb9111f6b3684aed6b26cf82f3b9d Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Thu, 9 Jan 2020 16:32:33 +0100
+Subject: [PATCH 1059/1239] arm64: mvebu: dts: cn913x-db: add MMC power
+ regulator
+
+This adds the regulator description and extends the
+AP MMC node in order to enable the highest speed modes
+support in future. Since the MMC is common for both A
+and B topologies, unify the nodes.
+
+Change-Id: Iae525544967040885a1ede9e827b421a3f24cd42
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/21321
+Reviewed-by: Grzegorz Jaszczyk <jaszczyk@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/cn9130-db-A.dts |  8 --------
+ arch/arm/dts/cn9130-db-B.dts |  8 --------
+ arch/arm/dts/cn9130-db.dtsi  | 18 ++++++++++++++++++
+ 3 files changed, 18 insertions(+), 16 deletions(-)
+
+diff --git a/arch/arm/dts/cn9130-db-A.dts b/arch/arm/dts/cn9130-db-A.dts
+index a2855928a0..ea1a8cc95e 100644
+--- a/arch/arm/dts/cn9130-db-A.dts
++++ b/arch/arm/dts/cn9130-db-A.dts
+@@ -48,14 +48,6 @@
+ 		     1 3 1 0 0 0 0 0 0 3 >;
+ };
+ 
+-/* on-board eMMC - U9 */
+-&ap_sdhci0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&ap_emmc_pins>;
+-	bus-width = <8>;
+-	status = "okay";
+-};
+-
+ /*
+  * CP related configuration
+  */
+diff --git a/arch/arm/dts/cn9130-db-B.dts b/arch/arm/dts/cn9130-db-B.dts
+index a773bed7fe..ff15246e7c 100644
+--- a/arch/arm/dts/cn9130-db-B.dts
++++ b/arch/arm/dts/cn9130-db-B.dts
+@@ -47,14 +47,6 @@
+ 		     1 3 1 0 0 0 0 0 0 3 >;
+ };
+ 
+-/* on-board eMMC - U9 */
+-&ap_sdhci0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&ap_emmc_pins>;
+-	bus-width = <8>;
+-	status = "okay";
+-};
+-
+ /*
+  * CP related configuration
+  */
+diff --git a/arch/arm/dts/cn9130-db.dtsi b/arch/arm/dts/cn9130-db.dtsi
+index f844e1705f..2a742eba2e 100644
+--- a/arch/arm/dts/cn9130-db.dtsi
++++ b/arch/arm/dts/cn9130-db.dtsi
+@@ -27,6 +27,15 @@
+ 				vmmc-supply = <&cp0_reg_sd_vcc>;
+ 			};
+ 
++			ap_reg_mmc_vccq: ap_mmc_vccq@0 {
++				compatible = "regulator-gpio";
++				regulator-name = "ap_mmc_vccq";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <3300000>;
++				gpios = <&expander0 8 GPIO_ACTIVE_HIGH>;
++				states = <1800000 0x1
++					  3300000 0x0>;
++			};
+ 			cp0_reg_usb3_vbus0: cp0_usb3_vbus@0 {
+ 				compatible = "regulator-fixed";
+ 				regulator-name = "cp0-xhci0-vbus";
+@@ -95,6 +104,15 @@
+ 	status = "okay";
+ };
+ 
++/* on-board eMMC - U9 */
++&ap_sdhci0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ap_emmc_pins>;
++	vqmmc-supply = <&ap_reg_mmc_vccq>;
++	bus-width = <8>;
++	status = "okay";
++};
++
+ /*
+  * CP0
+  */
+-- 
+2.29.0
+

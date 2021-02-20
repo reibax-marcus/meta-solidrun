@@ -1,0 +1,31 @@
+From 3187f7e6c6a21470a1e7b9ee60bc3279d1b1999e Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Tue, 18 Dec 2018 16:26:37 +0100
+Subject: [PATCH 0236/1239] arm64: mvebu: dts: ap80x: extend emmc pin
+ description
+
+The ap_mpp12 can be configured to eMMC/SDIO function, which meaning is
+SDIO_CARD_PW_OFF (out). Reflect it in device tree description.
+
+Change-Id: Icabc47edeae0f76af3d00008627605d7d34091bb
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ arch/arm/dts/armada-ap80x.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/armada-ap80x.dtsi b/arch/arm/dts/armada-ap80x.dtsi
+index bb7fca1e2f..43def8e55c 100644
+--- a/arch/arm/dts/armada-ap80x.dtsi
++++ b/arch/arm/dts/armada-ap80x.dtsi
+@@ -61,7 +61,7 @@
+ 				};
+ 				ap_emmc_pins: emmc-pins-0 {
+ 					marvell,pins = < 0 1 2 3 4 5 6 7
+-							 8 9 10 >;
++							 8 9 10 12 >;
+ 					marvell,function = <1>;
+ 				};
+ 			};
+-- 
+2.29.0
+

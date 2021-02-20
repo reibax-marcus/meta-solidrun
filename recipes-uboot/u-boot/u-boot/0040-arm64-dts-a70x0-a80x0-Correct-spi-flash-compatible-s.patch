@@ -1,0 +1,74 @@
+From 37346a8b7f3d6de7456b28b4452a15233debb7d0 Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Mon, 19 Mar 2018 14:52:34 +0800
+Subject: [PATCH 0040/1239] arm64: dts: a70x0: a80x0: Correct spi flash
+ compatible string
+
+SPI flash's compatible strings should include "spi-flash", this patch
+adds "spi-flash" to SPI flash compatible strings for armada 7k/8k.
+
+Change-Id: Iaf23317e36c15f91774b775bae09f17faa577f74
+Signed-off-by: Ken Ma <make@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-7040-db-nand.dts | 2 +-
+ arch/arm/dts/armada-7040-db.dts      | 2 +-
+ arch/arm/dts/armada-8040-db.dts      | 2 +-
+ arch/arm/dts/armada-8040-mcbin.dts   | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/dts/armada-7040-db-nand.dts b/arch/arm/dts/armada-7040-db-nand.dts
+index ed9eb0a79b..e3a5a715c0 100644
+--- a/arch/arm/dts/armada-7040-db-nand.dts
++++ b/arch/arm/dts/armada-7040-db-nand.dts
+@@ -130,7 +130,7 @@
+ 	spi-flash@0 {
+ 		#address-cells = <0x1>;
+ 		#size-cells = <0x1>;
+-		compatible = "jedec,spi-nor";
++		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0x0>;
+ 		spi-max-frequency = <20000000>;
+ 
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index b76014a503..1ed23ecc55 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -123,7 +123,7 @@
+ 	spi-flash@0 {
+ 		#address-cells = <0x1>;
+ 		#size-cells = <0x1>;
+-		compatible = "jedec,spi-nor";
++		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0x0>;
+ 		spi-max-frequency = <20000000>;
+ 
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index 3eff884675..0fecfab890 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -266,7 +266,7 @@
+ 	spi-flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "jedec,spi-nor";
++		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0>;
+ 		spi-max-frequency = <10000000>;
+ 
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index a7cb1327be..c38601edfb 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -254,7 +254,7 @@
+ 	spi-flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "jedec,spi-nor";
++		compatible = "jedec,spi-nor", "spi-flash";
+ 		reg = <0>;
+ 		spi-max-frequency = <10000000>;
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,32 @@
+From e44e86e8f72d37f7e6961d3a2ea08d6e3d490d10 Mon Sep 17 00:00:00 2001
+From: Sujeet Baranwal <sbaranwal@marvell.com>
+Date: Mon, 27 Jul 2020 11:13:05 -0700
+Subject: [PATCH 1221/1239] smbios: version changed to 3.2
+
+SMBIOS version is upgraded to support 3.2
+
+Signed-off-by: Sujeet Baranwal <sbaranwal@marvell.com>
+Change-Id: I6b15d7471db7ab4c6266690ad56a18a21c530595
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35173
+Reviewed-by: Jia Ma <jiam@marvell.com>
+Tested-by: Jia Ma <jiam@marvell.com>
+---
+ include/smbios.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/smbios.h b/include/smbios.h
+index 0e4eb361d5..3b03131e36 100644
+--- a/include/smbios.h
++++ b/include/smbios.h
+@@ -10,7 +10,7 @@
+ 
+ /* SMBIOS spec version implemented */
+ #define SMBIOS_MAJOR_VER	3
+-#define SMBIOS_MINOR_VER	0
++#define SMBIOS_MINOR_VER	2
+ 
+ #define DMTF_PROC_ARMV7		0x100
+ #define DMTF_PROC_ARMV8		0x101
+-- 
+2.29.0
+

@@ -1,0 +1,200 @@
+From 95ae586b631fad4bcbd0011ac28fe8229089fcad Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 19 Feb 2018 18:01:06 +0200
+Subject: [PATCH 0105/1239] arm64: mvebu: cmd: introduce AVS command
+
+Support set/get AVS value from u-boot command prompt.
+
+Change-Id: Ibf453d9862d4c1eb6ec51df6f84805f8feba0c87
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ arch/arm/mach-mvebu/armada8k/soc.c     |  11 +++
+ arch/arm/mach-mvebu/include/mach/soc.h |   7 ++
+ cmd/mvebu/Kconfig                      |   7 ++
+ cmd/mvebu/Makefile                     |   1 +
+ cmd/mvebu/avs.c                        | 102 +++++++++++++++++++++++++
+ 5 files changed, 128 insertions(+)
+ create mode 100644 cmd/mvebu/avs.c
+
+diff --git a/arch/arm/mach-mvebu/armada8k/soc.c b/arch/arm/mach-mvebu/armada8k/soc.c
+index 511c7340ee..effa647d28 100644
+--- a/arch/arm/mach-mvebu/armada8k/soc.c
++++ b/arch/arm/mach-mvebu/armada8k/soc.c
+@@ -85,6 +85,17 @@ static int get_ap_cp_num(u32 *ap_num, u32 *cp_num)
+ 	return 0;
+ }
+ 
++int soc_get_ap_cp_num(void *ap_num, void *cp_num)
++{
++	u32 index;
++
++	get_soc_table_index(&index);
++	*((u32 *)ap_num) = soc_info_table[index].ap_num;
++	*((u32 *)cp_num) = soc_info_table[index].cp_num;
++
++	return 0;
++}
++
+ /* Get SoC's Application Processor (AP) module type and revision */
+ static int get_ap_type_rev(u32 *type, u32 *rev)
+ {
+diff --git a/arch/arm/mach-mvebu/include/mach/soc.h b/arch/arm/mach-mvebu/include/mach/soc.h
+index 2e13d9ec1b..1528bef24d 100644
+--- a/arch/arm/mach-mvebu/include/mach/soc.h
++++ b/arch/arm/mach-mvebu/include/mach/soc.h
+@@ -37,6 +37,12 @@
+ /* SOC specific definations */
+ #define INTREG_BASE		0xd0000000
+ #define INTREG_BASE_ADDR_REG	(INTREG_BASE + 0x20080)
++
++#if defined(CONFIG_ARMADA_8K)
++/*=============== A8K =================*/
++#define MVEBU_REGS_BASE_AP(ap)		(0xf0000000ULL)
++#endif
++
+ #if defined(CONFIG_SPL_BUILD) || defined(CONFIG_ARMADA_3700)
+ /*
+  * The SPL U-Boot version still runs with the default
+@@ -205,5 +211,6 @@
+ 
+ #ifndef __ASSEMBLY__
+ void soc_print_device_info(void);
++int soc_get_ap_cp_num(void *ap_num, void *cp_num);
+ #endif /* __ASSEMBLY__ */
+ #endif /* _MVEBU_SOC_H */
+diff --git a/cmd/mvebu/Kconfig b/cmd/mvebu/Kconfig
+index 3859a33f4c..7d5c1c9f93 100644
+--- a/cmd/mvebu/Kconfig
++++ b/cmd/mvebu/Kconfig
+@@ -66,4 +66,11 @@ config CMD_MVEBU_RX_TRAINING
+ 	help
+ 	  Perform RX training sequence
+ 
++config CMD_MVEBU_AVS
++	bool "avs"
++	depends on TARGET_MVEBU_ARMADA_8K
++	default y
++	help
++	  Set/Get the Adaptive Voltage Scaling (AVS) value
++
+ endmenu
+diff --git a/cmd/mvebu/Makefile b/cmd/mvebu/Makefile
+index b9831a73a7..e473907e56 100644
+--- a/cmd/mvebu/Makefile
++++ b/cmd/mvebu/Makefile
+@@ -7,3 +7,4 @@
+ 
+ obj-$(CONFIG_CMD_MVEBU_BUBT) += bubt.o
+ obj-$(CONFIG_CMD_MVEBU_RX_TRAINING) += rx_training.o
++obj-$(CONFIG_CMD_MVEBU_AVS) += avs.o
+diff --git a/cmd/mvebu/avs.c b/cmd/mvebu/avs.c
+new file mode 100644
+index 0000000000..c19c4f98d6
+--- /dev/null
++++ b/cmd/mvebu/avs.c
+@@ -0,0 +1,102 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ * https://spdx.org/licenses
++ */
++
++#include <config.h>
++#include <common.h>
++#include <command.h>
++#include <asm/io.h>
++#include <linux/sizes.h>
++#include <mach/soc.h>
++
++#define MV_TO_AVS_VAL(mv)	((mv) * 1024 / 1189)
++#define AVS_VAL_TO_MV(avs)	((avs) * 1189 / 1024)
++
++#define MIN_AVS_VAL_MV		600
++#define MAX_AVS_VAL_MV		1000
++
++#define AVS_VAL_MASK		(0x3ff)
++#define AVS_LOW_LIMIT_SHIFT	(3)
++#define AVS_HIGH_LIMIT_SHIFT	(13)
++#define AVS_ENABLE_MASK		BIT(0)
++#define AVS_SOFT_RESET_MASK	BIT(2)
++#define AVS_CFG_DEBUG_SELECT	BIT(29)
++
++#define MVEBU_AR_RFU_BASE(ap)		(MVEBU_REGS_BASE_AP(ap) + 0x6F0000)
++#define MVEBU_AVS_SRV_CTRL_REG(ap)	(MVEBU_AR_RFU_BASE(ap) + 0x8120)
++#define MVEBU_AVS_CTRL_REG(ap)		(MVEBU_AR_RFU_BASE(ap) + 0x8130)
++#define MVEBU_AVS_STAT_REG(ap)		(MVEBU_AR_RFU_BASE(ap) + 0x8134)
++
++static void do_get_avs(void)
++{
++	int ap, ap_num, cp_num;
++
++	soc_get_ap_cp_num(&ap_num, &cp_num);
++	for (ap = 0; ap < ap_num; ap++) {
++		u32 reg_val;
++
++		/* Cause the AVS configuration to be
++		 * reflected by AV status register
++		 */
++		writel(AVS_CFG_DEBUG_SELECT, MVEBU_AVS_SRV_CTRL_REG(ap));
++		/* Read and format the result */
++		reg_val = readl(MVEBU_AVS_STAT_REG(ap));
++		reg_val &= AVS_VAL_MASK;
++		printf("AP-%d: returned AVS value is %d mV\n",
++		       ap, AVS_VAL_TO_MV(reg_val));
++	}
++}
++
++static void do_set_avs(unsigned long val_mv)
++{
++	unsigned int avs_val = MV_TO_AVS_VAL(val_mv) & AVS_VAL_MASK;
++	int ap, ap_num, cp_num;
++
++	soc_get_ap_cp_num(&ap_num, &cp_num);
++	for (ap = 0; ap < ap_num; ap++) {
++		u32 reg_val;
++
++		printf("AP-%d: setting the AVS to %ld mV (0x%x)\n",
++		       ap, val_mv, avs_val);
++		reg_val = avs_val << AVS_LOW_LIMIT_SHIFT;
++		reg_val |= avs_val << AVS_HIGH_LIMIT_SHIFT;
++		reg_val |= AVS_SOFT_RESET_MASK | AVS_ENABLE_MASK;
++		writel(reg_val, MVEBU_AVS_CTRL_REG(ap));
++	}
++	mdelay(1000);
++	do_get_avs();
++}
++
++int do_avs_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
++	       char * const argv[])
++{
++	if (strncmp(argv[1], "get", 3) == 0) {
++		do_get_avs();
++	} else if ((argc == 3) && (strncmp(argv[1], "set", 3) == 0)) {
++		unsigned long val_mv = simple_strtoul(argv[2], NULL, 10);
++
++		if ((val_mv < MIN_AVS_VAL_MV) || (val_mv > MAX_AVS_VAL_MV)) {
++			printf("Requested value %ldmV is ",  val_mv);
++			printf("out of the supported range\n");
++			return 0;
++		}
++		do_set_avs(val_mv);
++	} else {
++		printf("Bad format. Use \"help avs\" for more info");
++		printf("about this command\n");
++	}
++
++	return 0;
++}
++
++U_BOOT_CMD(
++	avs,      3,     1,      do_avs_cmd,
++	"Set/Get Adaptive Voltage Scaling (AVS) value\n",
++	"[operation] [value]\n"
++	"\t-operation     Either \"set\" or \"get\"\n"
++	"\t-value         AVS value in mV. Valid only for \"set\" operation\n"
++	"\t               Valid AVS range is 600mV - 1000mV\n"
++);
+-- 
+2.29.0
+

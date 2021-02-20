@@ -1,0 +1,954 @@
+From 71b227ad3b14eced5f482e6c7abe39a65ef47bef Mon Sep 17 00:00:00 2001
+From: zachary zhang <zhangzg@marvell.com>
+Date: Wed, 30 May 2018 17:58:08 +0800
+Subject: [PATCH 0121/1239] arm64: mvebu: dts: a8k: add efuse nodes
+
+This patch adds HD/LD efuse nodes on armada 70x0 and 80x0 dtsi
+and dts file for efuse driver usage.
+
+Change-Id: I9e1442df96c6f68e8f96279df3dbc031410effba
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ arch/arm/dts/armada-7040-db-B.dts    | 25 ++++++++++++++++++++
+ arch/arm/dts/armada-7040-db-C.dts    | 17 ++++++++++++++
+ arch/arm/dts/armada-7040-db-D.dts    | 25 ++++++++++++++++++++
+ arch/arm/dts/armada-7040-db-E.dts    | 25 ++++++++++++++++++++
+ arch/arm/dts/armada-7040-db-nand.dts | 25 ++++++++++++++++++++
+ arch/arm/dts/armada-7040-db.dts      | 24 ++++++++++++++++++++
+ arch/arm/dts/armada-7040-pcac.dts    | 25 ++++++++++++++++++++
+ arch/arm/dts/armada-8040-db-B.dts    | 34 ++++++++++++++++++++++++++++
+ arch/arm/dts/armada-8040-db-C.dts    | 34 ++++++++++++++++++++++++++++
+ arch/arm/dts/armada-8040-db-D.dts    | 34 ++++++++++++++++++++++++++++
+ arch/arm/dts/armada-8040-db-E.dts    | 34 ++++++++++++++++++++++++++++
+ arch/arm/dts/armada-8040-db-F.dts    | 34 ++++++++++++++++++++++++++++
+ arch/arm/dts/armada-8040-db.dts      | 34 ++++++++++++++++++++++++++++
+ arch/arm/dts/armada-8040-mcbin.dts   | 34 ++++++++++++++++++++++++++++
+ arch/arm/dts/armada-8040-ocp.dts     | 34 ++++++++++++++++++++++++++++
+ arch/arm/dts/armada-ap806.dtsi       | 23 +++++++++++++++++++
+ arch/arm/dts/armada-cp110.dtsi       | 14 ++++++++++++
+ 17 files changed, 475 insertions(+)
+
+diff --git a/arch/arm/dts/armada-7040-db-B.dts b/arch/arm/dts/armada-7040-db-B.dts
+index 4a2712c748..2837108a87 100644
+--- a/arch/arm/dts/armada-7040-db-B.dts
++++ b/arch/arm/dts/armada-7040-db-B.dts
+@@ -22,6 +22,11 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp0_spi1;
++		fuse0 = &ap_hd_efuse0;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -44,6 +49,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_pcie2 {
+ 	status = "okay";
+ };
+@@ -112,6 +129,14 @@
+ 	};
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_usb3_1 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/armada-7040-db-C.dts b/arch/arm/dts/armada-7040-db-C.dts
+index 19635cc985..479ecd8fb0 100644
+--- a/arch/arm/dts/armada-7040-db-C.dts
++++ b/arch/arm/dts/armada-7040-db-C.dts
+@@ -22,6 +22,11 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp0_spi1;
++		fuse0 = &ap_hd_efuse0;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -44,6 +49,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_pcie0 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/armada-7040-db-D.dts b/arch/arm/dts/armada-7040-db-D.dts
+index 34dc2b6177..788c4dfa89 100644
+--- a/arch/arm/dts/armada-7040-db-D.dts
++++ b/arch/arm/dts/armada-7040-db-D.dts
+@@ -22,6 +22,11 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp0_spi1;
++		fuse0 = &ap_hd_efuse0;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -50,6 +55,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_pcie0 {
+ 	status = "okay";
+ };
+@@ -95,6 +112,14 @@
+ 	status = "okay";
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_sata0 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/armada-7040-db-E.dts b/arch/arm/dts/armada-7040-db-E.dts
+index cf95e2634a..c798a4ce22 100644
+--- a/arch/arm/dts/armada-7040-db-E.dts
++++ b/arch/arm/dts/armada-7040-db-E.dts
+@@ -22,6 +22,11 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp0_spi1;
++		fuse0 = &ap_hd_efuse0;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -53,6 +58,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_pcie0 {
+ 	status = "okay";
+ };
+@@ -126,6 +143,14 @@
+ 	};
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_sata0 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/armada-7040-db-nand.dts b/arch/arm/dts/armada-7040-db-nand.dts
+index 61e7175868..08ed67cba5 100644
+--- a/arch/arm/dts/armada-7040-db-nand.dts
++++ b/arch/arm/dts/armada-7040-db-nand.dts
+@@ -60,6 +60,11 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp0_spi1;
++		fuse0 = &ap_hd_efuse0;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -82,6 +87,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_pcie2 {
+ 	status = "okay";
+ };
+@@ -151,6 +168,14 @@
+ 	};
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_sata0 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index 7c6a582ceb..4d8aa7bde9 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -59,6 +59,11 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp0_spi1;
++		fuse0 = &ap_hd_efuse0;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -81,6 +86,17 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
+ 
+ &cp0_pcie2 {
+ 	status = "okay";
+@@ -145,6 +161,14 @@
+ 	};
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_sata0 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/armada-7040-pcac.dts b/arch/arm/dts/armada-7040-pcac.dts
+index dedbd196f2..ce0baa8ac3 100644
+--- a/arch/arm/dts/armada-7040-pcac.dts
++++ b/arch/arm/dts/armada-7040-pcac.dts
+@@ -21,6 +21,11 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp0_spi1;
++		fuse0 = &ap_hd_efuse0;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -43,6 +48,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_i2c0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp0_i2c0_pins>;
+@@ -103,6 +120,14 @@
+ 	};
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_sata0 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/armada-8040-db-B.dts b/arch/arm/dts/armada-8040-db-B.dts
+index dfdffab972..1864f4d4ad 100644
+--- a/arch/arm/dts/armada-8040-db-B.dts
++++ b/arch/arm/dts/armada-8040-db-B.dts
+@@ -21,6 +21,12 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp1_spi1;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
++		fuse5 = &cp1_ld_efuse0;
++		fuse6 = &cp1_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -34,6 +40,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &ap_pinctl {
+ 	/* MPP Bus:
+ 	 * SDIO  [0-10]
+@@ -79,6 +97,14 @@
+ 		     0xe  0xe  0xe>;
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0-3: PCIe0 (x4)
+@@ -198,6 +224,14 @@
+ 		     0xff 0xff 0xff>;
+ };
+ 
++&cp1_ld_efuse0 {
++	status = "okay";
++};
++
++&cp1_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp1_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+diff --git a/arch/arm/dts/armada-8040-db-C.dts b/arch/arm/dts/armada-8040-db-C.dts
+index 255e52e085..997fd6fd4d 100644
+--- a/arch/arm/dts/armada-8040-db-C.dts
++++ b/arch/arm/dts/armada-8040-db-C.dts
+@@ -21,6 +21,12 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp1_spi1;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
++		fuse5 = &cp1_ld_efuse0;
++		fuse6 = &cp1_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -34,6 +40,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &ap_pinctl {
+ 	/* MPP Bus:
+ 	 * SDIO  [0-10]
+@@ -79,6 +97,14 @@
+ 		     0xe  0xe  0xe>;
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+@@ -199,6 +225,14 @@
+ 		     0xff 0xff 0xff>;
+ };
+ 
++&cp1_ld_efuse0 {
++	status = "okay";
++};
++
++&cp1_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp1_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+diff --git a/arch/arm/dts/armada-8040-db-D.dts b/arch/arm/dts/armada-8040-db-D.dts
+index 2b676574d8..fa478ee796 100644
+--- a/arch/arm/dts/armada-8040-db-D.dts
++++ b/arch/arm/dts/armada-8040-db-D.dts
+@@ -21,6 +21,12 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp1_spi1;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
++		fuse5 = &cp1_ld_efuse0;
++		fuse6 = &cp1_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -40,6 +46,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &ap_pinctl {
+ 	/* MPP Bus:
+ 	 * SDIO  [0-10]
+@@ -85,6 +103,14 @@
+ 		     0xe  0xe  0xe>;
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+@@ -206,6 +232,14 @@
+ 		     0xff 0xff 0xff>;
+ };
+ 
++&cp1_ld_efuse0 {
++	status = "okay";
++};
++
++&cp1_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp1_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+diff --git a/arch/arm/dts/armada-8040-db-E.dts b/arch/arm/dts/armada-8040-db-E.dts
+index 02c28a8a1f..975f176eb5 100644
+--- a/arch/arm/dts/armada-8040-db-E.dts
++++ b/arch/arm/dts/armada-8040-db-E.dts
+@@ -21,6 +21,12 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp1_spi1;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
++		fuse5 = &cp1_ld_efuse0;
++		fuse6 = &cp1_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -34,6 +40,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &ap_pinctl {
+ 	/* MPP Bus:
+ 	 * SPI0  [0-3]
+@@ -79,6 +97,14 @@
+ 		     0xe  0xe  0xe>;
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+@@ -183,6 +209,14 @@
+ 		     0xff 0xff 0xff>;
+ };
+ 
++&cp1_ld_efuse0 {
++	status = "okay";
++};
++
++&cp1_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp1_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+diff --git a/arch/arm/dts/armada-8040-db-F.dts b/arch/arm/dts/armada-8040-db-F.dts
+index 4a62ce4bd3..4103b25f3c 100644
+--- a/arch/arm/dts/armada-8040-db-F.dts
++++ b/arch/arm/dts/armada-8040-db-F.dts
+@@ -21,6 +21,12 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp1_spi1;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
++		fuse5 = &cp1_ld_efuse0;
++		fuse6 = &cp1_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -64,6 +70,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &ap_pinctl {
+ 	/* MPP Bus:
+ 	 * SDIO  [0-10]
+@@ -109,6 +127,14 @@
+ 		     0xe  0xe  0xe>;
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+@@ -246,6 +272,14 @@
+ 		     0xff 0xff 0xff>;
+ };
+ 
++&cp1_ld_efuse0 {
++	status = "okay";
++};
++
++&cp1_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp1_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index 9699b72f7b..52d080aaec 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -58,6 +58,12 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &cp1_spi1;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
++		fuse5 = &cp1_ld_efuse0;
++		fuse6 = &cp1_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -71,6 +77,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &ap_pinctl {
+ 	/* MPP Bus:
+ 	 * SDIO  [0-10]
+@@ -116,6 +134,14 @@
+ 		     0xe  0xe  0xe>;
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+@@ -215,6 +241,14 @@
+ 		     0xff 0xff 0xff>;
+ };
+ 
++&cp1_ld_efuse0 {
++	status = "okay";
++};
++
++&cp1_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp1_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index caf6544def..0a69986b7f 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -21,6 +21,12 @@
+ 		gpio0 = &ap_gpio0;
+ 		gpio1 = &cp0_gpio0;
+ 		gpio2 = &cp0_gpio1;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
++		fuse5 = &cp1_ld_efuse0;
++		fuse6 = &cp1_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -52,6 +58,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &ap_pinctl {
+ 	/*
+ 	 * MPP Bus:
+@@ -159,6 +177,14 @@
+ 	};
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_comphy {
+ 	/*
+ 	 * CP0 Serdes Configuration:
+@@ -317,6 +343,14 @@
+ 	};
+ };
+ 
++&cp1_ld_efuse0 {
++	status = "okay";
++};
++
++&cp1_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp1_comphy {
+ 	/*
+ 	 * CP1 Serdes Configuration:
+diff --git a/arch/arm/dts/armada-8040-ocp.dts b/arch/arm/dts/armada-8040-ocp.dts
+index 93f586c9ac..15b9619886 100644
+--- a/arch/arm/dts/armada-8040-ocp.dts
++++ b/arch/arm/dts/armada-8040-ocp.dts
+@@ -21,6 +21,12 @@
+ 		gpio0 = &ap_gpio0;
+ 		gpio1 = &cp0_gpio0;
+ 		gpio2 = &cp0_gpio1;
++		fuse1 = &ap_ld_efuse0;
++		fuse2 = &ap_ld_efuse1;
++		fuse3 = &cp0_ld_efuse0;
++		fuse4 = &cp0_ld_efuse1;
++		fuse5 = &cp1_ld_efuse0;
++		fuse6 = &cp1_ld_efuse1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -57,6 +63,18 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ &ap_pinctl {
+ 	/*
+ 	 * MPP Bus:
+@@ -122,6 +140,14 @@
+ 	clock-frequency = <100000>;
+ };
+ 
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_comphy {
+ 	/*
+ 	 * CP0 Serdes Configuration:
+@@ -241,6 +267,14 @@
+ 	};
+ };
+ 
++&cp1_ld_efuse0 {
++	status = "okay";
++};
++
++&cp1_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp1_comphy {
+ 	/* check if PCI is here, else none
+ 	 * CP1 Serdes Configuration:
+diff --git a/arch/arm/dts/armada-ap806.dtsi b/arch/arm/dts/armada-ap806.dtsi
+index 1635954c01..584fc91e08 100644
+--- a/arch/arm/dts/armada-ap806.dtsi
++++ b/arch/arm/dts/armada-ap806.dtsi
+@@ -162,6 +162,29 @@
+ 				dma-coherent;
+ 				status = "disabled";
+ 			};
++
++			ap_ld_efuse0: efuse-0@6F8F00 {
++				compatible = "marvell,mvebu-fuse-ld-user";
++				reg = <0x6F8008 0x4>;
++				otp-mem = <0xF06F8F00>;
++				status = "disabled";
++			};
++
++			ap_ld_efuse1: efuse-1@6F8F00 {
++				compatible = "marvell,mvebu-fuse-ld-prop";
++				reg = <0x6F8008 0x4>;
++				otp-mem = <0xF06F8F00>;
++				status = "disabled";
++			};
++
++			ap_hd_efuse0: efuse@6F9000  {
++				compatible = "marvell,mvebu-fuse-hd";
++				reg = <0x6F8008 0x4>;
++				otp-mem = <0xF06F9000>;
++				rows-count = <64>;
++				status = "disabled";
++			};
++
+ 		};
+ 	};
+ };
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index dfa7a1c6fa..74b9a7c2d9 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -46,6 +46,20 @@
+ 				status = "disabled";
+ 			};
+ 
++			CP110_LABEL(ld_efuse0): efuse0@400F00 {
++				compatible = "marvell,mvebu-fuse-ld-user";
++				reg = <0x400008 0x4>;
++				otp-mem = <0xF2400F00>;
++				status = "disabled";
++			};
++
++			CP110_LABEL(ld_efuse1): efuse1@400F00 {
++				compatible = "marvell,mvebu-fuse-ld-prop";
++				reg = <0x400008 0x4>;
++				otp-mem = <0xF2400F00>;
++				status = "disabled";
++			};
++
+ 			CP110_LABEL(pinctl): pinctl@440000 {
+ 				compatible = "marvell,mvebu-pinctrl";
+ 				reg = <0x440000 0x20>;
+-- 
+2.29.0
+

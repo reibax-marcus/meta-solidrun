@@ -1,0 +1,35 @@
+From 1dc2b9e630803c974bd2d35e7085f9d773f0fd81 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 5 Nov 2015 20:35:05 -0800
+Subject: [PATCH 0349/1239] ahci: Remove arbitrary timer initialization This
+ might be causing some nasty bugs
+
+---
+ drivers/block/sata_ahci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/block/sata_ahci.c b/drivers/block/sata_ahci.c
+index 26afa1a88b..23e8cbfa09 100644
+--- a/drivers/block/sata_ahci.c
++++ b/drivers/block/sata_ahci.c
+@@ -142,7 +142,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
+ 	struct sata_host_regs *host_mmio =
+ 		(struct sata_host_regs *)probe_ent->mmio_base;
+ /* 	int clk = mxc_get_clock(MXC_SATA_CLK); */
+-	int clk = 100000000; /* arbitrary for now */
++//	int clk = 100000000; /* arbitrary for now */
+ 
+ 	cap_save = ahci_readl(&(host_mmio->cap));
+ 	cap_save |= SATA_HOST_CAP_SSS;
+@@ -162,7 +162,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
+ 	}
+ 
+ 	/* Set timer 1ms */
+-	ahci_writel(clk / 1000, &(host_mmio->timer1ms));
++//	ahci_writel(clk / 1000, &(host_mmio->timer1ms));
+ 	ahci_setup_oobr(probe_ent, 0);
+ 
+ 	ahci_writel_with_flush(SATA_HOST_GHC_AE, &(host_mmio->ghc));
+-- 
+2.29.0
+

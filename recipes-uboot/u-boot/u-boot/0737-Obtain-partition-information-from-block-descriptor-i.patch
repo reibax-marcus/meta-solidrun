@@ -1,0 +1,27 @@
+From dbc12dc9069f58ceb35836d70034d65a3bd684c2 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 7 Feb 2018 20:07:26 -0800
+Subject: [PATCH 0737/1239] Obtain partition information from block descriptor
+ if available
+
+This is a backport from the thunder-next branch.
+---
+ cmd/mmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/mmc.c b/cmd/mmc.c
+index fb85c974fa..941393f69e 100644
+--- a/cmd/mmc.c
++++ b/cmd/mmc.c
+@@ -284,7 +284,7 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
+ #ifndef CONFIG_BLK
+ 	original_part = mmc->block_dev.hwpart;
+ #else
+-	original_part = mmc_get_blk_desc(mmc)->hwpart;
++	original_part = mmc_get_blk_desc(mmc, curr_device)->hwpart;
+ #endif
+ 	if (blk_select_hwpart_devnum(IF_TYPE_MMC, curr_device, MMC_PART_RPMB) !=
+ 	    0)
+-- 
+2.29.0
+

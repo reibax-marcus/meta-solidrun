@@ -1,0 +1,42 @@
+From e9924b42206e430399646f3cd3b908b872541ddd Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Tue, 13 Oct 2020 18:40:11 +0300
+Subject: [PATCH 1231/1239] configs/mvebu_armada: increase the NAND u-boot
+ partition
+
+Increase the u-boot partition size for NAND flashes from 2MB
+to 4MB since some images cannot fit the 1744KB region.
+The u-boot environment should be re-initialized after applying
+this patch since the environment block position has changed.
+
+Change-Id: Id1cf54e03be73b465036ba7f3383bfcce704e00b
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/37853
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ include/configs/mvebu_armada-common.h | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index f778c39fda..cbabc4abec 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -114,11 +114,9 @@
+ #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
+ 
+ #ifdef CONFIG_MVEBU_NAND_BOOT
+-/* In case of NAND, we want to start the environment on page boundary
+- * Linux DTS uses 2MB partition size for u-boot.
+- */
++/* In case of NAND, we want to start the environment on page boundary */
+ #define CONFIG_ENV_SIZE			(256 << 10)
+-#define CONFIG_ENV_OFFSET		(0x200000 - CONFIG_ENV_SIZE)
++#define CONFIG_ENV_OFFSET		(0x400000 - CONFIG_ENV_SIZE)
+ 
+ #else /* !CONFIG_MVEBU_NAND_BOOT */
+ /*
+-- 
+2.29.0
+

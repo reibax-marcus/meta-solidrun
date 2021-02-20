@@ -1,0 +1,29 @@
+From 1cbac84f941354db7fb6b794631f0bf175b619e4 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 28 Sep 2018 16:55:08 -0700
+Subject: [PATCH 0834/1239] drivers: net: octeontx2: fix typo in cgx firmware
+ version macro
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/octeontx2/cgx_intf.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index ebe0d15598..0f86ff064a 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -9,8 +9,8 @@
+ #ifndef __CGX_INTF_H__
+ #define __CGX_INTF_H__
+ 
+-#define CGX_FIRWARE_MAJOR_VER		1
+-#define CGX_FIRWARE_MINOR_VER		0
++#define CGX_FIRMWARE_MAJOR_VER		1
++#define CGX_FIRMWARE_MINOR_VER		0
+ 
+ /* Register offsets */
+ #define CGX_CMR_INT		0x87e0e0000040
+-- 
+2.29.0
+

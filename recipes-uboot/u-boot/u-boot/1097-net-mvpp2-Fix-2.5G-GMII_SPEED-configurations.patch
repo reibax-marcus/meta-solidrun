@@ -1,0 +1,34 @@
+From b2a781422051068a94fd57477f8b3f5645633f41 Mon Sep 17 00:00:00 2001
+From: Stefan Chulski <stefanc@marvell.com>
+Date: Tue, 18 Feb 2020 18:54:49 +0200
+Subject: [PATCH 1097/1239] net: mvpp2: Fix 2.5G GMII_SPEED configurations
+
+GMII_SPEED should be enabled for 2.5G speed
+
+Change-Id: Iffb0ea1939f77c16abfcdf4a426fa87b06db87da
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23441
+Reviewed-by: Yan Markman <ymarkman@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/net/mvpp2.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/mvpp2.c b/drivers/net/mvpp2.c
+index eb91c30d67..4bc91695ab 100644
+--- a/drivers/net/mvpp2.c
++++ b/drivers/net/mvpp2.c
+@@ -4436,7 +4436,8 @@ static void mvpp2_link_event(struct mvpp2_port *port)
+ 			if (phydev->duplex)
+ 				val |= MVPP2_GMAC_CONFIG_FULL_DUPLEX;
+ 
+-			if (phydev->speed == SPEED_1000)
++			if (phydev->speed == SPEED_1000 ||
++			    phydev->speed == 2500)
+ 				val |= MVPP2_GMAC_CONFIG_GMII_SPEED;
+ 			else if (phydev->speed == SPEED_100)
+ 				val |= MVPP2_GMAC_CONFIG_MII_SPEED;
+-- 
+2.29.0
+

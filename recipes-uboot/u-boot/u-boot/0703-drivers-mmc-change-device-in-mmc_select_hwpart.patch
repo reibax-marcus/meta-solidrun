@@ -1,0 +1,43 @@
+From e8194d933bf4ec920023468e3552b5bed67ed9c1 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 8 Sep 2017 14:54:51 -0700
+Subject: [PATCH 0703/1239] drivers: mmc: change device in mmc_select_hwpart
+
+filesystem commands call mmc_select_hwpart, assign cur_slotid
+based on devnum, to reflect the slot change in driver whenever
+next bus transaction is initiated.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/mmc/mmc-uclass.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mmc/mmc-uclass.c b/drivers/mmc/mmc-uclass.c
+index becc7c1acc..d68efc31d1 100644
+--- a/drivers/mmc/mmc-uclass.c
++++ b/drivers/mmc/mmc-uclass.c
+@@ -406,10 +406,19 @@ int mmc_unbind(struct udevice *dev)
+ static int mmc_select_hwpart(struct udevice *bdev, int hwpart)
+ {
+ 	struct udevice *mmc_dev = dev_get_parent(bdev);
+-	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
++#ifdef CONFIG_MMC_CAVIUM
++	struct cavium_mmc_host *host = dev_get_priv(mmc_dev);
+ 	struct blk_desc *desc = dev_get_uclass_platdata(bdev);
+-	int ret;
++	struct mmc *mmc = host->slots[desc->devnum].mmc;
+ 
++	/* As cavium mmc have two slots, switch the slot if it
++	 * is not current.
++	 */
++	if (host->cur_slotid != desc->devnum)
++		host->cur_slotid = desc->devnum;
++#else
++	struct mmc *mmc = mmc_get_mmc_dev(mmc_dev);
++#endif
+ 	if (desc->hwpart == hwpart)
+ 		return 0;
+ 
+-- 
+2.29.0
+

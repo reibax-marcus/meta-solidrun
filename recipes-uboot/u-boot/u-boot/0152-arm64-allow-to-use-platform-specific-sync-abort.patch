@@ -1,0 +1,41 @@
+From 174f618f0cca09a6202694460aae38e8ea24a0b5 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Mon, 11 Jun 2018 17:45:29 +0200
+Subject: [PATCH 0152/1239] arm64: allow to use platform specific sync abort
+
+Thanks to this weak handler, any platform will be able to easily
+register it's own sync abort handler.
+
+Change-Id: Id6ea56ada70316b9e8980bc4308346ae388c6061
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ arch/arm/lib/interrupts_64.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm/lib/interrupts_64.c b/arch/arm/lib/interrupts_64.c
+index 0bfdb8d93d..33ec856087 100644
+--- a/arch/arm/lib/interrupts_64.c
++++ b/arch/arm/lib/interrupts_64.c
+@@ -94,6 +94,10 @@ void do_bad_error(struct pt_regs *pt_regs, unsigned int esr)
+ 	panic("Resetting CPU ...\n");
+ }
+ 
++__weak void plat_do_sync(void)
++{
++}
++
+ /*
+  * do_sync handles the Synchronous Abort exception.
+  */
+@@ -101,6 +105,8 @@ void do_sync(struct pt_regs *pt_regs, unsigned int esr)
+ {
+ 	efi_restore_gd();
+ 	printf("\"Synchronous Abort\" handler, esr 0x%08x\n", esr);
++
++	plat_do_sync();
+ 	show_regs(pt_regs);
+ 	show_efi_loaded_images(pt_regs);
+ 	panic("Resetting CPU ...\n");
+-- 
+2.29.0
+

@@ -1,0 +1,33 @@
+From fffeb23dafe188b9d9861cdbd05085c5abf6b0de Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Tue, 19 May 2020 16:03:33 +0300
+Subject: [PATCH 1157/1239] arch/arm/dts: enable HS400 on cn913x-db board eMMC
+
+The AP eMMC device supports HS400 speed mode.
+This patch updates the DTSI file shared across CN913x DB
+boards for enabling this speed mode.
+
+Change-Id: Iee2263bcc60734b5fcf2eb36bb5e8b12a4a6cf52
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28704
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ arch/arm/dts/cn9130-db.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/dts/cn9130-db.dtsi b/arch/arm/dts/cn9130-db.dtsi
+index 2a742eba2e..fa79d15673 100644
+--- a/arch/arm/dts/cn9130-db.dtsi
++++ b/arch/arm/dts/cn9130-db.dtsi
+@@ -110,6 +110,8 @@
+ 	pinctrl-0 = <&ap_emmc_pins>;
+ 	vqmmc-supply = <&ap_reg_mmc_vccq>;
+ 	bus-width = <8>;
++	mmc-ddr-1_8v;
++	mmc-hs400-1_8v;
+ 	status = "okay";
+ };
+ 
+-- 
+2.29.0
+

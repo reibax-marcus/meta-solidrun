@@ -1,0 +1,27 @@
+From ee4649299d1f549330b2306223de3c7523fc8168 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 15 Nov 2016 12:54:16 -0800
+Subject: [PATCH 0570/1239] Define CONFIG_FIT, required for Mitel.
+
+---
+ include/configs/thunderx_81xx.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 6434d1a26d..6b8bc2e568 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -90,6 +90,10 @@
+ 
+ #define CONFIG_SLT
+ 
++/* Enable FIT image support */
++#define CONFIG_FIT
++#define CONFIG_FIT_VERBOSE
++
+ /* Link Definitions */
+ 
+ /** Code start address */
+-- 
+2.29.0
+

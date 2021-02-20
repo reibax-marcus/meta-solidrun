@@ -1,0 +1,28 @@
+From 0dd20cdc01094bc7104f2a98f43be7b0b74d5698 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 5 Mar 2018 16:36:24 -0800
+Subject: [PATCH 0766/1239] mmc: Fix typo in cavium,dat-clk-skew
+
+This property in device tree is used to configure number of coprocessor clocks before sampling data.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/mmc/cavium_mmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/cavium_mmc.c b/drivers/mmc/cavium_mmc.c
+index 09bb84a734..6d63c3cca4 100644
+--- a/drivers/mmc/cavium_mmc.c
++++ b/drivers/mmc/cavium_mmc.c
+@@ -5970,7 +5970,7 @@ static int cavium_mmc_get_config(struct udevice *dev)
+ 		slot->cmd_clk_skew = fdtdec_get_int(blob, slot_node,
+ 						    "cavium,cmd-clk-skew", 0);
+ 		slot->dat_clk_skew = fdtdec_get_int(blob, slot_node,
+-						    "cavium,cmd-dat-skew", 0);
++						    "cavium,dat-clk-skew", 0);
+ 		slot->bus_id = reg;
+ 
+ 		/* Initialize mmc data structure */
+-- 
+2.29.0
+

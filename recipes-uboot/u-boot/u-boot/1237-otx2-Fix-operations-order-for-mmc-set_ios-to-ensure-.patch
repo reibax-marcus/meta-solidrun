@@ -1,0 +1,46 @@
+From 34075c57fda6d2e2fa9cfaafdddf6af1e76a818f Mon Sep 17 00:00:00 2001
+From: Wojciech Bartczak <wbartczak@marvell.com>
+Date: Mon, 23 Nov 2020 14:55:13 -0800
+Subject: [PATCH 1237/1239] otx2: Fix operations order for mmc set_ios()to
+ ensure respecting DT values
+
+Tuning operation should be executed before setting final mmc timing values.
+
+Change-Id: I6999ad1d5e6a56bed454cd46f9617405aa5be221
+Signed-off-by: Wojciech Bartczak <wbartczak@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/40901
+Reviewed-by: Rick Farrington <rfarrington@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index 95544b1960..cbeb1210cf 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -2514,16 +2514,16 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
+ 	      __func__, dev->name, mode.u, mode.s.bus_width,
+ 	      mode.s.hs_timing, mode.s.hs200_timing, mode.s.hs400_timing);
+ 
+-	err = octeontx_mmc_configure_delay(mmc);
+-
+ #ifdef MMC_SUPPORTS_TUNING
+-	if (!err && mmc->selected_mode == MMC_HS_400 && !slot->hs400_tuned) {
++	if (mmc->selected_mode == MMC_HS_400 && !slot->hs400_tuned) {
+ 		debug("%s: Tuning HS400 mode\n", __func__);
+ 		err = octeontx_tune_hs400(mmc);
++		if (err)
++			return err;
+ 	}
+ #endif
+ 
+-	return err;
++	return octeontx_mmc_configure_delay(mmc);
+ }
+ 
+ /**
+-- 
+2.29.0
+

@@ -1,0 +1,60 @@
+From fe94e466c8dc27e476856d26ba4ba45b7a73742a Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 5 Mar 2018 16:14:46 -0800
+Subject: [PATCH 0765/1239] board: octeontx/tx2: provide target choice based on
+ arch selection
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/cavium/octeontx/Kconfig  | 8 ++++----
+ board/cavium/octeontx2/Kconfig | 6 +++++-
+ 2 files changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/board/cavium/octeontx/Kconfig b/board/cavium/octeontx/Kconfig
+index acf1645fdb..016d024aef 100644
+--- a/board/cavium/octeontx/Kconfig
++++ b/board/cavium/octeontx/Kconfig
+@@ -1,3 +1,5 @@
++if ARCH_OCTEONTX
++
+ choice
+ 	prompt "Target board"
+ 
+@@ -7,12 +9,10 @@ config	TARGET_OCTEONTX_83XX
+ config	TARGET_OCTEONTX_81XX
+ 	bool "OcteonTX CN81XX"
+ 
+-config	TARGET_OCTEONTX_93XX
+-	bool "OcteonTX CN93XX"
+-
+ endchoice
+ 
+ config SYS_CONFIG_NAME
+ 	default "octeontx_81xx" if TARGET_OCTEONTX_81XX
+ 	default "octeontx_83xx" if TARGET_OCTEONTX_83XX
+-	default "octeontx_93xx" if TARGET_OCTEONTX_93XX
++
++endif
+diff --git a/board/cavium/octeontx2/Kconfig b/board/cavium/octeontx2/Kconfig
+index 87f6393c33..a0ce7f4442 100644
+--- a/board/cavium/octeontx2/Kconfig
++++ b/board/cavium/octeontx2/Kconfig
+@@ -1,10 +1,14 @@
++if ARCH_OCTEONTX2
++
+ choice
+ 	prompt "Target board"
+ 
+ config	TARGET_OCTEONTX2_93XX
+-	bool "OcteonTX CN93XX"
++	bool "OcteonTX2 CN93XX"
+ 
+ endchoice
+ 
+ config SYS_CONFIG_NAME
+ 	default "octeontx2_93xx" if TARGET_OCTEONTX2_93XX
++
++endif
+-- 
+2.29.0
+

@@ -1,0 +1,92 @@
+From 5177e99a1358cd135706323a039eb1fd06355ecc Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 19 Jul 2019 17:06:09 -0700
+Subject: [PATCH 0942/1239] drivers: net: octeontx: handle multiple ring
+ buffers in receive
+
+Fix logic to parse all ring buffers in one CQ entry and form
+single packet to forward to net stack.
+
+Change-Id: Iea52615a162eb7b58b658dbc130cc8272a83e503
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/12810
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/net/octeontx/nicvf_main.c   |  2 ++
+ drivers/net/octeontx/nicvf_queues.c | 28 +++++++++++++++++++++++-----
+ 2 files changed, 25 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/octeontx/nicvf_main.c b/drivers/net/octeontx/nicvf_main.c
+index fa81160cd9..06a0208539 100644
+--- a/drivers/net/octeontx/nicvf_main.c
++++ b/drivers/net/octeontx/nicvf_main.c
+@@ -354,6 +354,8 @@ static int nicvf_free_pkt(struct udevice *dev, uchar *pkt, int pkt_len)
+ {
+ 	struct nicvf *nic = dev_get_priv(dev);
+ 
++	if (pkt && pkt_len)
++		free(pkt);
+ 	nicvf_refill_rbdr(nic);
+ 	return 0;
+ }
+diff --git a/drivers/net/octeontx/nicvf_queues.c b/drivers/net/octeontx/nicvf_queues.c
+index 405c7535fa..c8cb693739 100644
+--- a/drivers/net/octeontx/nicvf_queues.c
++++ b/drivers/net/octeontx/nicvf_queues.c
+@@ -832,8 +832,8 @@ static unsigned frag_num(unsigned i)
+ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
+ {
+ 	int frag;
+-	int payload_len = 0;
+-	void *pkt = NULL;
++	int payload_len = 0, tot_len;
++	void *pkt = NULL, *pkt_buf = NULL, *buffer;
+ 	struct cqe_rx_t *cqe_rx;
+ 	struct rbdr *rbdr;
+ 	struct rcv_queue *rq;
+@@ -858,6 +858,22 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
+ 	else
+ 		rb_ptrs = (void *)cqe_rx + (7 * sizeof(u64));
+ 
++	/*
++	 * Figure out packet length to create packet buffer
++	 */
++	for (frag = 0; frag < cqe_rx->rb_cnt; frag++)
++		payload_len += rb_lens[frag_num(frag)];
++	*pkt_len = payload_len;
++	/* round up size to 8 byte multiple */
++	tot_len = (payload_len & (~0x7)) + 8;
++	buffer = calloc(1, tot_len);
++	if (!buffer) {
++		printf("%s - Failed to allocate packet buffer\n", __func__);
++		return NULL;
++	}
++	pkt_buf = buffer;
++	debug("total pkt buf %p len %ld tot_len %d\n", pkt_buf, *pkt_len,
++	      tot_len);
+ 	for (frag = 0; frag < cqe_rx->rb_cnt; frag++) {
+ 		payload_len = rb_lens[frag_num(frag)];
+ 
+@@ -875,12 +891,14 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
+ 		if (cqe_rx->align_pad) {
+ 			pkt += cqe_rx->align_pad;
+ 		}
++		debug("pkt_buf %p, pkt %p payload_len %d\n", pkt_buf, pkt,
++		      payload_len);
++		memcpy(buffer, pkt, payload_len);
++		buffer += payload_len;
+ 		/* Next buffer pointer */
+ 		rb_ptrs++;
+-
+-		*pkt_len = payload_len;
+ 	}
+-	return pkt;
++	return pkt_buf;
+ }
+ 
+ /* Clear interrupt */
+-- 
+2.29.0
+

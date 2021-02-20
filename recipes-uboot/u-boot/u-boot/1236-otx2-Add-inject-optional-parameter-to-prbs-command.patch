@@ -1,0 +1,69 @@
+From 2264f2e6f43e7de4ea4d1dcc266012e9674bdb63 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Mon, 26 Oct 2020 17:32:17 -0700
+Subject: [PATCH 1236/1239] otx2: Add inject optional parameter to prbs command
+
+If inject is passed to prbs command, then ATF will inject TX errors
+on every RX errors.
+
+Change-Id: I7cd169fe542baa8bb085ca7bd85ae862cbc8b9d0
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/38624
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ cmd/marvell/octeontx2_qlm_cmds.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/cmd/marvell/octeontx2_qlm_cmds.c b/cmd/marvell/octeontx2_qlm_cmds.c
+index aa2aa080f7..7641ca1885 100644
+--- a/cmd/marvell/octeontx2_qlm_cmds.c
++++ b/cmd/marvell/octeontx2_qlm_cmds.c
+@@ -37,17 +37,26 @@ static int do_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	ulong qlm;
+ 	ulong lane;
+ 	ulong delay;
++	ulong inject;
+ 
+ 	if (argc == 5) {
+ 		qlm = simple_strtoul(argv[1], NULL, 10);
+ 		lane = simple_strtoul(argv[2], NULL, 10);
+ 		mode = simple_strtoul(argv[3], NULL, 10);
+ 		time = simple_strtoul(argv[4], NULL, 10);
++		inject = 0;
++	} else if (argc == 6) {
++		qlm = simple_strtoul(argv[1], NULL, 10);
++		lane = simple_strtoul(argv[2], NULL, 10);
++		mode = simple_strtoul(argv[3], NULL, 10);
++		time = simple_strtoul(argv[4], NULL, 10);
++		inject = simple_strtoul(argv[5], NULL, 10);
+ 	} else {
+ 		return CMD_RET_USAGE;
+ 	}
+ 
+-	arm_smccc_smc(OCTEONTX_SERDES_DBG_PRBS, CGX_PRBS_START_CMD, qlm, mode, lane, 0, 0, 0, &res);
++	arm_smccc_smc(OCTEONTX_SERDES_DBG_PRBS, CGX_PRBS_START_CMD, qlm,
++		      (mode | inject << 8), lane, 0, 0, 0, &res);
+ 
+ 	waitforresult(&res);
+ 	if (res.a0 != SMCCC_RET_SUCCESS) {
+@@ -82,12 +91,13 @@ static int do_prbs(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	return CMD_RET_SUCCESS;
+ }
+ 
+-U_BOOT_CMD(prbs,    5,    1,     do_prbs,
++U_BOOT_CMD(prbs,    6,    1,     do_prbs,
+ 	   "command to run PRBS on slected QLM",
+-	   "<qlm> <lane> <mode> <time> \n"
++	   "<qlm> <lane> <mode> <time> [inject] \n"
+ 	   "    - run PRBS with pattern indicated by 'mode' on selected 'qlm'\n"
+ 	   "      PRBS will be enabled by 'time' seconds\n"
+-	   "      PRBS is performed on a particular 'lane'"
++	   "      PRBS is performed on a particular 'lane'\n"
++	   "      Inject errors if 'inject' is passed"
+ );
+ 
+ static int do_eye(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+-- 
+2.29.0
+

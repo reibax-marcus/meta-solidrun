@@ -1,0 +1,28 @@
+From 3cfad62bf144f08d834879f14de06d991203f833 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
+Date: Fri, 13 Mar 2015 20:44:15 +0300
+Subject: [PATCH 0287/1239] armv8: cavium: SLT-related config changes
+
+---
+ include/configs/thunderx_88xx.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 7fe961b0a6..7a47878f44 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -29,7 +29,10 @@
+ #define CONFIG_SYS_MEMTEST_END		(MEM_BASE + PHYS_SDRAM_1_SIZE)
+ 
+ /* Size of malloc() pool */
+-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
++#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 4 * 1024 * 1024)
++
++#define CONFIG_AP_STACK_SIZE		65536
++#define CONFIG_AP_STACK_ALIGN		16
+ 
+ /* PL011 Serial Configuration */
+ 
+-- 
+2.29.0
+

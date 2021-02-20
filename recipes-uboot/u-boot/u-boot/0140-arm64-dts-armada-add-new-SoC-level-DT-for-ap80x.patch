@@ -1,0 +1,858 @@
+From d1b88d97fa66ca74dffd12be0e0805413766b0c3 Mon Sep 17 00:00:00 2001
+From: Christine Gharzuzi <chrisg@marvell.com>
+Date: Sun, 10 Jun 2018 16:40:31 +0300
+Subject: [PATCH 0140/1239] arm64: dts: armada: add new SoC level DT for ap80x
+
+AP807 SoC DT is required, since there's non-shared
+nodes between AP806 and AP807, therefore a new shared
+SoC level DT is added for AP806 and AP807.
+      o armada_ap80x.dtsi
+
+non shared nodes are moved from shared SoC DT
+to specific SoC level DT.
+
+ap806-quad DT is now a shared DT for ap806 and ap807
+
+Change-Id: Iedbbf7175d431b70ccd395f936845e7ba8b7d6d5
+Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-3900-db.dtsi    | 210 ++++++++++++++++++++++++++++
+ arch/arm/dts/armada-3900.dtsi       |  67 +++++++++
+ arch/arm/dts/armada-70x0.dtsi       |   3 +-
+ arch/arm/dts/armada-8040.dtsi       |   3 +-
+ arch/arm/dts/armada-ap806-quad.dtsi |  82 -----------
+ arch/arm/dts/armada-ap806.dtsi      | 142 +------------------
+ arch/arm/dts/armada-ap807.dtsi      |  34 +++++
+ arch/arm/dts/armada-ap80x-quad.dtsi |  45 ++++++
+ arch/arm/dts/armada-ap80x.dtsi      | 152 ++++++++++++++++++++
+ 9 files changed, 517 insertions(+), 221 deletions(-)
+ create mode 100644 arch/arm/dts/armada-3900-db.dtsi
+ create mode 100644 arch/arm/dts/armada-3900.dtsi
+ delete mode 100644 arch/arm/dts/armada-ap806-quad.dtsi
+ create mode 100644 arch/arm/dts/armada-ap807.dtsi
+ create mode 100644 arch/arm/dts/armada-ap80x-quad.dtsi
+ create mode 100644 arch/arm/dts/armada-ap80x.dtsi
+
+diff --git a/arch/arm/dts/armada-3900-db.dtsi b/arch/arm/dts/armada-3900-db.dtsi
+new file mode 100644
+index 0000000000..4470dcfa33
+--- /dev/null
++++ b/arch/arm/dts/armada-3900-db.dtsi
+@@ -0,0 +1,210 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++#include "armada-3900.dtsi" /* include SoC device tree */
++
++/ {
++	model = "DB-ARMADA-3900";
++	compatible = "marvell,armada7040", "marvell,armada-ap806-quad",
++		     "marvell,armada-ap806";
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	aliases {
++		i2c0 = &cp0_i2c0;
++		spi0 = &ap_spi0;
++	};
++
++	memory@00000000 {
++		device_type = "memory";
++		reg = <0x0 0x0 0x0 0x80000000>;
++	};
++
++	cp0 {
++		config-space {
++			cp0_reg_usb3_vbus0: cp0_usb3_vbus@0 {
++				compatible = "regulator-fixed";
++				pinctrl-names = "default";
++				pinctrl-0 = <&cp0_xhci0_vbus_pins>;
++				regulator-name = "cp0-xhci0-vbus";
++				regulator-min-microvolt = <5000000>;
++				regulator-max-microvolt = <5000000>;
++				startup-delay-us = <100000>;
++				enable-active-high;
++				regulator-force-boot-off;
++				gpio = <&cp0_gpio1 12 GPIO_ACTIVE_HIGH>;
++			};
++
++			cp0_reg_usb3_vbus1: cp0_usb3_vbus@1 {
++				compatible = "regulator-fixed";
++				pinctrl-names = "default";
++				pinctrl-0 = <&cp0_xhci1_vbus_pins>;
++				regulator-name = "cp0-xhci1-vbus";
++				regulator-min-microvolt = <5000000>;
++				regulator-max-microvolt = <5000000>;
++				startup-delay-us = <100000>;
++				enable-active-high;
++				regulator-force-boot-off;
++				gpio = <&cp0_gpio1 13 GPIO_ACTIVE_HIGH>;
++			};
++		};
++	};
++};
++
++/*
++ * AP related configuration
++ */
++&ap_pinctl {
++		/* MPP Bus:
++		 * SPI   [0-3]
++		 * I2C   [4-5]
++		 * UART0 [11,19]
++		 */
++		/*   0 1 2 3 4 5 6 7 8 9 */
++	pin-func = < 3 3 3 3 3 3 0 0 0 0
++		     0 3 0 0 0 0 0 0 0 3 >;
++};
++
++&ap_spi0 {
++	status = "okay";
++};
++
++&uart0 {
++	status = "okay";
++};
++
++/*
++ * CP related configuration
++ */
++&cp0_nand {
++	nand-ecc-strength = <8>;
++};
++
++&cp0_pinctl {
++	cp0_xhci0_vbus_pins: cp0-xhci0-vbus-pins {
++		marvell,pins = <44>;
++		marvell,function = <0>;
++	};
++
++	cp0_xhci1_vbus_pins: cp0-xhci1-vbus-pins {
++		marvell,pins = <45>;
++		marvell,function = <0>;
++	};
++
++	cp0_mochi_reset_pins: cp0-mochi-reset-pins {
++		marvell,pins = <56>;
++		marvell,function = <0>;
++	};
++
++	cp0_mochi_enable_pins: cp0-mochi-enable-pins {
++		marvell,pins = <57>;
++		marvell,function = <0>;
++	};
++};
++
++&cp0_i2c0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&cp0_i2c0_pins>;
++	status = "okay";
++};
++
++&cp0_utmi0 {
++	status = "okay";
++};
++
++&cp0_utmi1 {
++	status = "okay";
++};
++
++&cp0_usb3_0 {
++	status = "okay";
++	vbus-supply = <&cp0_reg_usb3_vbus0>;
++	vbus-disable-delay = <500>;
++};
++
++&cp0_usb3_1 {
++	status = "okay";
++	vbus-supply = <&cp0_reg_usb3_vbus1>;
++	vbus-disable-delay = <500>;
++};
++
++&cp0_pcie0 {
++	status = "okay";
++	ranges =
++		/* downstream I/O */
++		<0x81000000 0 0xf7000000 0  0xf7000000 0 0x10000
++		/* non-prefetchable memory */
++		0x82000000 0 0xf6000000 0  0xf6000000 0 0xf00000>;
++};
++
++&cp0_pcie2 {
++	status = "okay";
++	ranges =
++		/* downstream I/O */
++		<0x81000000 0 0xf7020000 0  0xf7020000 0 0x10000
++		/* non-prefetchable memory */
++		0x82000000 0 0xf8000000 0  0xf8000000 0 0xf00000>;
++};
++
++&cp0_comphy {
++	phy0 {
++		phy-type = <COMPHY_TYPE_PEX0>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++
++	phy1 {
++		phy-type = <COMPHY_TYPE_PEX0>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++
++	phy2 {
++		phy-type = <COMPHY_TYPE_SGMII0>;
++		phy-speed = <COMPHY_SPEED_1_25G>;
++	};
++
++	phy3 {
++		phy-type = <COMPHY_TYPE_SGMII1>;
++		phy-speed = <COMPHY_SPEED_1_25G>;
++	};
++
++	phy4 {
++		phy-type = <COMPHY_TYPE_USB3_HOST1>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++
++	phy5 {
++		phy-type = <COMPHY_TYPE_PEX2>;
++		phy-speed = <COMPHY_SPEED_5G>;
++	};
++};
++
++&cp0_xmdio {
++	status = "okay";
++	phy0: ethernet-phy@0 {
++		reg = <0>;
++	};
++	phy1: ethernet-phy@1 {
++		reg = <1>;
++	};
++};
++
++&cp0_ethernet {
++	status = "okay";
++};
++
++&cp0_eth0 {
++	status = "okay";
++	phy-mode = "sgmii";
++	phy = <&phy0>;
++};
++
++&cp0_eth1 {
++	status = "okay";
++	phy-mode = "sgmii";
++	phy = <&phy1>;
++};
++
+diff --git a/arch/arm/dts/armada-3900.dtsi b/arch/arm/dts/armada-3900.dtsi
+new file mode 100644
+index 0000000000..1ac8f17a76
+--- /dev/null
++++ b/arch/arm/dts/armada-3900.dtsi
+@@ -0,0 +1,67 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * https://spdx.org/licenses
++ */
++
++/*
++ * Device Tree file for the Armada 70x0 SoC, made of an AP806 Quad and
++ * one CP110.
++ */
++
++#include <dt-bindings/gpio/gpio.h>
++#include "armada-common.dtsi"
++#include "armada-8k.dtsi"
++#include "armada-ap807.dtsi"
++#include "armada-ap80x-quad.dtsi"
++
++/* CP110-0 Settings */
++#define CP110_NAME				cp0
++#define CP110_NUM				0
++
++#include "armada-cp110.dtsi"
++
++#undef CP110_NAME
++#undef CP110_NUM
++
++/ {
++	model = "Marvell Armada 3900";
++	compatible = "marvell,armada70x0", "marvell,armada-ap806-quad",
++		     "marvell,armada-ap806";
++};
++
++&cp0_pinctl {
++	compatible = "marvell,mvebu-pinctrl", "marvell,armada-8k-cpm-pinctrl";
++	bank-name ="cp0-110";
++
++	cp0_i2c0_pins: cp0-i2c-pins-0 {
++		marvell,pins = < 37 38 >;
++		marvell,function = <2>;
++	};
++	cp0_i2c1_pins: cp0-i2c-pins-1 {
++		marvell,pins = < 35 36 >;
++		marvell,function = <2>;
++	};
++	cp0_ge1_rgmii_pins: cp0-ge-rgmii-pins-0 {
++		marvell,pins = < 0 1 2 3 4 5 6 7 8 9 10 11>;
++		marvell,function = <3>;
++	};
++	cp0_ge2_rgmii_pins: cp0-ge-rgmii-pins-1 {
++		marvell,pins = < 44 45 46 47 48 49 50 51
++				52 53 54 55 >;
++		marvell,function = <1>;
++	};
++	cp0_pca0_pins: cp0-pca0_pins {
++		marvell,pins = <62>;
++		marvell,function = <0>;
++	};
++	cp0_sdhci_pins: cp0-sdhi-pins-0 {
++		marvell,pins = < 56 57 58 59 60 61 >;
++		marvell,function = <14>;
++	};
++	cp0_spi0_pins: cp0-spi-pins-0 {
++		marvell,pins = < 13 14 15 16 >;
++		marvell,function = <3>;
++	};
++};
+diff --git a/arch/arm/dts/armada-70x0.dtsi b/arch/arm/dts/armada-70x0.dtsi
+index a79ddf9335..61db213832 100644
+--- a/arch/arm/dts/armada-70x0.dtsi
++++ b/arch/arm/dts/armada-70x0.dtsi
+@@ -11,7 +11,8 @@
+ #include <dt-bindings/gpio/gpio.h>
+ #include "armada-common.dtsi"
+ #include "armada-8k.dtsi"
+-#include "armada-ap806-quad.dtsi"
++#include "armada-ap806.dtsi"
++#include "armada-ap80x-quad.dtsi"
+ 
+ /* CP110-0 Settings */
+ #define CP110_NAME				cp0
+diff --git a/arch/arm/dts/armada-8040.dtsi b/arch/arm/dts/armada-8040.dtsi
+index 3035b42430..ee9ddf6f0e 100644
+--- a/arch/arm/dts/armada-8040.dtsi
++++ b/arch/arm/dts/armada-8040.dtsi
+@@ -48,7 +48,8 @@
+ #include <dt-bindings/gpio/gpio.h>
+ #include "armada-common.dtsi"
+ #include "armada-8k.dtsi"
+-#include "armada-ap806-quad.dtsi"
++#include "armada-ap806.dtsi"
++#include "armada-ap80x-quad.dtsi"
+ 
+ /* CP110-0 Settings */
+ #define CP110_NAME				cp0
+diff --git a/arch/arm/dts/armada-ap806-quad.dtsi b/arch/arm/dts/armada-ap806-quad.dtsi
+deleted file mode 100644
+index ba43a4357b..0000000000
+--- a/arch/arm/dts/armada-ap806-quad.dtsi
++++ /dev/null
+@@ -1,82 +0,0 @@
+-/*
+- * Copyright (C) 2016 Marvell Technology Group Ltd.
+- *
+- * This file is dual-licensed: you can use it either under the terms
+- * of the GPLv2 or the X11 license, at your option. Note that this dual
+- * licensing only applies to this file, and not this project as a
+- * whole.
+- *
+- *  a) This library is free software; you can redistribute it and/or
+- *     modify it under the terms of the GNU General Public License as
+- *     published by the Free Software Foundation; either version 2 of the
+- *     License, or (at your option) any later version.
+- *
+- *     This library is distributed in the hope that it will be useful,
+- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *     GNU General Public License for more details.
+- *
+- * Or, alternatively,
+- *
+- *  b) Permission is hereby granted, free of charge, to any person
+- *     obtaining a copy of this software and associated documentation
+- *     files (the "Software"), to deal in the Software without
+- *     restriction, including without limitation the rights to use,
+- *     copy, modify, merge, publish, distribute, sublicense, and/or
+- *     sell copies of the Software, and to permit persons to whom the
+- *     Software is furnished to do so, subject to the following
+- *     conditions:
+- *
+- *     The above copyright notice and this permission notice shall be
+- *     included in all copies or substantial portions of the Software.
+- *
+- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+- *     OTHER DEALINGS IN THE SOFTWARE.
+- */
+-
+-/*
+- * Device Tree file for Marvell Armada AP806.
+- */
+-
+-#include "armada-ap806.dtsi"
+-
+-/ {
+-	model = "Marvell Armada AP806 Quad";
+-	compatible = "marvell,armada-ap806-quad", "marvell,armada-ap806";
+-
+-	cpus {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		cpu@000 {
+-			device_type = "cpu";
+-			compatible = "arm,cortex-a72", "arm,armv8";
+-			reg = <0x000>;
+-			enable-method = "psci";
+-		};
+-		cpu@001 {
+-			device_type = "cpu";
+-			compatible = "arm,cortex-a72", "arm,armv8";
+-			reg = <0x001>;
+-			enable-method = "psci";
+-		};
+-		cpu@100 {
+-			device_type = "cpu";
+-			compatible = "arm,cortex-a72", "arm,armv8";
+-			reg = <0x100>;
+-			enable-method = "psci";
+-		};
+-		cpu@101 {
+-			device_type = "cpu";
+-			compatible = "arm,cortex-a72", "arm,armv8";
+-			reg = <0x101>;
+-			enable-method = "psci";
+-		};
+-	};
+-};
+diff --git a/arch/arm/dts/armada-ap806.dtsi b/arch/arm/dts/armada-ap806.dtsi
+index 1b7fefa44c..ec86fdc24f 100644
+--- a/arch/arm/dts/armada-ap806.dtsi
++++ b/arch/arm/dts/armada-ap806.dtsi
+@@ -44,65 +44,16 @@
+  * Device Tree file for Marvell Armada AP806.
+  */
+ 
+-/dts-v1/;
++/* AP806 Settings */
++#define AP_NAME				ap806
++
++#include "armada-ap80x.dtsi"
+ 
+ / {
+ 	model = "Marvell Armada AP806";
+-	compatible = "marvell,armada-ap806";
+-	#address-cells = <2>;
+-	#size-cells = <2>;
+-
+-	aliases {
+-		serial0 = &uart0;
+-		serial1 = &uart1;
+-	};
+-
+-	psci {
+-		compatible = "arm,psci-0.2";
+-		method = "smc";
+-	};
+-
+-	reserved-memory {
+-		#address-cells = <2>;
+-		#size-cells = <2>;
+-		ranges;
+-
+-		psci-area@4000000 {
+-			reg = <0x0 0x4000000 0x0 0x200000>;
+-			no-map;
+-		};
+-	};
+-
+-	ap806 {
+-		#address-cells = <2>;
+-		#size-cells = <2>;
+-		compatible = "simple-bus";
+-		ranges;
+ 
++	AP_NAME {
+ 		config-space {
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			compatible = "simple-bus";
+-			ranges = <0x0 0x0 0xf0000000 0x1000000>;
+-
+-			ap_pinctl: ap-pinctl@6F4000 {
+-				compatible = "marvell,ap806-pinctrl";
+-				bank-name ="apn-806";
+-				reg = <0x6F4000 0x10>;
+-				pin-count = <20>;
+-				max-func = <3>;
+-
+-				ap_i2c0_pins: i2c-pins-0 {
+-					marvell,pins = < 4 5 >;
+-					marvell,function = <3>;
+-				};
+-				ap_emmc_pins: emmc-pins-0 {
+-					marvell,pins = < 0 1 2 3 4 5 6 7
+-							 8 9 10 >;
+-					marvell,function = <1>;
+-				};
+-			};
+-
+ 			thermal: thermal@6f8084 {
+ 				compatible = "marvell,mvebu-thermal", "marvell,thermal-ext-sensor";
+ 				reg = <0x6f8084 0x12>;
+@@ -111,89 +62,6 @@
+ 				divisor = <1000>;
+ 				status = "okay";
+ 			};
+-
+-			ap_gpio0: gpio@6F5040 {
+-				compatible = "marvell,orion-gpio";
+-				reg = <0x6F5040 0x40>;
+-				ngpios = <20>;
+-				gpio-controller;
+-				#gpio-cells = <2>;
+-			};
+-
+-			sar-reg {
+-				compatible = "marvell,sample-at-reset-common",
+-					     "marvell,sample-at-reset-ap806";
+-				reg = <0x6f8200 0x8>;
+-				sar-driver = "ap806_sar";
+-				sar-name = "ap806_sar";
+-				status = "okay";
+-			};
+-
+-			ap_spi0: spi@510600 {
+-				compatible = "marvell,armada-380-spi";
+-				reg = <0x510600 0x50>;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				cell-index = <0>;
+-				status = "disabled";
+-			};
+-
+-			ap_i2c0: i2c@511000 {
+-				compatible = "marvell,mv78230-i2c";
+-				reg = <0x511000 0x20>;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				timeout-ms = <1000>;
+-				status = "disabled";
+-			};
+-
+-			uart0: serial@512000 {
+-				compatible = "snps,dw-apb-uart";
+-				reg = <0x512000 0x100>;
+-				reg-shift = <2>;
+-				reg-io-width = <1>;
+-				status = "disabled";
+-				clock-frequency = <200000000>;
+-			};
+-
+-			uart1: serial@512100 {
+-				compatible = "snps,dw-apb-uart";
+-				reg = <0x512100 0x100>;
+-				reg-shift = <2>;
+-				reg-io-width = <1>;
+-				status = "disabled";
+-
+-			};
+-
+-			ap_sdhci0: sdhci@6e0000 {
+-				compatible = "marvell,armada-8k-sdhci";
+-				reg = <0x6e0000 0x300>;
+-				dma-coherent;
+-				status = "disabled";
+-			};
+-
+-			ap_ld_efuse0: efuse-0@6F8F00 {
+-				compatible = "marvell,mvebu-fuse-ld-user";
+-				reg = <0x6F8008 0x4>;
+-				otp-mem = <0xF06F8F00>;
+-				status = "disabled";
+-			};
+-
+-			ap_ld_efuse1: efuse-1@6F8F00 {
+-				compatible = "marvell,mvebu-fuse-ld-prop";
+-				reg = <0x6F8008 0x4>;
+-				otp-mem = <0xF06F8F00>;
+-				status = "disabled";
+-			};
+-
+-			ap_hd_efuse0: efuse@6F9000  {
+-				compatible = "marvell,mvebu-fuse-hd";
+-				reg = <0x6F8008 0x4>;
+-				otp-mem = <0xF06F9000>;
+-				rows-count = <64>;
+-				status = "disabled";
+-			};
+-
+ 		};
+ 	};
+ };
+diff --git a/arch/arm/dts/armada-ap807.dtsi b/arch/arm/dts/armada-ap807.dtsi
+new file mode 100644
+index 0000000000..8c603c5602
+--- /dev/null
++++ b/arch/arm/dts/armada-ap807.dtsi
+@@ -0,0 +1,34 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * https://spdx.org/licenses
++ */
++
++/*
++ * Device Tree file for Marvell Armada AP807.
++ */
++
++/* AP807 Settings */
++#define AP_NAME				ap807
++
++#include "armada-ap80x.dtsi"
++
++/ {
++	model = "Marvell Armada AP807";
++
++	AP_NAME {
++		config-space {
++
++			thermal: thermal@6f8084 {
++				compatible = "marvell,mvebu-thermal",
++					     "marvell,thermal-ext-sensor";
++				reg = <0x6f8084 0x12>;
++				gain = <394>;
++				offset = <128900>;
++				divisor = <1000>;
++				status = "okay";
++			};
++		};
++	};
++};
+diff --git a/arch/arm/dts/armada-ap80x-quad.dtsi b/arch/arm/dts/armada-ap80x-quad.dtsi
+new file mode 100644
+index 0000000000..d5d85db619
+--- /dev/null
++++ b/arch/arm/dts/armada-ap80x-quad.dtsi
+@@ -0,0 +1,45 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * https://spdx.org/licenses
++ */
++
++/*
++ * Device Tree file for Marvell Armada AP806/AP807.
++ */
++
++/ {
++	model = "Marvell Armada AP80X Quad";
++	compatible = "marvell,armada-ap806-quad", "marvell,armada-ap806";
++
++	cpus {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		cpu@000 {
++			device_type = "cpu";
++			compatible = "arm,cortex-a72", "arm,armv8";
++			reg = <0x000>;
++			enable-method = "psci";
++		};
++		cpu@001 {
++			device_type = "cpu";
++			compatible = "arm,cortex-a72", "arm,armv8";
++			reg = <0x001>;
++			enable-method = "psci";
++		};
++		cpu@100 {
++			device_type = "cpu";
++			compatible = "arm,cortex-a72", "arm,armv8";
++			reg = <0x100>;
++			enable-method = "psci";
++		};
++		cpu@101 {
++			device_type = "cpu";
++			compatible = "arm,cortex-a72", "arm,armv8";
++			reg = <0x101>;
++			enable-method = "psci";
++		};
++	};
++};
+diff --git a/arch/arm/dts/armada-ap80x.dtsi b/arch/arm/dts/armada-ap80x.dtsi
+new file mode 100644
+index 0000000000..1f6fe6477d
+--- /dev/null
++++ b/arch/arm/dts/armada-ap80x.dtsi
+@@ -0,0 +1,152 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * https://spdx.org/licenses
++ */
++
++/*
++ * Device Tree file for Marvell Armada AP806/AP807.
++ */
++
++/dts-v1/;
++/ {
++	compatible = "marvell,armada-ap806";
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	aliases {
++		serial0 = &uart0;
++		serial1 = &uart1;
++	};
++
++	psci {
++		compatible = "arm,psci-0.2";
++		method = "smc";
++	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		psci-area@4000000 {
++			reg = <0x0 0x4000000 0x0 0x200000>;
++			no-map;
++		};
++	};
++
++	AP_NAME {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		compatible = "simple-bus";
++		ranges;
++
++		config-space {
++			#address-cells = <1>;
++			#size-cells = <1>;
++			compatible = "simple-bus";
++			ranges = <0x0 0x0 0xf0000000 0x1000000>;
++
++			ap_pinctl: ap-pinctl@6F4000 {
++				compatible = "marvell,ap806-pinctrl";
++				bank-name ="apn-806";
++				reg = <0x6F4000 0x10>;
++				pin-count = <20>;
++				max-func = <3>;
++
++				ap_i2c0_pins: i2c-pins-0 {
++					marvell,pins = < 4 5 >;
++					marvell,function = <3>;
++				};
++				ap_emmc_pins: emmc-pins-0 {
++					marvell,pins = < 0 1 2 3 4 5 6 7
++							 8 9 10 >;
++					marvell,function = <1>;
++				};
++			};
++
++			ap_gpio0: gpio@6F5040 {
++				compatible = "marvell,orion-gpio";
++				reg = <0x6F5040 0x40>;
++				ngpios = <20>;
++				gpio-controller;
++				#gpio-cells = <2>;
++			};
++
++			sar-reg {
++				compatible = "marvell,sample-at-reset-common",
++					     "marvell,sample-at-reset-ap806";
++				reg = <0x6F8200 0x8>;
++				sar-driver = "ap806_sar";
++				sar-name = "ap806_sar";
++				status = "okay";
++			};
++
++			ap_spi0: spi@510600 {
++				compatible = "marvell,armada-380-spi";
++				reg = <0x510600 0x50>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				cell-index = <0>;
++				status = "disabled";
++			};
++
++			ap_i2c0: i2c@511000 {
++				compatible = "marvell,mv78230-i2c";
++				reg = <0x511000 0x20>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				timeout-ms = <1000>;
++				status = "disabled";
++			};
++
++			uart0: serial@512000 {
++				compatible = "snps,dw-apb-uart";
++				reg = <0x512000 0x100>;
++				reg-shift = <2>;
++				reg-io-width = <1>;
++				status = "disabled";
++				clock-frequency = <200000000>;
++			};
++
++			uart1: serial@512100 {
++				compatible = "snps,dw-apb-uart";
++				reg = <0x512100 0x100>;
++				reg-shift = <2>;
++				reg-io-width = <1>;
++				status = "disabled";
++
++			};
++
++			ap_sdhci0: sdhci@6e0000 {
++				compatible = "marvell,armada-8k-sdhci";
++				reg = <0x6e0000 0x300>;
++				dma-coherent;
++				status = "disabled";
++			};
++
++			ap_ld_efuse0: efuse-0@6F8F00 {
++				compatible = "marvell,mvebu-fuse-ld-user";
++				reg = <0x6F8008 0x4>;
++				otp-mem = <0xF06F8F00>;
++				status = "disabled";
++			};
++
++			ap_ld_efuse1: efuse-1@6F8F00 {
++				compatible = "marvell,mvebu-fuse-ld-prop";
++				reg = <0x6F8008 0x4>;
++				otp-mem = <0xF06F8F00>;
++				status = "disabled";
++			};
++
++			ap_hd_efuse0: efuse@6F9000  {
++				compatible = "marvell,mvebu-fuse-hd";
++				reg = <0x6F8008 0x4>;
++				otp-mem = <0xF06F9000>;
++				rows-count = <64>;
++				status = "disabled";
++			};
++		};
++	};
++};
+-- 
+2.29.0
+

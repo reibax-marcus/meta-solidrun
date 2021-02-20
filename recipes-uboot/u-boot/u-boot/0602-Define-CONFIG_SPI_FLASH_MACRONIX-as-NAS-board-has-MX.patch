@@ -1,0 +1,26 @@
+From 42deaeef45f0f3b58e2852f68bf041192f3f24a8 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 17 Jan 2017 11:31:37 -0800
+Subject: [PATCH 0602/1239] Define CONFIG_SPI_FLASH_MACRONIX, as NAS board has
+ MX25l3206e part.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ include/configs/thunderx_81xx.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 9566630252..4ee4a74aed 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -302,6 +302,7 @@
+ #define CONFIG_DM_SPI_FLASH
+ #define CONFIG_SPI_FLASH
+ #define CONFIG_SPI_FLASH_STMICRO
++#define CONFIG_SPI_FLASH_MACRONIX
+ #define CONFIG_CAVIUM_SPI
+ #define CONFIG_SF_DEFAULT_SPEED 12500000
+ #define CONFIG_SF_DEFAULT_MODE	0
+-- 
+2.29.0
+

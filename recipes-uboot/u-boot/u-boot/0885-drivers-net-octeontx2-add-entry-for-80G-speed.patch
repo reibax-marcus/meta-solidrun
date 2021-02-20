@@ -1,0 +1,42 @@
+From e2e0ede8555afad320fc25ff77b576a35e549a44 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 6 Mar 2019 09:10:50 -0800
+Subject: [PATCH 0885/1239] drivers: net: octeontx2: add entry for 80G speed
+
+Change-Id: I46bdc33b7312d4b293625372fc5b950957b8539b
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/5303
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/octeontx2/cgx.c      | 1 +
+ drivers/net/octeontx2/cgx_intf.h | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/net/octeontx2/cgx.c b/drivers/net/octeontx2/cgx.c
+index ff5f192bed..c637e74e81 100644
+--- a/drivers/net/octeontx2/cgx.c
++++ b/drivers/net/octeontx2/cgx.c
+@@ -44,6 +44,7 @@ char lmac_speed_to_str[][8] = {
+ 	"25G",
+ 	"40G",
+ 	"50G",
++	"80G",
+ 	"100G",
+ };
+ 
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index 0f86ff064a..c684b4abfb 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -62,6 +62,7 @@ enum cgx_link_speed {
+ 	CGX_LINK_25G,
+ 	CGX_LINK_40G,
+ 	CGX_LINK_50G,
++	CGX_LINK_80G,
+ 	CGX_LINK_100G,
+ 	CGX_LINK_MAX,
+ };
+-- 
+2.29.0
+

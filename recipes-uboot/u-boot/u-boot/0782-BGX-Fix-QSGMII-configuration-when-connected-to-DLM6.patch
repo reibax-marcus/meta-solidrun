@@ -1,0 +1,37 @@
+From e664b253f56407dda35353aa7bdc9abb9c6e0fba Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Fri, 22 Jun 2018 11:10:07 -0700
+Subject: [PATCH 0782/1239] BGX: Fix QSGMII configuration when connected to
+ DLM6.
+
+Bgx id is 2 when DLM6 is configured as QSGMII mode.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/octeontx_bgx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/octeontx_bgx.c b/drivers/net/cavium/octeontx_bgx.c
+index f311fb4152..02c27e45e8 100644
+--- a/drivers/net/cavium/octeontx_bgx.c
++++ b/drivers/net/cavium/octeontx_bgx.c
+@@ -1013,6 +1013,7 @@ static void bgx_init_hw(struct bgx *bgx)
+ 		struct lmac *tlmac;
+ 
+ 		lmac = &bgx->lmac[lmacid];
++		debug("bgx_init_hw: lmacid = %d, qlm = %d, mode = %d\n", lmacid, lmac->qlm, lmac->qlm_mode);
+ 		/* If QLM is not programmed, skip */
+ 		if (lmac->qlm == -1)
+ 			continue;
+@@ -1300,7 +1301,7 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 			/* If QLM is configured as QSGMII, use lmac0 */
+ 			if (CAVIUM_IS_MODEL(CN83XX)
+ 			    && (lmacid == 2)
+-			    && (bgx->bgx_id != 3)) {
++			    && (bgx->bgx_id != 2)) {
+ 				//lmac->qlm_mode = QLM_MODE_DISABLED;
+ 				continue;
+ 			}
+-- 
+2.29.0
+

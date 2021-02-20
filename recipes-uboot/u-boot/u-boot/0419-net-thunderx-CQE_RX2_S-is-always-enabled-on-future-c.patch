@@ -1,0 +1,154 @@
+From aa28284a9499f6ff5c68bd762bb6c43053096a3a Mon Sep 17 00:00:00 2001
+From: sergey temerkhanov-CA <stemerkhanov@ln-stemerkhanov.caveonetworks.com>
+Date: Tue, 10 May 2016 17:20:55 -0400
+Subject: [PATCH 0419/1239] net: thunderx: CQE_RX2_S is always enabled on
+ future chips
+
+Unline 88xx CQE_RX descriptor's tunnelling extension CQE_RX2_S
+is always enabled and HW does add this data into CQE_RX. As a
+result receive buffer addresses will now be present at 7th word
+of CQE_RX instead of 6th.
+
+To make things consistent enabling this on 88xx pass2 as well
+where this extension is introduced. So, otherthan 88xx pass1.x
+all silicons will have this enabled.
+
+Signed-off-by: Sunil Goutham <sgoutham@cavium.com>
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/net/cavium/nic.h          | 28 ++++++++++++++++++++--------
+ drivers/net/cavium/nic_main.c     |  7 +++++++
+ drivers/net/cavium/nic_reg.h      |  1 +
+ drivers/net/cavium/nicvf_queues.c | 12 +++++++++++-
+ 4 files changed, 39 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index e5d23f36be..35139588d0 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -243,14 +243,14 @@ struct hw_info {
+ struct nicvf {
+ 	struct eth_device	*netdev;
+ 	uint8_t			vf_id;
+-	bool                    sqs_mode:1;
++	bool			sqs_mode:1;
+ 	bool			loopback_supported:1;
+ 	uint8_t			tns_mode;
+ 	uint8_t			node;
+ 	uint16_t		mtu;
+ 	struct queue_set	*qs;
+ #define		MAX_SQS_PER_VF_SINGLE_NODE	5
+-#define		MAX_SQS_PER_VF			11   
++#define		MAX_SQS_PER_VF			11
+ 	uint8_t			num_qs;
+ 	void			*addnl_qs;
+ 	uint16_t		vf_mtu;
+@@ -260,8 +260,8 @@ struct nicvf {
+ 
+ 	uint8_t			cpi_alg;
+ 
+-	struct nicvf_hw_stats   stats;
+-	struct nicvf_drv_stats  drv_stats;
++	struct nicvf_hw_stats	stats;
++	struct nicvf_drv_stats	drv_stats;
+ 
+ 	struct nicpf		*nicpf;
+ 
+@@ -279,20 +279,22 @@ struct nicvf {
+ 
+ 	bool			open;
+ 	bool			rb_alloc_fail;
+-	void 			*rcv_buf;
++	void			*rcv_buf;
++	bool			hw_tso;
+ };
+ 
+ struct nicpf {
+ 	struct eth_device	*netdev;
+-	struct hw_info          *hw;
++	struct hw_info		*hw;
+ #define NIC_NODE_ID_MASK	0x300000000000
+ #define NIC_NODE_ID(x)		((x & NODE_ID_MASK) >> 44)
+ 	uint8_t			node;
+-	unsigned int		flags;
++	unsigned int	flags;
++	unsigned int	rev;
+ 	uint16_t		total_vf_cnt;   /* Total num of VF supported */
+ 	uint16_t		num_vf_en;      /* No of VF enabled */
+ 	uint64_t		reg_base;       /* Register start address */
+-	u16                     rss_ind_tbl_size;
++	u16			rss_ind_tbl_size;
+ 	u8			num_sqs_en;     /* Secondary qsets enabled */
+ 	u64			nicvf[MAX_NUM_VFS_SUPPORTED];
+ 	u8			vf_sqs[MAX_NUM_VFS_SUPPORTED][MAX_SQS_PER_VF];
+@@ -503,4 +505,14 @@ void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable);
+ void bgx_lmac_internal_loopback(int node, int bgx_idx,
+ 				int lmac_idx, bool enable);
+ 
++static inline bool pass1_silicon(unsigned int revision)
++{
++	return (revision < 8);
++}
++
++static inline bool pass2_silicon(unsigned int revision)
++{
++	return (revision == 8);
++}
++
+ #endif /* NIC_H */
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index f14afbda1b..6ff1f47f7a 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -210,6 +210,13 @@ void nic_handle_mbx_intr(struct nicpf *nic, int vf)
+ 			   (mbx.rq.qs_num << NIC_QS_ID_SHIFT) |
+ 			   (mbx.rq.rq_num << NIC_Q_NUM_SHIFT);
+ 		nic_reg_write(nic, reg_addr, mbx.rq.cfg);
++		/* Enable CQE_RX2_S extension in CQE_RX descriptor.
++		 * This gets appended by default on 81xx/83xx chips,
++		 * for consistency enabling the same on 88xx pass2
++		 * where this is introduced.
++		 */
++		if (pass2_silicon(nic->rev))
++			nic_reg_write(nic, NIC_PF_RX_CFG, 0x01);
+ 		break;
+ 	case NIC_MBOX_MSG_RQ_BP_CFG:
+ 		reg_addr = NIC_PF_QSET_0_127_RQ_0_7_BP_CFG |
+diff --git a/drivers/net/cavium/nic_reg.h b/drivers/net/cavium/nic_reg.h
+index b9dc781be6..1db3d6e43e 100644
+--- a/drivers/net/cavium/nic_reg.h
++++ b/drivers/net/cavium/nic_reg.h
+@@ -43,6 +43,7 @@
+ #define   NIC_PF_MAILBOX_ENA_W1S		(0x0470)
+ 
+ #define   NIC_PF_RX_ETYPE_0_7			(0x0500)
++#define   NIC_PF_RX_CFG				(0x05D0)
+ #define   NIC_PF_PKIND_0_15_CFG			(0x0600)
+ 
+ #define   NIC_PF_ECC0_FLIP0			(0x1000)
+diff --git a/drivers/net/cavium/nicvf_queues.c b/drivers/net/cavium/nicvf_queues.c
+index b414b81e29..6d4725b41d 100644
+--- a/drivers/net/cavium/nicvf_queues.c
++++ b/drivers/net/cavium/nicvf_queues.c
+@@ -847,7 +847,17 @@ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len)
+ 	rq = &qs->rq[cqe_rx->rq_idx];
+ 	rbdr = &qs->rbdr[rq->start_qs_rbdr_idx];
+ 	rb_lens = cq_desc + (3 * sizeof(uint64_t)); /* Use offsetof */
+-	rb_ptrs = cq_desc + (6 * sizeof(uint64_t));
++	/* Except 88xx pass1 on all other chips CQE_RX2_S is added to
++	 * CQE_RX at word6, hence buffer pointers move by word
++	 *
++	 * Use existing 'hw_tso' flag which will be set for all chips
++	 * except 88xx pass1 instead of a additional cache line
++	 * access (or miss) by using pci dev's revision.
++	 */
++	if (!nic->hw_tso)
++		rb_ptrs = (void *)cqe_rx + (6 * sizeof(u64));
++	else
++		rb_ptrs = (void *)cqe_rx + (7 * sizeof(u64));
+ 
+ 	for (frag = 0; frag < cqe_rx->rb_cnt; frag++) {
+ 		payload_len = rb_lens[frag_num(frag)];
+-- 
+2.29.0
+

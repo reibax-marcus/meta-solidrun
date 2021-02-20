@@ -1,0 +1,40 @@
+From 0b4193283b0564cf8979647869554e1a0465dd90 Mon Sep 17 00:00:00 2001
+From: zachary zhang <zhangzg@marvell.com>
+Date: Wed, 19 Apr 2017 15:40:06 +0800
+Subject: [PATCH 0114/1239] arm64: mvebu: a37xx/a8k: config: enable hw_info
+ command support
+
+Change-Id: I287c03ccb8cc55642db90a13ccda62e11b7c2afa
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ configs/mvebu_db-88f3720_defconfig  | 1 +
+ configs/mvebu_db_armada8k_defconfig | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index b83f3522df..bd99fbb369 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -34,6 +34,7 @@ CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
++CONFIG_CMD_MVEBU_HW_INFO=y
+ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_MAC_PARTITION=y
+ CONFIG_DEFAULT_DEVICE_TREE="armada-3720-db"
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index d9db1b1a36..591ec6982c 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -36,6 +36,7 @@ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
+ CONFIG_CMD_MVEBU_PHY_FW_DOWNLOAD=y
++CONFIG_CMD_MVEBU_HW_INFO=y
+ CONFIG_CMD_MVEBU_RX_TRAINING=y
+ CONFIG_CMD_REGULATOR=y
+ CONFIG_CMD_EXT4_WRITE=y
+-- 
+2.29.0
+

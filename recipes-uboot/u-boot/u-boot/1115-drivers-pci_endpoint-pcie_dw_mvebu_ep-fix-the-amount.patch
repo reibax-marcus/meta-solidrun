@@ -1,0 +1,34 @@
+From cb35162c72a69cb85dbcf842f21fd52615ba4d10 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Wed, 11 Mar 2020 18:30:42 +0200
+Subject: [PATCH 1115/1239] drivers/pci_endpoint/pcie_dw_mvebu_ep: fix the
+ amount of outbound ATU regions
+
+The maximum number of outbound ATU regions on AP806/AP807 is 8.
+Maximum outbound mapping is 32GB.
+
+Change-Id: I6ce6b87d43266b849d89c075aa3b40a939b4141f
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/24852
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ drivers/pci_endpoint/pcie_dw_mvebu_ep.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pci_endpoint/pcie_dw_mvebu_ep.h b/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
+index e15225a605..33ea9b023b 100644
+--- a/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
++++ b/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
+@@ -63,7 +63,7 @@
+ 		(_BAR_) == 5 || (_BAR_) == 4 ||	\
+ 		(_BAR_) == 2 || (_BAR_) == 0; })
+ 
+-#define MAX_ATU_REGIONS			16
++#define MAX_ATU_REGIONS			8
+ #define MAX_ATU_SIZE			(4ul * SZ_1G)
+ 
+ #define  BAR_ENABLE_OFFSET		0
+-- 
+2.29.0
+

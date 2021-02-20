@@ -1,0 +1,38 @@
+From c9294116bfee45a87c8e3f0134c05325f47d0643 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 19 May 2016 16:17:17 -0400
+Subject: [PATCH 0478/1239] net: cavium: Get subsystem ID from PCI config space
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/net/cavium/nic_main.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index a66b910e2c..ca5f5ca5cf 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -425,18 +425,10 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
+ 
+ static void nic_get_hw_info(struct nicpf *nic)
+ {
+-	u16 sdevid = 0;
++	u16 sdevid;
+ 	struct hw_info *hw = nic->hw;
+ 
+-#if defined(CONFIG_TARGET_THUNDERX_88XX)
+-	sdevid = PCI_SUBSYS_DEVID_88XX_NIC_PF;
+-#elif defined(CONFIG_TARGET_THUNDERX_81XX)
+-	sdevid = PCI_SUBSYS_DEVID_81XX_NIC_PF;
+-#elif defined(CONFIG_TARGET_THUNDERX_83XX)
+-	sdevid = PCI_SUBSYS_DEVID_83XX_NIC_PF;
+-#endif
+-
+-//	pci_read_config_word(nic->pdev, PCI_SUBSYSTEM_ID, &sdevid);
++	dm_pci_read_config16(nic->udev, PCI_SUBSYSTEM_ID, &sdevid);
+ 
+ 	switch (sdevid) {
+ 	case PCI_SUBSYS_DEVID_88XX_NIC_PF:
+-- 
+2.29.0
+

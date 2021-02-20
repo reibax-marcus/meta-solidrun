@@ -1,0 +1,140 @@
+From 08fbfb1911ca7bbf6497fbd36df704cbe852e577 Mon Sep 17 00:00:00 2001
+From: Christine Gharzuzi <chrisg@marvell.com>
+Date: Wed, 10 May 2017 12:24:32 +0300
+Subject: [PATCH 0130/1239] arm64: mvebu: clock: a8k: introduce basic clock
+ driver
+
+Clock driver is used to print SoC information during
+boot.
+
+Change-Id: I4f6a523c1e6498c9d504abd1856d611edaa62f02
+Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+---
+ arch/arm/mach-mvebu/armada8k/Makefile    |  1 +
+ arch/arm/mach-mvebu/armada8k/clock.c     | 53 ++++++++++++++++++++++++
+ arch/arm/mach-mvebu/include/mach/clock.h | 20 +++++++++
+ drivers/misc/mvebu_sar/ap806_sar.c       |  4 +-
+ 4 files changed, 75 insertions(+), 3 deletions(-)
+ create mode 100644 arch/arm/mach-mvebu/armada8k/clock.c
+ create mode 100644 arch/arm/mach-mvebu/include/mach/clock.h
+
+diff --git a/arch/arm/mach-mvebu/armada8k/Makefile b/arch/arm/mach-mvebu/armada8k/Makefile
+index 19503f785b..4391a0199c 100644
+--- a/arch/arm/mach-mvebu/armada8k/Makefile
++++ b/arch/arm/mach-mvebu/armada8k/Makefile
+@@ -4,4 +4,5 @@
+ 
+ obj-y = cpu.o
+ obj-y += soc.o
++obj-y += clock.o
+ obj-y += cache_llc.o
+diff --git a/arch/arm/mach-mvebu/armada8k/clock.c b/arch/arm/mach-mvebu/armada8k/clock.c
+new file mode 100644
+index 0000000000..3b02bea127
+--- /dev/null
++++ b/arch/arm/mach-mvebu/armada8k/clock.c
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0+
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <mach/clock.h>
++#include <mvebu/mvebu_chip_sar.h>
++
++#ifndef CONFIG_PALLADIUM
++#define CONFIG_MSS_FREQUENCY    (200 * 1000000)
++#else
++#define CONFIG_MSS_FREQUENCY    (384000)
++#endif
++
++u32 soc_ring_clk_get(void)
++{
++	struct sar_val sar;
++
++	mvebu_sar_value_get(SAR_AP_FABRIC_FREQ, &sar);
++	return sar.freq;
++}
++
++u32 soc_mss_clk_get(void)
++{
++	return CONFIG_MSS_FREQUENCY;
++}
++
++u32 soc_cpu_clk_get(void)
++{
++	struct sar_val sar;
++
++	mvebu_sar_value_get(SAR_CPU_FREQ, &sar);
++	return sar.freq;
++}
++
++u32 soc_ddr_clk_get(void)
++{
++	struct sar_val sar;
++
++	mvebu_sar_value_get(SAR_DDR_FREQ, &sar);
++	return sar.freq;
++}
++
++void soc_print_clock_info(void)
++{
++	printf("Clock:  CPU     %-4d [MHz]\n", soc_cpu_clk_get() / MHz);
++	printf("\tDDR     %-4d [MHz]\n", soc_ddr_clk_get() / MHz);
++	printf("\tFABRIC  %-4d [MHz]\n", soc_ring_clk_get() / MHz);
++	printf("\tMSS     %-4d [MHz]\n", soc_mss_clk_get() / MHz);
++}
+diff --git a/arch/arm/mach-mvebu/include/mach/clock.h b/arch/arm/mach-mvebu/include/mach/clock.h
+new file mode 100644
+index 0000000000..4dde1a67e5
+--- /dev/null
++++ b/arch/arm/mach-mvebu/include/mach/clock.h
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0+
++ * https://spdx.org/licenses
++ */
++
++#ifndef _MVEBU_CLOCK_H_
++#define _MVEBU_CLOCK_H_
++
++#define KHz			1000
++#define MHz			1000000
++#define GHz			1000000000
++
++u32 soc_cpu_clk_get(void);
++u32 soc_ddr_clk_get(void);
++
++void soc_print_clock_info(void);
++
++#endif /* _MVEBU_CLOCK_H_ */
+diff --git a/drivers/misc/mvebu_sar/ap806_sar.c b/drivers/misc/mvebu_sar/ap806_sar.c
+index d3894a004f..a19de16778 100644
+--- a/drivers/misc/mvebu_sar/ap806_sar.c
++++ b/drivers/misc/mvebu_sar/ap806_sar.c
+@@ -10,6 +10,7 @@
+ #include <asm/io.h>
+ #include <errno.h>
+ #include <fdtdec.h>
++#include <mach/clock.h>
+ #include <mvebu/mvebu_chip_sar.h>
+ 
+ #include <sar-uclass.h>
+@@ -18,9 +19,6 @@
+ #define DDR_CLOCK_ID	1
+ #define RING_CLOCK_ID	2
+ 
+-#define MHz			1000000
+-#define GHz			1000000000
+-
+ /* SAR AP806 registers */
+ #define SAR_CLOCK_FREQ_MODE_OFFSET	0
+ #define SAR_CLOCK_FREQ_MODE_MASK	(0x1f << SAR_CLOCK_FREQ_MODE_OFFSET)
+-- 
+2.29.0
+

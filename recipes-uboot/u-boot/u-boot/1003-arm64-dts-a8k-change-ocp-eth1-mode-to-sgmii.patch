@@ -1,0 +1,45 @@
+From fae88f5175f337ba6ec27e2e4e9751f17ecd6081 Mon Sep 17 00:00:00 2001
+From: Ofer Heifetz <oferh@marvell.com>
+Date: Tue, 19 Nov 2019 17:55:15 +0200
+Subject: [PATCH 1003/1239] arm64: dts: a8k: change ocp eth1 mode to sgmii
+
+OCP board uses the CP0 eth0 port for traffic, eth1 port on CP1
+is usually used for NFS or ssh. 1G-SGMII is more appropriate than
+10G-KR interface for these use cases.
+
+Change-Id: Ib30a0d64436e676b1bbff6d9fe8125e51e05fb35
+Signed-off-by: Ofer Heifetz <oferh@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/18956
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Marcin Wojtas <marcin@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/armada-8040-ocp.dts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/dts/armada-8040-ocp.dts b/arch/arm/dts/armada-8040-ocp.dts
+index b2af482496..642d095430 100644
+--- a/arch/arm/dts/armada-8040-ocp.dts
++++ b/arch/arm/dts/armada-8040-ocp.dts
+@@ -301,8 +301,8 @@
+ 		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+ 	};
+ 	phy4 {
+-		phy-type = <COMPHY_TYPE_SFI0>;
+-		phy-speed = <COMPHY_SPEED_10_3125G>;
++		phy-type = <COMPHY_TYPE_SGMII0>;
++		phy-speed = <COMPHY_SPEED_1_25G>;
+ 	};
+ 	phy5 {
+ 		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+@@ -316,6 +316,6 @@
+ /* 10G SFI/copper */
+ &cp1_eth0 {
+ 	status = "okay";
+-	phy-mode = "sfi";
++	phy-mode = "sgmii";
+ 	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 10 GPIO_ACTIVE_HIGH>;
+ };
+-- 
+2.29.0
+

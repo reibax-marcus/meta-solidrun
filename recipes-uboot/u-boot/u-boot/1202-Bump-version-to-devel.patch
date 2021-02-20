@@ -1,0 +1,21 @@
+From c6940344a2e7d62ced43eeab0de3f5e566d8ff06 Mon Sep 17 00:00:00 2001
+From: Jia Ma <jiam@marvell.com>
+Date: Thu, 30 Jul 2020 23:09:17 -0700
+Subject: [PATCH 1202/1239] Bump version to devel
+
+Signed-off-by: Jia Ma <jiam@marvell.com>
+Change-Id: Ic325e63fd794a3ff3666748869b8d0d4c56ef6c5
+---
+ localversion | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/localversion b/localversion
+index 1883670b1a..75a2cc6a28 100644
+--- a/localversion
++++ b/localversion
+@@ -1 +1 @@
+--11.0.0
++-devel
+-- 
+2.29.0
+

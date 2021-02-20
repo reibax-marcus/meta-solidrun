@@ -1,0 +1,37 @@
+From 6b81b02d91474c3591f67cb29a4cef9efcf86a36 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 26 Jul 2017 19:24:02 +0300
+Subject: [PATCH 0665/1239] nvme: Use the lbaint_t type for blknr parameter
+
+Use the lbaint_t type to match the function pointer definition
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/block/nvme.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/block/nvme.c b/drivers/block/nvme.c
+index a5b23cadc6..bd6a9ec05e 100644
+--- a/drivers/block/nvme.c
++++ b/drivers/block/nvme.c
+@@ -759,7 +759,7 @@ int nvme_print_info(struct udevice *udev)
+ 	return 0;
+ }
+ 
+-static ulong nvme_write(struct udevice *udev, ulong blknr, lbaint_t blkcnt,
++static ulong nvme_write(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
+ 		const void *buffer)
+ {
+ 	struct nvme_ns *ns = dev_get_priv(udev);
+@@ -811,7 +811,7 @@ static ulong nvme_write(struct udevice *udev, ulong blknr, lbaint_t blkcnt,
+ 	return (total_len - temp_len) >> desc->log2blksz;
+ }
+ 
+-static ulong nvme_read(struct udevice *udev, ulong blknr, lbaint_t blkcnt,
++static ulong nvme_read(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
+ 		void *buffer)
+ {
+ 	struct nvme_ns *ns = dev_get_priv(udev);
+-- 
+2.29.0
+

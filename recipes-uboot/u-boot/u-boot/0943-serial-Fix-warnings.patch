@@ -1,0 +1,41 @@
+From 0794e2aad95c49914235841739217f6f775ee729 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Mon, 15 Jul 2019 21:11:06 -0700
+Subject: [PATCH 0943/1239] serial: Fix warnings
+
+This fixes a couple of minor warnings.
+
+Change-Id: Ia04764092278ebfd94fb6c86d7b0c4f83c0e2933
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/12603
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/serial/serial_octeontx_bootcmd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/serial/serial_octeontx_bootcmd.c b/drivers/serial/serial_octeontx_bootcmd.c
+index 3a59c57002..af94c1a7b6 100644
+--- a/drivers/serial/serial_octeontx_bootcmd.c
++++ b/drivers/serial/serial_octeontx_bootcmd.c
+@@ -180,7 +180,7 @@ static int octeontx_bootcmd_getc(struct udevice *dev)
+  */
+ static int bootcmd_stdio_getc(struct stdio_dev *dev)
+ {
+-	struct dm_serial_ops *ops;
++	const struct dm_serial_ops *ops;
+ 
+ 	if (!bootcmd_dev) {
+ 		printf("%s(%s): Error: bootcmd_dev NULL!\n",
+@@ -200,7 +200,7 @@ static int bootcmd_stdio_getc(struct stdio_dev *dev)
+  */
+ static int bootcmd_stdio_tstc(struct stdio_dev *dev)
+ {
+-	struct dm_serial_ops *ops;
++	const struct dm_serial_ops *ops;
+ 
+ 	if (!bootcmd_dev) {
+ 		printf("%s(%s): Error: bootcmd_dev NULL!\n",
+-- 
+2.29.0
+

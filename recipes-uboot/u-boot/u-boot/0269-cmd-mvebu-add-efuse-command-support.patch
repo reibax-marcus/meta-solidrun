@@ -1,0 +1,214 @@
+From 5e60a043c280b78cc0bf7f200f9f94612dec553b Mon Sep 17 00:00:00 2001
+From: zachary <zhangzg@marvell.com>
+Date: Wed, 10 May 2017 10:50:12 +0800
+Subject: [PATCH 0269/1239] cmd: mvebu: add efuse command support
+
+This patch adds efuse commands function for a3700 platform. These
+commands could be also used by a7k/8k platforms after adding their efuse
+drivers.
+This patch is a temporary solution. All of efuse commands will be aligned
+with fuse mainline commands in the future.
+
+Change-Id: I1cb308fbe9addf0dc4cd5eccdf5b629e27ec5979
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Signed-off-by: zachary <zhangzg@marvell.com>
+---
+ arch/arm/mach-mvebu/Kconfig |   2 +
+ cmd/mvebu/Kconfig           |  11 +++
+ cmd/mvebu/Makefile          |   1 +
+ cmd/mvebu/efuse.c           | 138 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 152 insertions(+)
+ create mode 100644 cmd/mvebu/efuse.c
+
+diff --git a/arch/arm/mach-mvebu/Kconfig b/arch/arm/mach-mvebu/Kconfig
+index 0b02f6f176..d49686b8f8 100644
+--- a/arch/arm/mach-mvebu/Kconfig
++++ b/arch/arm/mach-mvebu/Kconfig
+@@ -259,4 +259,6 @@ config SECURED_MODE_CSK_INDEX
+ 	default 0
+ 	depends on SECURED_MODE_IMAGE
+ 
++source "arch/arm/mach-mvebu/armada3700/Kconfig"
++
+ endif
+diff --git a/cmd/mvebu/Kconfig b/cmd/mvebu/Kconfig
+index 32215dca8a..86df075f8d 100644
+--- a/cmd/mvebu/Kconfig
++++ b/cmd/mvebu/Kconfig
+@@ -100,6 +100,17 @@ config MVEBU_UBOOT_DFLT_NAME
+ 	  This option should contain a default file name to be used with
+ 	  MVEBU "bubt" command if the source file name is omitted
+ 
++config CMD_MVEBU_EFUSE
++	bool "efuse"
++	depends on TARGET_MVEBU_ARMADA_37XX
++	select MVEBU_EFUSE_SUPPORT
++	default n
++	help
++	  eFuse - allow access to SoC eFuse entries
++	  eFuse commands to support efuse list/dump/read/write
++	  For details about eFuse command please see help of eFuse
++	  in uboot
++
+ config CMD_MVEBU_RX_TRAINING
+ 	bool "rx_training"
+ 	depends on TARGET_MVEBU_ARMADA_8K
+diff --git a/cmd/mvebu/Makefile b/cmd/mvebu/Makefile
+index 076245d22a..cd15872223 100644
+--- a/cmd/mvebu/Makefile
++++ b/cmd/mvebu/Makefile
+@@ -9,6 +9,7 @@ ccflags-y += -Idrivers/mtd/nand/raw/
+ obj-$(CONFIG_CMD_MVEBU_BUBT) += bubt.o
+ obj-$(CONFIG_CMD_MVEBU_RX_TRAINING) += rx_training.o
+ obj-$(CONFIG_CMD_MVEBU_AVS) += avs.o
++obj-$(CONFIG_CMD_MVEBU_EFUSE) += efuse.o
+ obj-$(CONFIG_CMD_MVEBU_MAP) += map.o
+ obj-$(CONFIG_CMD_MVEBU_NAND_OEM) += pxa3xx_nand_oem.o
+ obj-$(CONFIG_CMD_MVEBU_TSEN) += thermal.o
+diff --git a/cmd/mvebu/efuse.c b/cmd/mvebu/efuse.c
+new file mode 100644
+index 0000000000..310e3ccca4
+--- /dev/null
++++ b/cmd/mvebu/efuse.c
+@@ -0,0 +1,138 @@
++/*
++ * Copyright (C) 2017 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0+
++ * https://spdx.org/licenses
++ */
++
++ #include <config.h>
++ #include <common.h>
++ #include <command.h>
++ #include <vsprintf.h>
++ #include <errno.h>
++ #include <asm/arch-armada3700/efuse.h>
++
++int do_efuse_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	const char		*cmd = NULL;
++	const char		*efuse = NULL;
++	const char		*writeval = NULL;
++	char			readval[MVEBU_EFUSE_MAX_STRLEN];
++	enum efuse_id		fid = EFUSE_ID_MAX;
++	struct efuse_info	finfo[] = MVEBU_EFUSE_INFO;
++	int			status = CMD_RET_SUCCESS;
++
++	if (argc < 2) {
++		printf("Error: No command supplied\n");
++		return CMD_RET_USAGE;
++	} else {
++		cmd = argv[1];
++	}
++
++	if ((strcmp(cmd, "read") == 0) && argc < 3) {
++		printf("Error: Please specify eFuse ID\n");
++		return CMD_RET_USAGE;
++	}
++
++	if ((strcmp(cmd, "write") == 0) && argc < 4) {
++		printf("Error: Please specify eFuse ID and value\n");
++		return CMD_RET_USAGE;
++	}
++
++	if (argc > 2) {
++		efuse = argv[2];
++		for (fid = EFUSE_ID_BOOT_DEVICE; fid < EFUSE_ID_MAX; fid++) {
++			if (strcmp(efuse, finfo[fid].name) == 0)
++				break;
++		}
++		if (fid == EFUSE_ID_MAX) {
++			printf("%s - Invalid eFuse ID\n", efuse);
++			return CMD_RET_USAGE;
++		} else if (efuse_id_valid(fid) != 1) {
++			printf("%s - Unsupported eFuse ID\n", efuse);
++			return CMD_RET_USAGE;
++		}
++	}
++
++	if (argc > 3)
++		writeval = argv[3];
++
++	if (strcmp(cmd, "list") == 0) {
++		/* LIST */
++		printf("  EFUSE ID\t\tDESCRIPTION\n");
++		printf("---------------------------------------------------------\n");
++		for (fid = EFUSE_ID_BOOT_DEVICE; fid < EFUSE_ID_MAX; fid++) {
++			if (efuse_id_valid(fid))
++				printf("%s\t%s\n", finfo[fid].name,
++				       finfo[fid].note);
++		}
++
++	} else if (strcmp(cmd, "dump") == 0) {
++		/* DUMP */
++		printf("  EFUSE ID\t\tVALUE\n");
++		printf("---------------------------------------------------------\n");
++		for (fid = EFUSE_ID_BOOT_DEVICE; fid < EFUSE_ID_MAX; fid++) {
++			if (efuse_id_valid(fid)) {
++				if (efuse_read(fid, readval) == 0) {
++					printf("%s\t%s%s\n", finfo[fid].name,
++					       strlen(finfo[fid].name) < 8 ?
++					       "\t" : "", readval);
++				} else {
++					printf("%s\t=== ERROR READING EFUSE VALUE ===\n",
++					       finfo[fid].name);
++					status = CMD_RET_FAILURE;
++				}
++			}
++		}
++
++	} else if (strcmp(cmd, "read") == 0) {
++		/* READ */
++		if (efuse_read(fid, readval) == 0) {
++			printf("%s\t%s%s\n", finfo[fid].name,
++			       strlen(finfo[fid].name) < 8 ? "\t" : "",
++				readval);
++		} else {
++			printf("%s\t=== ERROR READING EFUSE VALUE ===\n",
++			       finfo[fid].name);
++			status = CMD_RET_FAILURE;
++		}
++
++	} else if (strcmp(cmd, "write") == 0) {
++		/* WRITE */
++		if (efuse_write(fid, writeval) == 0) {
++			if (efuse_read(fid, readval) == 0) {
++				printf("Returned EFUSE value after write:\n");
++				printf("%s\t%s\n", finfo[fid].name, readval);
++			} else {
++				printf("%s\t=== ERROR READING BACK EFUSE VALUE ===\n",
++				       finfo[fid].name);
++				status = CMD_RET_FAILURE;
++			}
++		} else {
++			printf("%s\t=== ERROR WRITING EFUSE VALUE ===\n",
++			       finfo[fid].name);
++			status = CMD_RET_FAILURE;
++		}
++	} else if (strcmp(cmd, "raw") == 0) {
++		/* RAW DUMP */
++		efuse_raw_dump();
++	} else {
++		/* ERROR */
++		printf("Usupported command \"%s\"\n", cmd);
++		status = CMD_RET_USAGE;
++	}
++
++	return status;
++}
++
++U_BOOT_CMD(
++	efuse,      4,     1,      do_efuse_cmd,
++	"efuse - read/Write SoC eFuse entries\n",
++	"\n"
++	"Access to SoC eFuse entry values\n"
++	"\tlist         - Display all supported eFuse entry ids\n"
++	"\tdump         - Dump all supported eFuse entries\n"
++	"\traw          - Dump all eFuses in raw format\n"
++	"\tread id      - Read eFuse entry \"id\"\n"
++	"\twrite id val - Write \"val\" to eFuse entry \"id\"\n"
++);
+-- 
+2.29.0
+

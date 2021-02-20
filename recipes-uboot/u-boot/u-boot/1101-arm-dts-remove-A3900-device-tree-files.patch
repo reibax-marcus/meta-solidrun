@@ -1,0 +1,580 @@
+From 3863e95cb9c8806e8b5a93403ad63b49d2ca9ca3 Mon Sep 17 00:00:00 2001
+From: Stefan Chulski <stefanc@marvell.com>
+Date: Tue, 18 Feb 2020 19:46:59 +0200
+Subject: [PATCH 1101/1239] arm: dts: remove A3900 device tree files
+
+Change-Id: Ib29d06438dbcce71b605f7967e9664f8c5782042
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23445
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Yan Markman <ymarkman@marvell.com>
+---
+ arch/arm/dts/Makefile             |   2 -
+ arch/arm/dts/armada-3900-db.dtsi  | 235 ------------------------------
+ arch/arm/dts/armada-3900-vd-A.dts | 107 --------------
+ arch/arm/dts/armada-3900-vd-B.dts | 108 --------------
+ arch/arm/dts/armada-3900.dtsi     |  67 ---------
+ 5 files changed, 519 deletions(-)
+ delete mode 100644 arch/arm/dts/armada-3900-db.dtsi
+ delete mode 100644 arch/arm/dts/armada-3900-vd-A.dts
+ delete mode 100644 arch/arm/dts/armada-3900-vd-B.dts
+ delete mode 100644 arch/arm/dts/armada-3900.dtsi
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 90e041f4d6..8f9ab14988 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -192,8 +192,6 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
+ 	armada-388-helios4.dtb			\
+ 	armada-385-db-88f6820-amc.dtb		\
+ 	armada-385-turris-omnia.dtb		\
+-	armada-3900-vd-A.dtb			\
+-	armada-3900-vd-B.dtb			\
+ 	armada-7020-amc.dtb			\
+ 	armada-7020-comexp.dtb                  \
+ 	armada-7040-pcac.dtb	                \
+diff --git a/arch/arm/dts/armada-3900-db.dtsi b/arch/arm/dts/armada-3900-db.dtsi
+deleted file mode 100644
+index 0ddfa65ea3..0000000000
+--- a/arch/arm/dts/armada-3900-db.dtsi
++++ /dev/null
+@@ -1,235 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- */
+-
+-#include "armada-3900.dtsi" /* include SoC device tree */
+-
+-/ {
+-	model = "DB-ARMADA-3900";
+-	compatible = "marvell,armada7040", "marvell,armada-ap806-quad",
+-		     "marvell,armada-ap806";
+-
+-	chosen {
+-		stdout-path = "serial0:115200n8";
+-	};
+-
+-	aliases {
+-		i2c0 = &cp0_i2c0;
+-		spi0 = &ap_spi0;
+-		fuse0 = &ap_hd_efuse0;	/* banks 0-63 RW */
+-		fuse1 = &ap_ld_efuse0;	/* bank 64 RO */
+-		fuse2 = &ap_ld_efuse1;	/* bank 65 RW */
+-		fuse3 = &cp0_ld_efuse0;	/* bank 66 RO */
+-		fuse4 = &cp0_ld_efuse1;	/* bank 67 RW */
+-	};
+-
+-	memory@00000000 {
+-		device_type = "memory";
+-		reg = <0x0 0x0 0x0 0x80000000>;
+-	};
+-
+-	cp0 {
+-		config-space {
+-			cp0_reg_usb3_vbus0: cp0_usb3_vbus@0 {
+-				compatible = "regulator-fixed";
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&cp0_xhci0_vbus_pins>;
+-				regulator-name = "cp0-xhci0-vbus";
+-				regulator-min-microvolt = <5000000>;
+-				regulator-max-microvolt = <5000000>;
+-				startup-delay-us = <100000>;
+-				enable-active-high;
+-				regulator-force-boot-off;
+-				gpio = <&cp0_gpio1 12 GPIO_ACTIVE_HIGH>;
+-			};
+-
+-			cp0_reg_usb3_vbus1: cp0_usb3_vbus@1 {
+-				compatible = "regulator-fixed";
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&cp0_xhci1_vbus_pins>;
+-				regulator-name = "cp0-xhci1-vbus";
+-				regulator-min-microvolt = <5000000>;
+-				regulator-max-microvolt = <5000000>;
+-				startup-delay-us = <100000>;
+-				enable-active-high;
+-				regulator-force-boot-off;
+-				gpio = <&cp0_gpio1 13 GPIO_ACTIVE_HIGH>;
+-			};
+-		};
+-	};
+-};
+-
+-/*
+- * AP related configuration
+- */
+-&ap_pinctl {
+-		/* MPP Bus:
+-		 * SPI   [0-3]
+-		 * I2C   [4-5]
+-		 * UART0 [11,19]
+-		 */
+-		/*   0 1 2 3 4 5 6 7 8 9 */
+-	pin-func = < 3 3 3 3 3 3 0 0 0 0
+-		     0 3 0 0 0 0 0 0 0 3 >;
+-};
+-
+-&ap_spi0 {
+-	status = "okay";
+-};
+-
+-&uart0 {
+-	status = "okay";
+-};
+-
+-&ap_hd_efuse0 {
+-	status = "okay";
+-};
+-
+-&ap_ld_efuse0 {
+-	status = "okay";
+-};
+-
+-&ap_ld_efuse1 {
+-	status = "okay";
+-};
+-
+-/*
+- * CP related configuration
+- */
+-&cp0_ld_efuse0 {
+-	status = "okay";
+-};
+-
+-&cp0_ld_efuse1 {
+-	status = "okay";
+-};
+-
+-&cp0_nand {
+-	nand-ecc-strength = <8>;
+-};
+-
+-&cp0_pinctl {
+-	cp0_xhci0_vbus_pins: cp0-xhci0-vbus-pins {
+-		marvell,pins = <44>;
+-		marvell,function = <0>;
+-	};
+-
+-	cp0_xhci1_vbus_pins: cp0-xhci1-vbus-pins {
+-		marvell,pins = <45>;
+-		marvell,function = <0>;
+-	};
+-
+-	cp0_mochi_reset_pins: cp0-mochi-reset-pins {
+-		marvell,pins = <56>;
+-		marvell,function = <0>;
+-	};
+-
+-	cp0_mochi_enable_pins: cp0-mochi-enable-pins {
+-		marvell,pins = <57>;
+-		marvell,function = <0>;
+-	};
+-};
+-
+-&cp0_i2c0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&cp0_i2c0_pins>;
+-	status = "okay";
+-};
+-
+-&cp0_utmi0 {
+-	status = "okay";
+-};
+-
+-&cp0_utmi1 {
+-	status = "okay";
+-};
+-
+-&cp0_usb3_0 {
+-	status = "okay";
+-	vbus-supply = <&cp0_reg_usb3_vbus0>;
+-	vbus-disable-delay = <500>;
+-};
+-
+-&cp0_usb3_1 {
+-	status = "okay";
+-	vbus-supply = <&cp0_reg_usb3_vbus1>;
+-	vbus-disable-delay = <500>;
+-};
+-
+-&cp0_pcie0 {
+-	status = "okay";
+-	ranges =
+-		/* downstream I/O */
+-		<0x81000000 0 0xf7000000 0  0xf7000000 0 0x10000
+-		/* non-prefetchable memory */
+-		0x82000000 0 0xf6000000 0  0xf6000000 0 0xf00000>;
+-};
+-
+-&cp0_pcie2 {
+-	status = "okay";
+-	ranges =
+-		/* downstream I/O */
+-		<0x81000000 0 0xf7020000 0  0xf7020000 0 0x10000
+-		/* non-prefetchable memory */
+-		0x82000000 0 0xf8000000 0  0xf8000000 0 0xf00000>;
+-};
+-
+-&cp0_comphy {
+-	phy0 {
+-		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+-	};
+-
+-	phy1 {
+-		phy-type = <COMPHY_TYPE_PEX0>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+-	};
+-
+-	phy2 {
+-		phy-type = <COMPHY_TYPE_SGMII0>;
+-		phy-speed = <COMPHY_SPEED_1_25G>;
+-	};
+-
+-	phy3 {
+-		phy-type = <COMPHY_TYPE_SGMII1>;
+-		phy-speed = <COMPHY_SPEED_1_25G>;
+-	};
+-
+-	phy4 {
+-		phy-type = <COMPHY_TYPE_USB3_HOST1>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+-	};
+-
+-	phy5 {
+-		phy-type = <COMPHY_TYPE_PEX2>;
+-		phy-speed = <COMPHY_SPEED_5G>;
+-	};
+-};
+-
+-&cp0_xmdio {
+-	status = "okay";
+-	phy0: ethernet-phy@0 {
+-		reg = <0>;
+-	};
+-	phy1: ethernet-phy@1 {
+-		reg = <1>;
+-	};
+-};
+-
+-&cp0_ethernet {
+-	status = "okay";
+-};
+-
+-&cp0_eth0 {
+-	status = "okay";
+-	phy-mode = "sgmii";
+-	phy = <&phy0>;
+-};
+-
+-&cp0_eth1 {
+-	status = "okay";
+-	phy-mode = "sgmii";
+-	phy = <&phy1>;
+-};
+-
+diff --git a/arch/arm/dts/armada-3900-vd-A.dts b/arch/arm/dts/armada-3900-vd-A.dts
+deleted file mode 100644
+index 52c38085fe..0000000000
+--- a/arch/arm/dts/armada-3900-vd-A.dts
++++ /dev/null
+@@ -1,107 +0,0 @@
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- *
+- * SPDX-License-Identifier:    GPL-2.0
+- * https://spdx.org/licenses
+- */
+-
+-#include "armada-3900-db.dtsi"
+-
+-/ {
+-	model = "Marvell Armada 3900 Validation Development board (CP NOR) setup(A)";
+-	compatible = "marvell,armada3900-vd", "marvell,armada7040",
+-		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
+-
+-	aliases {
+-		i2c1 = &ap_i2c0;
+-	};
+-};
+-
+-/*
+- * AP related configuration
+- */
+-&ap_i2c0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&ap_i2c0_pins>;
+-	status = "okay";
+-};
+-
+-/*
+- * CP related configuration
+- */
+-&cp0_pinctl {
+-		/* MPP Bus:
+-		 *   NAND	[13,15-27]
+-		 *   SMI	[32,34]
+-		 *   XSMI	[35-36]
+-		 *   I2C0	[37-38]
+-		 *   USB	[44-45]
+-		 *   UART1	[46-47,49,58]
+-		 *   IHB	[56-57]
+-		 *   UART0	[59-62]
+-		 */
+-		/*   0   1   2   3   4   5   6   7   8   9 */
+-	pin-func = < 0   0   0   0   0   0   0   0   0   0
+-		     0   0   0   2   0   1   1   1   1   1
+-		     1   1   1   1   1   1   1   1   0   0
+-		     0   0   7   0   7   7   7   2   2   0
+-		     0   0   0   0   0   0   7   7   0   7
+-		     0   0   0   0   0   0   0   0   7   7
+-		     7   7   7>;
+-};
+-
+-&cp0_nand {
+-	status = "okay";
+-};
+-
+-&cp0_comphy {
+-
+-	phy0 {
+-		phy-type = <COMPHY_TYPE_PEX0>;
+-	};
+-
+-	phy1 {
+-		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+-	};
+-
+-	phy2 {
+-		phy-type = <COMPHY_TYPE_SFI0>;
+-		phy-speed = <COMPHY_SPEED_5_15625G>;
+-	};
+-
+-	phy3 {
+-		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+-		/delete-property/phy-speed;
+-	};
+-
+-	phy4 {
+-		phy-type = <COMPHY_TYPE_SFI1>;
+-		phy-speed = <COMPHY_SPEED_5_15625G>;
+-	};
+-};
+-
+-&cp0_xmdio {
+-	status = "okay";
+-	phy0: ethernet-phy@0 {
+-		reg = <0>;
+-	};
+-	phy1: ethernet-phy@1 {
+-		reg = <1>;
+-	};
+-};
+-
+-&cp0_ethernet {
+-	status = "okay";
+-};
+-
+-&cp0_eth0 {
+-	status = "okay";
+-	phy-mode = "sfi";
+-	phy = <&phy0>;
+-};
+-
+-&cp0_eth1 {
+-	status = "okay";
+-	phy-mode = "sfi";
+-	phy = <&phy1>;
+-};
+diff --git a/arch/arm/dts/armada-3900-vd-B.dts b/arch/arm/dts/armada-3900-vd-B.dts
+deleted file mode 100644
+index 7c51076cbc..0000000000
+--- a/arch/arm/dts/armada-3900-vd-B.dts
++++ /dev/null
+@@ -1,108 +0,0 @@
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- *
+- * SPDX-License-Identifier:    GPL-2.0
+- * https://spdx.org/licenses
+- */
+-
+-#include "armada-3900-db.dtsi"
+-
+-/ {
+-	model = "Marvell Armada 3900 Validation Development board(CP NOR) setup(B)";
+-	compatible = "marvell,armada3900-vd", "marvell,armada7040",
+-		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
+-
+-	aliases {
+-		i2c1 = &ap_i2c0;
+-	};
+-};
+-
+-/*
+- * AP related configuration
+- */
+-&ap_i2c0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&ap_i2c0_pins>;
+-	status = "okay";
+-};
+-
+-/*
+- * CP related configuration
+- */
+-&cp0_pinctl {
+-		/* MPP Bus:
+-		 *   NAND	[13,15-27]
+-		 *   SMI	[32,34]
+-		 *   XSMI	[35-36]
+-		 *   I2C0	[37-38]
+-		 *   USB	[44-45]
+-		 *   UART1	[46-47,49,58]
+-		 *   IHB	[56-57]
+-		 *   UART0	[59-62]
+-		 */
+-		/*   0   1   2   3   4   5   6   7   8   9 */
+-	pin-func = < 0   0   0   0   0   0   0   0   0   0
+-		     0   0   0   2   0   1   1   1   1   1
+-		     1   1   1   1   1   1   1   1   0   0
+-		     0   0   7   0   7   7   7   2   2   0
+-		     0   0   0   0   0   0   7   7   0   7
+-		     0   0   0   0   0   0   0   0   7   7
+-		     7   7   7>;
+-};
+-
+-&cp0_nand {
+-	status = "okay";
+-};
+-
+-&cp0_comphy {
+-
+-	phy0 {
+-		phy-type = <COMPHY_TYPE_PEX0>;
+-		/delete-property/phy-speed;
+-	};
+-
+-	phy1 {
+-		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+-	};
+-
+-	phy2 {
+-		phy-type = <COMPHY_TYPE_SFI0>;
+-		phy-speed = <COMPHY_SPEED_5_15625G>;
+-	};
+-
+-	phy3 {
+-		phy-type = <COMPHY_TYPE_UNCONNECTED>;
+-		/delete-property/phy-speed;
+-	};
+-
+-	phy4 {
+-		phy-type = <COMPHY_TYPE_SGMII1>;
+-		phy-speed = <COMPHY_SPEED_1_25G>;
+-	};
+-};
+-
+-&cp0_xmdio {
+-	status = "okay";
+-	phy0: ethernet-phy@0 {
+-		reg = <0>;
+-	};
+-	phy1: ethernet-phy@1 {
+-		reg = <1>;
+-	};
+-};
+-
+-&cp0_ethernet {
+-	status = "okay";
+-};
+-
+-&cp0_eth0 {
+-	status = "okay";
+-	phy-mode = "sfi";
+-	phy = <&phy0>;
+-};
+-
+-&cp0_eth1 {
+-	status = "okay";
+-	phy-mode = "sgmii";
+-	phy = <&phy1>;
+-};
+diff --git a/arch/arm/dts/armada-3900.dtsi b/arch/arm/dts/armada-3900.dtsi
+deleted file mode 100644
+index 1ac8f17a76..0000000000
+--- a/arch/arm/dts/armada-3900.dtsi
++++ /dev/null
+@@ -1,67 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- *
+- * https://spdx.org/licenses
+- */
+-
+-/*
+- * Device Tree file for the Armada 70x0 SoC, made of an AP806 Quad and
+- * one CP110.
+- */
+-
+-#include <dt-bindings/gpio/gpio.h>
+-#include "armada-common.dtsi"
+-#include "armada-8k.dtsi"
+-#include "armada-ap807.dtsi"
+-#include "armada-ap80x-quad.dtsi"
+-
+-/* CP110-0 Settings */
+-#define CP110_NAME				cp0
+-#define CP110_NUM				0
+-
+-#include "armada-cp110.dtsi"
+-
+-#undef CP110_NAME
+-#undef CP110_NUM
+-
+-/ {
+-	model = "Marvell Armada 3900";
+-	compatible = "marvell,armada70x0", "marvell,armada-ap806-quad",
+-		     "marvell,armada-ap806";
+-};
+-
+-&cp0_pinctl {
+-	compatible = "marvell,mvebu-pinctrl", "marvell,armada-8k-cpm-pinctrl";
+-	bank-name ="cp0-110";
+-
+-	cp0_i2c0_pins: cp0-i2c-pins-0 {
+-		marvell,pins = < 37 38 >;
+-		marvell,function = <2>;
+-	};
+-	cp0_i2c1_pins: cp0-i2c-pins-1 {
+-		marvell,pins = < 35 36 >;
+-		marvell,function = <2>;
+-	};
+-	cp0_ge1_rgmii_pins: cp0-ge-rgmii-pins-0 {
+-		marvell,pins = < 0 1 2 3 4 5 6 7 8 9 10 11>;
+-		marvell,function = <3>;
+-	};
+-	cp0_ge2_rgmii_pins: cp0-ge-rgmii-pins-1 {
+-		marvell,pins = < 44 45 46 47 48 49 50 51
+-				52 53 54 55 >;
+-		marvell,function = <1>;
+-	};
+-	cp0_pca0_pins: cp0-pca0_pins {
+-		marvell,pins = <62>;
+-		marvell,function = <0>;
+-	};
+-	cp0_sdhci_pins: cp0-sdhi-pins-0 {
+-		marvell,pins = < 56 57 58 59 60 61 >;
+-		marvell,function = <14>;
+-	};
+-	cp0_spi0_pins: cp0-spi-pins-0 {
+-		marvell,pins = < 13 14 15 16 >;
+-		marvell,function = <3>;
+-	};
+-};
+-- 
+2.29.0
+

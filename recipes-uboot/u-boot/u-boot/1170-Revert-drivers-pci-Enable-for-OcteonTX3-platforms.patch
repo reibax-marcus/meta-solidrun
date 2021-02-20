@@ -1,0 +1,35 @@
+From 6882b5a00cb9e698cde67e5b91b4ae9efc8f3d62 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 11 Jun 2020 00:50:35 -0700
+Subject: [PATCH 1170/1239] Revert "drivers: pci: Enable for OcteonTX3
+ platforms"
+
+This reverts commit 6d295b24de038bdea5b4c4e21d60a421e62e0951.
+
+Reason for revert: Incorrect platform name
+
+Change-Id: Ieb445a6702b9d2d8975a900956d56f7d93fc8150
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29831
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/pci/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index 0bda35b5b9..ac4c5ad7a6 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -117,7 +117,7 @@ config PCI_TEGRA
+ 
+ config PCI_OCTEONTX
+ 	bool "OcteonTX PCI support"
+-	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_OCTEONTX3)
++	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+ 	help
+ 	  Enable support for the OcteonTX/TX2 SoC family ECAM/PEM controllers.
+ 	  These controllers provide PCI configuration access to all on-board
+-- 
+2.29.0
+

@@ -1,0 +1,39 @@
+From a965e9f06f635f6ec09cf0c339b25717f11e81eb Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 23 Aug 2017 00:42:39 +0300
+Subject: [PATCH 0698/1239] ata: achi: Only print spinup and link timeout
+ messages in debug builds
+
+Reduce amount of noise printed by AHCI driver by suppressing
+some routine messages in release builds
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/ata/ahci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 28b2f633c1..965545bd5e 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -259,7 +259,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
+ 		/* Bring up SATA link. */
+ 		ret = ahci_link_up(uc_priv, i);
+ 		if (ret) {
+-			printf("SATA link %d timeout.\n", i);
++			debug("SATA link %d timeout.\n", i);
+ 			continue;
+ 		} else {
+ 			debug("SATA link ok.\n");
+@@ -292,7 +292,7 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
+ 			continue;
+ 		}
+ 
+-		printf("Target spinup took %d ms.\n", j);
++		debug("Target spinup took %d ms.\n", j);
+ 		if (j == WAIT_MS_SPINUP)
+ 			debug("timeout.\n");
+ 		else
+-- 
+2.29.0
+

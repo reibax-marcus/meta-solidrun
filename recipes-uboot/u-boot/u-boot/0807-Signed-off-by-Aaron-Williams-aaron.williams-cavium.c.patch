@@ -1,0 +1,31 @@
+From 2ab6b8e1706bd937507b40cd43919f6d51346a7b Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Fri, 20 Apr 2018 19:53:04 -0700
+Subject: [PATCH 0807/1239] Signed-off-by: Aaron Williams
+ <aaron.williams@cavium.com>
+
+Cavium: Octeontx2: Enable armv8.1 instructions needed for NIX Ethernet driver
+
+This enables support for ARMv8.2 instructions to enable ARMv8.1 instructions
+required for the NIX Ethernet driver.  It also enables tuning to the
+OcteonTX2 architecture.
+
+signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ arch/arm/mach-octeontx2/config.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
+ create mode 100644 arch/arm/mach-octeontx2/config.mk
+
+diff --git a/arch/arm/mach-octeontx2/config.mk b/arch/arm/mach-octeontx2/config.mk
+new file mode 100644
+index 0000000000..9214f6b742
+--- /dev/null
++++ b/arch/arm/mach-octeontx2/config.mk
+@@ -0,0 +1,4 @@
++ifeq ($(CONFIG_ARCH_OCTEONTX2),y)
++PLATFORM_CPPFLAGS += $(call cc-option,-march=armv8.2-a,)
++PLATFORM_CPPFLAGS += $(call cc-option,-mtune=octeontx2,)
++endif
+-- 
+2.29.0
+

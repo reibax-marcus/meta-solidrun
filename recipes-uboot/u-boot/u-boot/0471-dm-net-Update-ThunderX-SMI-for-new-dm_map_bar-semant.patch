@@ -1,0 +1,36 @@
+From b9990e6caed2b738eef712d0ad8da43cb5653ec3 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 18 May 2016 23:27:51 -0400
+Subject: [PATCH 0471/1239] dm: net: Update ThunderX SMI for new dm_map_bar()
+ semantics Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
+---
+ drivers/net/cavium/thunderx_smi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/cavium/thunderx_smi.c b/drivers/net/cavium/thunderx_smi.c
+index 6fce11bff1..2fa7c64f55 100644
+--- a/drivers/net/cavium/thunderx_smi.c
++++ b/drivers/net/cavium/thunderx_smi.c
+@@ -269,6 +269,7 @@ int thunderx_smi_reset(struct mii_dev *bus)
+ int thunderx_smi_probe(struct udevice *dev)
+ {
+ 	struct mii_dev *bus;
++	size_t size;
+ 	int ctlr, ret;
+ 
+ 	struct thunderx_smi_priv *priv;
+@@ -288,8 +289,8 @@ int thunderx_smi_probe(struct udevice *dev)
+ 
+ 		bus->priv = priv;
+ 
+-		priv->baseaddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+-						PCI_REGION_MEM) + 0x80 * ctlr;
++		priv->baseaddr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
++		priv->baseaddr += 0x80 * ctlr;
+ 		priv->mode = CLAUSE22;
+ 
+ 		priv->sample_lo = 0;
+-- 
+2.29.0
+

@@ -1,0 +1,66 @@
+From eacccbd9dabbf8e5e7226e9970105fff1aa62981 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Sun, 19 May 2019 15:04:17 +0300
+Subject: [PATCH 0154/1239] arch/arm/dts: Enable efuses on Armada-3900 boards
+
+Add aliases and enable AP and CP efuses on A3900 boards
+
+Change-Id: I6154fff4fc18aa91878730e5501c5add7861d8e0
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/9221
+Reviewed-by: Stefan Chulski <Stefan.Chulski@cavium.com>
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/armada-3900-db.dtsi | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/arch/arm/dts/armada-3900-db.dtsi b/arch/arm/dts/armada-3900-db.dtsi
+index 4470dcfa33..0ddfa65ea3 100644
+--- a/arch/arm/dts/armada-3900-db.dtsi
++++ b/arch/arm/dts/armada-3900-db.dtsi
+@@ -17,6 +17,11 @@
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+ 		spi0 = &ap_spi0;
++		fuse0 = &ap_hd_efuse0;	/* banks 0-63 RW */
++		fuse1 = &ap_ld_efuse0;	/* bank 64 RO */
++		fuse2 = &ap_ld_efuse1;	/* bank 65 RW */
++		fuse3 = &cp0_ld_efuse0;	/* bank 66 RO */
++		fuse4 = &cp0_ld_efuse1;	/* bank 67 RW */
+ 	};
+ 
+ 	memory@00000000 {
+@@ -77,9 +82,29 @@
+ 	status = "okay";
+ };
+ 
++&ap_hd_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse0 {
++	status = "okay";
++};
++
++&ap_ld_efuse1 {
++	status = "okay";
++};
++
+ /*
+  * CP related configuration
+  */
++&cp0_ld_efuse0 {
++	status = "okay";
++};
++
++&cp0_ld_efuse1 {
++	status = "okay";
++};
++
+ &cp0_nand {
+ 	nand-ecc-strength = <8>;
+ };
+-- 
+2.29.0
+

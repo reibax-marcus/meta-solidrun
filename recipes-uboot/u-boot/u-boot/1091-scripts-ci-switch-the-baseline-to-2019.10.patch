@@ -1,0 +1,28 @@
+From 1eebe8954d1bd3b410310cfae1365708aca236e8 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Sun, 9 Feb 2020 11:00:28 +0200
+Subject: [PATCH 1091/1239] scripts/ci: switch the baseline to 2019.10
+
+Change-Id: Iab3e72b35ee3e508cad548b8cebc6f19648035ac
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23116
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+---
+ scripts/ci/baseline.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/ci/baseline.txt b/scripts/ci/baseline.txt
+index 5cf19695f0..b84097cca3 100644
+--- a/scripts/ci/baseline.txt
++++ b/scripts/ci/baseline.txt
+@@ -4,4 +4,4 @@
+ #
+ # Copyright (C) 2018 Marvell International Ltd.
+ # commit id of base tag for this branch
+-f95ab1fb6e37f0601f397091bb011edf7a98b890 (tag: v2018.03) Prepare v2018.03
+\ No newline at end of file
++61ba1244b548463dbfb3c5285b6b22e7c772c5bd (tag: v2019.10) Prepare v2019.10
+-- 
+2.29.0
+

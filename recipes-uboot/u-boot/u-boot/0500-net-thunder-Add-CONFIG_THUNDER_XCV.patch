@@ -1,0 +1,93 @@
+From 6252da69b8dd49409c379e982fc3175b0b6c5039 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 7 Jun 2016 14:38:41 -0700
+Subject: [PATCH 0500/1239] net: thunder: Add CONFIG_THUNDER_XCV
+
+Added a new configuration to implement XCV (or RGX) interface.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/Makefile      | 3 ++-
+ drivers/net/cavium/thunder_bgx.c | 8 ++++++++
+ include/configs/thunderx_81xx.h  | 1 +
+ 3 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/Makefile b/drivers/net/cavium/Makefile
+index b35290b591..f806b7c594 100644
+--- a/drivers/net/cavium/Makefile
++++ b/drivers/net/cavium/Makefile
+@@ -4,6 +4,7 @@
+ # SPDX-License-Identifier:	GPL-2.0+
+ #
+ obj-y = thunder_bgx.o nic_main.o nicvf_queues.o \
+-		nicvf_main.o thunderx_smi.o thunder_xcv.o
++		nicvf_main.o thunderx_smi.o
++obj-$(CONFIG_THUNDER_XCV) += thunder_xcv.o
+ 
+ ccflags-y += -Icsr/include
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index a82e564b4d..b6ab4dc212 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -709,8 +709,10 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 				lmac->netdev.name, lmac->phydev->dev->name);
+ 		}
+ 
++#ifdef CONFIG_THUNDER_XCV
+ 		if (lmac->qlm_mode == QLM_MODE_RGMII)
+ 			xcv_setup_link(lmac->phydev->link, lmac->phydev->speed);
++#endif
+ 
+ 		lmac->link_up = lmac->phydev->link;
+ 		lmac->last_speed = lmac->phydev->speed;
+@@ -1044,6 +1046,7 @@ int thunderx_bgx_probe(struct udevice *dev)
+ 
+ 	bgx->reg_base = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
+ 
++#ifdef CONFIG_THUNDER_XCV
+ 	/* Use FAKE BGX2 for RGX interface */
+ 	if ((((uintptr_t)bgx->reg_base >> 24) & 0xf) == 0x8) {
+ 		bgx->bgx_id = 2;
+@@ -1058,6 +1061,7 @@ int thunderx_bgx_probe(struct udevice *dev)
+ 		}
+ 		goto skip_qlm_config;
+ 	}
++#endif
+ 
+ 	node = node_id(bgx->reg_base);
+ 	bgx_idx = ((uintptr_t)bgx->reg_base >> 24) & 1;
+@@ -1080,7 +1084,9 @@ int thunderx_bgx_probe(struct udevice *dev)
+ 		bgx->lmac[lmac].lmacid = lmac;
+ 	}
+ 
++#ifdef CONFIG_THUNDER_XCV
+ skip_qlm_config:
++#endif
+ 	bgx_vnic[bgx->bgx_id] = bgx;
+ 	bgx_get_qlm_mode(bgx);
+ 	debug("bgx_vnic[%u]: %p\n", bgx->bgx_id, bgx);
+@@ -1122,7 +1128,9 @@ U_BOOT_DRIVER(thunderx_bgx) = {
+ 
+ static struct pci_device_id thunderx_bgx_supported[] = {
+ 	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_BGX) },
++#ifdef CONFIG_THUNDER_XCV
+ 	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_RGX) },
++#endif
+ 	{}
+ };
+ 
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index b315208e3a..9d2fc72c27 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -116,6 +116,7 @@
+ 
+ /* Net */
+ #define CONFIG_THUNDERX_BGX
++#define CONFIG_THUNDERX_XCV
+ #define CONFIG_THUNDERX_SMI
+ #define CONFIG_THUNDERX_VNIC
+ #define CONFIG_RANDOM_MACADDR
+-- 
+2.29.0
+

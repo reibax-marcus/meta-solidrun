@@ -1,0 +1,63 @@
+From eb88c8a23946bc01a2f8bf7c1542224ed12f02c1 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Sat, 12 Aug 2017 00:10:30 -0700
+Subject: [PATCH 0689/1239] Enable PCIe to be initialized before the
+ environment is initialized.
+
+This allows eMMC and SPI to be initialized before the environment is loaded
+when not loaded from ATF.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 7 +++++++
+ include/configs/thunderx_83xx.h | 9 +++++++--
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 629d95898e..4edbb373b7 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -188,6 +188,13 @@
+ #define CONFIG_FS_EXT4
+ 
+ /* PCIe */
++
++/**
++ * Perform early PCIe initialization before SPI and eMMC are used for the
++ * environment.
++ */
++#define CONFIG_SYS_EARLY_PCI_INIT
++
+ /** Show devices found on PCI bus */
+ #define CONFIG_PCI_SCAN_SHOW
+ #undef CONFIG_PCI_ENUM_ONLY
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index cad22dcc96..8f171ed9c9 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -7,8 +7,6 @@
+ #ifndef __THUNDERX_83XX_H__
+ #define __THUNDERX_83XX_H__
+ 
+-#define DEBUG
+-
+ /** Thunder 83xx does not support NOR flash */
+ #define CONFIG_SYS_NO_FLASH
+ 
+@@ -170,6 +168,13 @@
+ #define CONFIG_SYS_NVME_MAX_DEVICE 64
+ 
+ /* PCIe */
++
++/**
++ * Perform early PCIe initialization before SPI and eMMC are used for the
++ * environment.
++ */
++#define CONFIG_SYS_EARLY_PCI_INIT
++
+ /** Show devices found on PCI bus */
+ #define CONFIG_PCI_SCAN_SHOW
+ #undef CONFIG_PCI_ENUM_ONLY
+-- 
+2.29.0
+

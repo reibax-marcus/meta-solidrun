@@ -1,0 +1,80 @@
+From c0462df6c11457dc4c466bfe4f88202c6ed9c707 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 2 Nov 2016 17:03:33 -0700
+Subject: [PATCH 0550/1239] Minor cleanup to formatting
+
+Signed-off-by: Aaron Williams <Aaron.Williams@cavium.com>
+---
+ drivers/pci/pci_thunderx_ecam.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/pci/pci_thunderx_ecam.c b/drivers/pci/pci_thunderx_ecam.c
+index 33313d720b..43b4a34492 100644
+--- a/drivers/pci/pci_thunderx_ecam.c
++++ b/drivers/pci/pci_thunderx_ecam.c
+@@ -31,8 +31,8 @@ struct thunderx_pci {
+ };
+ 
+ static int pci_thunderx_ecam_read_config(struct udevice *bus, pci_dev_t bdf,
+-				 uint offset, ulong *valuep,
+-				 enum pci_size_t size)
++					 uint offset, ulong *valuep,
++					 enum pci_size_t size)
+ {
+ 	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
+ 	struct pci_controller *hose = dev_get_uclass_priv(bus);
+@@ -67,8 +67,8 @@ static int pci_thunderx_ecam_read_config(struct udevice *bus, pci_dev_t bdf,
+ }
+ 
+ static int pci_thunderx_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
+-				 uint offset, ulong valuep,
+-				 enum pci_size_t size)
++					 uint offset, ulong valuep,
++					 enum pci_size_t size)
+ {
+ 	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
+ 	struct pci_controller *hose = dev_get_uclass_priv(bus);
+@@ -103,8 +103,8 @@ static int pci_thunderx_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
+ }
+ 
+ static int pci_thunderx_pem_read_config(struct udevice *bus, pci_dev_t bdf,
+-				 uint offset, ulong *valuep,
+-				 enum pci_size_t size)
++					uint offset, ulong *valuep,
++					enum pci_size_t size)
+ {
+ 	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
+ 	struct pci_controller *hose = dev_get_uclass_priv(bus);
+@@ -157,8 +157,8 @@ static int pci_thunderx_pem_read_config(struct udevice *bus, pci_dev_t bdf,
+ }
+ 
+ static int pci_thunderx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
+-				 uint offset, ulong value,
+-				 enum pci_size_t size)
++					 uint offset, ulong value,
++					 enum pci_size_t size)
+ {
+ 	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
+ 	struct pci_controller *hose = dev_get_uclass_priv(bus);
+@@ -218,14 +218,16 @@ static int pci_thunderx_ecam_probe(struct udevice *dev)
+ 	struct thunderx_pci *pcie = (void *)dev_get_priv(dev);
+ 	int err;
+ 
+-	err = fdt_get_resource(gd->fdt_blob, dev->of_offset, "reg", 0, &pcie->cfg);
++	err = fdt_get_resource(gd->fdt_blob, dev->of_offset, "reg", 0,
++			       &pcie->cfg);
+ 
+ 	if (err) {
+ 		printf("Error reading resource: %s\n", fdt_strerror(err));
+ 		return err;
+ 	}
+ 
+-	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->of_offset, &pcie->bus);
++	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->of_offset,
++				       &pcie->bus);
+ 
+ 	if (err) {
+ 		printf("Error reading resource: %s\n", fdt_strerror(err));
+-- 
+2.29.0
+

@@ -1,0 +1,33 @@
+From bcfe021a2ee78056fbb873d26c0622fd932e1627 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Thu, 5 Mar 2020 16:14:53 -0800
+Subject: [PATCH 1113/1239] mmc: octeontx: Set dat_null when clearing failed
+ block operation
+
+When a DMA transaction fails the dat_null should be set when clearing
+the operation.
+
+Change-Id: Ib7b595ec8c042777be89db7c0eef246754846190
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/24564
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index 9c16833b24..3e470ce358 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -1061,6 +1061,7 @@ static int octeontx_mmc_wait_dma(struct mmc *mmc, bool write, ulong timeout,
+ 				pr_err("%s: Trying DMA resume...\n", __func__);
+ 			}
+ 			emm_dma.s.dma_val = 1;
++			emm_dma.s.dat_null = 1;
+ 			write_csr(mmc, MIO_EMM_DMA(), emm_dma.u);
+ 		} else if (!rsp_sts.s.dma_val && emm_dma_int.s.done) {
+ 			break;
+-- 
+2.29.0
+

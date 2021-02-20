@@ -1,0 +1,76 @@
+From bd1f19bfdbf21fd871fccfc50032174ca1302503 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 29 May 2017 16:02:00 +0300
+Subject: [PATCH 0102/1239] arm64: mvebu: a8k: Turn off regulators on early
+ board init
+
+Scan the device tree for regulators that should be powered
+off during boot stage and turn them off.
+This action is done before COMPHY probe since some USB devices
+requre that VBUS was turned OFF prior to SERDES initialization
+
+Change-Id: I7acc2df7153d84c128c90f0f710dd274eb14648a
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ arch/arm/mach-mvebu/arm64-common.c    |  1 +
+ board/Marvell/mvebu_armada-8k/board.c | 11 +++++++++++
+ include/configs/mvebu_armada-8k.h     |  2 ++
+ 3 files changed, 14 insertions(+)
+
+diff --git a/arch/arm/mach-mvebu/arm64-common.c b/arch/arm/mach-mvebu/arm64-common.c
+index aaf7b7c447..5c6e26fa54 100644
+--- a/arch/arm/mach-mvebu/arm64-common.c
++++ b/arch/arm/mach-mvebu/arm64-common.c
+@@ -14,6 +14,7 @@
+ #include <asm/arch/cpu.h>
+ #include <asm/arch/soc.h>
+ #include <asm/armv8/mmu.h>
++#include <power/regulator.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+diff --git a/board/Marvell/mvebu_armada-8k/board.c b/board/Marvell/mvebu_armada-8k/board.c
+index a1a4996f64..cd385a8393 100644
+--- a/board/Marvell/mvebu_armada-8k/board.c
++++ b/board/Marvell/mvebu_armada-8k/board.c
+@@ -9,6 +9,7 @@
+ #include <asm/io.h>
+ #include <asm/arch/cpu.h>
+ #include <asm/arch/soc.h>
++#include <power/regulator.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -19,6 +20,16 @@ int board_early_init_f(void)
+ 	return 0;
+ }
+ 
++int board_early_init_r(void)
++{
++#ifdef CONFIG_DM_REGULATOR
++	/* Check if any existing regulator should be turned down */
++	regulators_enable_boot_off(false);
++#endif
++
++	return 0;
++}
++
+ int board_init(void)
+ {
+ 	/* adress of boot parameters */
+diff --git a/include/configs/mvebu_armada-8k.h b/include/configs/mvebu_armada-8k.h
+index 27b77beb9c..1b2d32db9f 100644
+--- a/include/configs/mvebu_armada-8k.h
++++ b/include/configs/mvebu_armada-8k.h
+@@ -19,6 +19,8 @@
+ /* When runtime detection fails this is the default */
+ #define CONFIG_SYS_MMC_ENV_DEV		0
+ 
++#define CONFIG_BOARD_EARLY_INIT_R
++
+ #define CONFIG_SYS_MAX_NAND_DEVICE	1
+ #define CONFIG_SYS_NAND_MAX_CHIPS	1
+ #define CONFIG_SYS_NAND_ONFI_DETECTION
+-- 
+2.29.0
+

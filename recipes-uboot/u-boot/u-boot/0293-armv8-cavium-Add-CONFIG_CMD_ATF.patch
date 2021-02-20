@@ -1,0 +1,48 @@
+From ac8151dbdbf7d4460898b7ec20c5468bf55ad191 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
+Date: Fri, 13 Mar 2015 18:19:35 +0300
+Subject: [PATCH 0293/1239] armv8: cavium: Add CONFIG_CMD_ATF
+
+---
+ include/configs/thunderx_88xx.h | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 6623172b06..9dd6480a4c 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -54,6 +54,31 @@
+ /* Command line configuration */
+ #define CONFIG_MENU
+ 
++/*#define CONFIG_MENU_SHOW*/
++#define CONFIG_CMD_CACHE
++#define CONFIG_CMD_BDI
++#define CONFIG_CMD_DIAG
++#define CONFIG_CMD_ENV
++#define CONFIG_CMD_FLASH
++#define CONFIG_CMD_IMI
++#define CONFIG_CMD_MEMORY
++#define CONFIG_CMD_RUN
++#define CONFIG_CMD_BOOTD
++#define CONFIG_CMD_ECHO
++#define CONFIG_CMD_SOURCE
++#define CONFIG_CMD_ATF
++
++#define CONFIG_CMD_LOADB
++#define CONFIG_CMD_LOADS
++#define CONFIG_CMD_SAVES
++
++/* Partition systems */
++#define CONFIG_DOS_PARTITION
++#define CONFIG_EFI_PARTITION
++#define CONFIG_PARTITION_UUIDS
++
++#define CONFIG_SYS_CACHELINE_SIZE 128
++
+ #define CONFIG_THUNDERX_VNIC
+ 
+ /* BOOTP options */
+-- 
+2.29.0
+

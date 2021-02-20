@@ -1,0 +1,40 @@
+From 789061e7021c960d6f7cce80e72dd87cc38be0d4 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Sat, 20 Feb 2016 14:01:21 -0800
+Subject: [PATCH 0383/1239] thunderx: Add new #defines to accomodate BDK FDT
+
+Routines passing FDT from BDK introduce new CONFIG_BDK_FDT_START
+and CONFIG_BDK_FDT_SIZE configuration parameters. This commit sets them
+to reasonable values
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ include/configs/thunderx_88xx.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index eaddbf22a5..8b0c345d2d 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -173,6 +173,8 @@
+ #define CONFIG_CMD_ATF
+ #define CONFIG_CMD_PCI
+ 
++#define CONFIG_CMD_NET
++
+ /* AHCI support Definitions */
+ #ifdef CONFIG_CMD_SATA
+   #define CONFIG_SATA_AHCI
+@@ -268,6 +270,9 @@
+ #define CONFIG_ENV_SIZE			0x80000
+ #define CONFIG_ENV_OFFSET		0xf00000
+ 
++#define CONFIG_BDK_FDT_START		0xa00000
++#define CONFIG_BDK_FDT_SIZE		0x10000
++
+ #define CONFIG_SYS_I2C
+ #define CONFIG_SYS_I2C_THUNDERX
+ #define CONFIG_SYS_I2C_THUNDERX_SPEED_0	100000
+-- 
+2.29.0
+

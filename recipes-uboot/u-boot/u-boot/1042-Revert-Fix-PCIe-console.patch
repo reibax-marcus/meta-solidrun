@@ -1,0 +1,32 @@
+From fe1b9119124c8123ee7673fae1e4f4dafd850559 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 18 Dec 2019 14:31:47 -0800
+Subject: [PATCH 1042/1239] Revert "Fix PCIe console"
+
+This reverts commit ba55b0ae73a8a4d59472ee81c8f98ed78efb67c8.
+Helps to fix crash to boot Linux.
+
+Change-Id: I81c4ce28b00532c7e1e1273be39ee47be4d730a4
+Reviewed-on: https://sj1git1.cavium.com/20526
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx2/board.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 9e34860f38..c15e970479 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -23,7 +23,7 @@
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+ #define BOOTCMD_NAME	"pci-bootcmd"
+-#define CONSOLE_NAME	"pci-console@0"
++#define CONSOLE_NAME	"pci-console"
+ 
+ extern unsigned long fdt_base_addr;
+ extern void cgx_intf_shutdown(void);
+-- 
+2.29.0
+

@@ -1,0 +1,28 @@
+From 5305ce95430d656db63a46097fdb9d1993f85f83 Mon Sep 17 00:00:00 2001
+From: Nithya <nithya.mani@caviumnetworks.com>
+Date: Thu, 19 Jan 2017 13:51:17 -0800
+Subject: [PATCH 0601/1239] bgx: xaui fix
+
+This patch fixes typo in xaui init code
+
+Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index c57b04db2c..7f52fe12fd 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -754,7 +754,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
+ 	}
+ 
+ 	/* Receive link is latching low. Force it high and verify it */
+-	if (!(bgx_reg_read(bgx, lmacid, BGX_SPUX_STATUS1 & SPU_STATUS1_RCV_LNK)))
++	if (!(bgx_reg_read(bgx, lmacid, BGX_SPUX_STATUS1) & SPU_STATUS1_RCV_LNK))
+ 		bgx_reg_modify(bgx, lmacid, BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
+ 	if (bgx_poll_reg(bgx, lmacid, BGX_SPUX_STATUS1,
+ 			 SPU_STATUS1_RCV_LNK, false)) {
+-- 
+2.29.0
+

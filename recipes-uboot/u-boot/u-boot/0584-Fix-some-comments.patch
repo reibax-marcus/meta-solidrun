@@ -1,0 +1,35 @@
+From ccb024994cad419af871556094e46cf524d575e6 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Thu, 5 Jan 2017 21:11:13 -0800
+Subject: [PATCH 0584/1239] Fix some comments.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/mmc/cavium_mmc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mmc/cavium_mmc.c b/drivers/mmc/cavium_mmc.c
+index 6a2b002eda..9a9cc75d6a 100644
+--- a/drivers/mmc/cavium_mmc.c
++++ b/drivers/mmc/cavium_mmc.c
+@@ -5505,7 +5505,7 @@ int mmc_initialize(bd_t *bis)
+ 		debug("%s: Printing devices\n", __func__);
+ 		print_mmc_devices(',');
+ 	} else {
+-		printf("not available\n");
++		printf("MMC not available\n");
+ 	}
+ 	debug("%s: exit(%d)\n", __func__, rc);
+ 	return found ? 0 : rc;
+@@ -5630,7 +5630,7 @@ int mmc_start_init(struct mmc *mmc)
+ 		err = mmc_send_op_cond(mmc);
+ 
+ 		if (err) {
+-			printf("Card did not respond to voltage select!\n");
++			debug("Card did not respond to voltage select!\n");
+ 
+ 			return UNUSABLE_ERR;
+ 		}
+-- 
+2.29.0
+

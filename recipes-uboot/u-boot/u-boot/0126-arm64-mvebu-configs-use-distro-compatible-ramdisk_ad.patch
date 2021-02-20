@@ -1,0 +1,42 @@
+From 069afe7bb3e30d4066c03b9de43159b1dd5a5eb4 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Fri, 1 Dec 2017 07:53:31 +0100
+Subject: [PATCH 0126/1239] arm64: mvebu: configs: use distro compatible
+ 'ramdisk_addr_r'
+
+Change-Id: I795b546fa03f8aa33125a05e4a98d0fe2c99b323
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ include/configs/mvebu_armada-common.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index d598eeb84d..0642a4d0e9 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -33,7 +33,7 @@
+ 					"loadaddr=0x5000000\0"		\
+ 					"fdt_high=0xffffffffffffffff\0"	\
+ 					"hostname=marvell\0"		\
+-					"ramfs_addr=0x8000000\0"	\
++					"ramdisk_addr_r=0x8000000\0"	\
+ 					"ramfs_name=-\0"		\
+ 					"fdt_name=fdt.dtb\0"		\
+ 					"netdev=eth0\0"			\
+@@ -44,10 +44,10 @@
+ 					"image_name=Image\0"		\
+ 					"get_ramfs=if test \"${ramfs_name}\"" \
+ 						" != \"-\"; then setenv " \
+-						"ramfs_addr 0x8000000; " \
+-						"tftpboot $ramfs_addr " \
++						"ramdisk_addr_r 0x8000000; " \
++						"tftpboot $ramdisk_addr_r " \
+ 						"$ramfs_name; else setenv " \
+-						"ramfs_addr -;fi\0"	\
++						"ramdisk_addr_r -;fi\0"	\
+ 					"get_images=tftpboot $kernel_addr " \
+ 						"$image_name; tftpboot " \
+ 						"$fdt_addr_r $fdt_name; " \
+-- 
+2.29.0
+

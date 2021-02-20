@@ -1,0 +1,24 @@
+From ca6a2bf79632946634268bfa35466db91155d6d2 Mon Sep 17 00:00:00 2001
+From: Xabier Marquiegui <xmarquiegui@ainguraiiot.com>
+Date: Thu, 18 Feb 2021 09:46:53 +0100
+Subject: [PATCH] Do not force gcc as a buildtool
+
+This forces the use of the native machine gcc toolchain when trying to
+cross-compile in yocto
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index e69cdfe..c2c3ac0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -143,7 +143,7 @@ obj-$(CONFIG_SPL_BUILD) += xor.o
+ # ******************************
+ else ifneq ($(TOOL),)
+ 
+-CC       = gcc
++#CC       = gcc
+ RM       = @rm -rf
+ ECHO     = @echo
+ 

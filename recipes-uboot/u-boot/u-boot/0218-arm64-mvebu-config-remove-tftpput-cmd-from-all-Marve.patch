@@ -1,0 +1,97 @@
+From 95718556dedd3cab71584b4c5efbacf95a6a69bb Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Mon, 26 Nov 2018 12:44:09 +0100
+Subject: [PATCH 0218/1239] arm64: mvebu: config: remove tftpput cmd from all
+ Marvell defconfigs
+
+Marvell validation team uses pre-build binaries (built automatically with
+use of default defconfigs). Their builtin tool uses non-existing in
+U-Boot "tftp" cmd instead of "tftpboot". Leaving only tftpboot cmd enabled,
+allows U-Boot to treat "tftp" as "tftpboot" which solves their problem.
+
+Change-Id: I516cf02f73576a4eab4a4fb027b1b5de0b269d30
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ configs/clearfog_defconfig                  | 1 -
+ configs/mvebu_db-88f3720_defconfig          | 1 -
+ configs/mvebu_db_armada8k_defconfig         | 1 -
+ configs/mvebu_espressobin-88f3720_defconfig | 1 -
+ configs/mvebu_mcbin-88f8040_defconfig       | 1 -
+ configs/mvebu_ucpe-88f8040_defconfig        | 1 -
+ 6 files changed, 6 deletions(-)
+
+diff --git a/configs/clearfog_defconfig b/configs/clearfog_defconfig
+index ebfe3cf158..9071dd75fe 100644
+--- a/configs/clearfog_defconfig
++++ b/configs/clearfog_defconfig
+@@ -35,7 +35,6 @@ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
+ # CONFIG_CMD_SETEXPR is not set
+-CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ # CONFIG_SPL_PARTITION_UUIDS is not set
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index 3a36871a9e..17e84892eb 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -28,7 +28,6 @@ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
+ # CONFIG_CMD_SETEXPR is not set
+-CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index 80ff4ba461..be936b230b 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -33,7 +33,6 @@ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
+ # CONFIG_CMD_SETEXPR is not set
+-CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
+diff --git a/configs/mvebu_espressobin-88f3720_defconfig b/configs/mvebu_espressobin-88f3720_defconfig
+index 6aefa391bb..864d730a35 100644
+--- a/configs/mvebu_espressobin-88f3720_defconfig
++++ b/configs/mvebu_espressobin-88f3720_defconfig
+@@ -28,7 +28,6 @@ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
+ # CONFIG_CMD_SETEXPR is not set
+-CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
+diff --git a/configs/mvebu_mcbin-88f8040_defconfig b/configs/mvebu_mcbin-88f8040_defconfig
+index 07cc8d4508..2ba7d013d3 100644
+--- a/configs/mvebu_mcbin-88f8040_defconfig
++++ b/configs/mvebu_mcbin-88f8040_defconfig
+@@ -31,7 +31,6 @@ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
+ # CONFIG_CMD_SETEXPR is not set
+-CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
+diff --git a/configs/mvebu_ucpe-88f8040_defconfig b/configs/mvebu_ucpe-88f8040_defconfig
+index 965899d9fd..bc9afbbc86 100644
+--- a/configs/mvebu_ucpe-88f8040_defconfig
++++ b/configs/mvebu_ucpe-88f8040_defconfig
+@@ -26,7 +26,6 @@ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+ CONFIG_CMD_USB=y
+ # CONFIG_CMD_SETEXPR is not set
+-CONFIG_CMD_TFTPPUT=y
+ CONFIG_CMD_CACHE=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_MVEBU_BUBT=y
+-- 
+2.29.0
+

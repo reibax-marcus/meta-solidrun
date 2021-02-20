@@ -1,0 +1,146 @@
+From e91245981fe0c7e5d0e0719529ab647b2a76efda Mon Sep 17 00:00:00 2001
+From: Sujeet Baranwal <sbaranwal@marvell.com>
+Date: Tue, 3 Dec 2019 13:00:05 -0800
+Subject: [PATCH 1020/1239] fdt: Addition of mac number in board specific node
+
+mac number is a property that is inherited from cavium,bdk node
+to new node octeontx_brd.
+
+In addition, logic is modified to make the code iterative. In
+case of new addition of properties from cavium,bdk node, the
+array needs to be populated with the new property entry.
+
+Bug: IPBUCE-914
+
+Change-Id: I597795ce17e59b3ac9751bd2a664ad525f909e80
+Signed-off-by: Sujeet Baranwal <sbaranwal@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19763
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx2/board-fdt.c | 82 +++++++++--------------------
+ 1 file changed, 26 insertions(+), 56 deletions(-)
+
+diff --git a/board/Marvell/octeontx2/board-fdt.c b/board/Marvell/octeontx2/board-fdt.c
+index 5e7f6a6ce6..c975bcdf71 100644
+--- a/board/Marvell/octeontx2/board-fdt.c
++++ b/board/Marvell/octeontx2/board-fdt.c
+@@ -147,11 +147,17 @@ int arch_fixup_memory_node(void *blob)
+ 
+ int ft_board_setup(void *blob, bd_t *bd)
+ {
+-	int nodeoff, node, ret;
+-	const char *board_model, *board_rev;
+-	const char *board_mac_addr, *board_serial;
+-	char temp_brd_mdl[32], temp_brd_mac[32];
+-	char temp_brd_srl[32], temp_brd_rev[32];
++	int nodeoff, node, ret, i;
++	const char *temp;
++
++	static const char * const
++		octeontx_brd_nodes[] = {"BOARD-MODEL",
++					"BOARD-SERIAL",
++					"BOARD-MAC-ADDRESS",
++					"BOARD-REVISION",
++					"BOARD-MAC-ADDRESS-NUM"
++					};
++	char nodes[ARRAY_SIZE(octeontx_brd_nodes)][32];
+ 
+ 	ret = fdt_check_header(blob);
+ 	if (ret < 0) {
+@@ -166,38 +172,13 @@ int ft_board_setup(void *blob, bd_t *bd)
+ 			return nodeoff;
+ 		}
+ 
+-		/* Collect all relevant info for the board that is needed */
+-		board_model = fdt_getprop(blob, nodeoff, "BOARD-MODEL", NULL);
+-		if (!board_model) {
+-			printf("Can't find BOARD-MODEL\n");
+-			return -ENOENT;
++		/* Read properties in temporary variables */
++		for (i = 0; i < ARRAY_SIZE(octeontx_brd_nodes); i++) {
++			temp = fdt_getprop(blob, nodeoff,
++					   octeontx_brd_nodes[i], NULL);
++			strncpy(nodes[i], temp, sizeof(nodes[i]));
+ 		}
+ 
+-		board_serial = fdt_getprop(blob, nodeoff, "BOARD-SERIAL", NULL);
+-		if (!board_serial) {
+-			printf("Can't find BOARD-SERIAL\n");
+-			return -ENOENT;
+-		}
+-
+-		board_mac_addr = fdt_getprop(blob, nodeoff,
+-					     "BOARD-MAC-ADDRESS", NULL);
+-		if (!board_mac_addr) {
+-			printf("Can't find BOARD-MAC-ADDRESS\n");
+-			return -ENOENT;
+-		}
+-
+-		board_rev = fdt_getprop(blob, nodeoff, "BOARD-REVISION", NULL);
+-		if (!board_rev) {
+-			printf("Can't find BOARD-REVISION\n");
+-			return -ENOENT;
+-		}
+-
+-		/* Hold in temprary storage */
+-		strncpy(temp_brd_mdl, board_model, sizeof(temp_brd_mdl));
+-		strncpy(temp_brd_srl, board_serial, sizeof(temp_brd_srl));
+-		strncpy(temp_brd_mac, board_mac_addr, sizeof(temp_brd_mac));
+-		strncpy(temp_brd_rev, board_rev, sizeof(temp_brd_rev));
+-
+ 		/* Delete cavium,bdk node */
+ 		ret = fdt_del_node(blob, nodeoff);
+ 		if (ret < 0) {
+@@ -205,7 +186,6 @@ int ft_board_setup(void *blob, bd_t *bd)
+ 			return ret;
+ 		}
+ 		debug("%s deleted 'cavium,bdk' node\n", __func__);
+-
+ 		/*
+ 		 * Add a new node at root level which would have
+ 		 * necessary info
+@@ -216,30 +196,20 @@ int ft_board_setup(void *blob, bd_t *bd)
+ 			       fdt_strerror(node));
+ 			return -EIO;
+ 		}
+-		if (fdt_setprop_string(blob, node, "BOARD-SERIAL",
+-				       temp_brd_srl)) {
+-			puts("Can't set BOARD-SERIAL\n");
+-			return -EIO;
+-		}
+-		if (fdt_setprop_string(blob, node,
+-				       "BOARD-MAC-ADDRESS", temp_brd_mac)) {
+-			puts("Can't set BOARD-MAC-ADDRESS\n");
+-			return -EIO;
+-		}
+-		if (fdt_setprop_string(blob, node,
+-				       "BOARD-REVISION", temp_brd_rev)) {
+-			puts("Can't set BOARD-REVISION\n");
+-			return -EIO;
+-		}
+-		if (fdt_setprop_string(blob, node,
+-				       "BOARD-MODEL", temp_brd_mdl)) {
+-			puts("Cannot set BOARD-MODEL\n");
+-			return -EIO;
++
++		/* Populate properties in node */
++		for (i = 0; i < ARRAY_SIZE(octeontx_brd_nodes); i++) {
++			if (fdt_setprop_string(blob, node,
++					       octeontx_brd_nodes[i],
++					       nodes[i])) {
++				printf("Can't set %s\n", nodes[i]);
++				return -EIO;
++			}
+ 		}
+ 	}
++
+ 	return 0;
+ }
+-
+ /**
+  * Return the FDT base address that was passed by ATF
+  *
+-- 
+2.29.0
+

@@ -1,0 +1,31 @@
+From 1510bbf2688f2263524f0ea5d920cb7916be28fd Mon Sep 17 00:00:00 2001
+From: Guo Yi <yi.guo@cavium.com>
+Date: Thu, 20 Aug 2020 10:58:14 -0700
+Subject: [PATCH 1206/1239] configs: 98xx: Add Winbond SPI flash support
+
+CN98xx-CRB has Winbond SPI flash.
+
+Change-Id: I13043559ace5142dd65f996a17e84ef768c36b3f
+Signed-off-by: Guo Yi <yi.guo@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/34322
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ configs/octeontx2_98xx_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/octeontx2_98xx_defconfig b/configs/octeontx2_98xx_defconfig
+index eeac2b1efc..08309a461a 100644
+--- a/configs/octeontx2_98xx_defconfig
++++ b/configs/octeontx2_98xx_defconfig
+@@ -91,6 +91,7 @@ CONFIG_SPI_FLASH_SFDP_SUPPORT=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_PHYLIB=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_VITESSE=y
+-- 
+2.29.0
+

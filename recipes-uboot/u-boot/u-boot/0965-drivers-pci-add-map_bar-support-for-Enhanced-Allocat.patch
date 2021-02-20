@@ -1,0 +1,396 @@
+From 379cee263cd3d27fa969d1240fa53b8e792254e2 Mon Sep 17 00:00:00 2001
+From: Alex Marginean <alexm.osslist@gmail.com>
+Date: Fri, 7 Jun 2019 11:24:23 +0300
+Subject: [PATCH 0965/1239] drivers: pci: add map_bar support for Enhanced
+ Allocation
+
+Makes dm_pci_map_bar API available for integrated PCI devices that
+support Enhanced Allocation instead of the original PCI BAR mechanism.
+
+Change-Id: I438eaf132095530fa36f50ef429733d0d5a98fe6
+Signed-off-by: Alex Marginean <alexm.osslist@gmail.com>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Reviewed-on: https://sj1git1.cavium.com/17191
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Aaron Williams <awilliams@marvell.com>
+---
+ drivers/pci/pci-uclass.c | 210 +++++++++++++--------------------------
+ include/pci.h            | 105 ++++++--------------
+ 2 files changed, 100 insertions(+), 215 deletions(-)
+
+diff --git a/drivers/pci/pci-uclass.c b/drivers/pci/pci-uclass.c
+index e82834ea8f..f23886d453 100644
+--- a/drivers/pci/pci-uclass.c
++++ b/drivers/pci/pci-uclass.c
+@@ -1353,168 +1353,96 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
+ 	return bus_addr;
+ }
+ 
+-/* Read an Enhanced Allocation (EA) entry */
+-static int dm_pci_ea_entry_read(struct udevice *dev, int offset, int *bei,
+-				pci_addr_t *start, size_t *size)
++static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
++			       int ea_off, struct pci_child_platdata *pdata)
+ {
+-	u32 base;
+-	u32 max_offset;
+-	u8  prop;
+-	int ent_offset = offset;
+-	int ent_size;
+-	u32 dw0;
+-
+-	dm_pci_read_config32(dev, ent_offset, &dw0);
+-
+-	debug("%s: %d: dw0: %lx\n", __func__, __LINE__, (unsigned long)dw0);
+-
+-	ent_offset += sizeof(u32);
+-
+-	/* Entry size field indicates DWORDs after 1st */
+-	ent_size = ((dw0 & PCI_EA_ES) + 1) * sizeof(u32);
+-
+-	if (!(dw0 & PCI_EA_ENABLE))
+-		goto out;
+-	*bei = PCI_EA_BEI(dw0);
+-
+-	prop = PCI_EA_PP(dw0);
+-
+-	debug("EA property: %x\n", prop);
+-
+-	/*
+-	* If the Property is in the reserved range, try the Secondary
+-	* Property instead.
+-	*/
+-	if (prop > PCI_EA_P_BRIDGE_IO && prop < PCI_EA_P_MEM_RESERVED)
+-		prop = PCI_EA_SP(dw0);
+-	if (prop > PCI_EA_P_BRIDGE_IO)
+-		goto out;
+-
+-	debug("EA property: %x\n", prop);
+-
+-	/* Read Base */
+-	dm_pci_read_config32(dev, ent_offset, &base);
+-	ent_offset += sizeof(u32);
+-	*start = (pci_addr_t)base & PCI_EA_FIELD_MASK;
+-
+-	/* Read MaxOffset */
+-	dm_pci_read_config32(dev, ent_offset, &max_offset);
+-	ent_offset += sizeof(u32);
+-
+-	/* Read Base MSBs (if 64-bit entry) */
+-	if (base & PCI_EA_IS_64) {
+-		dm_pci_read_config32(dev, ent_offset, &base);
+-		ent_offset += sizeof(u32);
+-
+-		*start |= (pci_addr_t)base << 32;
+-	}
+-
+-	debug("EA (%u,%u) start = %lx\n", PCI_EA_BEI(dw0), prop,
+-	      (unsigned long)*start);
+-
+-	*size = ((size_t)max_offset | 0x03) + 1;
+-
+-	/* Read MaxOffset MSBs (if 64-bit entry) */
+-	if (max_offset & PCI_EA_IS_64) {
+-		dm_pci_read_config32(dev, ent_offset, &max_offset);
+-		ent_offset += sizeof(u32);
+-
+-		*size |= (size_t)max_offset << 32;
+-	}
+-
+-	debug("EA (%u,%u) size = %lx\n", PCI_EA_BEI(dw0), prop,
+-	      (unsigned long)*size);
+-
+-	if (*start + *size < *start) {
+-		*size = 0;
+-		*start = 0;
+-		printf("EA Entry crosses address boundary\n");
+-		goto out;
+-	}
+-
+-	if (ent_size != ent_offset - offset) {
+-		printf("EA Entry Size (%d) does not match length read (%d)\n",
+-			ent_size, ent_offset - offset);
+-		goto out;
+-	}
+-
+-out:
+-	return offset + ent_size;
+-}
++	int ea_cnt, i, entry_size;
++	int bar_id = (bar - PCI_BASE_ADDRESS_0) >> 2;
++	u32 ea_entry;
++	phys_addr_t addr;
+ 
+-/* Read an Enhanced Allocation (EA) BAR */
+-int dm_pci_ea_bar_read(struct udevice *dev, int bar, pci_addr_t *start,
+-		       size_t *size)
+-{
+-	int ea;
+-	int offset;
+-	u8  num_ent;
+-	u8  hdr_type;
+-	int i, bei = -1;
++	/* In case of Virtual Function devices, device is Physical function,
++	 * so pdata will point to required VF specific info
++	 */
++	if (pdata->is_virtfn)
++		bar_id += PCI_EA_BEI_VF_BAR0;
+ 
+-	ea = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
++	/* EA capability structure header */
++	dm_pci_read_config32(dev, ea_off, &ea_entry);
++	ea_cnt = (ea_entry >> 16) & PCI_EA_NUM_ENT_MASK;
++	ea_off += PCI_EA_FIRST_ENT;
+ 
+-	dm_pci_read_config8(dev, ea + PCI_EA_NUM_ENT, &num_ent);
+-	num_ent &= PCI_EA_NUM_ENT_MASK;
++	for (i = 0; i < ea_cnt; i++, ea_off += entry_size) {
++		/* Entry header */
++		dm_pci_read_config32(dev, ea_off, &ea_entry);
++		entry_size = ((ea_entry & PCI_EA_ES) + 1) << 2;
+ 
+-	offset = ea + PCI_EA_FIRST_ENT;
++		if (((ea_entry & PCI_EA_BEI) >> 4) != bar_id)
++			continue;
+ 
+-	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &hdr_type);
++		/* Base address, 1st DW */
++		dm_pci_read_config32(dev, ea_off + 4, &ea_entry);
++		addr = ea_entry & PCI_EA_FIELD_MASK;
++		if (ea_entry & PCI_EA_IS_64) {
++			/* Base address, 2nd DW, skip over 4B MaxOffset */
++			dm_pci_read_config32(dev, ea_off + 12, &ea_entry);
++			addr |= ((u64)ea_entry) << 32;
++		}
+ 
+-	/* Skip DWORD 2 for type 1 functions */
+-	if (hdr_type == PCI_HEADER_TYPE_BRIDGE)
+-		offset += sizeof(u32);
++		/* In case of Virtual Function devices using VF0 BAR
++		 * base and size, add offset for VFn BAR(1, 2, 3...n)
++		 */
++		if (pdata->is_virtfn) {
++			size_t sz;
++
++			/* MaxOffset, 1st DW */
++			dm_pci_read_config32(dev, ea_off + 8, &ea_entry);
++			sz = ea_entry & PCI_EA_FIELD_MASK;
++			/* Fill up lower 2 bits */
++			sz |= (~PCI_EA_FIELD_MASK);
++			if (ea_entry & PCI_EA_IS_64) {
++				/* Offset 2nd DW */
++				dm_pci_read_config32(dev, ea_off + 16,
++						     &ea_entry);
++				sz |= ((u64)ea_entry) << 32;
++			}
++			addr += (pdata->virtid - 1) * (sz + 1);
++		}
+ 
+-	for (i = 0; (i < num_ent) && (bar != bei); i++) {
+-		offset = dm_pci_ea_entry_read(dev, offset, &bei, start, size);
++		/* size ignored for now */
++		return map_physmem(addr, 0, flags);
+ 	}
+ 
+-	return (bar == bei);
+-}
+-
+-static pci_addr_t dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
+-				    int ea_off, size_t *size)
+-{
+-	pci_addr_t addr;
+-
+-	dm_pci_ea_bar_read(dev, bar, &addr, size);
+-
+-	return addr;
++	return 0;
+ }
+ 
+ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
+ {
+-	int pos;
+-	int bar_id = (bar - PCI_BASE_ADDRESS_0) >> 2;
+-	pci_addr_t pci_bus_start;
++	pci_addr_t pci_bus_addr;
+ 	u32 bar_response;
+-	size_t sz;
++	int ea_off;
+ 	struct udevice *udev = dev;
+ 	struct pci_child_platdata *pdata = dev_get_parent_platdata(dev);
+ 
+-	/* In case of Virtual Function devices, use PF device,
+-	 * also add offset of VF BAR0
++	/* In case of Virtual Function devices, use PF udevice
++	 * as EA capability is defined in Physical Function
+ 	 */
+-	if (pdata->is_virtfn) {
++	if (pdata->is_virtfn)
+ 		udev = pdata->pfdev;
+-		bar_id += PCI_EA_BEI_VF_BAR0;
+-	}
+ 
+-	pos = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
+-	if (pos) {
+-		pci_bus_start = dm_pci_map_ea_bar(udev, bar_id, flags, pos,
+-						  &sz);
+-	} else {
+-		dm_pci_read_config32(udev, bar, &bar_response);
+-		pci_bus_start = (pci_addr_t)(bar_response & ~0xf);
+-	}
+-
+-	/* In case of Virtual Function devices
+-	 * add VFn (1, 2...) size offset to VF BAR0
+-	 * using VF BAR0 as base and size of VF BAR0 to shift to VFn index
++	/*
++	 * if the function supports Enhanced Allocation use that instead of
++	 * BARs
++	 * Incase of virtual functions, pdata will help read VF BEI
++	 * and EA entry size.
+ 	 */
+-	if (pdata->is_virtfn)
+-		pci_bus_start += (pdata->virtid - 1) * sz;
++	ea_off = dm_pci_find_capability(udev, PCI_CAP_ID_EA);
++	if (ea_off)
++		return dm_pci_map_ea_bar(udev, bar, flags, ea_off, pdata);
++
++	/* read BAR address */
++	dm_pci_read_config32(udev, bar, &bar_response);
++	pci_bus_addr = (pci_addr_t)(bar_response & ~0xf);
+ 
+ 	/*
+ 	 * Pass "0" as the length argument to pci_bus_to_virt.  The arg
+@@ -1522,7 +1450,7 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
+ 	 * linear mapping.  In the future, this could read the BAR size
+ 	 * and pass that as the size if needed.
+ 	 */
+-	return dm_pci_bus_to_virt(udev, pci_bus_start, flags, 0, MAP_NOCACHE);
++	return dm_pci_bus_to_virt(udev, pci_bus_addr, flags, 0, MAP_NOCACHE);
+ }
+ 
+ static int _dm_pci_find_next_capability(struct udevice *dev, u8 pos, int cap)
+diff --git a/include/pci.h b/include/pci.h
+index c6863219d0..cf5fe93515 100644
+--- a/include/pci.h
++++ b/include/pci.h
+@@ -412,80 +412,6 @@
+ #define PCI_MSI_DATA_32		8	/* 16 bits of data for 32-bit devices */
+ #define PCI_MSI_DATA_64		12	/* 16 bits of data for 64-bit devices */
+ 
+-/* PCI Enhanced Allocation registers */
+-
+-#define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
+-#define PCI_EA_NUM_ENT_MASK	0x3f	/* Num Entries Mask */
+-#define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
+-#define PCI_EA_FIRST_ENT_BRIDGE	8	/* First EA Entry for Bridges */
+-#define PCI_EA_ES		0x7	/* Entry Size */
+-#define PCI_EA_BEI(x)  (((x) >> 4) & 0xf) /* BAR Equivalent Indicator */
+-/* 0-5 map to BARs 0-5 respectively */
+-#define  PCI_EA_BEI_BAR0	0
+-#define  PCI_EA_BEI_BAR5	5
+-#define  PCI_EA_BEI_BRIDGE	6	/* Resource behind bridge */
+-#define  PCI_EA_BEI_ENI		7	/* Equivalent Not Indicated */
+-#define  PCI_EA_BEI_ROM		8	/* Expansion ROM */
+-/* 9-14 map to VF BARs 0-5 respectively */
+-#define  PCI_EA_BEI_VF_BAR0	9
+-#define  PCI_EA_BEI_VF_BAR5	14
+-#define  PCI_EA_BEI_RESERVED	15	/* Reserved - Treat like ENI */
+-
+-#define PCI_EA_PP(x)   (((x) >>  8) & 0xff)	/* Primary Properties */
+-#define PCI_EA_SP(x)   (((x) >> 16) & 0xff)	/* Secondary Properties */
+-#define  PCI_EA_P_MEM			0x00	/* Non-Prefetch Memory */
+-#define  PCI_EA_P_MEM_PREFETCH		0x01	/* Prefetchable Memory */
+-#define  PCI_EA_P_IO			0x02	/* I/O Space */
+-#define  PCI_EA_P_VIRT_MEM_PREFETCH	0x03	/* VF Prefetchable Memory */
+-#define  PCI_EA_P_VIRT_MEM		0x04	/* VF Non-Prefetch Memory */
+-#define  PCI_EA_P_BRIDGE_MEM		0x05	/* Bridge Non-Prefetch Memory */
+-#define  PCI_EA_P_BRIDGE_MEM_PREFETCH	0x06	/* Bridge Prefetchable Memory */
+-#define  PCI_EA_P_BRIDGE_IO		0x07	/* Bridge I/O Space */
+-/* 0x08-0xfc reserved */
+-#define  PCI_EA_P_MEM_RESERVED		0xfd	/* Reserved Memory */
+-#define  PCI_EA_P_IO_RESERVED		0xfe	/* Reserved I/O Space */
+-#define  PCI_EA_P_UNAVAILABLE		0xff	/* Entry Unavailable */
+-#define PCI_EA_WRITEABLE		(1 << 30) /* Writable, 1 = RW, 0 = HwInit */
+-#define PCI_EA_ENABLE			(1 << 31) /* Enable for this entry */
+-#define PCI_EA_BASE			4	/* Base Address Offset */
+-#define PCI_EA_MAX_OFFSET		8	/* MaxOffset (resource length) */
+-/* bit 0 is reserved */
+-#define PCI_EA_IS_64			(1 << 1)	/* 64-bit field flag */
+-#define PCI_EA_FIELD_MASK		0xfffffffc	/* For Base & Max Offset */
+-
+-/* Single Root I/O Virtualization */
+-#define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */
+-#define  PCI_SRIOV_CAP_VFM	0x01	/* VF Migration Capable */
+-#define  PCI_SRIOV_CAP_INTR(x)	((x) >> 21) /* Interrupt Message Number */
+-#define PCI_SRIOV_CTRL		0x08	/* SR-IOV Control */
+-#define  PCI_SRIOV_CTRL_VFE	0x01	/* VF Enable */
+-#define  PCI_SRIOV_CTRL_VFM	0x02	/* VF Migration Enable */
+-#define  PCI_SRIOV_CTRL_INTR	0x04	/* VF Migration Interrupt Enable */
+-#define  PCI_SRIOV_CTRL_MSE	0x08	/* VF Memory Space Enable */
+-#define  PCI_SRIOV_CTRL_ARI	0x10	/* ARI Capable Hierarchy */
+-#define PCI_SRIOV_STATUS	0x0a	/* SR-IOV Status */
+-#define  PCI_SRIOV_STATUS_VFM	0x01	/* VF Migration Status */
+-#define PCI_SRIOV_INITIAL_VF	0x0c	/* Initial VFs */
+-#define PCI_SRIOV_TOTAL_VF	0x0e	/* Total VFs */
+-#define PCI_SRIOV_NUM_VF	0x10	/* Number of VFs */
+-#define PCI_SRIOV_FUNC_LINK	0x12	/* Function Dependency Link */
+-#define PCI_SRIOV_VF_OFFSET	0x14	/* First VF Offset */
+-#define PCI_SRIOV_VF_STRIDE	0x16	/* Following VF Stride */
+-#define PCI_SRIOV_VF_DID	0x1a	/* VF Device ID */
+-#define PCI_SRIOV_SUP_PGSIZE	0x1c	/* Supported Page Sizes */
+-#define PCI_SRIOV_SYS_PGSIZE	0x20	/* System Page Size */
+-#define PCI_SRIOV_BAR		0x24	/* VF BAR0 */
+-#define  PCI_SRIOV_NUM_BARS	6	/* Number of VF BARs */
+-#define PCI_SRIOV_VFM		0x3c	/* VF Migration State Array Offset*/
+-#define  PCI_SRIOV_VFM_BIR(x)	((x) & 7)	/* State BIR */
+-#define  PCI_SRIOV_VFM_OFFSET(x) ((x) & ~7)	/* State Offset */
+-#define  PCI_SRIOV_VFM_UA	0x0	/* Inactive.Unavailable */
+-#define  PCI_SRIOV_VFM_MI	0x1	/* Dormant.MigrateIn */
+-#define  PCI_SRIOV_VFM_MO	0x2	/* Active.MigrateOut */
+-#define  PCI_SRIOV_VFM_AV	0x3	/* Active.Available */
+-#define PCI_EXT_CAP_SRIOV_SIZEOF 64
+-
+-
+ #define PCI_MAX_PCI_DEVICES	32
+ #define PCI_MAX_PCI_FUNCTIONS	8
+ 
+@@ -546,6 +472,37 @@
+ #define PCI_EXP_DEVCTL		8	/* Device Control */
+ #define  PCI_EXP_DEVCTL_BCR_FLR 0x8000  /* Bridge Configuration Retry / FLR */
+ 
++/* Enhanced Allocation Registers */
++#define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
++#define  PCI_EA_NUM_ENT_MASK	0x3f	/* Num Entries Mask */
++#define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
++#define  PCI_EA_ES		0x00000007 /* Entry Size */
++#define  PCI_EA_BEI		0x000000f0 /* BAR Equivalent Indicator */
++/* 9-14 map to VF BARs 0-5 respectively */
++#define  PCI_EA_BEI_VF_BAR0	9
++#define  PCI_EA_BEI_VF_BAR5	14
++/* Base, MaxOffset registers */
++/* bit 0 is reserved */
++#define  PCI_EA_IS_64		0x00000002	/* 64-bit field flag */
++#define  PCI_EA_FIELD_MASK	0xfffffffc	/* For Base & Max Offset */
++
++/* Single Root I/O Virtualization */
++#define PCI_SRIOV_CAP		0x04	/* SR-IOV Capabilities */
++#define PCI_SRIOV_CTRL		0x08	/* SR-IOV Control */
++#define  PCI_SRIOV_CTRL_VFE	0x01	/* VF Enable */
++#define  PCI_SRIOV_CTRL_VFM	0x02	/* VF Migration Enable */
++#define  PCI_SRIOV_CTRL_MSE	0x08	/* VF Memory Space Enable */
++#define PCI_SRIOV_STATUS	0x0a	/* SR-IOV Status */
++#define  PCI_SRIOV_STATUS_VFM	0x01	/* VF Migration Status */
++#define PCI_SRIOV_INITIAL_VF	0x0c	/* Initial VFs */
++#define PCI_SRIOV_TOTAL_VF	0x0e	/* Total VFs */
++#define PCI_SRIOV_NUM_VF	0x10	/* Number of VFs */
++#define PCI_SRIOV_VF_OFFSET	0x14	/* First VF Offset */
++#define PCI_SRIOV_VF_STRIDE	0x16	/* Following VF Stride */
++#define PCI_SRIOV_VF_DID	0x1a	/* VF Device ID */
++#define PCI_SRIOV_BAR		0x24	/* VF BAR0 */
++#define  PCI_SRIOV_NUM_BARS	6	/* Number of VF BARs */
++
+ /* Include the ID list */
+ 
+ #include <pci_ids.h>
+-- 
+2.29.0
+

@@ -1,0 +1,122 @@
+From f097756a08b052c9c82d8b4f93af93a0fce95311 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Tue, 17 Dec 2019 16:47:17 +0100
+Subject: [PATCH 1046/1239] thermal: a80x0: a70x0: change thermal sensor API
+
+Pass temperature value via pointer and return error code in sensor read
+functions.
+
+This commit is a preparation for upcoming rework of thermal driver, which
+will use smc calls for thermal sensor init and read.
+
+Change-Id: Ifacf270122a247bb5000b6d32e50eecf252c5fc5
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/20587
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/include/asm/arch-mvebu/thermal.h | 11 +++++++----
+ drivers/thermal/mvebu_ext_thermal_28nm.c  |  7 +++++--
+ drivers/thermal/mvebu_thermal_28nm.c      |  6 ++++--
+ drivers/thermal/mvebu_thermal_core.c      |  4 +---
+ 4 files changed, 17 insertions(+), 11 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-mvebu/thermal.h b/arch/arm/include/asm/arch-mvebu/thermal.h
+index 3753596f9f..2a011fb000 100644
+--- a/arch/arm/include/asm/arch-mvebu/thermal.h
++++ b/arch/arm/include/asm/arch-mvebu/thermal.h
+@@ -18,16 +18,19 @@ struct thermal_unit_config {
+ 	s32 tsen_ready;
+ 	void __iomem *regs_base;
+ 	/* thermal functionality */
+-	u32 (*ptr_thermal_sensor_probe)(struct thermal_unit_config *);
+-	s32 (*ptr_thermal_sensor_read)(struct thermal_unit_config *);
++	u32 (*ptr_thermal_sensor_probe)(struct thermal_unit_config *cfg);
++	s32 (*ptr_thermal_sensor_read)(struct thermal_unit_config *cfg,
++				       int *temp);
+ };
+ 
+ /* Thermal sensors APIs */
+-s32 mvebu_thermal_sensor_read(struct thermal_unit_config *thermal_config);
++s32 mvebu_thermal_sensor_read(struct thermal_unit_config *thermal_config,
++			      int *temp);
+ u32 mvebu_thermal_sensor_probe(struct thermal_unit_config *thermal_config);
+ 
+ /* External Thermal sensors APIs */
+-s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *thermal_config);
++s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *thermal_config,
++				  int *temp);
+ u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *thermal_config);
+ 
+ #endif /* _THERMAL_H_ */
+diff --git a/drivers/thermal/mvebu_ext_thermal_28nm.c b/drivers/thermal/mvebu_ext_thermal_28nm.c
+index b12c1143f8..9afea50a24 100644
+--- a/drivers/thermal/mvebu_ext_thermal_28nm.c
++++ b/drivers/thermal/mvebu_ext_thermal_28nm.c
+@@ -34,9 +34,10 @@ DECLARE_GLOBAL_DATA_PTR;
+ #define THERMAL_SEN_OUTPUT_MSB				512
+ #define THERMAL_SEN_OUTPUT_COMP				1024
+ 
+-s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen)
++s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen, int *temp)
+ {
+ 	u32 reg;
++	int ret = 0;
+ 
+ 	if (!tsen->tsen_ready) {
+ 		printf("External Thermal Sensor was not initialized\n");
+@@ -55,8 +56,10 @@ s32 mvebu_thermal_ext_sensor_read(struct thermal_unit_config *tsen)
+ 	if (reg >= THERMAL_SEN_OUTPUT_MSB)
+ 		reg -= THERMAL_SEN_OUTPUT_COMP;
+ 
+-	return ((tsen->tsen_gain * ((s32)reg)) + tsen->tsen_offset) /
++	*temp = ((tsen->tsen_gain * ((s32)reg)) + tsen->tsen_offset) /
+ 	       tsen->tsen_divisor;
++
++	return ret;
+ }
+ 
+ u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *tsen)
+diff --git a/drivers/thermal/mvebu_thermal_28nm.c b/drivers/thermal/mvebu_thermal_28nm.c
+index 0a6e36b16f..1cb5367398 100644
+--- a/drivers/thermal/mvebu_thermal_28nm.c
++++ b/drivers/thermal/mvebu_thermal_28nm.c
+@@ -29,7 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ #define THERMAL_SEN_CTRL_STATS_TEMP_OUT_MASK	\
+ 	(0x3FF << THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET)
+ 
+-s32 mvebu_thermal_sensor_read(struct thermal_unit_config *tsen)
++s32 mvebu_thermal_sensor_read(struct thermal_unit_config *tsen, int *temp)
+ {
+ 	u32 reg;
+ 
+@@ -42,8 +42,10 @@ s32 mvebu_thermal_sensor_read(struct thermal_unit_config *tsen)
+ 	reg = ((reg & THERMAL_SEN_CTRL_STATS_TEMP_OUT_MASK) >>
+ 	      THERMAL_SEN_CTRL_STATS_TEMP_OUT_OFFSET);
+ 
+-	return ((tsen->tsen_gain * ((s32)reg)) - tsen->tsen_offset) /
++	*temp = ((tsen->tsen_gain * ((s32)reg)) - tsen->tsen_offset) /
+ 	       tsen->tsen_divisor;
++
++	return 0;
+ }
+ 
+ u32 mvebu_thermal_sensor_probe(struct thermal_unit_config *tsen)
+diff --git a/drivers/thermal/mvebu_thermal_core.c b/drivers/thermal/mvebu_thermal_core.c
+index 15c686522c..8b8190babf 100644
+--- a/drivers/thermal/mvebu_thermal_core.c
++++ b/drivers/thermal/mvebu_thermal_core.c
+@@ -92,9 +92,7 @@ int mvebu_thermal_read(struct udevice *dev, int *temp)
+ 		return -1;
+ 	}
+ 
+-	*temp = thermal_cfg->ptr_thermal_sensor_read(thermal_cfg);
+-
+-	return 0;
++	return thermal_cfg->ptr_thermal_sensor_read(thermal_cfg, temp);
+ }
+ 
+ static const struct dm_thermal_ops mvebu_thermal_ops = {
+-- 
+2.29.0
+

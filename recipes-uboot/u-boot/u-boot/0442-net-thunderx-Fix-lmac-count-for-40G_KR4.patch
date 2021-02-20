@@ -1,0 +1,26 @@
+From 7fa2b3ca2e1931c2cda35c45c6845e90c3f7726b Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Sat, 14 May 2016 20:54:20 -0700
+Subject: [PATCH 0442/1239] net: thunderx: Fix lmac count for 40G_KR4
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index dd9476e044..056c08979a 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -838,7 +838,7 @@ static void bgx_init_hw(struct bgx *bgx)
+ 			lmac->lmac_type = 4;
+ 			lmac->lane_to_sds = 0xE4;
+ 			lmac->use_training = 1;
+-			lmac_count = 4;
++			lmac_count = 1;
+ 			break;
+ 		default:
+ 			lmac_count++;
+-- 
+2.29.0
+

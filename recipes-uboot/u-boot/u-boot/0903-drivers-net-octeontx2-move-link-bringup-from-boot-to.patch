@@ -1,0 +1,394 @@
+From b598ac5a2932673855fda1b601357e5e63f3a89d Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 3 May 2019 18:54:12 -0700
+Subject: [PATCH 0903/1239] drivers: net: octeontx2: move link bringup from
+ boot to command driven
+
+Bring up of all CGX interfaces delays boot time significantly. So move
+the bringup of CGX interfaces whenever preferred interface is selected
+using 'setenv ethact <interface>' and execute any of network commands
+like dhcp tftp or ping.
+Further, fetch mac addresses from BDK devicetree properties instead of
+CGX interface to ATF. This reduces atleast couple of secs in boot time.
+
+Change-Id: I8b6d84e0fef766c86e103e459d2c80ee78146e36
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/8559
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ .../include/asm/arch-octeontx2/octeontx2.h    |  1 +
+ board/Marvell/octeontx2/octeontx2.c           | 45 +++++++++-
+ drivers/net/octeontx2/cgx.c                   | 84 +++++++------------
+ drivers/net/octeontx2/cgx.h                   |  9 +-
+ drivers/net/octeontx2/cgx_intf.c              | 13 ++-
+ drivers/net/octeontx2/nix.c                   | 47 ++++++-----
+ 6 files changed, 116 insertions(+), 83 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2.h b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+index 454d2ed60c..f25c13345e 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+@@ -49,6 +49,7 @@ union cavm_cpc_boot_ownerx {
+ 
+ /** Function definitions */
+ void octeontx2_parse_board_info(void);
++void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr);
+ void acquire_flash_arb(bool acquire);
+ 
+ /** Board data definitions */
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index ff5ff591e1..f10b548b86 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -19,7 +19,10 @@
+ #include <dm/util.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
++
+ struct cavm_bdt g_cavm_bdt;
++static int board_mac_num;
++u8 board_mac_addr[6];
+ 
+ extern unsigned long fdt_base_addr;
+ extern void cgx_intf_shutdown(void);
+@@ -36,6 +39,18 @@ void octeontx2_cleanup_ethaddr(void)
+ 	}
+ }
+ 
++void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr)
++{
++	if ((!is_zero_ethaddr(board_mac_addr)) && board_mac_num) {
++		memcpy(mac_addr, board_mac_addr, ARP_HLEN);
++		*(mac_addr + 5) += index;
++		board_mac_num--;
++	} else {
++		memset(mac_addr, 0, ARP_HLEN);
++	}
++	debug("%s mac %pM\n", __func__, mac_addr);
++}
++
+ void board_get_env_spi_bus_cs(int *bus, int *cs)
+ {
+ 	const void *blob = gd->fdt_blob;
+@@ -74,7 +89,7 @@ void octeontx_parse_board_info(void)
+ 	const char *str;
+ 	int node;
+ 	int ret = 0, len = 16;
+-	u64 midr;
++	u64 midr, macaddr;
+ 
+ 	debug("%s: ENTER\n", __func__);
+ 
+@@ -109,6 +124,34 @@ void octeontx_parse_board_info(void)
+ 	} else {
+ 		printf("Error: cannot retrieve board type from fdt\n");
+ 	}
++	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS-NUM", &len);
++	if (str) {
++		board_mac_num = simple_strtol(str, NULL, 10);
++		if (!board_mac_num)
++			board_mac_num = simple_strtol(str, NULL, 16);
++		debug("fdt: MAC_NUM %d\n", board_mac_num);
++	} else {
++		printf("Error: cannot retrieve mac num prop from fdt\n");
++	}
++	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS-NUM-OVERRIDE",
++			  &len);
++	if (str) {
++		if (simple_strtol(str, NULL, 10) >= 0)
++			board_mac_num = simple_strtol(str, NULL, 10);
++		debug("fdt: MAC_NUM %d\n", board_mac_num);
++	} else {
++		printf("Error: cannot retrieve macnum override prop\n");
++	}
++	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS", &len);
++	if (str) {
++		macaddr = simple_strtoul(str, NULL, 16);
++		macaddr = swab64(macaddr) >> 16;
++		memcpy(board_mac_addr, (u8 *)&macaddr, ARP_HLEN);
++		debug("%s mac %pM\n", __func__, board_mac_addr);
++	} else {
++		memset(board_mac_addr, 0, ARP_HLEN);
++	}
++	debug("%s mac %pM\n", __func__, board_mac_addr);
+ }
+ 
+ void board_quiesce_devices(void)
+diff --git a/drivers/net/octeontx2/cgx.c b/drivers/net/octeontx2/cgx.c
+index c637e74e81..3aa00d1e07 100644
+--- a/drivers/net/octeontx2/cgx.c
++++ b/drivers/net/octeontx2/cgx.c
+@@ -180,42 +180,42 @@ int cgx_lmac_link_status(struct lmac *lmac, int lmac_id, u64 *status)
+ {
+ 	int ret = 0;
+ 
+-	ret = cgx_intf_get_link_sts(lmac->cgx->cgx_id,
+-					lmac_id, status);
++	ret = cgx_intf_get_link_sts(lmac->cgx->cgx_id, lmac_id, status);
+ 	if (ret) {
+-		debug("%s interface request failed for cgx%d lmac%d\n",
++		debug("%s request failed for cgx%d lmac%d\n",
+ 		      __func__, lmac->cgx->cgx_id, lmac->lmac_id);
+ 		ret = -1;
+ 	}
+ 	return ret;
+ }
+ 
+-int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable)
++int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable)
++{
++	struct cgx *cgx = lmac->cgx;
++	union cavm_cgxx_cmrx_config cmrx_config;
++
++	if (!cgx || lmac_id >= cgx->lmac_count)
++		return -ENODEV;
++
++	cmrx_config.u = cgx_read(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0));
++	cmrx_config.s.data_pkt_rx_en =
++	cmrx_config.s.data_pkt_tx_en = enable ? 1 : 0;
++	cgx_write(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0), cmrx_config.u);
++	return 0;
++}
++
++int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable,
++			 u64 *status)
+ {
+ 	int ret = 0;
+-	u64 status;
+ 
+-	ret = cgx_intf_link_up_dwn(lmac->cgx->cgx_id,
+-					lmac_id, enable, &status);
++	ret = cgx_intf_link_up_dwn(lmac->cgx->cgx_id, lmac_id, enable,
++				   status);
+ 	if (ret) {
+-		debug("%s interface request failed for cgx%d lmac%d\n",
++		debug("%s request failed for cgx%d lmac%d\n",
+ 		      __func__, lmac->cgx->cgx_id, lmac->lmac_id);
+ 		ret = -1;
+ 	}
+-
+-	printf("%d    %d    %s", lmac->cgx->cgx_id, lmac->lmac_id,
+-	       lmac_type_to_str[lmac->lmac_type]);
+-	/* Print link speed */
+-	printf("  \t%s", lmac_speed_to_str[(u8)((status >> 2) & 0xf)]);
+-	status &= 0x1;
+-	/* Print link status */
+-	printf(" \t%s\n", status ? "Up" : "Down");
+-	if (status != enable) {
+-		debug("%s couldn't bring %s link cgx%d lmac%d\n",
+-		      __func__, enable ? "up" : "down",
+-		      lmac->cgx->cgx_id, lmac->lmac_id);
+-		ret = -1;
+-	}
+ 	return ret;
+ }
+ 
+@@ -248,37 +248,17 @@ int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable)
+ 	return 0;
+ }
+ 
+-int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable)
+-{
+-	struct cgx *cgx = lmac->cgx;
+-	union cavm_cgxx_cmrx_config cmrx_config;
+-
+-	if (!cgx || lmac_id >= cgx->lmac_count)
+-		return -ENODEV;
+-
+-	cmrx_config.u = cgx_read(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0));
+-	cmrx_config.s.data_pkt_rx_en =
+-	cmrx_config.s.data_pkt_tx_en = enable ? 1 : 0;
+-	cgx_write(cgx, lmac_id, CAVM_CGXX_CMRX_CONFIG(0), cmrx_config.u);
+-	return 0;
+-}
+-
+ static int cgx_lmac_init(struct cgx *cgx)
+ {
+ 	struct lmac *lmac;
+ 	union cavm_cgxx_cmrx_config cmrx_cfg;
+-	static int instance = 1, printed;
+-	int i, ret;
++	static int instance = 1;
++	int i;
+ 
+ 	cgx->lmac_count = cgx_read(cgx, 0, CAVM_CGXX_CMR_RX_LMACS());
+ 	debug("%s: Found %d lmacs for cgx %d@%p\n", __func__, cgx->lmac_count,
+ 	      cgx->cgx_id, cgx->reg_base);
+-	if (cgx->lmac_count && !printed) {
+-		printf("=========================================\n");
+-		printf("CGX LMAC  Mode        Speed\tLink\n");
+-		printf("=========================================\n");
+-		printed = 1;
+-	}
++
+ 	for (i = 0; i < cgx->lmac_count; i++) {
+ 		lmac = calloc(1, sizeof(*lmac));
+ 		if (!lmac)
+@@ -296,17 +276,13 @@ static int cgx_lmac_init(struct cgx *cgx)
+ 		debug("%s: mapping id %d to lmac %p (%s), lmac type: %d"
+ 			" lmac instance %d\n", __func__, i, lmac, lmac->name,
+ 			 lmac->lmac_type, lmac->instance);
+-		cgx_intf_get_mac_addr(cgx->cgx_id, i, lmac->mac_addr);
+-		debug("%s: cgx%d lmac%d mac_addr\n",__func__,cgx->cgx_id, i);
++		lmac->init_pend = 1;
++		printf("CGX%d LMAC%d [%s]\n", lmac->cgx->cgx_id,
++		       lmac->lmac_id, lmac_type_to_str[lmac->lmac_type]);
++		octeontx2_board_get_mac_addr((lmac->instance - 1),
++					     lmac->mac_addr);
+ 		debug("%s: MAC %pM\n", __func__, lmac->mac_addr);
+-
+ 		cgx_lmac_mac_filter_setup(lmac);
+-		ret = cgx_lmac_link_enable(lmac, lmac->lmac_id, true);
+-		if (ret)
+-			debug("%s could not bring up cgx%d lmac%d\n",
+-			      __func__, lmac->cgx->cgx_id, lmac->lmac_id);
+-		else
+-			cgx_lmac_rx_tx_enable(lmac, lmac->lmac_id, false);
+ 	}
+ 	return 0;
+ }
+diff --git a/drivers/net/octeontx2/cgx.h b/drivers/net/octeontx2/cgx.h
+index b7ac7aa7f9..35aca56d8f 100644
+--- a/drivers/net/octeontx2/cgx.h
++++ b/drivers/net/octeontx2/cgx.h
+@@ -29,6 +29,10 @@ enum lmac_type {
+ 	LMAC_MODE_USXGMII	= 10,
+ };
+ 
++extern char lmac_type_to_str[][8];
++
++extern char lmac_speed_to_str[][8];
++
+ struct lmac_priv {
+ 	u8 enable:1;
+ 	u8 full_duplex:1;
+@@ -47,7 +51,7 @@ struct lmac {
+ 	struct nix	*nix;
+ 	char		name[16];
+ 	enum lmac_type	lmac_type;
+-	bool		cmd_pend;
++	bool		init_pend;
+ 	u8		instance;
+ 	u8		lmac_id;
+ 	u8		pknd;
+@@ -88,7 +92,8 @@ struct lmac *nix_get_cgx_lmac(int lmac_instance);
+ int cgx_lmac_set_pkind(struct lmac *lmac, u8 lmac_id, int pkind);
+ int cgx_lmac_internal_loopback(struct lmac *lmac, int lmac_id, bool enable);
+ int cgx_lmac_rx_tx_enable(struct lmac *lmac, int lmac_id, bool enable);
+-int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable);
++int cgx_lmac_link_enable(struct lmac *lmac, int lmac_id, bool enable,
++			 u64 *status);
+ int cgx_lmac_link_status(struct lmac *lmac, int lmac_id, u64 *status);
+ void cgx_lmac_mac_filter_setup(struct lmac *lmac);
+ 
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index ec38af794f..fe23e7942b 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -139,22 +139,21 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
+ 		goto error;
+ 
+ 	if (scr0.s.evt_sts.evt_type != CGX_EVT_CMD_RESP) {
+-		printf("%s received async event instead of cmd resp event\n",
+-			__func__);
++		debug("%s received async event instead of cmd resp event\n",
++		      __func__);
+ 		err = -1;
+ 		goto error;
+ 	}
+ 	if (scr0.s.evt_sts.id != cmd) {
+-		printf("%s received resp for cmd %d expected cmd %d \n",
+-				__func__, scr0.s.evt_sts.id, cmd);
++		debug("%s received resp for cmd %d expected cmd %d\n",
++		      __func__, scr0.s.evt_sts.id, cmd);
+ 		err = -1;
+ 		goto error;
+ 	}
+ 	if (scr0.s.evt_sts.stat != CGX_STAT_SUCCESS) {
+-		debug("%s failure for cmd %d on cgx %u lmac %u with errcode"
+-			" %d\n", __func__, cmd, cgx, lmac, scr0.s.link_sts.err_type);
++		debug("%s cmd%d failed on cgx%u lmac%u with errcode %d\n",
++		      __func__, cmd, cgx, lmac, scr0.s.link_sts.err_type);
+ 		err = -1;
+-		goto error;
+ 	}
+ 
+ error:
+diff --git a/drivers/net/octeontx2/nix.c b/drivers/net/octeontx2/nix.c
+index 8dc1701fba..448889e115 100644
+--- a/drivers/net/octeontx2/nix.c
++++ b/drivers/net/octeontx2/nix.c
+@@ -774,10 +774,6 @@ void nix_lf_halt(struct udevice *dev)
+ 	struct rvu_pf *rvu = dev_get_priv(dev);
+ 	struct nix *nix = rvu->nix;
+ 
+-#if 0
+-	/* Bring down LMAC */
+-	cgx_lmac_link_enable(nix->lmac, nix->lmac->lmac_id, false);
+-#endif
+ 	cgx_lmac_rx_tx_enable(nix->lmac, nix->lmac->lmac_id, false);
+ 
+ 	mdelay(1);
+@@ -793,30 +789,43 @@ int nix_lf_init(struct udevice *dev)
+ {
+ 	struct rvu_pf *rvu = dev_get_priv(dev);
+ 	struct nix *nix = rvu->nix;
++	struct lmac *lmac = nix->lmac;
+ 	int ret;
+ 	u64 link_sts;
++	u8 link, speed;
++	u16 errcode;
++
++	printf("Waiting for CGX%d LMAC%d [%s] link status...",
++	       lmac->cgx->cgx_id, lmac->lmac_id,
++	       lmac_type_to_str[lmac->lmac_type]);
++
++	if (lmac->init_pend) {
++		/* Bring up LMAC */
++		ret = cgx_lmac_link_enable(lmac, lmac->lmac_id,
++					   true, &link_sts);
++		lmac->init_pend = 0;
++	} else {
++		ret = cgx_lmac_link_status(lmac, lmac->lmac_id, &link_sts);
++	}
+ 
+-#if 0
+-	cgx_lmac_mac_filter_setup(nix->lmac);
+-	/* Bring up LMAC */
+-	cgx_lmac_link_enable(nix->lmac, nix->lmac->lmac_id, true);
+-	cgx_lmac_mac_filter_setup(nix->lmac);
+-#endif
+-	ret = cgx_lmac_link_status(nix->lmac, nix->lmac->lmac_id, &link_sts);
+ 	if (ret) {
+-		printf("%s failed to get link_sts for cgx%d lmac%d\n",
+-			__func__, nix->lmac->cgx->cgx_id,
+-			nix->lmac->lmac_id);
++		printf(" [Down]\n");
+ 		return -1;
+ 	}
+ 
+-	if (!(link_sts & 0x1)) {
+-		printf("%s cgx%d lmac%d link is down\n", __func__,
+-			nix->lmac->cgx->cgx_id, nix->lmac->lmac_id);
++	link = link_sts & 0x1;
++	speed = (link_sts >> 2) & 0xf;
++	errcode = (link_sts >> 6) & 0x2ff;
++	debug("%s: link %x speed %x errcode %x\n",
++	      __func__, link, speed, errcode);
++
++	/* Print link status */
++	printf(" [%s]\n", link ? lmac_speed_to_str[speed] : "Down");
++	if (!link)
+ 		return -1;
+-	}
+ 
+-	cgx_lmac_rx_tx_enable(nix->lmac, nix->lmac->lmac_id, true);
++	if (!lmac->init_pend)
++		cgx_lmac_rx_tx_enable(lmac, lmac->lmac_id, true);
+ 
+ 	return 0;
+ }
+-- 
+2.29.0
+

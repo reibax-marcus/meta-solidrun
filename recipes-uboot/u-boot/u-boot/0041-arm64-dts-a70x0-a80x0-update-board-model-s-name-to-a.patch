@@ -1,0 +1,74 @@
+From 2008ae96e51f9800e0db6569858e3e4374d4153e Mon Sep 17 00:00:00 2001
+From: zachary zhang <zhangzg@marvell.com>
+Date: Tue, 2 Jan 2018 18:42:26 +0800
+Subject: [PATCH 0041/1239] arm64: dts: a70x0: a80x0: update board model's name
+ to align with PCB printing
+
+Currently, a7k/8k dts board name is very brief.
+This patch update dts model's name to align with PCB printing information.
+
+Change-Id: I5a34bc21694b04f64af98724de7f444f0e1ae4ef
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-7040-db-nand.dts | 2 +-
+ arch/arm/dts/armada-7040-db.dts      | 2 +-
+ arch/arm/dts/armada-8040-db.dts      | 2 +-
+ arch/arm/dts/armada-8040-mcbin.dts   | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/dts/armada-7040-db-nand.dts b/arch/arm/dts/armada-7040-db-nand.dts
+index e3a5a715c0..2ca85a4f6d 100644
+--- a/arch/arm/dts/armada-7040-db-nand.dts
++++ b/arch/arm/dts/armada-7040-db-nand.dts
+@@ -48,7 +48,7 @@
+ #include "armada-7040.dtsi"
+ 
+ / {
+-	model = "Marvell Armada 7040 DB board with NAND";
++	model = "Marvell Armada 7040 Development Board DB-88FA7040 with NAND";
+ 	compatible = "marvell,armada7040-db-nand", "marvell,armada7040-db",
+ 		     "marvell,armada7040", "marvell,armada-ap806-quad",
+ 		     "marvell,armada-ap806";
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index 1ed23ecc55..e095f42797 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -48,7 +48,7 @@
+ #include "armada-7040.dtsi"
+ 
+ / {
+-	model = "Marvell Armada 7040 DB board";
++	model = "Marvell Armada 7040 Development Board DB-88FA7040";
+ 	compatible = "marvell,armada7040-db", "marvell,armada7040",
+ 		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
+ 
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index 0fecfab890..e7169cb8d2 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -47,7 +47,7 @@
+ #include "armada-8040.dtsi"
+ 
+ / {
+-	model = "Marvell Armada 8040 DB board";
++	model = "Marvell Armada 8040 Development Board DB-88F8040";
+ 	compatible = "marvell,armada8040-db", "marvell,armada8040",
+ 		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
+ 
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index c38601edfb..22e0b5cb87 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -6,7 +6,7 @@
+ #include "armada-8040.dtsi" /* include SoC device tree */
+ 
+ / {
+-	model = "MACCHIATOBin-8040";
++	model = "Marvell Armada 8040 MACHIATOBin";
+ 	compatible = "marvell,armada8040-mcbin",
+ 		     "marvell,armada8040";
+ 
+-- 
+2.29.0
+

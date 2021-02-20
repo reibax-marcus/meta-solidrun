@@ -1,0 +1,74 @@
+From 2726218fc25a383fbd54d3192424334df10e0eae Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Tue, 26 Nov 2019 11:35:31 -0800
+Subject: [PATCH 1014/1239] board: octeontx: Add check on board environment
+ variables
+
+Fix crash while comparing board environment variables like boardrev
+by adding check on return value of env_get so that strcmp doesn't
+check on NULL value.
+
+Change-Id: I232a3b5ad5885000db93605b379dd46a9ec81a74
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/19347
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19371
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx/board.c  | 6 ++++--
+ board/Marvell/octeontx2/board.c | 6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/board/Marvell/octeontx/board.c b/board/Marvell/octeontx/board.c
+index 45acbb1021..724c96bc92 100644
+--- a/board/Marvell/octeontx/board.c
++++ b/board/Marvell/octeontx/board.c
+@@ -117,7 +117,8 @@ int board_late_init(void)
+ 	str = fdt_get_board_revision();
+ 	if (str) {
+ 		snprintf(boardrev, sizeof(boardrev), "%s", str);
+-		if (strcmp(boardrev, env_get("boardrev")))
++		if (env_get("boardrev") &&
++		    strcmp(boardrev, env_get("boardrev")))
+ 			save_env = true;
+ 		env_set("boardrev", boardrev);
+ 	}
+@@ -125,7 +126,8 @@ int board_late_init(void)
+ 	str = fdt_get_board_serial();
+ 	if (str) {
+ 		snprintf(boardserial, sizeof(boardserial), "%s", str);
+-		if (strcmp(boardserial, env_get("serial#")))
++		if (env_get("serial#") &&
++		    strcmp(boardserial, env_get("serial#")))
+ 			save_env = true;
+ 		env_set("serial#", boardserial);
+ 	}
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 2d1f577d99..493207391b 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -339,7 +339,8 @@ int board_late_init(void)
+ 	str = fdt_get_board_revision();
+ 	if (str) {
+ 		snprintf(boardrev, sizeof(boardrev), "%s", str);
+-		if (strcmp(boardrev, env_get("boardrev")))
++		if (env_get("boardrev") &&
++		    strcmp(boardrev, env_get("boardrev")))
+ 			save_env = true;
+ 		env_set("boardrev", boardrev);
+ 	}
+@@ -347,7 +348,8 @@ int board_late_init(void)
+ 	str = fdt_get_board_serial();
+ 	if (str) {
+ 		snprintf(boardserial, sizeof(boardserial), "%s", str);
+-		if (strcmp(boardserial, env_get("serial#")))
++		if (env_get("serial#") &&
++		    strcmp(boardserial, env_get("serial#")))
+ 			save_env = true;
+ 		env_set("serial#", boardserial);
+ 	}
+-- 
+2.29.0
+

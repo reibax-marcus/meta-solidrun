@@ -1,0 +1,140 @@
+From 8f20bcb70ab2d365798deb324e0743acc0404d1d Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 17 Jan 2018 15:05:36 -0800
+Subject: [PATCH 0743/1239] Kconfig: add entries for drivers
+
+add Kconfig entries in respective files for rtc, network, serial
+and pci drivers.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/Kconfig         |  2 ++
+ drivers/net/Makefile        |  1 +
+ drivers/net/cavium/Kconfig  | 36 ++++++++++++++++++++++++++++++++++++
+ drivers/net/cavium/Makefile |  5 +++--
+ drivers/pci/Kconfig         |  8 ++++++++
+ drivers/rtc/Kconfig         |  7 +++++++
+ 6 files changed, 57 insertions(+), 2 deletions(-)
+ create mode 100644 drivers/net/cavium/Kconfig
+
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 2ce3092db0..61791d4502 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -614,4 +614,6 @@ config MVMDIO
+ 
+ 	  This driver is used by the MVPP2 and MVNETA drivers.
+ 
++source drivers/net/cavium/Kconfig
++
+ endif # NETDEVICES
+diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+index 0abfd5609b..95ad68ef29 100644
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -62,6 +62,7 @@ obj-$(CONFIG_RENESAS_RAVB) += ravb.o
+ obj-$(CONFIG_SMC91111) += smc91111.o
+ obj-$(CONFIG_SMC911X) += smc911x.o
+ obj-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
++obj-$(CONFIG_CAVIUM_NET) += cavium/
+ obj-$(CONFIG_THUNDERX_VNIC) += cavium/
+ obj-$(CONFIG_FMAN_ENET) += fsl_mdio.o
+ obj-$(CONFIG_ULI526X) += uli526x.o
+diff --git a/drivers/net/cavium/Kconfig b/drivers/net/cavium/Kconfig
+new file mode 100644
+index 0000000000..a6b38a96ef
+--- /dev/null
++++ b/drivers/net/cavium/Kconfig
+@@ -0,0 +1,36 @@
++config CAVIUM_NET
++	bool "Cavium Ethernet support"
++	depends on NET && ARCH_THUNDERX
++	help
++	  You must select Y to enable cavium network device support
++
++	  If unsure, say n
++
++if CAVIUM_NET
++
++config THUNDERX_VNIC
++	bool "Enable vNIC device support"
++	depends on CAVIUM_NET
++	help
++	  Enables support for NIC controller
++
++config THUNDERX_BGX
++	bool "Enable BGX device support"
++	depends on CAVIUM_NET
++	help
++	  Enables support for LMAC layer
++
++config THUNDERX_XCV
++	bool "Enable RGMII(XCV) device support"
++	depends on CAVIUM_NET
++	help
++	  Enables support for RGMII
++
++config THUNDERX_SMI
++	bool "Enable MDIO device support"
++	depends on CAVIUM_NET
++	help
++	  Enables support for SMI/MDIO bus controller
++
++endif
++
+diff --git a/drivers/net/cavium/Makefile b/drivers/net/cavium/Makefile
+index 6f19482086..f042ca3d29 100644
+--- a/drivers/net/cavium/Makefile
++++ b/drivers/net/cavium/Makefile
+@@ -3,8 +3,9 @@
+ #
+ # SPDX-License-Identifier:	GPL-2.0+
+ #
+-obj-$(CONFIG_THUNDERX_BGX) = thunder_bgx.o nic_main.o nicvf_queues.o \
+-		nicvf_main.o thunderx_smi.o
++obj-$(CONFIG_THUNDERX_BGX) += thunder_bgx.o
++obj-$(CONFIG_THUNDERX_VNIC) += nic_main.o nicvf_queues.o nicvf_main.o
++obj-$(CONFIG_THUNDERX_SMI) += thunderx_smi.o
+ obj-$(CONFIG_THUNDERX_XCV) += thunder_xcv.o
+ 
+ ccflags-y += -Icsr/include
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index 4077161323..9d00bd5575 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -106,6 +106,14 @@ config PCI_TEGRA
+ 	  with a total of 5 lanes. Some boards require this for Ethernet
+ 	  support to work (e.g. beaver, jetson-tk1).
+ 
++config PCI_THUNDERX_ECAM
++	bool "ThunderX ECAM support"
++	depends on ARCH_THUNDERX
++	help
++	  Enable support for the Cavium ThunderX SoC family ECAM controllers.
++	  These controllers provide PCI configuration access to all on-board
++	  peripherals so it should only be disabled for testing purposes
++
+ config PCI_XILINX
+ 	bool "Xilinx AXI Bridge for PCI Express"
+ 	depends on DM_PCI
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 82643e6d47..c744a28942 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -120,6 +120,13 @@ config RTC_MV
+ 	  Enable Marvell RTC driver. This driver supports the rtc that is present
+ 	  on some Marvell SoCs.
+ 
++config RTC_DS1337
++	bool "Enable DS1337 driver"
++	depends on DM_RTC
++	help
++	  Support for Dallas Semiconductor (now Maxim) DS1337 and
++	  compatible Real Time Clock devices.
++
+ config RTC_S35392A
+ 	bool "Enable S35392A driver"
+ 	select BITREVERSE
+-- 
+2.29.0
+

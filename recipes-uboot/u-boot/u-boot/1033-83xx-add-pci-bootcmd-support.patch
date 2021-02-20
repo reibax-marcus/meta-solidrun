@@ -1,0 +1,138 @@
+From fc69ebbcb5a05ff2cb5e8bca143c190d984f226c Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 13 Dec 2019 15:50:52 -0800
+Subject: [PATCH 1033/1239] 83xx: add pci-bootcmd support
+
+Add serial-bootcmd driver config entry to defconfig
+and add code to probe for the same during boot.
+Also, add 4K pci-bootcmd buffer below DRAM start to memory map.
+
+Change-Id: Ifb8f98716bc8acdca4c507101d1c1517022a11cd
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20411
+Reviewed-by: Aaron Williams <awilliams@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/mach-octeontx/cpu.c    |  2 ++
+ board/Marvell/octeontx/board.c  | 52 +++++++++++++++++++++++++++++++++
+ configs/octeontx_83xx_defconfig |  3 ++
+ 3 files changed, 57 insertions(+)
+
+diff --git a/arch/arm/mach-octeontx/cpu.c b/arch/arm/mach-octeontx/cpu.c
+index 9c29c31393..0f4f73286e 100644
+--- a/arch/arm/mach-octeontx/cpu.c
++++ b/arch/arm/mach-octeontx/cpu.c
+@@ -48,6 +48,8 @@ void mem_map_fill(void)
+ 	u32 dram_start = CONFIG_SYS_TEXT_BASE;
+ 
+ 	if (otx_is_soc(CN83XX)) {
++		/* Add 4K pci bootcmd buffer range */
++		dram_start -= 0x1000;
+ 		otx_mem_map[banks].virt = 0x8c0000000000UL;
+ 		otx_mem_map[banks].phys = 0x8c0000000000UL;
+ 		otx_mem_map[banks].size = 0x40000000000UL;
+diff --git a/board/Marvell/octeontx/board.c b/board/Marvell/octeontx/board.c
+index 724c96bc92..709d40d349 100644
+--- a/board/Marvell/octeontx/board.c
++++ b/board/Marvell/octeontx/board.c
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <common.h>
++#include <console.h>
+ #include <dm.h>
+ #include <malloc.h>
+ #include <errno.h>
+@@ -19,6 +20,7 @@
+ #include <asm/arch/board.h>
+ #include <dm/util.h>
+ 
++#define BOOTCMD_NAME	"pci-bootcmd"
+ DECLARE_GLOBAL_DATA_PTR;
+ extern unsigned long fdt_base_addr;
+ 
+@@ -93,6 +95,52 @@ void board_late_probe_devices(void)
+ }
+ #endif
+ 
++#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) &&	\
++	!CONFIG_IS_ENABLED(CONSOLE_MUX))
++# error CONFIG_CONSOLE_MUX must be enabled!
++#endif
++
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
++static int init_bootcmd_console(void)
++{
++	int ret = 0;
++	char *stdinname = env_get("stdin");
++	struct udevice *bootcmd_dev = NULL;
++	bool stdin_set;
++	char iomux_name[128];
++
++	debug("%s: stdin before: %s\n", __func__,
++	      stdinname ? stdinname : "NONE");
++	if (!stdinname) {
++		env_set("stdin", "serial");
++		stdinname = env_get("stdin");
++	}
++	stdin_set = !!strstr(stdinname, BOOTCMD_NAME);
++	ret = uclass_get_device_by_driver(UCLASS_SERIAL,
++					  DM_GET_DRIVER(octeontx_bootcmd),
++					  &bootcmd_dev);
++	if (ret) {
++		pr_err("%s: Error getting %s serial class\n", __func__,
++		       BOOTCMD_NAME);
++	} else if (bootcmd_dev) {
++		if (stdin_set)
++			strncpy(iomux_name, stdinname, sizeof(iomux_name));
++		else
++			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
++				 stdinname, bootcmd_dev->name);
++		ret = iomux_doenv(stdin, iomux_name);
++		if (ret)
++			pr_err("%s: Error %d enabling the PCI bootcmd input console \"%s\"\n",
++			       __func__, ret, iomux_name);
++		if (!stdin_set)
++			env_set("stdin", iomux_name);
++	}
++	debug("%s: Set iomux and stdin to %s (ret: %d)\n",
++	      __func__, iomux_name, ret);
++	return ret;
++}
++#endif
++
+ /**
+  * Board late initialization routine.
+  */
+@@ -132,6 +180,10 @@ int board_late_init(void)
+ 		env_set("serial#", boardserial);
+ 	}
+ 
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
++	if (init_bootcmd_console())
++		printf("Failed to init bootcmd input\n");
++#endif
+ #ifdef CONFIG_NET_OCTEONTX
+ 	board_late_probe_devices();
+ #endif
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index 0cc9faf88b..fe0f1873b2 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -116,6 +116,7 @@ CONFIG_DM_SERIAL=y
+ CONFIG_DEBUG_UART_PL011=y
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+ CONFIG_PL01X_SERIAL=y
++CONFIG_OCTEONTX_SERIAL_BOOTCMD=y
+ CONFIG_SPI=y
+ CONFIG_DM_SPI=y
+ CONFIG_OCTEONTX_SPI=y
+@@ -131,3 +132,5 @@ CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_WDT=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
++CONFIG_CONSOLE_MUX=y
++CONFIG_SYS_CONSOLE_IS_IN_ENV=y
+-- 
+2.29.0
+

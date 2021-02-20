@@ -1,0 +1,35 @@
+From 5f14b18bdbdd849d5f3ea007ff6ace408447b2ad Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 8 Nov 2019 16:26:34 +0100
+Subject: [PATCH 1024/1239] defconfig: db-88f6820-ap: enable usb to ethernet
+ adapters
+
+Change-Id: I2b033f3bdaca3d4e672fefd5cef336352bfcc251
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/18423
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19342
+---
+ configs/db-88f6820-ap_defconfig | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/configs/db-88f6820-ap_defconfig b/configs/db-88f6820-ap_defconfig
+index ecb39f22f3..4ba8961b5c 100644
+--- a/configs/db-88f6820-ap_defconfig
++++ b/configs/db-88f6820-ap_defconfig
+@@ -56,3 +56,11 @@ CONFIG_KIRKWOOD_SPI=y
+ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_HOST_ETHER=y
++CONFIG_USB_ETHER_ASIX=y
++CONFIG_USB_ETHER_ASIX88179=y
++CONFIG_USB_ETHER_LAN75XX=y
++CONFIG_USB_ETHER_LAN78XX=y
++CONFIG_USB_ETHER_MCS7830=y
++CONFIG_USB_ETHER_RTL8152=y
++CONFIG_USB_ETHER_SMSC95XX=y
+-- 
+2.29.0
+

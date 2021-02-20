@@ -1,0 +1,159 @@
+From d42d49f19c5ee6f71f16123f6ab3203ee299c39a Mon Sep 17 00:00:00 2001
+From: Guo Yi <yi.guo@cavium.com>
+Date: Wed, 19 Feb 2020 18:06:34 -0800
+Subject: [PATCH 1112/1239] arm64: mvebu: dts: cn913x: added dts for cn9130-crb
+ r1p3
+
+This patch adds the device tree files for cn9130-r1p3-A/B/C
+based on cn9130-crb-A/B/C.
+The SPI pins are now moved to MPP[16:13] supported by BootROM.
+
+Change-Id: I2a4a368ce3f78ec697943db88287236a6a24b61b
+Signed-off-by: Guo Yi <yi.guo@cavium.com>
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/24045
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/Makefile              |  3 ++
+ arch/arm/dts/cn9130-crb-r1p3-A.dts | 15 ++++++++++
+ arch/arm/dts/cn9130-crb-r1p3-B.dts | 15 ++++++++++
+ arch/arm/dts/cn9130-crb-r1p3-C.dts | 15 ++++++++++
+ arch/arm/dts/cn9130-crb-r1p3.dtsi  | 44 ++++++++++++++++++++++++++++++
+ 5 files changed, 92 insertions(+)
+ create mode 100644 arch/arm/dts/cn9130-crb-r1p3-A.dts
+ create mode 100644 arch/arm/dts/cn9130-crb-r1p3-B.dts
+ create mode 100644 arch/arm/dts/cn9130-crb-r1p3-C.dts
+ create mode 100644 arch/arm/dts/cn9130-crb-r1p3.dtsi
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 7d16befb3f..a8fcac9786 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -226,6 +226,9 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
+ 	cn9130-crb-A.dtb			\
+ 	cn9130-crb-B.dtb			\
+ 	cn9130-crb-C.dtb			\
++	cn9130-crb-r1p3-A.dtb			\
++	cn9130-crb-r1p3-B.dtb			\
++	cn9130-crb-r1p3-C.dtb			\
+ 	cn9130-db-A.dtb				\
+ 	cn9130-db-B.dtb				\
+ 	cn9130-db-C.dtb				\
+diff --git a/arch/arm/dts/cn9130-crb-r1p3-A.dts b/arch/arm/dts/cn9130-crb-r1p3-A.dts
+new file mode 100644
+index 0000000000..6959242fcd
+--- /dev/null
++++ b/arch/arm/dts/cn9130-crb-r1p3-A.dts
+@@ -0,0 +1,15 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2020 Marvell International Ltd.
++ */
++
++#include "cn9130-crb-A.dts"
++#include "cn9130-crb-r1p3.dtsi"
++
++/ {
++	model = "CN9130-CRB-A";
++	compatible = "marvell,cn9130-crb-A",
++		"marvell,cn9130",
++		"marvell,armada-ap806-quad",
++		"marvell,armada-ap806";
++};
+diff --git a/arch/arm/dts/cn9130-crb-r1p3-B.dts b/arch/arm/dts/cn9130-crb-r1p3-B.dts
+new file mode 100644
+index 0000000000..f30221588d
+--- /dev/null
++++ b/arch/arm/dts/cn9130-crb-r1p3-B.dts
+@@ -0,0 +1,15 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2020 Marvell International Ltd.
++ */
++
++#include "cn9130-crb-B.dts"
++#include "cn9130-crb-r1p3.dtsi"
++
++/ {
++	model = "CN9130-CRB-B";
++	compatible = "marvell,cn9130-crb-B",
++		"marvell,cn9130",
++		"marvell,armada-ap806-quad",
++		"marvell,armada-ap806";
++};
+diff --git a/arch/arm/dts/cn9130-crb-r1p3-C.dts b/arch/arm/dts/cn9130-crb-r1p3-C.dts
+new file mode 100644
+index 0000000000..4d034fae26
+--- /dev/null
++++ b/arch/arm/dts/cn9130-crb-r1p3-C.dts
+@@ -0,0 +1,15 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2020 Marvell International Ltd.
++ */
++
++#include "cn9130-crb-C.dts"
++#include "cn9130-crb-r1p3.dtsi"
++
++/ {
++	model = "CN9130-CRB-C (PCIe EP)";
++	compatible = "marvell,cn9130-crb-C",
++		"marvell,cn9130",
++		"marvell,armada-ap806-quad",
++		"marvell,armada-ap806";
++};
+diff --git a/arch/arm/dts/cn9130-crb-r1p3.dtsi b/arch/arm/dts/cn9130-crb-r1p3.dtsi
+new file mode 100644
+index 0000000000..8922c0d7e8
+--- /dev/null
++++ b/arch/arm/dts/cn9130-crb-r1p3.dtsi
+@@ -0,0 +1,44 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2020 Marvell International Ltd.
++ */
++
++/*
++ * CP related configuration
++ */
++&cp0_pinctl {
++	/* MPP Bus:
++	 *	[0-11]	RGMII1
++	 *	[12] GPIO
++	 *	[13-16] SPI1
++	 *	[17-32] GPIO
++	 *	[33]	SD_PWR_OFF
++	 *	[34]	CP_PCIE0_CLKREQn
++	 *	[35-38]	I2C1 I2C0
++	 *	[39]	GPIO
++	 *	[40-43]	SMI/XSMI
++	 *	[44-46]	GPIO
++	 *	[47]	UART1_TX
++	 *	[48]	GPIO
++	 *	[49]	SD_HST_18_EN
++	 *	[50]	GPIO
++	 *	[51]	SD_PWR_0
++	 *	[52]	PCIE_RSTn
++	 *	[53]	UART1_RX
++	 *	[54]	GPIO
++	 *	[55]	SD_DT
++	 *	[56-61]	SDIO
++	 */
++		/*   0   1   2   3   4   5   6   7   8   9 */
++	pin-func = < 3   3   3   3   3   3   3   3   3   3
++		     3   3   0   3   3   3   3   0   0   0
++		     0   0   0   0   0   0   0   0   0   0
++		     0   0   0   6   9   2   2   2   2   0
++		     8   8   8   8   0   0   0   7   0   0xa
++		     0   0xa 9   7   0   0xb 0xe 0xe 0xe 0xe
++		     0xe 0xe 0xe>;
++};
++
++&cp0_spi1 {
++	pinctrl-0 = <&cp0_spi0_pins>;
++};
+-- 
+2.29.0
+

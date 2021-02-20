@@ -1,0 +1,60 @@
+From 6384241cf65b23fcd4ebca79659deeaed6ed5ec2 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 27 Aug 2018 15:34:19 +0300
+Subject: [PATCH 0188/1239] spi: kirkwood: use clock API for reading the core
+ clock
+
+Use clock API instead of pre-defined core clock value for
+SPI baudrate calculations in KW SPI driver.
+Define weak soc_tclk_get() function for handling the same
+funuctionality on older platforms (A38x, A39x) missing the
+clocks API and using pre-defined core clock value
+
+Change-Id: If768047ac3333ab86dc8da4a8707eeb08a41e93a
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ drivers/spi/kirkwood_spi.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/spi/kirkwood_spi.c b/drivers/spi/kirkwood_spi.c
+index f27ebf50e8..f64c693f20 100644
+--- a/drivers/spi/kirkwood_spi.c
++++ b/drivers/spi/kirkwood_spi.c
+@@ -17,6 +17,15 @@
+ #include <asm/arch/mpp.h>
+ #endif
+ #include <asm/arch-mvebu/spi.h>
++#include <mach/clock.h>
++
++/* This weak implementation is for handling older platforms (A38x, A39x)
++ * with pre-defined core clock value
++ */
++__weak u32 soc_tclk_get(void)
++{
++	return CONFIG_SYS_TCLK;
++}
+ 
+ static void _spi_cs_activate(struct kwspi_registers *reg)
+ {
+@@ -271,7 +280,7 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
+ 	 * follows:
+ 	 * SPI actual frequency = core_clk / (SPR * (2 ^ SPPR))
+ 	 */
+-	divider = DIV_ROUND_UP(CONFIG_SYS_TCLK, hz);
++	divider = DIV_ROUND_UP(soc_tclk_get(), hz);
+ 	if (divider < 16) {
+ 		/* This is the easy case, divider is less than 16 */
+ 		spr = divider;
+@@ -317,7 +326,8 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
+ 
+ 	/* program spi clock prescaler using max_hz */
+ 	writel(KWSPI_ADRLEN_3BYTE | data, &reg->cfg);
+-	debug("data = 0x%08x\n", data);
++	debug("Core clock %d Hz, SPI CTRL data = 0x%08x\n",
++	      soc_tclk_get(), data);
+ 
+ 	return 0;
+ }
+-- 
+2.29.0
+

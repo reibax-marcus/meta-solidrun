@@ -1,0 +1,26 @@
+From f9d4b9726c9ff3ac63b5b2d4bd0d8e0c122399ee Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 31 May 2017 15:33:57 -0700
+Subject: [PATCH 0654/1239] configs: 93xx: limit cpu count to 1
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/thunderx_93xx.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index 20b0514f45..be7386c5a3 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -367,7 +367,7 @@
+ #define CONFIG_BOOTARGS			\
+ 					"console=ttyAMA0,115200n8 " \
+ 					"earlycon=pl011,0x87e028000000 " \
+-					"debug maxcpus=24 rootwait rw "\
++					"debug maxcpus=1 rootwait rw "\
+ 					"root=/dev/sda2 coherent_pool=16M"
+ 
+ /** Store U-Boot version in "ver" environment variable */
+-- 
+2.29.0
+

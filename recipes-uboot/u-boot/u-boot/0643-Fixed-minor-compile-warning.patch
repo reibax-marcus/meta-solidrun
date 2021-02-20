@@ -1,0 +1,35 @@
+From d3b0439a3fa0694b781cee570a7dd1e33d5d2661 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 28 Jun 2017 19:05:11 -0700
+Subject: [PATCH 0643/1239] Fixed minor compile warning.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ drivers/mmc/cavium_mmc.c | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/drivers/mmc/cavium_mmc.c b/drivers/mmc/cavium_mmc.c
+index 888527f492..2962ad3b10 100644
+--- a/drivers/mmc/cavium_mmc.c
++++ b/drivers/mmc/cavium_mmc.c
+@@ -206,17 +206,6 @@ static const struct udevice_id cavium_mmc_ids[] = {
+ 	{ },
+ };
+ 
+-static const struct udevice_id cavium_mmc_slot_ids[] = {
+-#ifndef __mips
+-	{ .compatible = "cavium,thunder-8890-mmc-slot" },
+-#else
+-	{ .compatible = "cavium,octeon-6130-mmc-slot" },
+-	{ .compatible = "cavium,octeon-7360-mmc-slot" },
+-	{ .compatible = "cavium,octeon-7890-mmc-slot" },
+-#endif
+-	{ },
+-};
+-
+ static const struct mmc_ops cavium_mmc_ops = {
+ 	.send_cmd = cavium_mmc_send_cmd,
+ 	.set_ios = cavium_mmc_set_ios,
+-- 
+2.29.0
+

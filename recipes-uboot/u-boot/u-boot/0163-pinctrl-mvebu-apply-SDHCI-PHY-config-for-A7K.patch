@@ -1,0 +1,37 @@
+From 9378c06547e0e138eb5ec76e8ee31845813adb51 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Wed, 25 Jul 2018 17:13:46 +0300
+Subject: [PATCH 0163/1239] pinctrl: mvebu: apply SDHCI PHY config for A7K
+
+Current pin control driver applies SDHCI PHY MUX selection
+when board DT calls for eMMC function on MPP wires.
+However, for CP side eMMC, only the "armada-8k-cpm-pinctrl"
+compatibility string is taken into account, which causes
+CP-SDHCI on Armada-7K boards to fail.
+This patch adds "armada-7k-pinctrl" compatibility string
+handling for the CP-SDHCI PHY configuration case.
+
+Change-Id: I0fce42d9c660439b124489a874feade2252405c7
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+---
+ drivers/pinctrl/mvebu/pinctrl-mvebu.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pinctrl/mvebu/pinctrl-mvebu.c b/drivers/pinctrl/mvebu/pinctrl-mvebu.c
+index 0b9c9e1d6a..e18b39dc58 100644
+--- a/drivers/pinctrl/mvebu/pinctrl-mvebu.c
++++ b/drivers/pinctrl/mvebu/pinctrl-mvebu.c
+@@ -49,7 +49,9 @@ void mvebu_pinctl_emmc_set_mux(struct udevice *dev, u32 pin, u32 func)
+ 				     EMMC_PHY_CTRL_SDPHY_EN);
+ 		}
+ 	} else if (!fdt_node_check_compatible(blob, node,
+-					"marvell,armada-8k-cpm-pinctrl")) {
++					"marvell,armada-8k-cpm-pinctrl") ||
++		   !fdt_node_check_compatible(blob, node,
++					"marvell,armada-7k-pinctrl")) {
+ 		if ((pin == CP110_EMMC_CLK_PIN_ID) &&
+ 		    (func == CP110_EMMC_CLK_FUNC)) {
+ 			clrbits_le32(priv->base_reg + CP_EMMC_PHY_CTRL_REG,
+-- 
+2.29.0
+

@@ -1,0 +1,32 @@
+From 5b6e2b8c1d38c75da748a2116d37bd3090c4b307 Mon Sep 17 00:00:00 2001
+From: Ofer Heifetz <oferh@marvell.com>
+Date: Mon, 11 Nov 2019 15:11:35 +0200
+Subject: [PATCH 1001/1239] arm64: mvebu: a8k: config: add kirkwood spi support
+
+Change-Id: I81bf809fbbca05b19c03d3aa6889208b489994a7
+Signed-off-by: Ofer Heifetz <oferh@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/18469
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/18950
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Marcin Wojtas <marcin@marvell.com>
+---
+ configs/mvebu_ocp-88f8040_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/mvebu_ocp-88f8040_defconfig b/configs/mvebu_ocp-88f8040_defconfig
+index 7acb1b910a..a5d10bdc45 100644
+--- a/configs/mvebu_ocp-88f8040_defconfig
++++ b/configs/mvebu_ocp-88f8040_defconfig
+@@ -60,6 +60,7 @@ CONFIG_DM_REGULATOR_FIXED=y
+ CONFIG_DEBUG_UART_SHIFT=2
+ CONFIG_DEBUG_UART_ANNOUNCE=y
+ CONFIG_SYS_NS16550=y
++CONFIG_KIRKWOOD_SPI=y
+ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_XHCI_HCD=y
+-- 
+2.29.0
+

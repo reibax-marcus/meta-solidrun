@@ -1,0 +1,27 @@
+From 463cefd29d9477c18f178c23a9005f2c1b7a7353 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 13 Sep 2017 15:09:38 -0700
+Subject: [PATCH 0708/1239] configs: 83xx: remove multiple definition of
+ CONFIG_SYS_BOOTM_LEN
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/thunderx_83xx.h | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 1be2a74e2b..29041a4141 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -12,8 +12,6 @@
+ 
+ #define CONFIG_SUPPORT_RAW_INITRD
+ 
+-#define CONFIG_SYS_BOOTM_LEN (16 << 20)
+-
+ /** Enable vsnprintf support */
+ #define CONFIG_SYS_VSNPRINTF
+ 
+-- 
+2.29.0
+

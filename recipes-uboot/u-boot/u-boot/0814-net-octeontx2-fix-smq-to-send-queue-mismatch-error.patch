@@ -1,0 +1,27 @@
+From b41b2e4f4f1511976c0707525b72f1d6956e2496 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 13 Aug 2018 15:52:58 -0700
+Subject: [PATCH 0814/1239] net: octeontx2: fix smq to send queue mismatch
+ error
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/cavium/octeontx2/nix_af.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/octeontx2/nix_af.c b/drivers/net/cavium/octeontx2/nix_af.c
+index 851b269f12..b21cf83a05 100644
+--- a/drivers/net/cavium/octeontx2/nix_af.c
++++ b/drivers/net/cavium/octeontx2/nix_af.c
+@@ -535,7 +535,7 @@ static int nix_attach_send_queue(struct nix *nix)
+ 	sq_req.sq.s.sdp_mcast = 0;
+ 	sq_req.sq.s.cq = NIX_CQ_TX;
+ 	sq_req.sq.s.cq_limit = 0;
+-	sq_req.sq.s.smq = nix->lf;
++	sq_req.sq.s.smq = nix->lmac->link_num; // scheduling index
+ 	sq_req.sq.s.sso_ena = 0;
+ 	sq_req.sq.s.smq_rr_quantum = MAX_MTU / 4;
+ 	sq_req.sq.s.default_chan = nix->lmac->chan_num;
+-- 
+2.29.0
+

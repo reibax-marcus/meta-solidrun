@@ -1,0 +1,42 @@
+From fb144104b094f593a8424b2be2dece4f23ab5c72 Mon Sep 17 00:00:00 2001
+From: Patrick Williams <alpawi@amazon.com>
+Date: Wed, 12 Jun 2019 16:43:22 -0500
+Subject: [PATCH 0253/1239] pinctrl: armada-37xx: remove SPI CS control from
+ UART2 group
+
+(This code is not "correct" for upstreaming, but works for our needs)
+
+Whenever we touch any GPIO in the UART2 group, there is a request
+to switch the entire UART2 pinmux group to GPIO mode.  This affects
+the SPI_CS2 and SPI_CS3 and effectively steals them from the SPI
+driver.
+
+Remove the SPI CS control bits from the UART2 group.  If we were trying
+to access a SPI CS as a GPIO, the associated SPI group will do the right
+thing.  This code is likely broken for UART2 as UART function, because
+the SPI CSs are not disabled correctly.
+
+Change-Id: I53ad6b590a921ac33098481c6960e2b89b8e869c
+Signed-off-by: Patrick Williams <alpawi@amazon.com>
+---
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+index f197f4a142..42350ac16b 100644
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -168,8 +168,8 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
+ 	PIN_GRP_GPIO("onewire", 4, 1, BIT(16), "onewire"),
+ 	PIN_GRP_GPIO("uart1", 25, 2, BIT(17), "uart"),
+ 	PIN_GRP_GPIO("spi_quad", 15, 2, BIT(18), "spi"),
+-	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
+-		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
++	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(19),
++		      BIT(1), BIT(1) | BIT(19),
+ 		      18, 2, "gpio", "uart"),
+ 	PIN_GRP_GPIO("led0_od", 11, 1, BIT(20), "led"),
+ 	PIN_GRP_GPIO("led1_od", 12, 1, BIT(21), "led"),
+-- 
+2.29.0
+

@@ -1,0 +1,33 @@
+From 45a24006254a6d671bdf914f85003ec44026bf43 Mon Sep 17 00:00:00 2001
+From: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
+Date: Tue, 25 Oct 2016 18:54:04 -0400
+Subject: [PATCH 0532/1239] dm: pci: decode_regions should fail when
+ hose->region_count reaches limit
+
+The hose->region_count is reaching limit on cn83xx and corrupting the
+structure and its adjacent memory.
+
+Signed-off-by: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
+---
+ drivers/pci/pci-uclass.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/pci/pci-uclass.c b/drivers/pci/pci-uclass.c
+index f7768e5b47..a7b230b5aa 100644
+--- a/drivers/pci/pci-uclass.c
++++ b/drivers/pci/pci-uclass.c
+@@ -1018,6 +1018,11 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
+ 		pci_set_region(hose->regions + pos, pci_addr, addr, size, type);
+ 	}
+ 
++	if(hose->region_count == MAX_PCI_REGIONS) {
++		printf("PCI region count reached limit, cannot add local memory region");
++		return 1;
++	}
++
+ 	/* Add a region for our local memory */
+ #ifdef CONFIG_NR_DRAM_BANKS
+ 	bd_t *bd = gd->bd;
+-- 
+2.29.0
+

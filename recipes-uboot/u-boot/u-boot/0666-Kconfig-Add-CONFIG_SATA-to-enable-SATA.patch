@@ -1,0 +1,30 @@
+From b15119e1975da3f1e695b8379ca54334b9be095d Mon Sep 17 00:00:00 2001
+From: Simon Glass <sjg@chromium.org>
+Date: Wed, 14 Jun 2017 21:28:25 -0600
+Subject: [PATCH 0666/1239] Kconfig: Add CONFIG_SATA to enable SATA
+
+At present CONFIG_CMD_SATA enables the 'sata' command which also brings
+in SATA support. Some boards may wish to enable SATA without the command.
+Add a separate CONFIG to permit this.
+
+Signed-off-by: Simon Glass <sjg@chromium.org>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+---
+ cmd/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index c72827d877..e9049af17d 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1275,6 +1275,7 @@ config CMD_AXI
+ 	  Interface) busses, a on-chip interconnect specification for managing
+ 	  functional blocks in SoC designs, which is also often used in designs
+ 	  involving FPGAs (e.g.  communication with IP cores in Xilinx FPGAs).
++
+ endmenu
+ 
+ 
+-- 
+2.29.0
+

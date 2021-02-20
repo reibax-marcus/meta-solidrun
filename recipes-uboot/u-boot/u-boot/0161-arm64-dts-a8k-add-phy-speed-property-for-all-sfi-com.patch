@@ -1,0 +1,132 @@
+From eb8fc9d4f4d02a1abafa367576071af1655e26c3 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Sun, 22 Jul 2018 17:43:22 +0300
+Subject: [PATCH 0161/1239] arm64: dts: a8k: add phy-speed property for all sfi
+ comphys
+
+The SFI can work with different speeds, add phy-speed property anywhere
+it was missing.
+
+Change-Id: Ifb3c53de4648a3c0d689370e4ae31f7b78a3e61d
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-7040-db-C.dts  | 1 +
+ arch/arm/dts/armada-8040-db-C.dts  | 2 ++
+ arch/arm/dts/armada-8040-db-D.dts  | 1 +
+ arch/arm/dts/armada-8040-db-E.dts  | 1 +
+ arch/arm/dts/armada-8040-db-F.dts  | 1 +
+ arch/arm/dts/armada-8040-db.dts    | 2 ++
+ arch/arm/dts/armada-8040-mcbin.dts | 2 ++
+ 7 files changed, 10 insertions(+)
+
+diff --git a/arch/arm/dts/armada-7040-db-C.dts b/arch/arm/dts/armada-7040-db-C.dts
+index e6cafdb7e4..20b6204c92 100644
+--- a/arch/arm/dts/armada-7040-db-C.dts
++++ b/arch/arm/dts/armada-7040-db-C.dts
+@@ -153,6 +153,7 @@
+ 
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 
+ 	phy3 {
+diff --git a/arch/arm/dts/armada-8040-db-C.dts b/arch/arm/dts/armada-8040-db-C.dts
+index 3940e0ce0b..06c0f92a10 100644
+--- a/arch/arm/dts/armada-8040-db-C.dts
++++ b/arch/arm/dts/armada-8040-db-C.dts
+@@ -122,6 +122,7 @@
+ 	};
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+@@ -250,6 +251,7 @@
+ 	};
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+diff --git a/arch/arm/dts/armada-8040-db-D.dts b/arch/arm/dts/armada-8040-db-D.dts
+index 7951987d46..82679f67c9 100644
+--- a/arch/arm/dts/armada-8040-db-D.dts
++++ b/arch/arm/dts/armada-8040-db-D.dts
+@@ -128,6 +128,7 @@
+ 	};
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+diff --git a/arch/arm/dts/armada-8040-db-E.dts b/arch/arm/dts/armada-8040-db-E.dts
+index 93df316f6e..664976a8df 100644
+--- a/arch/arm/dts/armada-8040-db-E.dts
++++ b/arch/arm/dts/armada-8040-db-E.dts
+@@ -122,6 +122,7 @@
+ 	};
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+diff --git a/arch/arm/dts/armada-8040-db-F.dts b/arch/arm/dts/armada-8040-db-F.dts
+index a70d32f41e..b8230268d7 100644
+--- a/arch/arm/dts/armada-8040-db-F.dts
++++ b/arch/arm/dts/armada-8040-db-F.dts
+@@ -297,6 +297,7 @@
+ 	};
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index 2bbcc94116..12cfeb4431 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -159,6 +159,7 @@
+ 	};
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+@@ -266,6 +267,7 @@
+ 	};
+ 	phy2 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 	phy3 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index 82295a54e5..cfff455e24 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -209,6 +209,7 @@
+ 	};
+ 	phy4 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 	phy5 {
+ 		phy-type = <COMPHY_TYPE_SATA1>;
+@@ -377,6 +378,7 @@
+ 	};
+ 	phy4 {
+ 		phy-type = <COMPHY_TYPE_SFI0>;
++		phy-speed = <COMPHY_SPEED_10_3125G>;
+ 	};
+ 	phy5 {
+ 		phy-type = <COMPHY_TYPE_SGMII2>;
+-- 
+2.29.0
+

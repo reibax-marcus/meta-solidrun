@@ -1,0 +1,55 @@
+From 4aaacd4dfbd93722bef78c3fefcc1e1274f5a9d1 Mon Sep 17 00:00:00 2001
+From: Ben Peled <bpeled@marvell.com>
+Date: Mon, 20 Apr 2020 21:15:56 +0300
+Subject: [PATCH 1135/1239] gpio: mvebu gpio: enable label parameter for bank's
+ name
+
+enable label parameter for bank's name
+
+Change-Id: I9aad0a50a45c015a414c411cfe752e09255e5417
+Signed-off-by: Ben Peled <bpeled@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27190
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ drivers/gpio/mvebu_gpio.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpio/mvebu_gpio.c b/drivers/gpio/mvebu_gpio.c
+index e8b1c5965c..ffc3b77251 100644
+--- a/drivers/gpio/mvebu_gpio.c
++++ b/drivers/gpio/mvebu_gpio.c
+@@ -88,12 +88,27 @@ static int mvebu_gpio_probe(struct udevice *dev)
+ {
+ 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+ 	struct mvebu_gpio_priv *priv = dev_get_priv(dev);
++	char name[32], label[8], *str;
++	const u8 *tmp;
++	int size;
+ 
+ 	priv->regs = (struct mvebu_gpio_regs *)devfdt_get_addr(dev);
+ 	uc_priv->gpio_count = MVEBU_GPIOS_PER_BANK;
+ 	priv->name[0] = 'A' + dev->req_seq;
+-	uc_priv->bank_name = priv->name;
+-
++	tmp = dev_read_prop(dev, "label", &size);
++
++	if (tmp) {
++		memcpy(label, tmp, sizeof(label) - 1);
++		label[sizeof(label) - 1] = '\0';
++		snprintf(name, sizeof(name), "%s@", label);
++		str = strdup(name);
++		if (!str)
++			return -ENOMEM;
++		uc_priv->bank_name = str;
++
++	} else {
++		uc_priv->bank_name = priv->name;
++	}
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,46 @@
+From 1e711c3a48dd710102f916a4d7463130c48d5e8a Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Wed, 22 May 2019 14:23:15 -0700
+Subject: [PATCH 0911/1239] marvell: octeontx2: Disable failsafe feature
+ temporarily
+
+Change-Id: I73f7dd57bba3e98e18dd522425ac6fe1dff1e8e9
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/9795
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Alexey Kovalev <Alexey.Kovalev@cavium.com>
+---
+ include/configs/octeontx2_95xx.h | 2 +-
+ include/configs/octeontx2_96xx.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/octeontx2_95xx.h b/include/configs/octeontx2_95xx.h
+index 406c943127..a44b284f48 100644
+--- a/include/configs/octeontx2_95xx.h
++++ b/include/configs/octeontx2_95xx.h
+@@ -42,7 +42,7 @@
+ 
+ #define CONFIG_MISC_INIT_R
+ 
+-#define CONFIG_LAST_STAGE_INIT
++/*#define CONFIG_LAST_STAGE_INIT */
+ 
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+diff --git a/include/configs/octeontx2_96xx.h b/include/configs/octeontx2_96xx.h
+index f4c3f1dfe8..6c8212a9c7 100644
+--- a/include/configs/octeontx2_96xx.h
++++ b/include/configs/octeontx2_96xx.h
+@@ -42,7 +42,7 @@
+ 
+ #define CONFIG_MISC_INIT_R
+ 
+-#define CONFIG_LAST_STAGE_INIT
++/*#define CONFIG_LAST_STAGE_INIT */
+ 
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+-- 
+2.29.0
+

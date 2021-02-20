@@ -1,0 +1,59 @@
+From cb678e69ab3e50eacbe9d46b9af2706fe9d530f2 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 26 Jul 2017 17:01:12 +0300
+Subject: [PATCH 0664/1239] armv8: cavium: Update T83 default config
+
+Upstream requires that the platform default config be obtained
+as a result of 'save defconfig' command execution. This commit
+updates the config files to comply with this requirement and
+enables the NVME driver
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ configs/t83_defconfig           | 3 +++
+ include/configs/thunderx_83xx.h | 1 -
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/configs/t83_defconfig b/configs/t83_defconfig
+index 09f759572d..3c777a8a9d 100644
+--- a/configs/t83_defconfig
++++ b/configs/t83_defconfig
+@@ -5,6 +5,7 @@ CONFIG_DEFAULT_DEVICE_TREE="thunder-83xx"
+ CONFIG_DEBUG_UART=y
+ CONFIG_FIT=y
+ CONFIG_FIT_SIGNATURE=y
++CONFIG_OF_BOARD_SETUP=y
+ CONFIG_SYS_EXTRA_OPTIONS="ARM64"
+ CONFIG_BOOTDELAY=5
+ # CONFIG_DISPLAY_CPUINFO is not set
+@@ -17,6 +18,7 @@ CONFIG_CMD_PART=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_USB=y
++CONFIG_CMD_NVME=y
+ # CONFIG_CMD_FPGA is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_TFTPPUT=y
+@@ -36,6 +38,7 @@ CONFIG_EFI_PARTITION=y
+ CONFIG_PARTITION_TYPE_GUID=y
+ CONFIG_OF_BOARD=y
+ CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_NVME=y
+ CONFIG_MISC=y
+ CONFIG_PHYLIB=y
+ CONFIG_PHYLIB_10G=y
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 0e8989524a..3bc7ea50ca 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -58,7 +58,6 @@
+  * The board code has additional modification that it wants to make to the
+  * flat device tree before handing it off to the Linux kernel.
+  */
+-#define CONFIG_OF_BOARD_SETUP
+ 
+ /* SMP Spin Table Definitions */
+ #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+-- 
+2.29.0
+

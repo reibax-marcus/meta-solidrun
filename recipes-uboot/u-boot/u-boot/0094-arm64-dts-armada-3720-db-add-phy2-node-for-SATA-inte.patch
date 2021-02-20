@@ -1,0 +1,35 @@
+From c712c68a0f333d94e741b7bd9a03a4a639fc5b9c Mon Sep 17 00:00:00 2001
+From: zachary <zhangzg@marvell.com>
+Date: Mon, 27 Feb 2017 23:18:33 +0800
+Subject: [PATCH 0094/1239] arm64: dts: armada-3720-db: add phy2 node for SATA
+ interface
+
+This patch sets Serdes lane 2 to SATA for Armada3700
+development board.
+
+Change-Id: Ia8f9d9c1e099904c3fa6f620b8db6077b90fd540
+Signed-off-by: zachary <zhangzg@marvell.com>
+---
+ arch/arm/dts/armada-3720-db.dts | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/arm/dts/armada-3720-db.dts b/arch/arm/dts/armada-3720-db.dts
+index cc129380b8..2962baa55c 100644
+--- a/arch/arm/dts/armada-3720-db.dts
++++ b/arch/arm/dts/armada-3720-db.dts
+@@ -107,6 +107,12 @@
+ 		phy-type = <COMPHY_TYPE_USB3_HOST0>;
+ 		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
++
++	phy2 {
++		phy-type = <COMPHY_TYPE_SATA0>;
++		phy-speed = <COMPHY_SPEED_5G>;
++		phy-invert = <COMPHY_POLARITY_NO_INVERT>;
++	};
+ };
+ 
+ &eth0 {
+-- 
+2.29.0
+

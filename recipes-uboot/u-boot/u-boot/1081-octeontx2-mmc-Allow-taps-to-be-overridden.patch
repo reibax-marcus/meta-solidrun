@@ -1,0 +1,203 @@
+From 1769f914e5b97ec63797fc5b9f873cac8d1a6e56 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Tue, 28 Jan 2020 19:51:19 -0800
+Subject: [PATCH 1081/1239] octeontx2: mmc: Allow taps to be overridden
+
+This patch allows for the tuning taps to be specified from the
+environment or an offset specified by the device tree.
+
+This patch also allows the driver to perform a read operation of block 0
+after tuning. The results of the read are ignored because a DMA error
+may occur after the tuning operation.
+
+The environment variables are:
+emmcX_cmd_in_tap
+emmcX_data_in_tap_hs200
+emmcX_data_in_tap
+emmcX_read_after_tune
+
+The device tree entry is marvell,hs200-tap-adjust where the value is
+a signed integer.  Note that negative values in the device tree must
+be surrounded by (), i.e.
+marvell,hs200-tap-adjust = <(-4)>;
+
+If marvell,read-after-tune is defined it will perform a read operation
+after tuning to clear out any DMA errors.
+
+where X is the bus ID.
+
+Change-Id: I4b932dc9de42618d78e5c25528cb1e23c6a59774
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/22460
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 76 ++++++++++++++++++++++++++++++++++++
+ drivers/mmc/octeontx_hsmmc.h |  4 +-
+ 2 files changed, 79 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index cb3661ee53..8eb6bb07e5 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -1717,6 +1717,8 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
+ 	int best_run = 0;
+ 	int best_start = -1;
+ 	bool prev_ok = false;
++	u64 tap_status = 0;
++	const int tap_adj = slot->hs200_tap_adj;
+ #ifdef DEBUG
+ 	char how[MAX_NO_OF_TAPS + 1] = "";
+ #endif
+@@ -1795,6 +1797,7 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
+ 				      read_csr(mmc, MIO_EMM_RSP_STS()),
+ 				      read_csr(mmc, MIO_EMM_RSP_LO()));
+ 			}
++			tap_status |= (u64)(!err) << tap;
+ #ifdef DEBUG
+ 			how[tap] = "-+"[!err];
+ #endif
+@@ -1857,7 +1860,15 @@ static int octeontx_mmc_adjust_tuning(struct mmc *mmc, struct adj *adj,
+ 	}
+ 
+ 	tap = best_start + best_run / 2;
++	if (adj->hs200_only && (tap + tap_adj >= 0) && (tap + tap_adj < 64) &&
++	    tap_status & (1ULL << (tap + tap_adj))) {
++		debug("Adjusting tap from %d by %d to %d\n",
++		      tap, tap_adj, tap + tap_adj);
++		tap += tap_adj;
++	}
+ #ifdef DEBUG
++	if (adj->test == mmc_send_tuning && tap < 58 && how[tap + 5] == '+')
++		tap += 5;
+ 	how[tap] = '@';
+ 	debug("%s/%s %d/%d/%d %s\n", mmc->dev->name,
+ 	      adj->name, best_start, tap, best_start + best_run, how);
+@@ -1890,6 +1901,7 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
+ 	int err;
+ 	struct adj *a;
+ 	bool is_hs200;
++	char env_name[64];
+ 
+ 	pr_info("%s re-tuning, opcode 0x%x\n", dev->name, opcode);
+ 
+@@ -1916,9 +1928,47 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
+ 	octeontx_mmc_set_output_bus_timing(mmc);
+ 
+ 	for (a = adj; a->name; a++) {
++		ulong in_tap;
++
++		if (!strcmp(a->name, "CMD_IN")) {
++			snprintf(env_name, sizeof(env_name),
++				 "emmc%d_cmd_in_tap", slot->bus_id);
++			in_tap = env_get_ulong(env_name, 10, (ulong)-1);
++			if (in_tap != (ulong)-1) {
++				if (mmc->selected_mode == MMC_HS_200 ||
++				    a->hs200_only)
++					slot->hs200_taps.s.cmd_in_tap = in_tap;
++				else
++					slot->taps.s.cmd_in_tap = in_tap;
++				continue;
++			}
++		} else if (a->hs200_only &&
++			   !strcmp(a->name, "DATA_IN(HS200)")) {
++			snprintf(env_name, sizeof(env_name),
++				 "emmc%d_data_in_tap_hs200", slot->bus_id);
++			in_tap = env_get_ulong(env_name, 10, (ulong)-1);
++			if (in_tap != (ulong)-1) {
++				debug("%s(%s): Overriding HS200 data in tap to %d\n",
++				      __func__, dev->name, (int)in_tap);
++				slot->hs200_taps.s.data_in_tap = in_tap;
++				continue;
++			}
++		} else if (!a->hs200_only && !strcmp(a->name, "DATA_IN")) {
++			snprintf(env_name, sizeof(env_name),
++				 "emmc%d_data_in_tap", slot->bus_id);
++			in_tap = env_get_ulong(env_name, 10, (ulong)-1);
++			if (in_tap != (ulong)-1) {
++				debug("%s(%s): Overriding non-HS200 data in tap to %d\n",
++				      __func__, dev->name, (int)in_tap);
++				slot->taps.s.data_in_tap = in_tap;
++				continue;
++			}
++		}
++
+ 		debug("%s(%s): Testing: %s, mode: %s, opcode: %u\n", __func__,
+ 		      dev->name, a->name, mmc_mode_name(mmc->selected_mode),
+ 		      opcode);
++
+ 		/* Skip DDR only test when not in DDR mode */
+ 		if (a->ddr_only && !mmc->ddr_mode) {
+ 			debug("%s(%s): Skipping %s due to non-DDR mode\n",
+@@ -1957,6 +2007,26 @@ static int octeontx_mmc_execute_tuning(struct udevice *dev, u32 opcode)
+ 	else
+ 		slot->tuned = true;
+ 
++	snprintf(env_name, sizeof(env_name), "emmc%d_read_after_tune",
++		 slot->bus_id);
++	if (slot->read_after_tune || env_get_yesno(env_name)) {
++		struct mmc_cmd cmd;
++		struct mmc_data data;
++		u8 buffer[mmc->read_bl_len];
++
++		cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
++		cmd.cmdarg = 0;
++		cmd.resp_type = MMC_RSP_R1;
++		data.dest = (void *)buffer;
++		data.blocks = 1;
++		data.blocksize = mmc->read_bl_len;
++		data.flags = MMC_DATA_READ;
++
++		err = octeontx_mmc_read_blocks(mmc, &cmd, &data);
++		debug("%s(%s): read block returned %d\n",
++		      __func__, dev->name, err);
++	}
++
+ 	return 0;
+ }
+ #endif /* MMC_SUPPORTS_TUNING) */
+@@ -2947,6 +3017,12 @@ static int octeontx_mmc_get_config(struct udevice *dev)
+ 	slot->cfg.f_min = 400000;
+ 	slot->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+ 
++	slot->hs200_tap_adj =
++		ofnode_read_s32_default(dev->node,
++					"marvell,hs200-tap-adjust", 0);
++	dev_dbg(dev, "hs200-tap-adjust: %d\n", slot->hs200_tap_adj);
++	slot->read_after_tune =
++		ofnode_read_bool(dev->node, "marvell,read-after-tune");
+ 	err = ofnode_read_u32_array(dev->node, "voltage-ranges", voltages, 2);
+ 	if (err) {
+ 		slot->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
+diff --git a/drivers/mmc/octeontx_hsmmc.h b/drivers/mmc/octeontx_hsmmc.h
+index 67dd67dd24..ecb80f4d12 100644
+--- a/drivers/mmc/octeontx_hsmmc.h
++++ b/drivers/mmc/octeontx_hsmmc.h
+@@ -50,6 +50,7 @@ struct octeontx_mmc_slot {
+ 	int			bus_id;		/** slot number */
+ 	uint			bus_width;
+ 	uint			max_width;
++	int			hs200_tap_adj;
+ 	u64			clock;
+ 	struct gpio_desc	cd_gpio;
+ 	struct gpio_desc	wp_gpio;
+@@ -57,7 +58,7 @@ struct octeontx_mmc_slot {
+ 	enum bus_mode		mode;
+ 	union mio_emm_switch	cached_switch;
+ 	union mio_emm_switch	want_switch;
+-	union mio_emm_rca		cached_rca;
++	union mio_emm_rca	cached_rca;
+ 	union mio_emm_timing	taps;	/* otx2: MIO_EMM_TIMING */
+ 	union mio_emm_timing	hs200_taps;
+ 	/* These are used to see if our tuning is still valid or not */
+@@ -85,6 +86,7 @@ struct octeontx_mmc_slot {
+ 	bool			wp_inverted:1;
+ 	bool			disable_ddr:1;
+ 	bool			non_removable:1;
++	bool			read_after_tune:1;
+ };
+ 
+ struct octeontx_mmc_cr_mods {
+-- 
+2.29.0
+

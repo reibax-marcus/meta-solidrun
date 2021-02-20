@@ -1,0 +1,26 @@
+From 78c37c91644f35694a001f67da66f93fdca7409f Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 23 May 2016 20:55:48 -0700
+Subject: [PATCH 0483/1239] net: thunderx: Fix GCC5 build
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/net/cavium/nic.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index 4d72a2e58b..1c3636b6f1 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -282,7 +282,7 @@ struct nicvf {
+ 	bool			hw_tso;
+ };
+ 
+-inline int node_id(void *addr)
++static inline int node_id(void *addr)
+ {
+ 	return ((uintptr_t)addr >> 44) & 0x3;
+ }
+-- 
+2.29.0
+

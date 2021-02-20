@@ -1,0 +1,27 @@
+From e0f68f16d8fc499fe008bd8f34c59a0847cc1a8a Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 18 May 2016 22:16:57 -0400
+Subject: [PATCH 0464/1239] dm: pci: Update I2C controllers for changes
+ semantics Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
+---
+ drivers/i2c/thunderx_i2c.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/thunderx_i2c.c b/drivers/i2c/thunderx_i2c.c
+index 961f962bbb..597ddcde54 100644
+--- a/drivers/i2c/thunderx_i2c.c
++++ b/drivers/i2c/thunderx_i2c.c
+@@ -338,8 +338,7 @@ static int thunderx_i2c_probe(struct udevice *dev)
+ 	debug("TWSI PCI device: %x\n", bdf);
+ 	dev->req_seq = PCI_FUNC(bdf);
+ 
+-	twsi->baseaddr = dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+-					PCI_REGION_MEM);
++	twsi->baseaddr = dm_pci_map_bar(dev, 0, PCI_REGION_MEM);
+ 
+ 	debug("TWSI bus %d at %p\n",dev->seq, twsi->baseaddr);
+ 
+-- 
+2.29.0
+

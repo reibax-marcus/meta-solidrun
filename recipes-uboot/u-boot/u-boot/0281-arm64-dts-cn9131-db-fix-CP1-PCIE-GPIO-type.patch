@@ -1,0 +1,33 @@
+From f983306ca42be1d8f540f7e9f2a5edb5f8e7232c Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Sun, 3 Nov 2019 04:22:04 +0100
+Subject: [PATCH 0281/1239] arm64: dts: cn9131-db: fix CP1 PCIE GPIO type
+
+According to schematics, the CP1 PCIE GPIO is active low.
+Reflect that in the device tree description.
+
+Change-Id: Ib65f82b0abb63a4cf8621a0dc576aa600dbdc539
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/18138
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/cn9131-db.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/cn9131-db.dtsi b/arch/arm/dts/cn9131-db.dtsi
+index 00f1f1ee13..8dbf61ac1f 100644
+--- a/arch/arm/dts/cn9131-db.dtsi
++++ b/arch/arm/dts/cn9131-db.dtsi
+@@ -78,7 +78,7 @@
+ &cp1_pcie0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp1_pcie_reset_pins>;
+-	marvell,reset-gpio = <&cp1_gpio0 0 GPIO_ACTIVE_HIGH>;
++	marvell,reset-gpio = <&cp1_gpio0 0 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ 	num-lanes = <2>;
+ 		/* non-prefetchable memory */
+-- 
+2.29.0
+

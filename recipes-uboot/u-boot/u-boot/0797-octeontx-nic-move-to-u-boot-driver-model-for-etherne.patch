@@ -1,0 +1,853 @@
+From 20eafec65d903406fc8d83a4c8e75eb82283f5d9 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 7 Sep 2018 16:24:29 -0700
+Subject: [PATCH 0797/1239] octeontx: nic: move to u-boot driver model for
+ ethernet class
+
+Move to use of DM_ETH uclass framework with necessary changes
+in nic driver. Minor changes in board files too and few compiler
+error fixes.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ arch/arm/include/asm/arch-octeontx/octeontx.h |   1 +
+ .../include/asm/arch-octeontx/octeontx_vnic.h |   4 +-
+ board/cavium/octeontx/fdt.c                   |  29 ++-
+ board/cavium/octeontx/octeontx.c              |  72 +++++---
+ configs/octeontx_81xx_defconfig               |   2 +-
+ configs/octeontx_83xx_defconfig               |   2 +-
+ drivers/net/cavium/nic.h                      |  10 +-
+ drivers/net/cavium/nic_main.c                 |  23 ++-
+ drivers/net/cavium/nicvf_main.c               | 170 ++++++++++--------
+ drivers/net/cavium/nicvf_queues.c             |   6 +-
+ drivers/net/cavium/nicvf_queues.h             |   4 +-
+ drivers/net/cavium/octeontx_bgx.c             |  16 +-
+ drivers/pci/pci-uclass.c                      |   5 +-
+ include/configs/octeontx_81xx.h               |   2 +
+ include/configs/octeontx_83xx.h               |   2 +
+ include/phy.h                                 |   4 +
+ net/eth-uclass.c                              |   3 +-
+ 17 files changed, 205 insertions(+), 150 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx.h b/arch/arm/include/asm/arch-octeontx/octeontx.h
+index 7da01d7b38..7f2f8c621a 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx.h
+@@ -29,6 +29,7 @@
+ void octeontx_parse_board_info(void);
+ void octeontx_parse_phy_info(void);
+ void octeontx_parse_mac_addr(void);
++void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth);
+ 
+ /** Board data definitions */
+ struct cavm_bdt {
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h b/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h
+index f0a36dad0b..9a07e1775d 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h
+@@ -10,11 +10,11 @@
+ struct nicpf;
+ struct nicvf;
+ 
+-int nicvf_initialize(struct udevice *dev, int vf_num);
+ int octeontx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
+ void bgx_get_count(int node, int *bgx_count);
+ int bgx_get_lmac_count(int node, int bgx_idx);
+ void bgx_set_board_info(int bgx_id, int *mdio_bus,
+-			int *phy_addr, bool *autoneg_dis, bool *lmac_reg, bool *lmac_enable);
++			int *phy_addr, bool *autoneg_dis,
++			bool *lmac_reg, bool *lmac_enable);
+ 
+ #endif /* VNIC_H_ */
+diff --git a/board/cavium/octeontx/fdt.c b/board/cavium/octeontx/fdt.c
+index 834be26f5b..a0c660cd9d 100644
+--- a/board/cavium/octeontx/fdt.c
++++ b/board/cavium/octeontx/fdt.c
+@@ -256,7 +256,6 @@ void octeontx_parse_mac_addr(void)
+ 	int offset = 0, node, bgx_id = 0, lmacid = 0;
+ 	unsigned char eth_addr[ARP_HLEN], env_addr[ARP_HLEN];
+ 	char eaddr[32], bgxname[16], envname[16];
+-	struct eth_device *ethdev;
+ 
+ 	debug("%s: ENTER\n", __func__);
+ 	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
+@@ -302,12 +301,12 @@ void octeontx_parse_mac_addr(void)
+ 						mismatch = 1;
+ 				}
+ 				env_set_force(envname, eaddr);
+-				ethdev = eth_get_dev_by_index(eth_id);
+-				if (ethdev &&
+-					memcmp(ethdev->enetaddr, eth_addr,
+-						ARP_HLEN))
+-					memcpy(ethdev->enetaddr, eth_addr,
+-						ARP_HLEN);
++				//ethdev = eth_get_dev_by_index(eth_id);
++				//if (ethdev &&
++				//	memcmp(ethdev->enetaddr, eth_addr,
++				//		ARP_HLEN))
++				//	memcpy(ethdev->enetaddr, eth_addr,
++				//		ARP_HLEN);
+ 			} else {
+ 				printf("Warning: local-mac-address "
+ 				       "not found for bgx%d lmac%d\n",
+@@ -322,14 +321,14 @@ void octeontx_parse_mac_addr(void)
+ 						snprintf(eaddr, sizeof(eaddr),
+ 							 "%pM", eth_addr);
+ 						env_set_force(envname, eaddr);
+-						ethdev = eth_get_dev_by_index(
+-								eth_id);
+-						if (ethdev &&
+-						    memcmp(ethdev->enetaddr,
+-							eth_addr, ARP_HLEN))
+-							memcpy(
+-							ethdev->enetaddr,
+-							eth_addr, ARP_HLEN);
++				//		ethdev = eth_get_dev_by_index(
++				//				eth_id);
++				//		if (ethdev &&
++				//		    memcmp(ethdev->enetaddr,
++				//			eth_addr, ARP_HLEN))
++				//			memcpy(
++				//			ethdev->enetaddr,
++				//			eth_addr, ARP_HLEN);
+ 					}
+ 				}
+ 			}
+diff --git a/board/cavium/octeontx/octeontx.c b/board/cavium/octeontx/octeontx.c
+index eea787295c..4f1472fa7d 100644
+--- a/board/cavium/octeontx/octeontx.c
++++ b/board/cavium/octeontx/octeontx.c
+@@ -18,16 +18,31 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ extern unsigned long fdt_base_addr;
+-
+-#ifdef CONFIG_BOARD_EARLY_INIT_R
+ extern void eth_common_init(void);
++
+ int board_early_init_r(void)
+ {
+-	eth_common_init();
+ 	pci_init();
+ 	return 0;
+ }
+-#endif
++
++int misc_init_r(void)
++{
++	struct udevice *bus;
++
++	eth_common_init();
++
++	/*
++	 * Enumerate all miscellaneous devices.
++	 * So BGX/NIC/vNIC devices will be enumerated too.
++	 */
++	for (uclass_first_device(UCLASS_MISC, &bus);
++	     bus;
++	     uclass_next_device(&bus)) {
++		;
++	}
++	return 0;
++}
+ 
+ int board_init(void)
+ {
+@@ -85,7 +100,7 @@ int board_late_init(void)
+ 	 * Now that pci_init initializes env device.
+ 	 * Try to validate ethaddr env variables
+ 	 */
+-	octeontx_parse_mac_addr();
++//	octeontx_parse_mac_addr();
+ 
+ 	debug("bdt.type %s\n", p_cavm_bdt->type);
+ 	snprintf(boardname, sizeof(boardname), "%s> ", p_cavm_bdt->type);
+@@ -94,24 +109,39 @@ int board_late_init(void)
+ 	return 0;
+ }
+ 
+-/*
+- * Board specific ethernet initialization routine.
+- */
+-
+-int board_eth_init(bd_t *bis)
++void octeontx_board_get_ethaddr(int bgx, int lmac, unsigned char *eth)
+ {
+-	int rc = 0;
+-	unsigned char ethaddr[6];
+-
+-	if (!eth_env_get_enetaddr("ethaddr", ethaddr)) {
+-		net_random_ethaddr(ethaddr);
+-		printf("Generating random MAC address: %pM\n", ethaddr);
+-		eth_env_set_enetaddr("ethaddr", ethaddr);
++	const void *fdt = gd->fdt_blob;
++	const char *mac = NULL;
++	int offset = 0, node, len;
++	int subnode, i = 0;
++	char bgxname[24];
++
++	offset = fdt_node_offset_by_compatible(fdt, -1, "pci-bridge");
++	if (offset < 0) {
++		printf("%s couldn't find mrml bridge node in fdt\n",
++			 __func__);
++		return;
++	}
++	if (bgx == 2 && CAVIUM_IS_MODEL(CN81XX)) {
++		snprintf(bgxname, sizeof(bgxname), "rgx%d", 0);
++		lmac = 0;
++	} else
++		snprintf(bgxname, sizeof(bgxname), "bgx%d", bgx);
++
++	node = fdt_subnode_offset(fdt, offset, bgxname);
++
++	fdt_for_each_subnode(subnode, fdt, node) {
++		if (i++ != lmac)
++			continue;
++		/* check for local-mac-address */
++		mac = fdt_getprop(fdt, subnode,
++				       "local-mac-address", &len);
++		debug("%s mac %pM\n", __func__, mac);
++		memcpy(eth, mac, ARP_HLEN);
++		debug("%s mac %pM\n", __func__, eth);
++		return;
+ 	}
+-
+-	rc = pci_eth_init(bis);
+-
+-	return rc;
+ }
+ 
+ #ifdef CONFIG_HW_WATCHDOG
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index 998dc5b9e9..b99953d628 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -80,7 +80,7 @@ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_MICREL=y
+ CONFIG_PHY_REALTEK=y
+ CONFIG_PHY_VITESSE=y
+-CONFIG_NETDEVICES=y
++CONFIG_DM_ETH=y
+ CONFIG_E1000=y
+ CONFIG_E1000_SPI=y
+ CONFIG_CMD_E1000=y
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index c54852cfc4..201871f22c 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -80,7 +80,7 @@ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_MICREL=y
+ CONFIG_PHY_REALTEK=y
+ CONFIG_PHY_VITESSE=y
+-CONFIG_NETDEVICES=y
++CONFIG_DM_ETH=y
+ CONFIG_E1000=y
+ CONFIG_E1000_SPI=y
+ CONFIG_CMD_E1000=y
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index 7a91955853..435a1d1335 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -240,7 +240,7 @@ struct hw_info {
+ };
+ 
+ struct nicvf {
+-	struct eth_device	*netdev;
++	struct udevice		*dev;
+ 	uint8_t			vf_id;
+ 	bool			sqs_mode:1;
+ 	bool			loopback_supported:1;
+@@ -289,7 +289,6 @@ static inline int node_id(void *addr)
+ 
+ struct nicpf {
+ 	struct udevice		*udev;
+-	struct eth_device	*netdev;
+ 	struct hw_info		*hw;
+ 	uint8_t			node;
+ 	unsigned int		flags;
+@@ -491,12 +490,11 @@ union nic_mbx {
+ 	struct set_loopback	lbk;
+ };
+ 
+-int nicvf_set_real_num_queues(struct eth_device *netdev,
++int nicvf_set_real_num_queues(struct udevice *dev,
+ 			      int tx_queues, int rx_queues);
+-int nicvf_open(struct eth_device *netdev, bd_t *bis);
+-void nicvf_stop(struct eth_device *netdev);
++int nicvf_open(struct udevice *dev);
++void nicvf_stop(struct udevice *dev);
+ int nicvf_send_msg_to_pf(struct nicvf *vf, union nic_mbx *mbx);
+-void nicvf_free_pkt(struct nicvf *nic, void *pkt);
+ void nicvf_update_stats(struct nicvf *nic);
+ 
+ void nic_handle_mbx_intr(struct nicpf *nic, int vf);
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index 716fb54e01..7f3f21ae91 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -753,25 +753,24 @@ exit:
+ 
+ int octeontx_nic_probe(struct udevice *dev)
+ {
+-	int vf;
+-	int ret;
+-	struct nicpf *nicpf;
+-
+-	nic_initialize(dev);
+-	nicpf = dev_get_priv(dev);
++	int ret = 0;
++	struct nicpf *nicpf = dev_get_priv(dev);
+ 
++	ret = nic_initialize(dev);
++	if (ret < 0) {
++		printf("couldn't initialize NIC PF");
++		return ret;
++	}
+ 	ret = pci_sriov_init(dev, nicpf->num_vf_en);
+-
+ 	if (ret < 0) {
+ 		printf("enabling SRIOV failed for num VFs %d",nicpf->num_vf_en);
+-		return ret;
+ 	}
+-
+-	for (vf = 0; vf < nicpf->num_vf_en; vf++) {
++#if 0
++	for (int vf = 0; vf < nicpf->num_vf_en; vf++) {
+ 		 nicvf_initialize(dev, vf);
+ 	}
+-
+-	return 0;
++#endif
++	return ret;
+ }
+ 
+ static const struct misc_ops octeontx_nic_ops = {
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/cavium/nicvf_main.c
+index fff02d3ef7..6f981b258a 100644
+--- a/drivers/net/cavium/nicvf_main.c
++++ b/drivers/net/cavium/nicvf_main.c
+@@ -13,11 +13,11 @@
+ #include <pci.h>
+ #include <net.h>
+ #include <misc.h>
+-#include <netdev.h>
+ #include <malloc.h>
+ #include <asm/io.h>
+ 
+ #include <asm/arch/octeontx_vnic.h>
++#include <asm/arch/octeontx.h>
+ 
+ #include "nic_reg.h"
+ #include "nic.h"
+@@ -116,6 +116,7 @@ static int nicvf_check_pf_ready(struct nicvf *nic)
+ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
+ {
+ 	union nic_mbx mbx = {};
++	struct eth_pdata *pdata = dev_get_platdata(nic->dev);
+ 	u64 *mbx_data;
+ 	u64 mbx_addr;
+ 	int i;
+@@ -137,7 +138,7 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
+ 		nic->tns_mode = mbx.nic_cfg.tns_mode & 0x7F;
+ 		nic->node = mbx.nic_cfg.node_id;
+ 		if (!nic->set_mac_pending)
+-			memcpy(nic->netdev->enetaddr,
++			memcpy(pdata->enetaddr,
+ 					mbx.nic_cfg.mac_addr, 6);
+ 		nic->loopback_supported = mbx.nic_cfg.loopback_supported;
+ 		nic->link_up = false;
+@@ -157,12 +158,12 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
+ 		nic->speed = mbx.link_status.speed;
+ 		if (nic->link_up) {
+ 			printf("%s: Link is Up %d Mbps %s\n",
+-				    nic->netdev->name, nic->speed,
++				    nic->dev->name, nic->speed,
+ 				    nic->duplex == 1 ?
+ 				"Full duplex" : "Half duplex");
+ 		} else {
+ 			printf("%s: Link is Down\n",
+-				    nic->netdev->name);
++				    nic->dev->name);
+ 		}
+ 		break;
+ 	default:
+@@ -173,13 +174,14 @@ static void  nicvf_handle_mbx_intr(struct nicvf *nic)
+ 	nicvf_clear_intr(nic, NICVF_INTR_MBOX, 0);
+ }
+ 
+-static int nicvf_hw_set_mac_addr(struct nicvf *nic, struct eth_device *netdev)
++static int nicvf_hw_set_mac_addr(struct nicvf *nic, struct udevice *dev)
+ {
+ 	union nic_mbx mbx = {};
++	struct eth_pdata *pdata = dev_get_platdata(dev);
+ 
+ 	mbx.mac.msg = NIC_MBOX_MSG_SET_MAC;
+ 	mbx.mac.vf_id = nic->vf_id;
+-	memcpy(mbx.mac.mac_addr, netdev->enetaddr, 6);
++	memcpy(mbx.mac.mac_addr, pdata->enetaddr, 6);
+ 
+ 	return nicvf_send_msg_to_pf(nic, &mbx);
+ }
+@@ -215,12 +217,12 @@ static int nicvf_init_resources(struct nicvf *nic)
+ 	}
+ 	return 0;
+ }
+-
++#if 0
+ void nicvf_free_pkt(struct nicvf *nic, void *pkt)
+ {
+ 	free(pkt);
+ }
+-
++#endif
+ static void nicvf_snd_pkt_handler(struct nicvf *nic,
+ 				  struct cmp_queue *cq,
+ 				  void *cq_desc, int cqe_type)
+@@ -299,17 +301,17 @@ int nicvf_cq_handler(struct nicvf *nic, void **ppkt, int *pkt_len)
+ 
+ 		switch (cq_desc->cqe_type) {
+ 		case CQE_TYPE_RX:
+-			debug("%s: Got Rx CQE\n", nic->netdev->name);
++			debug("%s: Got Rx CQE\n", nic->dev->name);
+ 			*pkt_len = nicvf_rcv_pkt_handler(nic, cq, cq_desc, ppkt, CQE_TYPE_RX);
+ 			processed_rq_cqe++;
+ 			break;
+ 		case CQE_TYPE_SEND:
+-			debug("%s: Got Tx CQE\n", nic->netdev->name);
++			debug("%s: Got Tx CQE\n", nic->dev->name);
+ 			nicvf_snd_pkt_handler(nic, cq, cq_desc, CQE_TYPE_SEND);
+ 			processed_sq_cqe++;
+ 			break;
+ 		default:
+-			debug("%s: Got CQ type %u\n", nic->netdev->name, cq_desc->cqe_type);
++			debug("%s: Got CQ type %u\n", nic->dev->name, cq_desc->cqe_type);
+ 			break;
+ 		}
+ 		processed_cqe++;
+@@ -344,14 +346,22 @@ void nicvf_handle_qs_err(struct nicvf *nic)
+ 		/* Process already queued CQEs and reconfig CQ */
+ 		nicvf_sq_disable(nic, qidx);
+ 		nicvf_cmp_queue_config(nic, qs, qidx, true);
+-		nicvf_sq_free_used_descs(nic->netdev, &qs->sq[qidx], qidx);
++		nicvf_sq_free_used_descs(nic->dev, &qs->sq[qidx], qidx);
+ 		nicvf_sq_enable(nic, &qs->sq[qidx], qidx);
+ 	}
+ }
+ 
+-static int nicvf_xmit(struct eth_device *netdev, void *pkt, int pkt_len)
++static int nicvf_free_pkt(struct udevice *dev, uchar *pkt, int pkt_len)
+ {
+-	struct nicvf *nic = netdev->priv;
++	struct nicvf *nic = dev_get_priv(dev);
++
++	nicvf_refill_rbdr(nic);
++	return 0;
++}
++
++static int nicvf_xmit(struct udevice *dev, void *pkt, int pkt_len)
++{
++	struct nicvf *nic = dev_get_priv(dev);
+ 	int ret = 0;
+ 	int rcv_len = 0;
+ 	unsigned int timeout = 5000;
+@@ -375,9 +385,9 @@ static int nicvf_xmit(struct eth_device *netdev, void *pkt, int pkt_len)
+ 	return 0;
+ }
+ 
+-static int nicvf_recv(struct eth_device *netdev)
++static int nicvf_recv(struct udevice *dev, int flags, uchar **packetp)
+ {
+-	struct nicvf *nic = netdev->priv;
++	struct nicvf *nic = dev_get_priv(dev);
+ 	void *pkt;
+ 	int pkt_len = 0;
+ #ifdef DEBUG
+@@ -399,16 +409,17 @@ static int nicvf_recv(struct eth_device *netdev)
+ 			puts("\n");
+ 		}
+ #endif
+-		net_process_received_packet(pkt, pkt_len);
+-		nicvf_refill_rbdr(nic);
++		//net_process_received_packet(pkt, pkt_len);
++		//nicvf_refill_rbdr(nic);
++		*packetp = pkt;
+ 	}
+ 
+ 	return pkt_len;
+ }
+ 
+-void nicvf_stop(struct eth_device *netdev)
++void nicvf_stop(struct udevice *dev)
+ {
+-	struct nicvf *nic = netdev->priv;
++	struct nicvf *nic = dev_get_priv(dev);
+ 
+ 	if (!nic->open)
+ 		return;
+@@ -422,12 +433,12 @@ void nicvf_stop(struct eth_device *netdev)
+ 	nic->open = false;
+ }
+ 
+-int nicvf_open(struct eth_device *netdev, bd_t *bis)
++int nicvf_open(struct udevice *dev)
+ {
+ 	int err;
+-	struct nicvf *nic = netdev->priv;
++	struct nicvf *nic = dev_get_priv(dev);
+ 
+-	nicvf_hw_set_mac_addr(nic, netdev);
++	nicvf_hw_set_mac_addr(nic, dev);
+ 
+ 	/* Configure CPI alorithm */
+ 	nic->cpi_alg = CPI_ALG_NONE;
+@@ -450,39 +461,43 @@ int nicvf_open(struct eth_device *netdev, bd_t *bis)
+ 	return 0;
+ }
+ 
+-int nicvf_initialize(struct udevice *pdev, int vf_num)
++struct nicpf *nicvf_get_nicpf(void)
+ {
+-	struct eth_device *netdev = NULL;
+-	struct nicvf *nicvf = NULL;
+-	int    ret;
+-	size_t size;
++	struct udevice *pdev;
++	int err;
+ 
+-	netdev = calloc(1, sizeof(struct eth_device));
++	err = dm_pci_find_device(PCI_VENDOR_ID_CAVIUM,
++				 PCI_DEVICE_ID_OCTEONTX_NIC_PF,
++				 0, &pdev);
++	if (err)
++		printf("%s couldn't find NIC PF device..VF probe failed\n",
++			__func__);
+ 
+-	if (!netdev) {
+-		ret = -ENOMEM;
+-		goto fail;
+-	}
++	return (err ? NULL : dev_get_priv(pdev));
++}
+ 
+-	nicvf = calloc(1, sizeof(struct nicvf));
++static int vfid = 0;
++int nicvf_initialize(struct udevice *dev)
++{
++	struct nicvf *nicvf = dev_get_priv(dev);
++	struct eth_pdata *pdata = dev_get_platdata(dev);
++	int    ret = 0, bgx, lmac;
++	size_t size;
++	char   name[16];
++	unsigned char ethaddr[ARP_HLEN];
+ 
+-	if (!nicvf) {
+-		ret = -ENOMEM;
+-		goto fail;
++	nicvf->nicpf = nicvf_get_nicpf();
++	if (!nicvf->nicpf) {
++		printf("%s couldn't get pf device\n", __func__);
++		return -1;
+ 	}
+-
+-	netdev->priv = nicvf;
+-	nicvf->netdev = netdev;
+-	nicvf->nicpf = dev_get_priv(pdev);
+-	nicvf->vf_id = vf_num;
+-
++	nicvf->vf_id = vfid++;
++	nicvf->dev = dev;
+ 
+ 	/* Enable TSO support */
+ 	nicvf->hw_tso = true;
+ 
+-	nicvf->reg_base = dm_pci_map_bar(pdev, 9, &size, PCI_REGION_MEM);
+-
+-	nicvf->reg_base += size * nicvf->vf_id;
++	nicvf->reg_base = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
+ 
+ 	debug("nicvf->reg_base: %p\n", nicvf->reg_base);
+ 
+@@ -496,46 +511,50 @@ int nicvf_initialize(struct udevice *pdev, int vf_num)
+ 	if (ret)
+ 		return -1;
+ 
+-	snprintf(netdev->name, sizeof(netdev->name), "vnic%u", nicvf->vf_id);
+-
+-	netdev->halt = nicvf_stop;
+-	netdev->init = nicvf_open;
+-	netdev->send = nicvf_xmit;
+-	netdev->recv = nicvf_recv;
+-
++	sprintf(name, "vnic%u", nicvf->vf_id);
++	debug("%s name %s\n", __func__, name);
++	device_set_name(dev, name);
++
++	bgx = NIC_GET_BGX_FROM_VF_LMAC_MAP(
++				nicvf->nicpf->vf_lmac_map[nicvf->vf_id]);
++	lmac = NIC_GET_LMAC_FROM_VF_LMAC_MAP(
++				nicvf->nicpf->vf_lmac_map[nicvf->vf_id]);
++	debug("%s VF %d BGX %d LMAC %d \n",
++		__func__, nicvf->vf_id, bgx, lmac);
++	debug("%s PF %p pfdev %p VF %p vfdev %p vf->pdata %p \n",
++		__func__, nicvf->nicpf, nicvf->nicpf->udev, nicvf, nicvf->dev, pdata);
++
++	octeontx_board_get_ethaddr(bgx, lmac, ethaddr);
++
++	debug("%s bgx %d lmac %d ethaddr %pM\n",
++		__func__, bgx, lmac, ethaddr);
++
++	memcpy(pdata->enetaddr, ethaddr, ARP_HLEN);
++	debug("%s enetaddr %pM ethaddr %pM\n",
++		__func__, pdata->enetaddr, ethaddr);
++	eth_env_set_enetaddr_by_index("eth", dev->seq, ethaddr);
++#if 0
+ 	if (!eth_env_get_enetaddr_by_index("eth", nicvf->vf_id, netdev->enetaddr)) {
+ 		eth_env_get_enetaddr("ethaddr", netdev->enetaddr);
+ 		netdev->enetaddr[5] += nicvf->vf_id;
+ 	}
+-
+-	ret = eth_register(netdev);
+-
+-	if (!ret)
+-		return 0;
+-
+-	printf("Failed to register netdevice\n");
++#endif
+ 
+ fail:
+-	if (nicvf)
+-		free(nicvf);
+-	if(netdev)
+-		free(netdev);
+ 	return ret;
+ }
+ 
+ int octeontx_vnic_probe(struct udevice *dev)
+ {
+-	void *regs;
+-	size_t size;
+-
+-	regs = dm_pci_map_bar(dev, 9, &size, PCI_REGION_MEM);
+-
+-	debug("%s: %d, regs: %p\n", __FUNCTION__, __LINE__, regs);
+-
+-	return 0;
++	return nicvf_initialize(dev);
+ }
+ 
+-static const struct misc_ops octeontx_vnic_ops = {
++static const struct eth_ops octeontx_vnic_ops = {
++	.start = nicvf_open,
++	.stop  = nicvf_stop,
++	.send  = nicvf_xmit,
++	.recv  = nicvf_recv,
++	.free_pkt = nicvf_free_pkt,
+ };
+ 
+ static const struct udevice_id octeontx_vnic_ids[] = {
+@@ -544,12 +563,13 @@ static const struct udevice_id octeontx_vnic_ids[] = {
+ };
+ 
+ U_BOOT_DRIVER(octeontx_vnic) = {
+-	.name	= "octeontx_vnic",
+-	.id	= UCLASS_MISC,
++	.name	= "vnic",
++	.id	= UCLASS_ETH,
+ 	.probe	= octeontx_vnic_probe,
+ 	.of_match = octeontx_vnic_ids,
+ 	.ops	= &octeontx_vnic_ops,
+ 	.priv_auto_alloc_size = sizeof(struct nicvf),
++	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+ };
+ 
+ static struct pci_device_id octeontx_vnic_supported[] = {
+diff --git a/drivers/net/cavium/nicvf_queues.c b/drivers/net/cavium/nicvf_queues.c
+index 6d0a3013f3..b001e69823 100644
+--- a/drivers/net/cavium/nicvf_queues.c
++++ b/drivers/net/cavium/nicvf_queues.c
+@@ -10,7 +10,7 @@
+ #include <config.h>
+ #include <common.h>
+ #include <net.h>
+-#include <netdev.h>
++#include <dm/device.h>
+ #include <malloc.h>
+ 
+ #include "nic_reg.h"
+@@ -708,11 +708,11 @@ void nicvf_sq_disable(struct nicvf *nic, int qidx)
+ 	nicvf_queue_reg_write(nic, NIC_QSET_SQ_0_7_CFG, qidx, sq_cfg);
+ }
+ 
+-void nicvf_sq_free_used_descs(struct eth_device *netdev, struct snd_queue *sq,
++void nicvf_sq_free_used_descs(struct udevice *dev, struct snd_queue *sq,
+ 								int qidx)
+ {
+ 	uint64_t head;
+-	struct nicvf *nic = netdev->priv;
++	struct nicvf *nic = dev_get_priv(dev);
+ 	struct sq_hdr_subdesc *hdr;
+ 
+ 	head = nicvf_queue_reg_read(nic, NIC_QSET_SQ_0_7_HEAD, qidx) >> 4;
+diff --git a/drivers/net/cavium/nicvf_queues.h b/drivers/net/cavium/nicvf_queues.h
+index 82eb5322ea..ce575511cb 100644
+--- a/drivers/net/cavium/nicvf_queues.h
++++ b/drivers/net/cavium/nicvf_queues.h
+@@ -336,8 +336,8 @@ void nicvf_cmp_queue_config(struct nicvf *nic, struct queue_set *qs,
+ void nicvf_sq_enable(struct nicvf *nic, struct snd_queue *sq, int qidx);
+ void nicvf_sq_disable(struct nicvf *nic, int qidx);
+ void nicvf_put_sq_desc(struct snd_queue *sq, int desc_cnt);
+-void nicvf_sq_free_used_descs(struct eth_device *netdev,
+-								struct snd_queue *sq, int qidx);
++void nicvf_sq_free_used_descs(struct udevice *dev,
++					struct snd_queue *sq, int qidx);
+ int nicvf_sq_append_pkt(struct nicvf *nic, void *pkt, size_t pkt_len);
+ 
+ void *nicvf_get_rcv_pkt(struct nicvf *nic, void *cq_desc, size_t *pkt_len);
+diff --git a/drivers/net/cavium/octeontx_bgx.c b/drivers/net/cavium/octeontx_bgx.c
+index 02c27e45e8..1339e8f0a0 100644
+--- a/drivers/net/cavium/octeontx_bgx.c
++++ b/drivers/net/cavium/octeontx_bgx.c
+@@ -46,7 +46,7 @@ struct lmac {
+ 	bool			link_up;
+ 	int			lmacid; /* ID within BGX */
+ 	int			phy_addr; /* ID on board */
+-	struct eth_device	netdev;
++	struct udevice		*dev;
+ 	struct mii_dev		*mii_bus;
+ 	struct phy_device	*phydev;
+ 	unsigned int		last_duplex;
+@@ -859,19 +859,19 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 		}
+ 
+ 		lmac->phydev = phy_connect(lmac->mii_bus, lmac->phy_addr,
+-					   &lmac->netdev,
++					   lmac->dev,
+ 					   if_mode[lmac->qlm_mode]);
+ 
+ 		if (!lmac->phydev) {
+ 			printf("%s: No PHY device\n",
+-				lmac->netdev.name);
++				__func__);
+ 			return -1;
+ 		}
+ 
+ 		ret = phy_config(lmac->phydev);
+ 		if (ret) {
+ 			printf("%s: Could not initialize PHY %s\n",
+-				lmac->netdev.name, lmac->phydev->dev->name);
++				__func__, lmac->phydev->dev->name);
+ 			return ret;
+ 		}
+ 
+@@ -879,7 +879,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 		debug("%s: %d\n", __FILE__, __LINE__);
+ 		if (ret) {
+ 			printf("%s: Could not initialize PHY %s\n",
+-				lmac->netdev.name, lmac->phydev->dev->name);
++				__func__, lmac->phydev->dev->name);
+ 		}
+ 
+ #ifdef CONFIG_OCTEONTX_XCV
+@@ -1454,10 +1454,8 @@ skip_qlm_config:
+ 
+ 	/* Enable all LMACs */
+ 	for (lmac = 0; lmac < bgx->lmac_count; lmac++) {
+-		snprintf(bgx->lmac[lmac].netdev.name,
+-			 sizeof(bgx->lmac[lmac].netdev.name),
+-			 "lmac%d", lmac);
+-
++		struct lmac *tlmac = &bgx->lmac[lmac];
++		tlmac->dev = dev;
+ 		err = bgx_lmac_enable(bgx, lmac);
+ 		if (err) {
+ 			printf("BGX%d failed to enable lmac%d\n",
+diff --git a/drivers/pci/pci-uclass.c b/drivers/pci/pci-uclass.c
+index 2a47b503bb..dacd5042c5 100644
+--- a/drivers/pci/pci-uclass.c
++++ b/drivers/pci/pci-uclass.c
+@@ -789,16 +789,16 @@ int pci_sriov_init(struct udevice *pdev, int vf_en)
+ 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_CTRL, &ctrl);
+ 
+ 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
+-
+ 	if (vf_en > total_vf)
+ 		vf_en = total_vf;
+-
+ 	dm_pci_write_config16(pdev, pos + PCI_SRIOV_NUM_VF, vf_en);
+ 
+ 	ctrl |= PCI_SRIOV_CTRL_VFE | PCI_SRIOV_CTRL_MSE;
+ 	dm_pci_write_config16(pdev, pos + PCI_SRIOV_CTRL, ctrl);
+ 
+ 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_NUM_VF, &num_vfs);
++	if (num_vfs > vf_en)
++		num_vfs = vf_en;
+ 
+ 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_OFFSET, &vf_offset);
+ 	dm_pci_read_config16(pdev, pos + PCI_SRIOV_VF_STRIDE, &vf_stride);
+@@ -958,6 +958,7 @@ int pci_bind_bus_devices(struct udevice *bus)
+ 		pplat->device = device;
+ 		pplat->class = class;
+ 		pplat->is_phys = true;
++
+ 	}
+ 
+ 	return 0;
+diff --git a/include/configs/octeontx_81xx.h b/include/configs/octeontx_81xx.h
+index ae60a740fd..73c536dda7 100644
+--- a/include/configs/octeontx_81xx.h
++++ b/include/configs/octeontx_81xx.h
+@@ -50,6 +50,8 @@
+ /** Maximum total number of BGX interfaces across all nodes */
+ #define CONFIG_MAX_BGX			3
+ 
++#define CONFIG_MISC_INIT_R
++
+ /** Reduce hashes printed out */
+ #define CONFIG_TFTP_TSIZE
+ 
+diff --git a/include/configs/octeontx_83xx.h b/include/configs/octeontx_83xx.h
+index 1ada9d6b51..30d67573a2 100644
+--- a/include/configs/octeontx_83xx.h
++++ b/include/configs/octeontx_83xx.h
+@@ -50,6 +50,8 @@
+ /** Maximum total number of BGX interfaces across all nodes */
+ #define CONFIG_MAX_BGX			4
+ 
++#define CONFIG_MISC_INIT_R
++
+ /** Reduce hashes printed out */
+ #define CONFIG_TFTP_TSIZE
+ 
+diff --git a/include/phy.h b/include/phy.h
+index 2e3d4de487..fa3b29232f 100644
+--- a/include/phy.h
++++ b/include/phy.h
+@@ -16,6 +16,10 @@
+ #include <linux/mdio.h>
+ #include <phy_interface.h>
+ 
++#ifdef CONFIG_DM_ETH
++#include <dm/device.h>
++#endif
++
+ #define PHY_FIXED_ID		0xa5a55a5a
+ 
+ #define PHY_MAX_ADDR 32
+diff --git a/net/eth-uclass.c b/net/eth-uclass.c
+index 3bd98b01ad..91c2428db3 100644
+--- a/net/eth-uclass.c
++++ b/net/eth-uclass.c
+@@ -393,8 +393,9 @@ int eth_initialize(void)
+ 	int num_devices = 0;
+ 	struct udevice *dev;
+ 
++#ifndef CONFIG_MISC_INIT_R
+ 	eth_common_init();
+-
++#endif
+ 	/*
+ 	 * Devices need to write the hwaddr even if not started so that Linux
+ 	 * will have access to the hwaddr that u-boot stored for the device.
+-- 
+2.29.0
+

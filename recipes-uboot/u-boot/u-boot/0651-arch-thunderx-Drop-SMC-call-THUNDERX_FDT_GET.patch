@@ -1,0 +1,36 @@
+From 920272810ab4c2ec14cf98a6c1b6a52637ee0583 Mon Sep 17 00:00:00 2001
+From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+Date: Mon, 17 Jul 2017 15:36:07 -0700
+Subject: [PATCH 0651/1239] arch: thunderx: Drop SMC call THUNDERX_FDT_GET
+
+ATF does not support this call since commit:
+bcea0fb - thunderx: Drop the THUNDERX_FDT_GET call
+on thunder-dev branch.
+
+U-Boot uses x1 register to receive the FDT base address from
+ATF.
+
+Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+---
+ arch/arm/mach-thunderx/lowlevel_init.S | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/arch/arm/mach-thunderx/lowlevel_init.S b/arch/arm/mach-thunderx/lowlevel_init.S
+index 6f16cd7b2b..458842497c 100644
+--- a/arch/arm/mach-thunderx/lowlevel_init.S
++++ b/arch/arm/mach-thunderx/lowlevel_init.S
+@@ -29,11 +29,6 @@ save_boot_params:
+ ENTRY(lowlevel_init)
+ 	mov	x29, lr			/* Save LR */
+ 
+-	ldr	x0, =THUNDERX_FDT_GET       /* Copy the FDT to end of u-boot binary*/
+-	adr	x1, _end
+-	ldr	x2, =CONFIG_BDK_FDT_SIZE
+-	smc	#0
+-
+ 	ldr	x0, =THUNDERX_DRAM_SIZE
+ 	mov	x1, xzr
+ 	smc	#0			/* Get the DRAM size */
+-- 
+2.29.0
+

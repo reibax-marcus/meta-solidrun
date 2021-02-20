@@ -1,0 +1,39 @@
+From 1c23f8bd9de37fd4442bf691d1b260430ee2cde9 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Mon, 23 Jul 2018 19:37:32 -0700
+Subject: [PATCH 0785/1239] Enable md5sum and sha1sum commands.
+
+---
+ configs/octeontx_81xx_defconfig | 2 ++
+ configs/octeontx_83xx_defconfig | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index e91fd612d8..58938da170 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -47,6 +47,8 @@ CONFIG_CMD_EXT4=y
+ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_CMD_FAT=y
+ CONFIG_CMD_FS_GENERIC=y
++CONFIG_CMD_SHA1SUM=y
++CONFIG_CMD_MD5SUM=y
+ CONFIG_EFI_PARTITION=y
+ CONFIG_PARTITION_TYPE_GUID=y
+ CONFIG_OF_BOARD=y
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index dac84a48a5..288785c4a7 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -53,6 +53,8 @@ CONFIG_PARTITION_TYPE_GUID=y
+ CONFIG_OF_BOARD=y
+ CONFIG_ENV_IS_IN_SPI_FLASH=y
+ CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_CMD_SHA1SUM=y
++CONFIG_CMD_MD5SUM=y
+ CONFIG_SCSI_AHCI=y
+ CONFIG_AHCI_PCI=y
+ CONFIG_BLOCK_CACHE=y
+-- 
+2.29.0
+

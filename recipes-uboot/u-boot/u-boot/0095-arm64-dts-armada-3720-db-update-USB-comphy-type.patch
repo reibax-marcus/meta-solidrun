@@ -1,0 +1,44 @@
+From 347c1bfa5661c03b65bb49e7bd97d365525bf0cd Mon Sep 17 00:00:00 2001
+From: jinghua <jinghua@marvell.com>
+Date: Mon, 24 Apr 2017 16:12:57 +0800
+Subject: [PATCH 0095/1239] arm64: dts: armada-3720-db: update USB comphy type
+
+Comphy type of PHY_TYPE_USB3 supports both USB host
+and device controller.
+
+Change-Id: Idb77fc8c11c4b4f1394c3cb7e3c4eadbf67e96fb
+Signed-off-by: jinghua <jinghua@marvell.com>
+---
+ arch/arm/dts/armada-3720-db.dts          | 2 +-
+ arch/arm/dts/armada-3720-espressobin.dts | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/dts/armada-3720-db.dts b/arch/arm/dts/armada-3720-db.dts
+index 2962baa55c..a96164a2af 100644
+--- a/arch/arm/dts/armada-3720-db.dts
++++ b/arch/arm/dts/armada-3720-db.dts
+@@ -104,7 +104,7 @@
+ 	};
+ 
+ 	phy1 {
+-		phy-type = <COMPHY_TYPE_USB3_HOST0>;
++		phy-type = <COMPHY_TYPE_USB3>;
+ 		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+diff --git a/arch/arm/dts/armada-3720-espressobin.dts b/arch/arm/dts/armada-3720-espressobin.dts
+index 79c1bf36e0..c2bc2aac0e 100644
+--- a/arch/arm/dts/armada-3720-espressobin.dts
++++ b/arch/arm/dts/armada-3720-espressobin.dts
+@@ -77,7 +77,7 @@
+ 	};
+ 
+ 	phy1 {
+-		phy-type = <COMPHY_TYPE_USB3_HOST0>;
++		phy-type = <COMPHY_TYPE_USB3>;
+ 		phy-speed = <COMPHY_SPEED_5G>;
+ 	};
+ 
+-- 
+2.29.0
+

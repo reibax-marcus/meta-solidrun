@@ -1,0 +1,33 @@
+From 7c93cf05c51d5ea164cf87157b260af1851e1d66 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 7 Feb 2020 09:49:18 -0800
+Subject: [PATCH 1090/1239] configs: 81xx: update text base to 0x2800000
+
+Due to ASC region changes made in ATF for 81xx.
+
+Change-Id: Idd804534e2bec841b75f6330ff7a2afc88701a39
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23095
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Aaron Williams <awilliams@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ configs/octeontx_81xx_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index 2e51c1a695..4505fe17b1 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -1,7 +1,7 @@
+ CONFIG_ARM=y
+ # CONFIG_ARM64_SUPPORT_AARCH32 is not set
+ CONFIG_ARCH_OCTEONTX=y
+-CONFIG_SYS_TEXT_BASE=0x500000
++CONFIG_SYS_TEXT_BASE=0x2800000
+ CONFIG_SYS_MALLOC_F_LEN=0x4000
+ CONFIG_TARGET_OCTEONTX_81XX=y
+ CONFIG_NR_DRAM_BANKS=1
+-- 
+2.29.0
+

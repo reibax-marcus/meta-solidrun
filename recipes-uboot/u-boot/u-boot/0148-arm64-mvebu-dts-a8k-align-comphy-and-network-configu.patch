@@ -1,0 +1,82 @@
+From 4d405b289b53057212663f14b395dbcfe9a42f15 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Thu, 5 Jul 2018 18:41:39 +0300
+Subject: [PATCH 0148/1239] arm64: mvebu: dts: a8k: align comphy and network
+ configurations
+
+Setup A:
+	- Add comment for SGMII
+
+Setup C:
+	- Comphy1: USB_HOST0 --> SATA0
+
+Setup D:
+	- Disable eth1 (SGMII)
+	- Enable SFI on comphy2
+
+Documentation will be updated in a separate patch.
+
+Change-Id: If44fb786287ea07e4401645b84d2d2746e9f4a4d
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-7040-db-C.dts | 2 +-
+ arch/arm/dts/armada-7040-db-D.dts | 8 ++------
+ arch/arm/dts/armada-7040-db.dts   | 2 +-
+ 3 files changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm/dts/armada-7040-db-C.dts b/arch/arm/dts/armada-7040-db-C.dts
+index 500b49f905..e6cafdb7e4 100644
+--- a/arch/arm/dts/armada-7040-db-C.dts
++++ b/arch/arm/dts/armada-7040-db-C.dts
+@@ -148,7 +148,7 @@
+ 	};
+ 
+ 	phy1 {
+-		phy-type = <COMPHY_TYPE_USB3_HOST0>;
++		phy-type = <COMPHY_TYPE_SATA0>;
+ 	};
+ 
+ 	phy2 {
+diff --git a/arch/arm/dts/armada-7040-db-D.dts b/arch/arm/dts/armada-7040-db-D.dts
+index 0d2578381c..95d8e06d10 100644
+--- a/arch/arm/dts/armada-7040-db-D.dts
++++ b/arch/arm/dts/armada-7040-db-D.dts
+@@ -180,9 +180,6 @@
+ 
+ &cp0_mdio {
+ 	status = "okay";
+-	phy0: ethernet-phy@0 {
+-		reg = <0>;
+-	};
+ 	phy1: ethernet-phy@1 {
+ 		reg = <1>;
+ 	};
+@@ -192,10 +189,9 @@
+ 	status = "okay";
+ };
+ 
+-&cp0_eth1 {
++&cp0_eth0 {
+ 	status = "okay";
+-	phy = <&phy0>;
+-	phy-mode = "sgmii";
++	phy-mode = "sfi"; /* lane-2 */
+ };
+ 
+ &cp0_eth2 {
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index 4b57cca2e5..7edc741edb 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -253,7 +253,7 @@
+ &cp0_eth1 {
+ 	status = "okay";
+ 	phy = <&phy0>;
+-	phy-mode = "sgmii";
++	phy-mode = "sgmii"; /* lane-0 */
+ };
+ 
+ &cp0_eth2 {
+-- 
+2.29.0
+

@@ -1,0 +1,100 @@
+From 4a3dba8f88011dd69b7ed11e940adcb7bc69091d Mon Sep 17 00:00:00 2001
+From: Peter Swain <pswain@cavium.com>
+Date: Tue, 6 Dec 2016 16:01:50 -0800
+Subject: [PATCH 0582/1239] cavium nic: zero malloc()'d memory
+
+Because there *are* free()s happening at device probe time,
+it's not safe to assume it's still zero'd
+
+Signed-off-by: Peter Swain <pswain@cavium.com>
+---
+ drivers/net/cavium/nic_main.c     |  2 +-
+ drivers/net/cavium/nicvf_main.c   | 12 +++++-------
+ drivers/net/cavium/nicvf_queues.c |  6 +++---
+ 3 files changed, 9 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index 36cd3d6a33..59020c4433 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -717,7 +717,7 @@ int nic_initialize(struct udevice *dev)
+ 	size_t size;
+ 
+ 	nic->udev = dev;
+-	nic->hw = malloc(sizeof(struct hw_info));
++	nic->hw = calloc(1, sizeof(struct hw_info));
+ 	if (!nic->hw) {
+ 		return -ENOMEM;
+ 	}
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/cavium/nicvf_main.c
+index 63e02d1f2b..c49011e392 100644
+--- a/drivers/net/cavium/nicvf_main.c
++++ b/drivers/net/cavium/nicvf_main.c
+@@ -457,14 +457,14 @@ int nicvf_initialize(struct udevice *pdev, int vf_num)
+ 	int    ret;
+ 	size_t size;
+ 
+-	netdev = malloc(sizeof(struct eth_device));
++	netdev = calloc(1, sizeof(struct eth_device));
+ 
+ 	if (!netdev) {
+ 		ret = -ENOMEM;
+ 		goto fail;
+ 	}
+ 
+-	nicvf = malloc(sizeof(struct nicvf));
++	nicvf = calloc(1, sizeof(struct nicvf));
+ 
+ 	if (!nicvf) {
+ 		ret = -ENOMEM;
+@@ -510,13 +510,11 @@ int nicvf_initialize(struct udevice *pdev, int vf_num)
+ 
+ 	ret = eth_register(netdev);
+ 
+-	if (ret) {
+-		printf("Failed to register netdevice\n");
+-		return ret;
+-	}
++	if (!ret)
++		return 0;
+ 
++	printf("Failed to register netdevice\n");
+ 
+-	return 0;
+ fail:
+ 	if (nicvf)
+ 		free(nicvf);
+diff --git a/drivers/net/cavium/nicvf_queues.c b/drivers/net/cavium/nicvf_queues.c
+index 5b34bca4a4..6d0a3013f3 100644
+--- a/drivers/net/cavium/nicvf_queues.c
++++ b/drivers/net/cavium/nicvf_queues.c
+@@ -45,7 +45,7 @@ static int nicvf_alloc_q_desc_mem(struct nicvf *nic, struct q_desc_mem *dmem,
+ 	dmem->q_len = q_len;
+ 	dmem->size = (desc_size * q_len) + align_bytes;
+ 	/* Save address, need it while freeing */
+-	dmem->unalign_base = malloc(dmem->size);
++	dmem->unalign_base = calloc(1, dmem->size);
+ 	dmem->dma = (uintptr_t)dmem->unalign_base;
+ 
+ 	if (!dmem->unalign_base)
+@@ -98,7 +98,7 @@ static int nicvf_init_rbdr(struct nicvf *nic, struct rbdr *rbdr,
+ 	debug("%s: %d: allocating %lld bytes for rcv buffers\n",
+ 	      __FUNCTION__, __LINE__,
+ 	      ring_len * buf_size + NICVF_RCV_BUF_ALIGN_BYTES);
+-	rbdr->buf_mem = (uintptr_t)malloc(ring_len * buf_size
++	rbdr->buf_mem = (uintptr_t)calloc(1, ring_len * buf_size
+ 						+ NICVF_RCV_BUF_ALIGN_BYTES);
+ 
+ 	if (!rbdr->buf_mem) {
+@@ -599,7 +599,7 @@ int nicvf_set_qset_resources(struct nicvf *nic)
+ {
+ 	struct queue_set *qs;
+ 
+-	qs = malloc(sizeof(struct queue_set));
++	qs = calloc(1, sizeof(struct queue_set));
+ 	if (!qs)
+ 		return -1;
+ 	nic->qs = qs;
+-- 
+2.29.0
+

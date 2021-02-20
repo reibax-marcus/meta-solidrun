@@ -1,0 +1,143 @@
+From 580f9e5e6ea22f2a53355533c66d53e98a795fd6 Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Wed, 7 Jun 2017 14:56:42 +0800
+Subject: [PATCH 0203/1239] net: switch: mv88e6xxx: add legacy switch support
+
+Switch port device address starts from 0 for newer family of SOHO
+switches like Peridot and starts from 0x10 for older family of switches
+like Topaz; now only newer switch family is supported, this patch adds
+legacy switch support.
+
+Change-Id: I27da41436b97b54417bed7228c5a67544af793fd
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ drivers/net/phy/mv88e6xxx.c | 48 +++++++++++++++++++++++++++----------
+ drivers/net/phy/mv88e6xxx.h |  5 +++-
+ 2 files changed, 40 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/net/phy/mv88e6xxx.c b/drivers/net/phy/mv88e6xxx.c
+index 033b9d254c..7e10358200 100644
+--- a/drivers/net/phy/mv88e6xxx.c
++++ b/drivers/net/phy/mv88e6xxx.c
+@@ -17,6 +17,7 @@
+ 
+ static struct mv88e6xxx_dev soho_dev;
+ static struct mv88e6xxx_dev *soho_dev_handle;
++static int REG_PORT_BASE = REG_PORT_BASE_UNDEFINED;
+ 
+ static int mv88e6xxx_reg_wait_ready(struct mv88e6xxx_dev *dev)
+ {
+@@ -258,7 +259,7 @@ int mv88e6xxx_get_link_status(struct mv88e6xxx_dev *dev, int port)
+ {
+ 	int ret;
+ 
+-	ret = mv88e6xxx_read_register(dev, port, PORT_STATUS);
++	ret = mv88e6xxx_read_register(dev, REG_PORT(port), PORT_STATUS);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -291,19 +292,40 @@ int mv88e6xxx_get_switch_id(struct mv88e6xxx_dev *dev)
+ {
+ 	int id, product_num;
+ 
+-	id = mv88e6xxx_read_register(dev, 0, PORT_SWITCH_ID);
++	/* Peridot switch port device address starts from 0
++	 * Legacy switch port device address starts from 0x10
++	 *
++	 * In order to determine which switch is used, we need to
++	 * read the ID, but inorder to read the ID, we need to know
++	 * the port device address - classic chicken or the egg case.
++	 *
++	 * Let's read with both port device addresses, if we get 0xFFFF,
++	 * the address is incorrect and we need to ready with the second
++	 * address.
++	 */
++	id = mv88e6xxx_read_register(dev, REG_PORT_BASE_LEGACY, PORT_SWITCH_ID);
++	if (id == 0xFFFF)
++		id = mv88e6xxx_read_register(dev, REG_PORT_BASE_PERIDOT,
++					     PORT_SWITCH_ID);
++
+ 	if (id < 0)
+ 		return id;
+ 
+ 	product_num = id >> 4;
+-	if (product_num == PORT_SWITCH_ID_PROD_NUM_6390 ||
+-	    product_num == PORT_SWITCH_ID_PROD_NUM_6290 ||
+-	    product_num == PORT_SWITCH_ID_PROD_NUM_6190 ||
+-	    product_num == PORT_SWITCH_ID_PROD_NUM_6141 ||
+-	    product_num == PORT_SWITCH_ID_PROD_NUM_6341)
++	if ((product_num == PORT_SWITCH_ID_PROD_NUM_6190) ||
++	    (product_num == PORT_SWITCH_ID_PROD_NUM_6290) ||
++	    (product_num == PORT_SWITCH_ID_PROD_NUM_6390)) {
++		/* Peridot switch port device address starts from 0 */
++		REG_PORT_BASE = REG_PORT_BASE_PERIDOT;
+ 		return id;
+-	else
++	} else if (product_num == PORT_SWITCH_ID_PROD_NUM_6141 ||
++		   product_num == PORT_SWITCH_ID_PROD_NUM_6341) {
++		/* Legacy switch port device address starts from 0x10 */
++		REG_PORT_BASE = REG_PORT_BASE_LEGACY;
++		return id;
++	} else {
+ 		return -ENODEV;
++	}
+ 
+ 	return 0;
+ }
+@@ -382,7 +404,7 @@ static int do_sw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		}
+ 		port = (int)simple_strtoul(argv[2], NULL, 16);
+ 		reg  = (int)simple_strtoul(argv[3], NULL, 16);
+-		ret = mv88e6xxx_read_register(dev, port, reg);
++		ret = mv88e6xxx_read_register(dev, REG_PORT(port), reg);
+ 		if (ret < 0) {
+ 			printf("Failed: Read  - switch port: 0x%X, ", port);
+ 			printf("reg: 0x%X, ret: %d\n", reg, ret);
+@@ -401,7 +423,7 @@ static int do_sw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		port = (int)simple_strtoul(argv[2], NULL, 16);
+ 		reg  = (int)simple_strtoul(argv[3], NULL, 16);
+ 		val  = (int)simple_strtoul(argv[4], NULL, 16);
+-		ret = mv88e6xxx_write_register(dev, port, reg,
++		ret = mv88e6xxx_write_register(dev, REG_PORT(port), reg,
+ 					       (unsigned short)val);
+ 		if (ret < 0) {
+ 			printf("Failed: Write - switch port: 0x%X, ", port);
+@@ -423,7 +445,8 @@ static int do_sw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		port = (int)simple_strtoul(argv[2], NULL, 16);
+ 		page = (int)simple_strtoul(argv[3], NULL, 16);
+ 		reg  = (int)simple_strtoul(argv[4], NULL, 16);
+-		ret = mv88e6xxx_read_phy_register(dev, port, page, reg);
++		ret = mv88e6xxx_read_phy_register(dev, REG_PORT(port),
++						  page, reg);
+ 		if (ret < 0) {
+ 			printf("Failed: Read - switch port: 0x%X, ", port);
+ 			printf("page: 0x%X, reg: 0x%X\n, ret: %d",
+@@ -445,7 +468,8 @@ static int do_sw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		page = (int)simple_strtoul(argv[3], NULL, 16);
+ 		reg  = (int)simple_strtoul(argv[4], NULL, 16);
+ 		val  = (int)simple_strtoul(argv[5], NULL, 16);
+-		ret = mv88e6xxx_write_phy_register(dev, port, page, reg,
++		ret = mv88e6xxx_write_phy_register(dev, REG_PORT(port),
++						   page, reg,
+ 						   (unsigned short)val);
+ 		if (ret < 0) {
+ 			printf("Failed: Write - switch port: 0x%X, ", port);
+diff --git a/drivers/net/phy/mv88e6xxx.h b/drivers/net/phy/mv88e6xxx.h
+index ef0cc5eac7..499675baa4 100644
+--- a/drivers/net/phy/mv88e6xxx.h
++++ b/drivers/net/phy/mv88e6xxx.h
+@@ -47,7 +47,10 @@
+ #define REG_FIBER_SERDES			0x0f
+ #define PAGE_FIBER_SERDES			0x01
+ 
+-#define REG_PORT(p)				(0x10 + (p))
++#define REG_PORT_BASE_UNDEFINED			0xFFFF
++#define REG_PORT_BASE_LEGACY			0x10
++#define REG_PORT_BASE_PERIDOT			0
++#define REG_PORT(p)				(REG_PORT_BASE + (p))
+ #define PORT_STATUS				0x00
+ #define PORT_STATUS_PAUSE_EN			BIT(15)
+ #define PORT_STATUS_MY_PAUSE			BIT(14)
+-- 
+2.29.0
+

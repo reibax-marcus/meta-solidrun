@@ -1,0 +1,25 @@
+From c7c5a463b209ba0fe51840a14026cb205370501e Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 4 Nov 2015 20:30:08 -0800
+Subject: [PATCH 0343/1239] cavum: vnic: Print generated MAC address (when it's
+ generated)
+
+---
+ board/cavium/thunderx/thunderx.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 72f9121ae9..f20cb395f3 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -152,6 +152,7 @@ int board_eth_init(bd_t *bis)
+ 
+ 	if (!eth_getenv_enetaddr("ethaddr", ethaddr)) {
+ 		net_random_ethaddr(ethaddr);
++		printf("Generating random MAC address: %pM\n", ethaddr);
+ 		eth_setenv_enetaddr("ethaddr", ethaddr);
+ 	}
+ #endif
+-- 
+2.29.0
+

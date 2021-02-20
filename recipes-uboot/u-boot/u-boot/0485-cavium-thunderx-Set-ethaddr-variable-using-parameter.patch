@@ -1,0 +1,42 @@
+From 04fa086716135acebef835396a1610ca8ecd45ee Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 23 May 2016 20:59:34 -0700
+Subject: [PATCH 0485/1239] cavium: thunderx: Set 'ethaddr' variable using
+ parameters passed from BDK
+
+Use the "BOARD-MAC-ADDRESS" variable to set the 'ethaddr' value
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ board/cavium/thunderx/fdt.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index f38f2b4687..b6223c52de 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -73,6 +73,9 @@ void thunderx_parse_bdk_config(void)
+ {
+ 	char boardname[32];
+ 	const char *str;
++#ifdef CONFIG_THUNDERX_BGX
++	const u8* ethaddr;
++#endif
+ 	int ret = 0, len = 32;
+ 
+ 	if (gd->fdt_blob != NULL) {
+@@ -91,6 +94,11 @@ void thunderx_parse_bdk_config(void)
+ 			}
+ #ifdef CONFIG_THUNDERX_BGX
+ 			thunderx_parse_phy_address(gd->fdt_blob);
++			ethaddr = get_prop_value(gd->fdt_blob, "BOARD-MAC-ADDRESS", &len);
++			if (ethaddr && !eth_getenv_enetaddr("ethaddr", ethaddr)) {
++				printf("Board MAC address: %pM\n", ethaddr);
++				eth_setenv_enetaddr("ethaddr", ethaddr);
++			}
+ #endif
+ 		}
+ 	}
+-- 
+2.29.0
+

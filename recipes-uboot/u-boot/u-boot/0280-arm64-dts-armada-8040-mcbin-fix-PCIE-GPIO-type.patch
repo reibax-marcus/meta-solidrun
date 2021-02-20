@@ -1,0 +1,34 @@
+From 73c2fe42031fd8a3873ce4216460652d57382164 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Sun, 3 Nov 2019 02:53:00 +0100
+Subject: [PATCH 0280/1239] arm64: dts: armada-8040-mcbin: fix PCIE GPIO type
+
+Commit 91030bf53ccf ("arm64: dts: cp110: unite cp110 master/slave
+dtsi files into single file") introduced regression, mistakenly
+changing the PCIE reset GPIO as active high. Fix that.
+
+Change-Id: I7f055dadbd22aab41b4f19d27584d693aad377be
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/18137
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/armada-8040-mcbin.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index 8a98b54d98..e34e7df525 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -148,7 +148,7 @@
+ 	num-lanes = <4>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp0_pcie_reset_pins>;
+-	marvell,reset-gpio = <&cp0_gpio1 20 GPIO_ACTIVE_HIGH>; /* GPIO[52] */
++	marvell,reset-gpio = <&cp0_gpio1 20 GPIO_ACTIVE_LOW>; /* GPIO[52] */
+ 	status = "okay";
+ };
+ 
+-- 
+2.29.0
+

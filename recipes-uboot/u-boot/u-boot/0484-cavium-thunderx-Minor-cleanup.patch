@@ -1,0 +1,55 @@
+From 8701ef56705c075ee015a622a9369d83101ea9f1 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 23 May 2016 20:57:58 -0700
+Subject: [PATCH 0484/1239] cavium: thunderx: Minor cleanup
+
+Remove stale includes, add missing ones, add parameter storage
+class
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ board/cavium/thunderx/fdt.c      | 4 +++-
+ board/cavium/thunderx/thunderx.c | 5 -----
+ 2 files changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index bd5ccd78ab..f38f2b4687 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -12,6 +12,8 @@
+ #include <fdt_support.h>
+ #include <cavium/atf.h>
+ 
++#include "cavm-arch.h"
++
+ #ifdef CONFIG_THUNDERX_VNIC
+  #include <cavium/thunderx_vnic.h>
+ #endif
+@@ -20,7 +22,7 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+-static const void *get_prop_value(void *fdt, const char *prop_name, int *len)
++static const void *get_prop_value(const void *fdt, const char *prop_name, int *len)
+ {
+ 	int depth = 0, node;
+ 
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index df9b50d7e7..79933a31ab 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -48,11 +48,6 @@ U_BOOT_DEVICE(thunderx_serial1) = {
+ };
+ #endif
+ 
+-#ifdef CONFIG_THUNDERX_VNIC
+- #include <cavium/thunderx_smi.h>
+- #include <cavium/thunderx_vnic.h>
+-#endif
+-
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+ #define BOARD_TYPE "BOARD="
+-- 
+2.29.0
+

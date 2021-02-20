@@ -1,0 +1,44 @@
+From 258021611081ab024b5dc2b75ad9db32e15b3a0f Mon Sep 17 00:00:00 2001
+From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+Date: Mon, 13 Nov 2017 14:29:06 +0100
+Subject: [PATCH 0725/1239] configs: 93xx: Move CONFIG_SYS_TEXT_BASE to 64M
+
+Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+---
+ include/configs/thunderx_93xx.h | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index 15d17546b1..6e46bb4533 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -16,11 +16,12 @@
+ /** Maximum size of image supported for bootm (and bootable FIT images) */
+ #define CONFIG_SYS_BOOTM_LEN (256 << 20)
+ 
+-/* starting uboot and linux kernel from offset 40MB
+- * below 40MB will be used for mailboxes of pko/pki
+- * */
+-
+-#define MEM_BASE			0x2800000
++/*
++ * Starting uboot and linux kernel from offset 64MB.
++ * Below addresses are used for secure ARM-TF memory
++ * and RVU mailboxes/MSI-Xes.
++ */
++#define MEM_BASE			0x04000000
+ 
+ #define CONFIG_COREID_MASK             0xffffff
+ 
+@@ -41,7 +42,7 @@
+ /* Link Definitions */
+ 
+ /** Code start address */
+-#define CONFIG_SYS_TEXT_BASE		0x02000000
++#define CONFIG_SYS_TEXT_BASE		0x04000000
+ 
+ /** Stack starting address */
+ #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+-- 
+2.29.0
+

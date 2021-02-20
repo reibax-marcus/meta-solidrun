@@ -1,0 +1,77 @@
+From 08a50bf1fd1c99e4aad00068b59c87ce88e1b97e Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 10 Jul 2019 18:11:06 -0700
+Subject: [PATCH 0938/1239] board: octeontx2: Fix issue with roll over of MAC
+ address
+
+Use 64 bit variable instead of char array to handle increments
+on MAC address.
+
+Change-Id: Ib22ecbd3ab987325f2917c432db99b7c48ba810f
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/12400
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx2/octeontx2.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index 8b1580fd94..53687fce42 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -23,7 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ struct cavm_bdt g_cavm_bdt;
+ static int board_mac_num;
+-u8 board_mac_addr[6];
++u64 board_mac_addr;
+ 
+ extern unsigned long fdt_base_addr;
+ extern void cgx_intf_shutdown(void);
+@@ -43,9 +43,12 @@ void octeontx2_cleanup_ethaddr(void)
+ 
+ void octeontx2_board_get_mac_addr(u8 index, u8 *mac_addr)
+ {
+-	if ((!is_zero_ethaddr(board_mac_addr)) && board_mac_num) {
+-		memcpy(mac_addr, board_mac_addr, ARP_HLEN);
+-		*(mac_addr + 5) += index;
++	u64 tmp_mac = board_mac_addr;
++
++	if ((!is_zero_ethaddr((u8 *)&board_mac_addr)) && board_mac_num) {
++		tmp_mac += index;
++		tmp_mac = swab64(tmp_mac) >> 16;
++		memcpy(mac_addr, (u8 *)&tmp_mac, ARP_HLEN);
+ 		board_mac_num--;
+ 	} else {
+ 		memset(mac_addr, 0, ARP_HLEN);
+@@ -91,7 +94,7 @@ void octeontx_parse_board_info(void)
+ 	const char *str;
+ 	int node;
+ 	int ret = 0, len = 16;
+-	u64 midr, macaddr;
++	u64 midr;
+ 
+ 	debug("%s: ENTER\n", __func__);
+ 
+@@ -146,14 +149,11 @@ void octeontx_parse_board_info(void)
+ 	}
+ 	str = fdt_getprop(gd->fdt_blob, node, "BOARD-MAC-ADDRESS", &len);
+ 	if (str) {
+-		macaddr = simple_strtoul(str, NULL, 16);
+-		macaddr = swab64(macaddr) >> 16;
+-		memcpy(board_mac_addr, (u8 *)&macaddr, ARP_HLEN);
+-		debug("%s mac %pM\n", __func__, board_mac_addr);
++		board_mac_addr = simple_strtoul(str, NULL, 16);
++		debug("%s mac %llx\n", __func__, board_mac_addr);
+ 	} else {
+-		memset(board_mac_addr, 0, ARP_HLEN);
++		board_mac_addr = 0;
+ 	}
+-	debug("%s mac %pM\n", __func__, board_mac_addr);
+ }
+ 
+ void board_quiesce_devices(void)
+-- 
+2.29.0
+

@@ -1,0 +1,42 @@
+From 35939032e652f5ca14e7fac9a0c29437b3f617c9 Mon Sep 17 00:00:00 2001
+From: allen yan <yanwei@marvell.com>
+Date: Wed, 12 Apr 2017 15:22:40 +0800
+Subject: [PATCH 0175/1239] arm64: mvebu: a3700: override print_cpuinfo
+
+This patch overrides print_cpuinfo to print clock info
+during boot.
+
+Change-Id: I9c7f06671c5eda997cf4ca30ac604be76e1d419b
+Signed-off-by: allen yan <yanwei@marvell.com>
+---
+ arch/arm/mach-mvebu/armada3700/cpu.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/arch/arm/mach-mvebu/armada3700/cpu.c b/arch/arm/mach-mvebu/armada3700/cpu.c
+index 371caf47f2..4ca8cc4cb9 100644
+--- a/arch/arm/mach-mvebu/armada3700/cpu.c
++++ b/arch/arm/mach-mvebu/armada3700/cpu.c
+@@ -13,6 +13,7 @@
+ #include <asm/arch/soc.h>
+ #include <asm/armv8/mmu.h>
+ #include <mach/fw_info.h>
++#include <mach/clock.h>
+ 
+ /* Armada 3700 */
+ #define MVEBU_GPIO_NB_REG_BASE		(MVEBU_REGISTER(0x13800))
+@@ -94,3 +95,12 @@ u32 get_ref_clk(void)
+ 	else
+ 		return 40;
+ }
++
++#if defined(CONFIG_DISPLAY_BOARDINFO)
++int print_cpuinfo(void)
++{
++	soc_print_clock_info();
++
++	return 0;
++}
++#endif
+-- 
+2.29.0
+

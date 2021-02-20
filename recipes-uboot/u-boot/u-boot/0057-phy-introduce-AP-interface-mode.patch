@@ -1,0 +1,37 @@
+From b76471a650a12450f5e3f62139f6c37a19fbd57b Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Fri, 19 May 2017 16:54:58 +0200
+Subject: [PATCH 0057/1239] phy: introduce AP interface mode
+
+This patch adds new phy type which will be used in the Marvell mvpp2
+ethernet driver. The AP refers to IEEE 802.3ap Backplane Auto-Negotiation.
+
+Change-Id: I1aa088353e8671807fe93e271ea26f097fd0ccdc
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ include/phy_interface.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/phy_interface.h b/include/phy_interface.h
+index c6823189f8..836ebde111 100644
+--- a/include/phy_interface.h
++++ b/include/phy_interface.h
+@@ -31,6 +31,7 @@ typedef enum {
+ 	PHY_INTERFACE_MODE_XLAUI,
+ 	PHY_INTERFACE_MODE_CAUI2,
+ 	PHY_INTERFACE_MODE_CAUI4,
++	PHY_INTERFACE_MODE_AP,
+ 	PHY_INTERFACE_MODE_NONE,	/* Must be last */
+ 
+ 	PHY_INTERFACE_MODE_COUNT,
+@@ -58,6 +59,7 @@ static const char * const phy_interface_strings[] = {
+ 	[PHY_INTERFACE_MODE_XLAUI]		= "xlaui4",
+ 	[PHY_INTERFACE_MODE_CAUI2]		= "caui2",
+ 	[PHY_INTERFACE_MODE_CAUI4]		= "caui4",
++	[PHY_INTERFACE_MODE_AP]			= "ap",
+ 	[PHY_INTERFACE_MODE_NONE]		= "",
+ };
+ 
+-- 
+2.29.0
+

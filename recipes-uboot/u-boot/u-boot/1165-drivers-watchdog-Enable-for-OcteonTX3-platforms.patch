@@ -1,0 +1,46 @@
+From 02803d2d3d8e4264a027d8eb366f9deaef17beea Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 22 May 2020 13:51:45 -0700
+Subject: [PATCH 1165/1239] drivers: watchdog: Enable for OcteonTX3 platforms
+
+Change-Id: Iacc90ce2035cb70d794b7d0d1013d4bd7ed711ae
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29493
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/watchdog/Kconfig        | 4 ++--
+ drivers/watchdog/octeontx_wdt.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 68bfa92f41..9fb080c4b6 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -114,8 +114,8 @@ config WDT_MTK
+ 
+ config WDT_OCTEONTX
+ 	bool "OcteonTX core watchdog support"
+-	depends on WDT && (ARCH_OCTEONTX || ARCH_OCTEONTX2)
+-	default y if WDT && ARCH_OCTEONTX || ARCH_OCTEONTX2
++	depends on WDT && (ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_OCTEONTX3)
++	default y if WDT && ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_OCTEONTX3
+ 	imply WATCHDOG
+ 	help
+ 	  This enables OcteonTX watchdog driver, which can be
+diff --git a/drivers/watchdog/octeontx_wdt.c b/drivers/watchdog/octeontx_wdt.c
+index 9362ad99bf..e558768422 100644
+--- a/drivers/watchdog/octeontx_wdt.c
++++ b/drivers/watchdog/octeontx_wdt.c
+@@ -16,7 +16,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ #if CONFIG_IS_ENABLED(ARCH_OCTEONTX)
+ #define REG_BASE 0x844000000000
+-#elif CONFIG_IS_ENABLED(ARCH_OCTEONTX2)
++#else
+ #define REG_BASE 0x802000000000
+ #endif
+ 
+-- 
+2.29.0
+

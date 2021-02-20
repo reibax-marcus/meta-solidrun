@@ -1,0 +1,29 @@
+From 73f9ab949ae00f3ea13cc7d802caaa03edaa092c Mon Sep 17 00:00:00 2001
+From: Alex Evraev <alexev@marvell.com>
+Date: Thu, 20 Jun 2019 17:58:22 +0300
+Subject: [PATCH 0250/1239] arm64: mvebu: common: add eth4 address to def env
+
+Eth4 address is not defined at default environment.
+For CN9132 platform, this causes error message at u-boot stage.
+
+Change-Id: I6c49667b7c00df6534f921dd451d59edc14dc28a
+Signed-off-by: Alex Evraev <alexev@marvell.com>
+---
+ include/configs/mvebu_armada-common.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index 4275e8955e..296609222b 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -49,6 +49,7 @@
+ 					"eth1addr=00:51:82:11:22:01\0"	\
+ 					"eth2addr=00:51:82:11:22:02\0"	\
+ 					"eth3addr=00:51:82:11:22:03\0"	\
++					"eth4addr=00:51:82:11:22:04\0"	\
+ 					"image_name=Image\0"		\
+ 					"get_ramfs=if test \"${ramfs_name}\"" \
+ 						" != \"-\"; then setenv " \
+-- 
+2.29.0
+

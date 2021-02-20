@@ -1,0 +1,42 @@
+From fbc6e214ab50b96ac2bed7cc4c5901f596cb463b Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 6 Nov 2019 08:43:33 -0800
+Subject: [PATCH 0981/1239] drivers: i2c: octeontx: fix incorrect tclk
+ calculation
+
+For OcteonTX, incorrect brace indentation leads to wrong
+calculation of TWSI controller clock. Fix with proper
+indentation.
+
+Change-Id: Ie73dae66e636395290e6b669f3f0b6fcd302a7d6
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/18284
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/i2c/octeontx_i2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/octeontx_i2c.c b/drivers/i2c/octeontx_i2c.c
+index 7c090057d6..04c8199ed4 100644
+--- a/drivers/i2c/octeontx_i2c.c
++++ b/drivers/i2c/octeontx_i2c.c
+@@ -784,13 +784,13 @@ static void twsi_calc_div(unsigned int speed, int *m_div, int *n_div)
+ 
+ #if defined(CONFIG_ARCH_OCTEONTX)
+ 	io_clock_hz = octeontx_get_io_clock();
+-	tclk = io_clock_hz / 2 * (TWSI_THP + 1);
++	tclk = io_clock_hz / (2 * (TWSI_THP + 1));
+ #elif defined(CONFIG_ARCH_OCTEONTX2)
+ 	/* Refclk src in mode register defaults to 100MHz clock */
+ 	io_clock_hz = 100000000; /* 100 Mhz */
+ 	tclk = io_clock_hz / (TWSI_THP + 2);
+ #endif
+-	debug("%s( io_clock %u)\n", __func__, io_clock_hz);
++	debug("%s( io_clock %u tclk %u)\n", __func__, io_clock_hz, tclk);
+ 
+ 	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.
+ 	 * Compute the clocks M divider based on the SCLK.
+-- 
+2.29.0
+

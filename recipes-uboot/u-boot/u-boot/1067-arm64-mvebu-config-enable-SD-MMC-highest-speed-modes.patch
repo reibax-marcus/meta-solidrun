@@ -1,0 +1,139 @@
+From fe6a9a73c7f205936ffa60e463d6f26d9dc9a05c Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Thu, 9 Jan 2020 16:44:48 +0100
+Subject: [PATCH 1067/1239] arm64: mvebu: config: enable SD/MMC highest speed
+ modes
+
+This patch enables the necessary configs to make use of
+the highest speed modes and the voltage switch in the
+xenon_sdhci driver.
+
+Change-Id: I02f3b76e199c28c6aa09290273ad5105be41c255
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/21322
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Grzegorz Jaszczyk <jaszczyk@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ configs/mvebu_crb_cn9130_defconfig          | 3 +++
+ configs/mvebu_crb_ep_cn9130_defconfig       | 3 +++
+ configs/mvebu_db-88f3720_defconfig          | 2 ++
+ configs/mvebu_db_armada8k_defconfig         | 3 +++
+ configs/mvebu_db_cn91xx_defconfig           | 3 +++
+ configs/mvebu_db_ep_cn91xx_defconfig        | 3 +++
+ configs/mvebu_espressobin-88f3720_defconfig | 3 +++
+ configs/mvebu_ocp-88f8040_defconfig         | 1 +
+ 8 files changed, 21 insertions(+)
+
+diff --git a/configs/mvebu_crb_cn9130_defconfig b/configs/mvebu_crb_cn9130_defconfig
+index 79bdd8f383..66aa3e3fd9 100644
+--- a/configs/mvebu_crb_cn9130_defconfig
++++ b/configs/mvebu_crb_cn9130_defconfig
+@@ -51,6 +51,9 @@ CONFIG_DM_I2C=y
+ CONFIG_SYS_I2C_MVTWSI=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_HS200_SUPPORT=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_MMC_BROKEN_CD=y
+diff --git a/configs/mvebu_crb_ep_cn9130_defconfig b/configs/mvebu_crb_ep_cn9130_defconfig
+index 83de596499..4262690685 100644
+--- a/configs/mvebu_crb_ep_cn9130_defconfig
++++ b/configs/mvebu_crb_ep_cn9130_defconfig
+@@ -55,6 +55,9 @@ CONFIG_DM_I2C=y
+ CONFIG_SYS_I2C_MVTWSI=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_HS200_SUPPORT=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_MMC_BROKEN_CD=y
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index b5c9cbf9e8..0ef4027348 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -45,6 +45,8 @@ CONFIG_DM_PCA953X=y
+ CONFIG_DM_I2C=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
+ CONFIG_MMC_HS200_SUPPORT=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_SDMA=y
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index 46ed70b24c..09472cd1f0 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -54,6 +54,9 @@ CONFIG_DM_I2C=y
+ CONFIG_SYS_I2C_MVTWSI=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_HS200_SUPPORT=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_NAND=y
+diff --git a/configs/mvebu_db_cn91xx_defconfig b/configs/mvebu_db_cn91xx_defconfig
+index ea2705e44a..7b3e3b4b56 100644
+--- a/configs/mvebu_db_cn91xx_defconfig
++++ b/configs/mvebu_db_cn91xx_defconfig
+@@ -48,6 +48,9 @@ CONFIG_DM_I2C=y
+ CONFIG_SYS_I2C_MVTWSI=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_HS200_SUPPORT=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_NAND=y
+diff --git a/configs/mvebu_db_ep_cn91xx_defconfig b/configs/mvebu_db_ep_cn91xx_defconfig
+index 2afa8382e3..9de4a931a3 100644
+--- a/configs/mvebu_db_ep_cn91xx_defconfig
++++ b/configs/mvebu_db_ep_cn91xx_defconfig
+@@ -52,6 +52,9 @@ CONFIG_DM_I2C=y
+ CONFIG_SYS_I2C_MVTWSI=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_HS200_SUPPORT=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_NAND=y
+diff --git a/configs/mvebu_espressobin-88f3720_defconfig b/configs/mvebu_espressobin-88f3720_defconfig
+index 489d1e45b6..de1ff5ce7c 100644
+--- a/configs/mvebu_espressobin-88f3720_defconfig
++++ b/configs/mvebu_espressobin-88f3720_defconfig
+@@ -42,6 +42,9 @@ CONFIG_DM_GPIO=y
+ CONFIG_DM_I2C=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_HS200_SUPPORT=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_SDMA=y
+ CONFIG_MMC_SDHCI_XENON=y
+diff --git a/configs/mvebu_ocp-88f8040_defconfig b/configs/mvebu_ocp-88f8040_defconfig
+index cfc484316c..31cc37e431 100644
+--- a/configs/mvebu_ocp-88f8040_defconfig
++++ b/configs/mvebu_ocp-88f8040_defconfig
+@@ -51,6 +51,7 @@ CONFIG_DM_I2C=y
+ CONFIG_SYS_I2C_MVTWSI=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_IO_VOLTAGE=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_SPI_FLASH=y
+-- 
+2.29.0
+

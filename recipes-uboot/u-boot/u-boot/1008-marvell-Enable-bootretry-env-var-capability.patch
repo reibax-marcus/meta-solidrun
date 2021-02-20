@@ -1,0 +1,73 @@
+From 6ab6a5ab8248fc82cd8e06489d17142d5947ad54 Mon Sep 17 00:00:00 2001
+From: "Chickles, Derek" <Derek.Chickles@cavium.com>
+Date: Thu, 14 Nov 2019 17:05:54 -0800
+Subject: [PATCH 1008/1239] marvell: Enable bootretry env var capability
+
+Enabling for other platforms: f95, t98, loki
+
+Change-Id: Ia309a5012f5347e608f2310c57177368e7b75f47
+Signed-off-by: Chickles, Derek <Derek.Chickles@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/18710
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+(cherry picked from commit 39ce869513a335b1dc810730d68d48ef21a37171)
+Reviewed-on: https://sj1git1.cavium.com/19362
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/octeontx2_95xx.h | 5 +++++
+ include/configs/octeontx2_98xx.h | 5 +++++
+ include/configs/octeontx2_loki.h | 5 +++++
+ 3 files changed, 15 insertions(+)
+
+diff --git a/include/configs/octeontx2_95xx.h b/include/configs/octeontx2_95xx.h
+index d67ea92852..7023c7ea8b 100644
+--- a/include/configs/octeontx2_95xx.h
++++ b/include/configs/octeontx2_95xx.h
+@@ -41,6 +41,11 @@
+ /** Reduce hashes printed out */
+ #define CONFIG_TFTP_TSIZE
+ 
++/* Autoboot options */
++#define CONFIG_RESET_TO_RETRY
++#define CONFIG_BOOT_RETRY_TIME		-1
++#define CONFIG_BOOT_RETRY_MIN		30
++
+ /* BOOTP options */
+ #define CONFIG_BOOTP_BOOTFILESIZE
+ 
+diff --git a/include/configs/octeontx2_98xx.h b/include/configs/octeontx2_98xx.h
+index d0a282a673..f50b1019e5 100644
+--- a/include/configs/octeontx2_98xx.h
++++ b/include/configs/octeontx2_98xx.h
+@@ -41,6 +41,11 @@
+ /** Reduce hashes printed out */
+ #define CONFIG_TFTP_TSIZE
+ 
++/* Autoboot options */
++#define CONFIG_RESET_TO_RETRY
++#define CONFIG_BOOT_RETRY_TIME		-1
++#define CONFIG_BOOT_RETRY_MIN		30
++
+ /* BOOTP options */
+ #define CONFIG_BOOTP_BOOTFILESIZE
+ 
+diff --git a/include/configs/octeontx2_loki.h b/include/configs/octeontx2_loki.h
+index 5086a5f6aa..570e5e9b99 100644
+--- a/include/configs/octeontx2_loki.h
++++ b/include/configs/octeontx2_loki.h
+@@ -42,6 +42,11 @@
+ /** Reduce hashes printed out */
+ #define CONFIG_TFTP_TSIZE
+ 
++/* Autoboot options */
++#define CONFIG_RESET_TO_RETRY
++#define CONFIG_BOOT_RETRY_TIME		-1
++#define CONFIG_BOOT_RETRY_MIN		30
++
+ /* BOOTP options */
+ #define CONFIG_BOOTP_BOOTFILESIZE
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,44 @@
+From 174cce94fbd3d94cec2a1447bc56da0f65eb8fd8 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Thu, 14 Mar 2019 12:45:09 +0100
+Subject: [PATCH 0245/1239] phy: marvell: add extra comment clarifying utmi
+ registers offsets
+
+Some UTMI offset may be misleading due to differentiation between common
+UTMI registers and port specific one.
+
+Change-Id: I517e735c9386e94351e7e5e622815497e8d87e5e
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/5695
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+---
+ drivers/phy/marvell/utmi_phy.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/phy/marvell/utmi_phy.h b/drivers/phy/marvell/utmi_phy.h
+index d1cad07cf5..e64087a406 100644
+--- a/drivers/phy/marvell/utmi_phy.h
++++ b/drivers/phy/marvell/utmi_phy.h
+@@ -20,6 +20,7 @@
+ #define UTMI_PHY_CFG_PU_MASK			\
+ 	(0x1 << UTMI_PHY_CFG_PU_OFFSET)
+ 
++/* PLL and Calibration register are common for both UTMI ports */
+ #define UTMI_PLL_CTRL_REG			0x0
+ #define UTMI_PLL_CTRL_REFDIV_OFFSET		0
+ #define UTMI_PLL_CTRL_REFDIV_MASK		\
+@@ -45,6 +46,10 @@
+ #define UTMI_CALIB_CTRL_PLLCAL_DONE_MASK	\
+ 	(0x1 << UTMI_CALIB_CTRL_PLLCAL_DONE_OFFSET)
+ 
++/* NOTE: all bellow are register used per UTMI port, which base address is
++ * 058x00C, so bellow offset may be misleading. E.g UTMI_TX_CH_CTRL_REG refers
++ * to 0x58x00c, UTMI_RX_CH_CTRL0_REG refers to 0x58x014 etc.
++ */
+ #define UTMI_TX_CH_CTRL_REG			0x0
+ #define UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET	12
+ #define UTMI_TX_CH_CTRL_DRV_EN_LS_MASK		\
+-- 
+2.29.0
+

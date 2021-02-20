@@ -1,0 +1,340 @@
+From 579b7b0d518c5bc3399ee700ced62f16d60eac8d Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Wed, 4 Jul 2018 17:18:13 +0300
+Subject: [PATCH 0144/1239] mtd: rawnand: pxa3xx: add SoC-specific enable
+ function
+
+Add SoC-dependent function to the NAND driver for selecting
+NAND interface in DEVBUS MUX register.
+This selection is done in the BootROM if the boot device is NAND,
+but may be missing othervise.
+The NAND is selected only if it is enabled in the DT file.
+This patch is fixing NAND access problems for configurations
+that use non-NAND devices for boot (like SPI).
+
+Change-Id: I9cd9b2cbecee0eaa2dd54eacb5ca0a55f4bede3b
+Signed-off-by: Igal Liberman <igall@marvell.com>
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+---
+ arch/arm/dts/armada-cp110.dtsi         |  7 ++-
+ arch/arm/mach-mvebu/armada8k/cpu.c     | 18 -------
+ arch/arm/mach-mvebu/armada8k/soc.c     | 30 +++++++++++
+ arch/arm/mach-mvebu/cpu.c              | 12 ++++-
+ arch/arm/mach-mvebu/include/mach/cpu.h |  3 +-
+ drivers/mtd/nand/raw/pxa3xx_nand.c     | 74 ++++++++++++++++++++++----
+ 6 files changed, 114 insertions(+), 30 deletions(-)
+
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index 26094b3825..86dec35db7 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -202,7 +202,12 @@
+ 
+ 			CP110_LABEL(nand): nand@720000 {
+ 				compatible = "marvell,mvebu-pxa3xx-nand";
+-				reg = <0x720000 0x100>;
++				reg = <0x720000 0x100>,
++				      <0x440700 0x20>,
++				      <0x440208 0x20>;
++				reg-names = "ctrl_base",
++					    "flash_clock",
++					    "dev_mux";
+ 				#address-cells = <1>;
+ 
+ 				nand-enable-arbiter;
+diff --git a/arch/arm/mach-mvebu/armada8k/cpu.c b/arch/arm/mach-mvebu/armada8k/cpu.c
+index 5a8b996eba..d95937f22d 100644
+--- a/arch/arm/mach-mvebu/armada8k/cpu.c
++++ b/arch/arm/mach-mvebu/armada8k/cpu.c
+@@ -114,24 +114,6 @@ void reset_cpu(ulong ignored)
+ 	writel(reg, RFU_GLOBAL_SW_RST);
+ }
+ 
+-/*
+- * TODO - implement this functionality using platform
+- *        clock driver once it gets available
+- * Return NAND clock in Hz
+- */
+-u32 mvebu_get_nand_clock(void)
+-{
+-	unsigned long NAND_FLASH_CLK_CTRL = 0xF2440700UL;
+-	unsigned long NF_CLOCK_SEL_MASK = 0x1;
+-	u32 reg;
+-
+-	reg = readl(NAND_FLASH_CLK_CTRL);
+-	if (reg & NF_CLOCK_SEL_MASK)
+-		return 400 * 1000000;
+-	else
+-		return 250 * 1000000;
+-}
+-
+ int mmc_get_env_dev(void)
+ {
+ 	u32 reg;
+diff --git a/arch/arm/mach-mvebu/armada8k/soc.c b/arch/arm/mach-mvebu/armada8k/soc.c
+index cc0d9cbdd5..f4b6913690 100644
+--- a/arch/arm/mach-mvebu/armada8k/soc.c
++++ b/arch/arm/mach-mvebu/armada8k/soc.c
+@@ -30,6 +30,10 @@
+ #define DEVICE_ID_SUB_REV_OFFSET	7
+ #define DEVICE_ID_SUB_REV_MASK		(0xffff << DEVICE_ID_SUB_REV_OFFSET)
+ 
++#define NF_CLOCK_SEL_MASK		0x1
++#define SOC_MUX_NAND_EN_MASK		0x1
++#define CLOCK_1Mhz			1000000
++
+ struct mochi_module {
+ 	u32 module_type;
+ 	u32 module_rev;
+@@ -211,6 +215,32 @@ void soc_print_system_cache_info(void)
+ 	       excl ? " (Exclusive Mode)" : "");
+ }
+ 
++#ifdef CONFIG_NAND_PXA3XX
++/* Return NAND clock in Hz */
++u32 mvebu_get_nand_clock(void __iomem *nand_flash_clk_ctrl_reg)
++{
++	u32 reg;
++
++	if (!nand_flash_clk_ctrl_reg)
++		return 0;
++
++	reg = readl(nand_flash_clk_ctrl_reg);
++	if (reg & NF_CLOCK_SEL_MASK)
++		return 400 * CLOCK_1Mhz;
++	else
++		return 250 * CLOCK_1Mhz;
++}
++
++/* Select NAND in the device bus multiplexer */
++void mvebu_nand_select(void __iomem *soc_dev_multiplex_reg)
++{
++	if (!soc_dev_multiplex_reg)
++		return;
++
++	setbits_le32(soc_dev_multiplex_reg, SOC_MUX_NAND_EN_MASK);
++}
++#endif
++
+ int soc_early_init_f(void)
+ {
+ #ifdef CONFIG_MVEBU_SAR
+diff --git a/arch/arm/mach-mvebu/cpu.c b/arch/arm/mach-mvebu/cpu.c
+index 133831adde..44b16f9764 100644
+--- a/arch/arm/mach-mvebu/cpu.c
++++ b/arch/arm/mach-mvebu/cpu.c
+@@ -20,6 +20,8 @@
+ #define DDR_BASE_CS_OFF(n)	(0x0000 + ((n) << 3))
+ #define DDR_SIZE_CS_OFF(n)	(0x0004 + ((n) << 3))
+ 
++#define SOC_MUX_NAND_EN_MASK		0x1
++
+ static struct mbus_win windows[] = {
+ 	/* SPI */
+ 	{ MBUS_SPI_BASE, MBUS_SPI_SIZE,
+@@ -509,7 +511,7 @@ int arch_cpu_init(void)
+ }
+ #endif /* CONFIG_ARCH_CPU_INIT */
+ 
+-u32 mvebu_get_nand_clock(void)
++u32 mvebu_get_nand_clock(void __iomem *unused)
+ {
+ 	u32 reg;
+ 
+@@ -525,6 +527,14 @@ u32 mvebu_get_nand_clock(void)
+ 		  NAND_ECC_DIVCKL_RATIO_MASK) >> NAND_ECC_DIVCKL_RATIO_OFFS);
+ }
+ 
++void mvebu_nand_select(void __iomem *soc_dev_multiplex_reg)
++{
++	if (!soc_dev_multiplex_reg)
++		return;
++
++	setbits_le32(soc_dev_multiplex_reg, SOC_MUX_NAND_EN_MASK);
++}
++
+ /*
+  * SOC specific misc init
+  */
+diff --git a/arch/arm/mach-mvebu/include/mach/cpu.h b/arch/arm/mach-mvebu/include/mach/cpu.h
+index 2e2d72aac8..7723150188 100644
+--- a/arch/arm/mach-mvebu/include/mach/cpu.h
++++ b/arch/arm/mach-mvebu/include/mach/cpu.h
+@@ -140,7 +140,8 @@ unsigned int mvebu_sdram_bs(enum memory_bank bank);
+ void mvebu_sdram_size_adjust(enum memory_bank bank);
+ int mvebu_mbus_probe(struct mbus_win windows[], int count);
+ int mvebu_soc_family(void);
+-u32 mvebu_get_nand_clock(void);
++u32 mvebu_get_nand_clock(void __iomem *maybe_unused);
++void mvebu_nand_select(void __iomem *maybe_unused);
+ 
+ void return_to_bootrom(void);
+ 
+diff --git a/drivers/mtd/nand/raw/pxa3xx_nand.c b/drivers/mtd/nand/raw/pxa3xx_nand.c
+index 4d2712df4c..8a603fd011 100644
+--- a/drivers/mtd/nand/raw/pxa3xx_nand.c
++++ b/drivers/mtd/nand/raw/pxa3xx_nand.c
+@@ -248,6 +248,10 @@ struct pxa3xx_nand_info {
+ 	uint32_t		ndcb1;
+ 	uint32_t		ndcb2;
+ 	uint32_t		ndcb3;
++
++	/* SOC related registers for nand */
++	void __iomem		*nand_flash_clk_ctrl_reg;
++	void __iomem		*soc_dev_multiplex_reg;
+ };
+ 
+ static struct pxa3xx_nand_timing timing[] = {
+@@ -417,13 +421,20 @@ static enum pxa3xx_nand_variant pxa3xx_nand_get_variant(void)
+ 	return PXA3XX_NAND_VARIANT_ARMADA370;
+ }
+ 
+-static void pxa3xx_nand_set_timing(struct pxa3xx_nand_host *host,
+-				   const struct pxa3xx_nand_timing *t)
++static int pxa3xx_nand_set_timing(struct pxa3xx_nand_host *host,
++				  const struct pxa3xx_nand_timing *t)
+ {
+ 	struct pxa3xx_nand_info *info = host->info_data;
+-	unsigned long nand_clk = mvebu_get_nand_clock();
++	unsigned long nand_clk;
+ 	uint32_t ndtr0, ndtr1;
+ 
++	nand_clk = mvebu_get_nand_clock(info->nand_flash_clk_ctrl_reg);
++	if (!nand_clk) {
++		dev_err(&host->info->pdev->dev,
++			"Missinig flash clock register\n");
++		return -EINVAL;
++	}
++
+ 	ndtr0 = NDTR0_tCH(ns2cycle(t->tCH, nand_clk)) |
+ 		NDTR0_tCS(ns2cycle(t->tCS, nand_clk)) |
+ 		NDTR0_tWH(ns2cycle(t->tWH, nand_clk)) |
+@@ -439,14 +450,16 @@ static void pxa3xx_nand_set_timing(struct pxa3xx_nand_host *host,
+ 	info->ndtr1cs0 = ndtr1;
+ 	nand_writel(info, NDTR0CS0, ndtr0);
+ 	nand_writel(info, NDTR1CS0, ndtr1);
++
++	return 0;
+ }
+ 
+-static void pxa3xx_nand_set_sdr_timing(struct pxa3xx_nand_host *host,
+-				       const struct nand_sdr_timings *t)
++static int pxa3xx_nand_set_sdr_timing(struct pxa3xx_nand_host *host,
++				      const struct nand_sdr_timings *t)
+ {
+ 	struct pxa3xx_nand_info *info = host->info_data;
+ 	struct nand_chip *chip = &host->chip;
+-	unsigned long nand_clk = mvebu_get_nand_clock();
++	unsigned long nand_clk;
+ 	uint32_t ndtr0, ndtr1;
+ 
+ 	u32 tCH_min = DIV_ROUND_UP(t->tCH_min, 1000);
+@@ -459,6 +472,13 @@ static void pxa3xx_nand_set_sdr_timing(struct pxa3xx_nand_host *host,
+ 	u32 tWHR_min = DIV_ROUND_UP(t->tWHR_min, 1000);
+ 	u32 tAR_min = DIV_ROUND_UP(t->tAR_min, 1000);
+ 
++	nand_clk = mvebu_get_nand_clock(info->nand_flash_clk_ctrl_reg);
++	if (!nand_clk) {
++		dev_err(&host->info->pdev->dev,
++			"Missinig flash clock register\n");
++		return -EINVAL;
++	}
++
+ 	/* fallback to a default value if tR = 0 */
+ 	if (!tR)
+ 		tR = 20000;
+@@ -478,6 +498,8 @@ static void pxa3xx_nand_set_sdr_timing(struct pxa3xx_nand_host *host,
+ 	info->ndtr1cs0 = ndtr1;
+ 	nand_writel(info, NDTR0CS0, ndtr0);
+ 	nand_writel(info, NDTR1CS0, ndtr1);
++
++	return 0;
+ }
+ 
+ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
+@@ -487,7 +509,7 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
+ 	struct pxa3xx_nand_info *info = host->info_data;
+ 	const struct pxa3xx_nand_flash *f = NULL;
+ 	struct mtd_info *mtd = nand_to_mtd(&host->chip);
+-	int mode, id, ntypes, i;
++	int mode, id, ntypes, i, ret;
+ 
+ 	mode = onfi_get_async_timing_mode(chip);
+ 	if (mode == ONFI_TIMING_MODE_UNKNOWN) {
+@@ -510,7 +532,9 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
+ 			return -EINVAL;
+ 		}
+ 
+-		pxa3xx_nand_set_timing(host, f->timing);
++		ret = pxa3xx_nand_set_timing(host, f->timing);
++		if (ret)
++			return ret;
+ 
+ 		if (f->flash_width == 16) {
+ 			info->reg_ndcr |= NDCR_DWIDTH_M;
+@@ -527,7 +551,9 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
+ 		if (IS_ERR(timings))
+ 			return PTR_ERR(timings);
+ 
+-		pxa3xx_nand_set_sdr_timing(host, timings);
++		ret = pxa3xx_nand_set_sdr_timing(host, timings);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	return 0;
+@@ -1809,6 +1835,8 @@ static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
+ 	struct pxa3xx_nand_platform_data *pdata;
+ 	const void *blob = gd->fdt_blob;
+ 	int node = -1;
++	int index;
++	fdt_addr_t addr;
+ 
+ 	pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
+ 	if (!pdata)
+@@ -1830,6 +1858,26 @@ static int pxa3xx_nand_probe_dt(struct pxa3xx_nand_info *info)
+ 			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
+ 					blob, node, "reg", 0, NULL, true);
+ 
++		index = fdt_stringlist_search(blob, node, "reg-names",
++					      "flash_clock");
++		if (index > 0) {
++			addr = fdtdec_get_addr_size_auto_noparent(
++					blob, node, "reg", index, NULL, true);
++			if (addr != FDT_ADDR_T_NONE)
++				info->nand_flash_clk_ctrl_reg =
++					(void __iomem *)addr;
++		}
++
++		index = fdt_stringlist_search(blob, node, "reg-names",
++					      "dev_mux");
++		if (index > 0) {
++			addr = fdtdec_get_addr_size_auto_noparent(
++					blob, node, "reg", index, NULL, true);
++			if (addr != FDT_ADDR_T_NONE)
++				info->soc_dev_multiplex_reg =
++					(void __iomem *)addr;
++		}
++
+ 		pdata->num_cs = fdtdec_get_int(blob, node, "num-cs", 1);
+ 		if (pdata->num_cs != 1) {
+ 			pr_err("pxa3xx driver supports single CS only\n");
+@@ -1876,6 +1924,14 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
+ 
+ 	pdata = info->pdata;
+ 
++	/* If the NAND flash is enabled in DT, but the boot image is not
++	 * running from NAND, it may be needed to enable NAND on SOC
++	 * DEVBUS MUX level.
++	 * When the boot device is NAND, such configuration is done
++	 * in the BootROM.
++	 */
++	mvebu_nand_select(info->soc_dev_multiplex_reg);
++
+ 	ret = alloc_nand_resource(info);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "alloc nand resource failed\n");
+-- 
+2.29.0
+

@@ -1,0 +1,33 @@
+From b84ca36e66f8a5447ca8f01455432e9399d64364 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 15 Jan 2018 21:29:16 -0800
+Subject: [PATCH 0752/1239] configs: t81/83: remove EFI_HELLO_WORLD example efi
+ app
+
+EFI_SUBSYSTEM used in coff header in crt0_aarch64_efi.S creates
+compilation error with newest binutils.
+Newest binutils rejects creating a shared library with dynamic
+relocation of R_AARCH64_ABS16 as there is no support by glibc
+for that dynamic relocation. This needs fix in mainline too.
+Disabling helloworld app compile until it is fixed in mainline.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/t83_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/t83_defconfig b/configs/t83_defconfig
+index d1a1ff62fc..c56ee7b141 100644
+--- a/configs/t83_defconfig
++++ b/configs/t83_defconfig
+@@ -19,6 +19,7 @@ CONFIG_BOARD_EARLY_INIT_R=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_SYS_PROMPT="Cavium> "
+ # CONFIG_AUTOBOOT is not set
++# CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
+ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+ # CONFIG_CMD_FLASH is not set
+-- 
+2.29.0
+

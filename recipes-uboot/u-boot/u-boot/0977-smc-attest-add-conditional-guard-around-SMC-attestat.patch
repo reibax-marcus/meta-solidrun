@@ -1,0 +1,50 @@
+From 82d4306e122cfea50694b0967242553021db981c Mon Sep 17 00:00:00 2001
+From: Rick Farrington <Ricardo.Farrington@cavium.com>
+Date: Mon, 28 Oct 2019 15:10:22 -0400
+Subject: [PATCH 0977/1239] smc: attest: add conditional guard around SMC
+ attestation code
+
+Change-Id: Ie5a4560178098256e6a4a6c0604193f557d1efe3
+Signed-off-by: Rick Farrington <Ricardo.Farrington@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/17948
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+Reviewed-by: Aaron Williams <awilliams@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/smc.h | 2 ++
+ board/Marvell/octeontx2/smc.c             | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/smc.h b/arch/arm/include/asm/arch-octeontx2/smc.h
+index 1c8f439b89..ecbed3882c 100644
+--- a/arch/arm/include/asm/arch-octeontx2/smc.h
++++ b/arch/arm/include/asm/arch-octeontx2/smc.h
+@@ -19,6 +19,8 @@ ssize_t smc_mdio_dbg_read(int cgx_lmac, int mode, int phyaddr, int devad,
+ 			  int reg);
+ ssize_t smc_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
+ 			   int reg, int val);
++#ifdef CONFIG_CMD_ATTEST
+ ssize_t smc_attest(long subcmd, long ctx_arg);
++#endif
+ 
+ #endif
+diff --git a/board/Marvell/octeontx2/smc.c b/board/Marvell/octeontx2/smc.c
+index b15f08b1e4..3ae428d726 100644
+--- a/board/Marvell/octeontx2/smc.c
++++ b/board/Marvell/octeontx2/smc.c
+@@ -112,6 +112,7 @@ ssize_t smc_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
+  *   signed value: <0 - error code
+  *                  0 - success
+  */
++#ifdef CONFIG_CMD_ATTEST
+ ssize_t smc_attest(long subcmd, long ctx_arg)
+ {
+ 	struct pt_regs regs;
+@@ -138,3 +139,4 @@ ssize_t smc_attest(long subcmd, long ctx_arg)
+ 
+ 	return regs.regs[0];
+ }
++#endif // CONFIG_CMD_ATTEST
+-- 
+2.29.0
+

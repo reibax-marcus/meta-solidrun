@@ -1,0 +1,45 @@
+From 70fda4d4f31ef1da7be50e5bf867b87cc39765d9 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 16 May 2016 15:40:36 -0400
+Subject: [PATCH 0447/1239] thunderx: Remove stale PCI address windows
+ definitions
+
+New controller support code takes all the information from FDT,
+so these entries are unused
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ include/configs/thunderx_81xx.h | 17 -----------------
+ 1 file changed, 17 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 826e154f6b..781ab6a912 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -68,23 +68,6 @@
+ #define CONFIG_SYS_TCR_EL2_IPS_BITS	(5 << 16)
+ #define CONFIG_SYS_TCR_EL3_IPS_BITS	(5 << 16)
+ 
+-#define CONFIG_SYS_PCI_MEM_CPU	{0x881010000000UL, 0x885010000000UL, 0x889010000000UL,\
+-				 0x891010000000UL, 0x895010000000UL, 0x899010000000UL}
+-
+-#define CONFIG_SYS_PCI_PREF_CPU	{0x882100000000UL, 0x886100000000UL, 0x88a100000000UL,\
+-				 0x892080000000UL, 0x896080000000UL, 0x89a080000000UL}
+-
+-#define CONFIG_SYS_PCI_IO_CPU	{0x883000000000UL, 0x887000000000UL, 0x88b000000000UL,\
+-				 0x893000000000UL, 0x897000000000UL, 0x89b000000000UL}
+-
+-#define CONFIG_SYS_PCI_MEM_BUS	 0x10000000
+-#define CONFIG_SYS_PCI_PREF_BUS	 0x80000000
+-#define CONFIG_SYS_PCI_IO_BUS	 0x1000000000
+-
+-#define CONFIG_SYS_PCI_MEM_SIZE  0xf0000000
+-#define CONFIG_SYS_PCI_PREF_SIZE 0xf000000000
+-#define CONFIG_SYS_PCI_IO_SIZE   0x10000
+-
+ #define CONFIG_SLT
+ 
+ /* Link Definitions */
+-- 
+2.29.0
+

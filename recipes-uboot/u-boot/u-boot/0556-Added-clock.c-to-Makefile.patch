@@ -1,0 +1,26 @@
+From 1fd97ca1eff9508f64df69ff60be528cd2b53c53 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 8 Nov 2016 20:01:24 -0800
+Subject: [PATCH 0556/1239] Added clock.c to Makefile.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ arch/arm/mach-thunderx/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-thunderx/Makefile b/arch/arm/mach-thunderx/Makefile
+index cebcddb5f9..5b9b4af219 100644
+--- a/arch/arm/mach-thunderx/Makefile
++++ b/arch/arm/mach-thunderx/Makefile
+@@ -4,7 +4,7 @@
+ # SPDX-License-Identifier:	GPL-2.0+
+ #
+ 
+-obj-y += lowlevel_init.o
++obj-y += lowlevel_init.o clock.o
+ 
+ obj-$(CONFIG_THUNDERX_CN81XX)	+= cn81xx/
+ obj-$(CONFIG_THUNDERX_CN88XX)	+= cn88xx/
+-- 
+2.29.0
+

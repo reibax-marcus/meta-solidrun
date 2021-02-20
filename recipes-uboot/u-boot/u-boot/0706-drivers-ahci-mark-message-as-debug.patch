@@ -1,0 +1,29 @@
+From 792da343844e932cc7231ff28e48696521f1a12b Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 11 Sep 2017 15:11:39 -0700
+Subject: [PATCH 0706/1239] drivers: ahci: mark message as debug
+
+sff81xx has port multiplier and always shows link up.
+So starting ports fail hence mark these to debug messages.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/ata/ahci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 965545bd5e..1e7c50b19b 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -983,7 +983,7 @@ static int ahci_start_ports(struct ahci_uc_priv *uc_priv)
+ 	for (i = 0; i < uc_priv->n_ports; i++) {
+ 		if (((linkmap >> i) & 0x01)) {
+ 			if (ahci_port_start(uc_priv, (u8) i)) {
+-				printf("Can not start port %d\n", i);
++				debug("AHCI Can not start port %d\n", i);
+ 				continue;
+ 			}
+ 		}
+-- 
+2.29.0
+

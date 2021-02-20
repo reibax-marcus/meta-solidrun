@@ -1,0 +1,111 @@
+From 32d18dcb7ed41dd8a39e2c1882e5ee8fdeaab2c5 Mon Sep 17 00:00:00 2001
+From: Nithya <nithya.mani@caviumnetworks.com>
+Date: Tue, 22 Dec 2015 09:59:49 -0800
+Subject: [PATCH 0378/1239] Thunderx : u-boot XAUI fixes
+
+    - CONFIG_THUNDERX_BGX is defined in include/configs/thunder-88xx.h
+    and when used in source code, it is used as CONFIG_THUNDER_BGX.
+    Fixed the typo in the macro.
+
+    - u-boot doesn't boot to console with XAUI interface. Fixed the
+    issue for the crash in drivers/net/cavium/thunder_bgx.c
+
+    - XAUI interface doesn't work with u-boot. Reason was parsing of
+    BGX node is not updated based on the latest device tree structure
+    and hence it couldn't find BGX node for setup.Updated the code
+    accordingly to locate the BGX node.
+---
+ board/cavium/thunderx/fdt.c      | 31 ++++++++++++++++++++-----------
+ drivers/net/cavium/thunder_bgx.c |  1 +
+ 2 files changed, 21 insertions(+), 11 deletions(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index 436a5ad852..8b2acb6f2c 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -15,7 +15,7 @@
+ #if defined(CONFIG_OF_LIBFDT)
+ #include <cavm-csr.h>
+ 
+-#ifdef CONFIG_THUNDER_BGX
++#ifdef CONFIG_THUNDERX_BGX
+ /**
+  * To remove unwanted nodes from fdt .
+  *
+@@ -121,12 +121,11 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
+ {
+ 	union bgxx_cmrx_config cmrx_config;
+ 	union bgxx_spux_br_pmd_control spux_br_pmd_control;
+-
+ 	char fdt_key[20];
+-
+-	int parent, offset, next_offset, rc = 0, temp;
++	int parent, offset, next_offset = 0, rc = 0, err;
+ 	int qlm_key_len, qlm_mode;
+-	char bgx_node[12];
++	char bgx_node[12], qlm[32];
++	const char *fdt_node_name;
+ 
+ 	if (!fdt) {
+ 		printf("%s: Invalid device tree\n", __func__);
+@@ -136,7 +135,7 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
+ 	err = fdt_check_header(fdt);
+ 	if (err < 0) {
+ 		printf("%s: %s\n", __FUNCTION__, fdt_strerror(err));
+-		return err;
++		return;
+ 	}
+ 
+ 	/* Read LMAC0 type to figure out QLM mode
+@@ -177,11 +176,18 @@ static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
+ 	strncpy(qlm, fdt_key, sizeof(qlm));
+ 	qlm_key_len = strlen(qlm);
+ 
+-	sprintf(bgx_node, "/bgx%d", bgx_id);
++	sprintf(bgx_node, "bgx%d", bgx_id);
++	for (parent = 0; parent >= 0; parent = fdt_next_node(fdt, parent, NULL)) {
++                fdt_node_name = fdt_get_name(fdt, parent, &err);
++                if (err < 0) {
++			printf("WARNING : Couldn't find BGX node\n");
++			return;
++                }
++                if (strcmp(bgx_node, fdt_node_name) == 0) {
++                        break;
++                }       
++        }
+ 
+-	parent = fdt_path_offset(fdt, bgx_node);
+-	if(parent < 0)
+-		return;
+ 
+         offset= fdt_first_subnode(fdt,parent);
+ 	while (offset >= 0) {
+@@ -361,9 +367,12 @@ static void ft_setup_pems(char *fdt)
+ 
+ int ft_board_setup(void *blob, bd_t *bd)
+ {
++#ifdef CONFIG_THUNDERX_BGX
++	int node = 0;
++#endif
+ 	ft_setup_coremask(blob);
+ 
+-#ifdef CONFIG_THUNDER_BGX
++#ifdef CONFIG_THUNDERX_BGX
+ 	for (node = 0; node < atf_node_count(); node++) {
+ 		ft_setup_bgx(blob, node, 0);
+ 		ft_setup_bgx(blob, node, 1);
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 7216d9b688..ce9d2539ed 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -510,6 +510,7 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
+ 
+ 	
+ 	if ((bgx->lmac_type != BGX_MODE_XFI) &&
++	    (bgx->lmac_type != BGX_MODE_XAUI) &&
+ 	    (bgx->lmac_type != BGX_MODE_XLAUI) &&
+ 	    (bgx->lmac_type != BGX_MODE_40G_KR) &&
+ 	    (bgx->lmac_type != BGX_MODE_10G_KR)) {
+-- 
+2.29.0
+

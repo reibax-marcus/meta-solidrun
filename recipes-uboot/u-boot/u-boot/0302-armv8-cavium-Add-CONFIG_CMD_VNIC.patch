@@ -1,0 +1,26 @@
+From 0da042e40a724d41b41757c469de5bf46436812d Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
+Date: Tue, 3 Mar 2015 21:08:33 +0300
+Subject: [PATCH 0302/1239] armv8: cavium: Add CONFIG_CMD_VNIC
+
+---
+ include/configs/thunderx_88xx.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 3ee8781bcd..9fcb6d6c6f 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -89,6 +89,9 @@
+   #define CONFIG_SYS_64BIT_LBA
+ #endif
+ 
++#define CONFIG_CMD_ATF
++#define CONFIG_CMD_VNIC
++
+ /* Partition systems */
+ #define CONFIG_DOS_PARTITION
+ #define CONFIG_EFI_PARTITION
+-- 
+2.29.0
+

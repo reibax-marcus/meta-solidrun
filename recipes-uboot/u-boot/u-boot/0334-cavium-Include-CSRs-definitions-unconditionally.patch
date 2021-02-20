@@ -1,0 +1,27 @@
+From f01b8f02fc34b2e91e420f5fd9bf9a5c4943d84c Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 4 Nov 2015 15:09:10 -0800
+Subject: [PATCH 0334/1239] cavium: Include CSRs definitions unconditionally
+
+---
+ board/cavium/thunderx/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index 90b2e2a985..d5b4504e75 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -14,9 +14,9 @@
+ #include <cavium/atf.h>
+ 
+ #if defined(CONFIG_OF_LIBFDT)
++#include <cavm-csr.h>
+ 
+ #ifdef CONFIG_THUNDER_BGX
+-#include <cavm-csr.h>
+ /**
+  * To remove unwanted nodes from fdt .
+  *
+-- 
+2.29.0
+

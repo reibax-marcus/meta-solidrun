@@ -1,0 +1,27 @@
+From c7d356c33120df3c2ece16c9a60bc47a4ceb110f Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 3 May 2016 18:13:43 -0700
+Subject: [PATCH 0392/1239] cavium: Update ThunderX configs for PCI ECAM
+
+This commit updates ThunderX config files for DM PCI usage
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ include/configs/thunderx_88xx.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index adfa3da641..30abc81d94 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -196,6 +196,7 @@
+ #define CONFIG_SYS_PCI_ARI
+ #define CONFIG_THUNDERX_ECAMS 8
+ #define CONFIG_THUNDERX_RCS 12
++#define CONFIG_THUNDERX_RCS_PER_NODE 6
+ 
+ #define CONFIG_SYS_CACHELINE_SIZE 128
+ 
+-- 
+2.29.0
+

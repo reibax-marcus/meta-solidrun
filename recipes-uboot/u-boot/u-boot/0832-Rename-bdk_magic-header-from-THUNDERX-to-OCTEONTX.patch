@@ -1,0 +1,26 @@
+From 938016b12ffd9b4df01428df611265fe35fb635b Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Wed, 19 Sep 2018 17:23:53 -0700
+Subject: [PATCH 0832/1239] Rename bdk_magic header from THUNDERX to OCTEONTX.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ cmd/bootimgup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/bootimgup.c b/cmd/bootimgup.c
+index 4329cfafd9..a04e1d7d32 100644
+--- a/cmd/bootimgup.c
++++ b/cmd/bootimgup.c
+@@ -37,7 +37,7 @@ static struct spi_flash *flash;
+ static int validate_bootimg_header(unsigned long addr)
+ {
+ 	char flash_hdr[] = {"CVM_CLIB"};
+-	char bdk_magic[] = {"THUNDERX"};
++	char bdk_magic[] = {"OCTEONTX"};
+ 	char *buf1 = (char *)(addr + 0x10000); /* flash hdr offset */
+ 	char *buf2 = (char *)(addr + 0x20008); /* bdk magic offset */
+ 	char *buf3 = (char *)(addr + 0x50008); /* sec bdk magic offset */
+-- 
+2.29.0
+

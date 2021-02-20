@@ -1,0 +1,197 @@
+From 8871734064a0de0434104c6eed07f3a861b7fc2c Mon Sep 17 00:00:00 2001
+From: Alexey Kovalev <alexey.kovalev@cavium.com>
+Date: Mon, 22 Apr 2019 23:06:19 +0300
+Subject: [PATCH 0906/1239] marvell: octeontx2: adding fail safe commands
+
+Change-Id: I6b4c2d821b07a498e013c02bf90cd5f181ab04d2
+Signed-off-by: Alexey Kovalev <alexey.kovalev@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/7956
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/atf.h     |  2 ++
+ .../asm/arch-octeontx2/octeontx2_svc.h        |  4 ++++
+ board/Marvell/octeontx2/atf.c                 | 22 +++++++++++++++++++
+ board/Marvell/octeontx2/octeontx2.c           |  8 +++++++
+ cmd/Makefile                                  |  3 +++
+ cmd/marvell/Kconfig                           | 10 +++++++++
+ cmd/marvell/Makefile                          |  8 +++++++
+ cmd/marvell/octeontx2_cmds.c                  | 21 ++++++++++++++++++
+ include/configs/octeontx2_95xx.h              |  2 ++
+ include/configs/octeontx2_96xx.h              |  2 ++
+ 10 files changed, 82 insertions(+)
+ create mode 100644 cmd/marvell/Kconfig
+ create mode 100644 cmd/marvell/Makefile
+ create mode 100644 cmd/marvell/octeontx2_cmds.c
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/atf.h b/arch/arm/include/asm/arch-octeontx2/atf.h
+index 614d113489..69c299fa7e 100644
+--- a/arch/arm/include/asm/arch-octeontx2/atf.h
++++ b/arch/arm/include/asm/arch-octeontx2/atf.h
+@@ -11,4 +11,6 @@
+ ssize_t atf_dram_size(unsigned int node);
+ ssize_t atf_node_count(void);
+ ssize_t atf_disable_rvu_lfs(unsigned int node);
++ssize_t atf_flsf_fw_booted(void);
++ssize_t atf_flsf_clr_force_2ndry(void);
+ #endif
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+index 4fbe549db7..785faa91d7 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+@@ -27,4 +27,8 @@
+ 
+ #define OCTEONTX2_CONFIG_OOO		0xc2000b07
+ 
++/* fail safe */
++#define OCTEONTX2_FSAFE_PR_BOOT_SUCCESS	0xc2000b05
++#define OCTEONTX2_FSAFE_CLR_FORCE_SEC	0xc2000b06
++
+ #endif /* __OCTEONTX2_SVC_H__ */
+diff --git a/board/Marvell/octeontx2/atf.c b/board/Marvell/octeontx2/atf.c
+index 15f04808d4..d12eae17bb 100644
+--- a/board/Marvell/octeontx2/atf.c
++++ b/board/Marvell/octeontx2/atf.c
+@@ -60,3 +60,25 @@ ssize_t atf_configure_ooo(unsigned int val)
+ 
+ 	return regs.regs[0];
+ }
++
++ssize_t atf_flsf_fw_booted(void)
++{
++	struct pt_regs regs;
++
++	regs.regs[0] = OCTEONTX2_FSAFE_PR_BOOT_SUCCESS;
++
++	smc_call(&regs);
++
++	return regs.regs[0];
++}
++
++ssize_t atf_flsf_clr_force_2ndry(void)
++{
++	struct pt_regs regs;
++
++	regs.regs[0] = OCTEONTX2_FSAFE_CLR_FORCE_SEC;
++
++	smc_call(&regs);
++
++	return regs.regs[0];
++}
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index f10b548b86..084175f9cc 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -350,3 +350,11 @@ void hw_watchdog_disable(void)
+ 	writeq(0ULL, CAVM_GTI_CWD_WDOGX);
+ }
+ #endif
++
++#ifdef CONFIG_LAST_STAGE_INIT
++int last_stage_init(void)
++{
++	(void)atf_flsf_fw_booted();
++	return 0;
++}
++#endif
+diff --git a/cmd/Makefile b/cmd/Makefile
+index 3c0ffd292b..199bfb9def 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -179,6 +179,9 @@ obj-$(CONFIG_RISCV) += riscv/
+ obj-$(CONFIG_X86) += x86/
+ 
+ obj-$(CONFIG_ARCH_MVEBU) += mvebu/
++
++obj-$(CONFIG_ARCH_OCTEONTX2) += marvell/
++
+ endif # !CONFIG_SPL_BUILD
+ 
+ # core command
+diff --git a/cmd/marvell/Kconfig b/cmd/marvell/Kconfig
+new file mode 100644
+index 0000000000..d6d36fce09
+--- /dev/null
++++ b/cmd/marvell/Kconfig
+@@ -0,0 +1,10 @@
++menu "Marvell specific command line interface"
++
++config CMD_FAILSAFE
++	bool "command for supporting fail safe boot"
++	help
++	   Support for fail safe boot on Marvell's OcteonTX2 platforms.
++	   Disables forced secondary boot and reports if boot from
++	   primary device was successful.
++
++endmenu
+diff --git a/cmd/marvell/Makefile b/cmd/marvell/Makefile
+new file mode 100644
+index 0000000000..43a9bf5ca9
+--- /dev/null
++++ b/cmd/marvell/Makefile
+@@ -0,0 +1,8 @@
++# Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
++#
++# SPDX-License-Identifier:	GPL-2.0+
++#
++
++ifdef CONFIG_ARCH_OCTEONTX2
++obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_cmds.o
++endif
+\ No newline at end of file
+diff --git a/cmd/marvell/octeontx2_cmds.c b/cmd/marvell/octeontx2_cmds.c
+new file mode 100644
+index 0000000000..79c7f00870
+--- /dev/null
++++ b/cmd/marvell/octeontx2_cmds.c
+@@ -0,0 +1,21 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <command.h>
++#include <asm/arch/atf.h>
++
++static int do_octeontx2_flsf(
++	cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
++{
++	return atf_flsf_clr_force_2ndry();
++}
++
++U_BOOT_CMD(
++	mrvl_otx2_fsafe_clr_sec_boot, 1, 1, mrvl_otx2_fsafe_clr_sec_boot,
++	"Marvell OcteonTX2 Fail Safe: clear secondary boot", ""
++);
+diff --git a/include/configs/octeontx2_95xx.h b/include/configs/octeontx2_95xx.h
+index f439ffde19..b962db4001 100644
+--- a/include/configs/octeontx2_95xx.h
++++ b/include/configs/octeontx2_95xx.h
+@@ -42,6 +42,8 @@
+ 
+ #define CONFIG_MISC_INIT_R
+ 
++#define CONFIG_LAST_STAGE_INIT
++
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+  * overwritten once.
+diff --git a/include/configs/octeontx2_96xx.h b/include/configs/octeontx2_96xx.h
+index 3bc934dec7..f4c3f1dfe8 100644
+--- a/include/configs/octeontx2_96xx.h
++++ b/include/configs/octeontx2_96xx.h
+@@ -42,6 +42,8 @@
+ 
+ #define CONFIG_MISC_INIT_R
+ 
++#define CONFIG_LAST_STAGE_INIT
++
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+  * overwritten once.
+-- 
+2.29.0
+

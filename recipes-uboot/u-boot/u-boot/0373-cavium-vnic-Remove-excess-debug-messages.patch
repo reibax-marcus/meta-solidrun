@@ -1,0 +1,25 @@
+From 89406aaeed31e97a12a330ff28547271a608fec8 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 24 Nov 2015 04:01:26 -0800
+Subject: [PATCH 0373/1239] cavium: vnic: Remove excess debug messages
+
+---
+ drivers/net/cavium/nicvf_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/cavium/nicvf_main.c
+index 2a3484d9c7..fb28801c84 100644
+--- a/drivers/net/cavium/nicvf_main.c
++++ b/drivers/net/cavium/nicvf_main.c
+@@ -6,7 +6,7 @@
+  * published by the Free Software Foundation; either version 2 of
+  * the License, or (at your option) any later version.
+  */
+-#define DEBUG
++
+ #include <config.h>
+ #include <common.h>
+ #include <net.h>
+-- 
+2.29.0
+

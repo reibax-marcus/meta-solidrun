@@ -1,0 +1,51 @@
+From a9d926c67e945d1dc333662a2131292001dd12d5 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 18 May 2016 23:32:00 -0400
+Subject: [PATCH 0473/1239] cavium: Remove stale VNIC initialization code
+
+Drop VNIC initialization code since it's not relevant anymore
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ board/cavium/thunderx/thunderx.c | 19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index b304678e52..14492caa20 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -140,30 +140,13 @@ int board_eth_init(bd_t *bis)
+ #endif
+ #endif
+ 
+-#if defined(CONFIG_THUNDERX_VNIC)
+-#define VNIC_PER_NODE 8
++
+ 
+ 	for (node = 0; node < atf_node_count(); node++) {
+ 		thunderx_bgx_initialize(0, node);
+ 		thunderx_bgx_initialize(1, node);
+ 	}
+ 
+-	for (node = 0; node < atf_node_count(); node++) {
+-		nicpf = nic_initialize(node);
+-
+-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 0, node);
+-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 1, node);
+-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 2, node);
+-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 3, node);
+-
+-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 4, node);
+-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 5, node);
+-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 6, node);
+-		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 7, node);
+-	}
+-
+-#endif
+-
+ 	rc = pci_eth_init(bis);
+ 
+ 	return rc;
+-- 
+2.29.0
+

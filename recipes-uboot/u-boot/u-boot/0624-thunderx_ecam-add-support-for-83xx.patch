@@ -1,0 +1,27 @@
+From 15e8f50fba12f16395bcdca96aa0a617fe06ed52 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Thu, 16 Mar 2017 15:03:06 -0700
+Subject: [PATCH 0624/1239] thunderx_ecam: add support for 83xx
+
+this driver also works with 83xx, add the new compatability string
+
+Signed-off-by: Tirumalesh Chalamarla <tchalamarla@caviumnetworks.com>
+---
+ drivers/pci/pci_thunderx_ecam.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/pci/pci_thunderx_ecam.c b/drivers/pci/pci_thunderx_ecam.c
+index 2214e24707..bd7c52e682 100644
+--- a/drivers/pci/pci_thunderx_ecam.c
++++ b/drivers/pci/pci_thunderx_ecam.c
+@@ -244,6 +244,7 @@ static const struct dm_pci_ops pci_thunderx_ecam_ops = {
+ 
+ static const struct udevice_id pci_thunderx_ecam_ids[] = {
+ 	{ .compatible = "cavium,pci-host-thunder-ecam" },
++	{ .compatible = "cavium,pci-host-octeontx-ecam" },
+ 	{ .compatible = "pci-host-ecam-generic" },
+ 	{ }
+ };
+-- 
+2.29.0
+

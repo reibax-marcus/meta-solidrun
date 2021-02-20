@@ -1,0 +1,47 @@
+From 9c3a4855ce1831aea51a1a1fa4b674713f70c8dc Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Tue, 28 Aug 2018 13:11:02 +0200
+Subject: [PATCH 0192/1239] pci: aardvark: move setting of reference clock to
+ the pcie driver
+
+The settings of reference clock is done via pcie address space and not
+comphy address space - move the settings in appropriate place.
+
+This aligns hw initialization of pcie advk with Linux and also will allow
+to get rid of not comphy related operation from the comphy driver.
+
+Change-Id: I6f424c3637dfcc7f216d743149c67dff9e3cafc9
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ drivers/pci/pci-aardvark.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/pci/pci-aardvark.c b/drivers/pci/pci-aardvark.c
+index 864ac16f57..bc1080baa3 100644
+--- a/drivers/pci/pci-aardvark.c
++++ b/drivers/pci/pci-aardvark.c
+@@ -92,6 +92,11 @@
+ #define     PCIE_CORE_CTRL2_STRICT_ORDER_ENABLE	BIT(5)
+ #define     PCIE_CORE_CTRL2_ADDRWIN_MAP_ENABLE	BIT(6)
+ 
++#define PCIE_PHY_REF_CLOCK			(CONTROL_BASE_ADDR + 0x14)
++#define     PCIE_PHY_CTRL_OFF			16
++#define     PCIE_PHY_BUF_CTRL_OFF		0
++#define     PCIE_PHY_BUF_CTRL_INIT_VAL		0x1342
++
+ /* LMI registers base address and register offsets */
+ #define LMI_BASE_ADDR				0x6000
+ #define CFG_REG					(LMI_BASE_ADDR + 0x0)
+@@ -511,6 +516,9 @@ static int pcie_advk_setup_hw(struct pcie_advk *pcie)
+ {
+ 	u32 reg;
+ 
++	/* Set HW Reference Clock Buffer Control */
++	advk_writel(pcie, PCIE_PHY_BUF_CTRL_INIT_VAL, PCIE_PHY_REF_CLOCK);
++
+ 	/* Set to Direct mode */
+ 	reg = advk_readl(pcie, CTRL_CONFIG_REG);
+ 	reg &= ~(CTRL_MODE_MASK << CTRL_MODE_SHIFT);
+-- 
+2.29.0
+

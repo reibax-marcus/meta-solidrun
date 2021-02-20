@@ -1,0 +1,308 @@
+From 0ad14ca8ef627201937e2f4af7acc353bcaa6d7c Mon Sep 17 00:00:00 2001
+From: Rick Farrington <Ricardo.Farrington@cavium.com>
+Date: Thu, 19 Sep 2019 01:01:31 -0400
+Subject: [PATCH 0960/1239] Added support for 'attest' command (for Software
+ Attestation).
+
+Change-Id: I1bc2358f61d5c56ae5807e9ca3da9c8f5812267c
+Signed-off-by: Rick Farrington <Ricardo.Farrington@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/16059
+Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/atf.h     |   1 +
+ .../include/asm/arch-octeontx2/octeontx2.h    |  40 ++++++
+ .../asm/arch-octeontx2/octeontx2_svc.h        |   5 +
+ board/Marvell/octeontx2/atf.c                 |  24 ++++
+ cmd/marvell/Kconfig                           |   6 +
+ cmd/marvell/Makefile                          |   1 +
+ cmd/marvell/octeontx2_attest_cmds.c           | 134 ++++++++++++++++++
+ configs/octeontx2_96xx_defconfig              |   1 +
+ 8 files changed, 212 insertions(+)
+ create mode 100644 cmd/marvell/octeontx2_attest_cmds.c
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/atf.h b/arch/arm/include/asm/arch-octeontx2/atf.h
+index 7b2a2480d8..ae463d995e 100644
+--- a/arch/arm/include/asm/arch-octeontx2/atf.h
++++ b/arch/arm/include/asm/arch-octeontx2/atf.h
+@@ -17,4 +17,5 @@ ssize_t atf_mdio_dbg_read(int cgx_lmac, int mode, int phyaddr, int devad,
+ 			  int reg);
+ ssize_t atf_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
+ 			   int reg, int val);
++ssize_t atf_attest(long nonce_len);
+ #endif
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2.h b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+index 07b0a4c20f..fc20de2fd6 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+@@ -25,6 +25,46 @@
+ #define CAVM_GTI_CWD_POKEX	0x802000050000ULL
+ #define CAVM_GTI_CWD_WDOGX	0x802000040000ULL
+ 
++/* attestation definitions shared with ATF (see 'plat_octeontx.h') */
++
++#define ATTESTATION_MAGIC_ID 0x5f415454 /* "_ATT" */
++
++enum sw_attestation_tlv_type {
++	ATT_IMG_INIT_BIN,
++	ATT_IMG_ATF_BL1,
++	ATT_IMG_BOARD_DT,
++	ATT_IMG_LINUX_DT,
++	ATT_IMG_SCP_TBL1FW,
++	ATT_IMG_MCP_TBL1FW,
++	ATT_IMG_AP_TBL1FW,
++	ATT_IMG_ATF_BL2,
++	ATT_IMG_ATF_BL31,
++	ATT_IMG_ATF_BL33,
++	ATT_SIG_NONCE,
++
++	ATT_TLV_TYPE_COUNT,
++};
++
++typedef struct sw_attestation_tlv {
++	u16 type_be;   /* sw_attestation_tlv_type */
++	u16 length_be;
++	u8 value[0];   /* array of 'length_be' bytes */
++} sw_attestation_tlv_t;
++
++#define SW_ATT_INFO_NONCE_MAX_LEN  256
++
++typedef struct sw_attestation_info_hdr {
++	u32 magic_be;
++	u16 tlv_len_be;
++	u16 total_len_be;
++	u16 certificate_len_be;
++	u16 signature_len_be;
++	union {
++		sw_attestation_tlv_t tlv_list[0];
++		s8 input_nonce[0];
++	};
++} __packed sw_attestation_info_hdr_t;
++
+ /** Structure definitions */
+ /**
+  * Register (NCB32b) cpc_boot_owner#
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+index 81d16f97bb..4dc3edabe4 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+@@ -34,4 +34,9 @@
+ #define OCTEONTX2_MDIO_DBG_READ		0xc2000d01
+ #define OCTEONTX2_MDIO_DBG_WRITE	0xc2000d02
+ 
++/* X1:  0 - query for buffer ptr
++ *     !0 - nonce len
++ */
++#define OCTEONTX_ATTESTATION_QUERY	0xc2000d03
++
+ #endif /* __OCTEONTX2_SVC_H__ */
+diff --git a/board/Marvell/octeontx2/atf.c b/board/Marvell/octeontx2/atf.c
+index e508a06dc3..0f27209a23 100644
+--- a/board/Marvell/octeontx2/atf.c
++++ b/board/Marvell/octeontx2/atf.c
+@@ -117,3 +117,27 @@ ssize_t atf_mdio_dbg_write(int cgx_lmac, int mode, int phyaddr, int devad,
+ 
+ 	return regs.regs[0];
+ }
++
++/*
++ * on entry,
++ *   nonce_len: <= 0, query for buffer address
++ *               > 0 specifies nonce length
++ *
++ * returns,
++ *   signed value: <0 - error code
++ *                  0 - success
++ */
++ssize_t atf_attest(long nonce_len)
++{
++	struct pt_regs regs;
++
++	regs.regs[0] = OCTEONTX_ATTESTATION_QUERY;
++	/* X1 - nonce len */
++	regs.regs[1] = nonce_len;
++	/* X2 - subfunction (useful for adding future cmd extensions) */
++	regs.regs[2] = 0;
++
++	smc_call(&regs);
++
++	return regs.regs[0];
++}
+diff --git a/cmd/marvell/Kconfig b/cmd/marvell/Kconfig
+index fd1e597b9a..d14d6725ae 100644
+--- a/cmd/marvell/Kconfig
++++ b/cmd/marvell/Kconfig
+@@ -23,4 +23,10 @@ config CMD_MDIO_DBG
+ 	   to ATF for RVU PF [CGX] network interfaces on Marvell OcteonTX2
+ 	   platforms.
+ 
++config CMD_ATTEST
++	bool "Command for supporting Software Attestation"
++	help
++	   Support for Software Attestation on Marvell's OcteonTX2 platforms.
++	   Displays Secure Boot software component version information.
++
+ endmenu
+diff --git a/cmd/marvell/Makefile b/cmd/marvell/Makefile
+index b2f99a7e0a..72a0098165 100644
+--- a/cmd/marvell/Makefile
++++ b/cmd/marvell/Makefile
+@@ -8,4 +8,5 @@ obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_failsafe_cmds.o
+ obj-$(CONFIG_CMD_ETH) += eth_cmds.o
+ obj-$(CONFIG_CMD_MDIO_DBG) += mdio_dbg.o
+ obj-$(CONFIG_OCTEONTX2_CGX_INTF) += octeontx2_qlm_cmds.o
++obj-$(CONFIG_CMD_ATTEST) += octeontx2_attest_cmds.o
+ endif
+diff --git a/cmd/marvell/octeontx2_attest_cmds.c b/cmd/marvell/octeontx2_attest_cmds.c
+new file mode 100644
+index 0000000000..9a49f38b5c
+--- /dev/null
++++ b/cmd/marvell/octeontx2_attest_cmds.c
+@@ -0,0 +1,134 @@
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <command.h>
++#include <malloc.h>
++#include <asm/arch/atf.h>
++#include <asm/arch/octeontx2.h>
++
++static void hexdump(const char *prefix, unsigned char *buf, int len)
++{
++	int i;
++
++	for (i = 0; i < len; i++) {
++		if ((i % 16) == 0)
++			printf("%s%s%08lx: ", i ? "\n" : "",
++			       prefix ? prefix : "",
++			       (unsigned long)i /* i.e. offset */);
++		printf("%02x ", buf[i]);
++	}
++	printf("\n");
++}
++
++static const char *tlv_type_name(enum sw_attestation_tlv_type type)
++{
++	static const char *tlv_types[ATT_TLV_TYPE_COUNT] = {
++		[ATT_IMG_INIT_BIN] = "ATT_IMG_INIT_BIN",
++		[ATT_IMG_ATF_BL1] = "ATT_IMG_ATF_BL1",
++		[ATT_IMG_BOARD_DT] = "ATT_IMG_BOARD_DT",
++		[ATT_IMG_LINUX_DT] = "ATT_IMG_LINUX_DT",
++		[ATT_IMG_SCP_TBL1FW] = "ATT_IMG_SCP_TBL1FW",
++		[ATT_IMG_MCP_TBL1FW] = "ATT_IMG_MCP_TBL1FW",
++		[ATT_IMG_AP_TBL1FW] = "ATT_IMG_AP_TBL1FW",
++		[ATT_IMG_ATF_BL2] = "ATT_IMG_ATF_BL2",
++		[ATT_IMG_ATF_BL31] = "ATT_IMG_ATF_BL31",
++		[ATT_IMG_ATF_BL33] = "ATT_IMG_ATF_BL33",
++		[ATT_SIG_NONCE] = "ATT_SIG_NONCE",
++	};
++	if (type < 0 || type >= ATT_TLV_TYPE_COUNT)
++		return "Unknown";
++	else
++		return tlv_types[type];
++}
++
++static int do_attest(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
++{
++	ssize_t len;
++	uintptr_t attest_ret;
++	sw_attestation_info_hdr_t *att_info;
++	sw_attestation_tlv_t *tlv;
++	void *tlv_limit, *next_tlv, *cert, *sig;
++	unsigned long nonce_len;
++
++	if (argc < 2) {
++		printf("Please specify a nonce string.\n");
++		return CMD_RET_USAGE;
++	}
++
++	nonce_len = strlen(argv[1]);
++	if (nonce_len > SW_ATT_INFO_NONCE_MAX_LEN) {
++		printf("Input nonce too large (%lu vs %u)\n",
++		       nonce_len, SW_ATT_INFO_NONCE_MAX_LEN);
++		return CMD_RET_USAGE;
++	}
++
++	/* query for buffer address */
++	attest_ret = atf_attest(0);
++
++	if ((ssize_t)attest_ret <= 0) {
++		printf("Error: unable to obtain buffer address.\n");
++		return CMD_RET_FAILURE;
++	}
++
++	att_info = (void *)attest_ret;
++
++	/* Pass nonce data to service in buffer */
++	memcpy(att_info->input_nonce, argv[1], nonce_len);
++
++	attest_ret = atf_attest(nonce_len);
++
++	if ((ssize_t)attest_ret != 0) {
++		printf("Error %ld from attest command\n", attest_ret);
++		return CMD_RET_FAILURE;
++	}
++
++	printf("Attestation decode:\n");
++	printf("\tMagic: %08x\n", ntohl(att_info->magic_be));
++	tlv = att_info->tlv_list;
++	tlv_limit = (void *)tlv + (long)(ntohs(att_info->tlv_len_be));
++	while ((uintptr_t)tlv < (uintptr_t)tlv_limit) {
++		next_tlv = (void *)tlv + ntohs(tlv->length_be) +
++			   sizeof(*tlv);
++		if ((uintptr_t)next_tlv > (uintptr_t)tlv_limit) {
++			printf("Error: invalid TLV construct\n");
++			break;
++		}
++		printf("\t%s:\n", tlv_type_name(ntohs(tlv->type_be)));
++		hexdump("\t   ", tlv->value, ntohs(tlv->length_be));
++		tlv = (sw_attestation_tlv_t *)next_tlv;
++	}
++
++	/* command returned successfully, but with malformed data */
++	if (tlv != tlv_limit)
++		return CMD_RET_SUCCESS;
++
++	/* Certificate is contiguous to TLV date */
++	cert = tlv_limit;
++	printf("\tCertificate:\n");
++	hexdump("\t   ", (unsigned char *)cert,
++		ntohs(att_info->certificate_len_be));
++
++	len = ntohs(att_info->total_len_be);
++	len -= ntohs(att_info->signature_len_be);
++	printf("\tAttestation [Signed] Image:\n");
++	hexdump("\t   ", (unsigned char *)att_info, len);
++
++	/* Authentication signature is contiguous to certificate */
++	sig = (void *)cert + ntohs(att_info->certificate_len_be);
++	printf("\tAuthentication signature:\n");
++	hexdump("\t   ", sig, htons(att_info->signature_len_be));
++
++	return CMD_RET_SUCCESS;
++}
++
++U_BOOT_CMD(attest, 2, 0, do_attest,
++	   "Retrieve attestation information",
++	   "<nonce_string>\n"
++	   "    - where <nonce_string> consists of ASCII characters\n"
++	   "\nExample: attest ABCDEF0123\n"
++);
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 3145740854..b09c68ac58 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -124,3 +124,4 @@ CONFIG_CMD_TIME=y
+ CONFIG_CONSOLE_MUX=y
+ CONFIG_SYS_CONSOLE_IS_IN_ENV=y
+ CONFIG_CMD_FAILSAFE=y
++# CONFIG_CMD_ATTEST is not set
+-- 
+2.29.0
+

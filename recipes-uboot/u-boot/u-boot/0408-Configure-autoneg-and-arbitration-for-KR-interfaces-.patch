@@ -1,0 +1,43 @@
+From 134e69af3c21ddb741876a0a11f43b574dfb4200 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Thu, 5 May 2016 20:26:30 -0700
+Subject: [PATCH 0408/1239] Configure autoneg and arbitration for KR interfaces
+ only.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index a8afdeba69..e455e4510f 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -348,7 +348,11 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
+ 
+ 	/* Disable autoneg */
+ 	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_CONTROL);
+-	cfg = cfg & ~(SPU_AN_CTL_AN_EN | SPU_AN_CTL_XNP_EN);
++	cfg = cfg & ~(SPU_AN_CTL_XNP_EN);
++	if (lmac->use_training)
++		cfg = cfg | (SPU_AN_CTL_AN_EN);
++	else
++		cfg = cfg & ~(SPU_AN_CTL_AN_EN);
+ 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_CONTROL, cfg);
+ 
+ 	cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_AN_ADV);
+@@ -362,7 +366,10 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
+ 	bgx_reg_write(bgx, lmacid, BGX_SPUX_AN_ADV, cfg);
+ 
+ 	cfg = bgx_reg_read(bgx, 0, BGX_SPU_DBG_CONTROL);
+-	cfg &= ~SPU_DBG_CTL_AN_ARB_LINK_CHK_EN;
++	if (lmac->use_training)
++		cfg |= SPU_DBG_CTL_AN_ARB_LINK_CHK_EN;
++	else
++		cfg &= ~SPU_DBG_CTL_AN_ARB_LINK_CHK_EN;
+ 	bgx_reg_write(bgx, 0, BGX_SPU_DBG_CONTROL, cfg);
+ 
+ 	/* Enable lmac */
+-- 
+2.29.0
+

@@ -1,0 +1,67 @@
+From 4f78bade8723b7c29d654671498edfbda0616396 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Fri, 6 May 2016 21:13:33 -0700
+Subject: [PATCH 0410/1239] FDT: Add fdtdec_get_pci_bus_range() function
+
+This function is required to parse the 'bus-range' PCI controller
+property
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ include/fdtdec.h | 11 +++++++++++
+ lib/fdtdec.c     | 17 +++++++++++++++++
+ 2 files changed, 28 insertions(+)
+
+diff --git a/include/fdtdec.h b/include/fdtdec.h
+index 9e00831c02..e19709dd09 100644
+--- a/include/fdtdec.h
++++ b/include/fdtdec.h
+@@ -462,6 +462,17 @@ int fdtdec_get_pci_vendev(const void *blob, int node,
+ int fdtdec_get_pci_bar32(struct udevice *dev, struct fdt_pci_addr *addr,
+ 			 u32 *bar);
+ 
++/**
++ * Look at the bus range property of a device node and return the pci bus
++ * range for this node.
++ * The property must hold one fdt_pci_addr with a lengh.
++ * @param blob		FDT blob
++ * @param node		node to examine
++ * @param res		the resource structure to return the bus range
++ */
++
++int fdtdec_get_pci_bus_range(const void *blob, int node,
++			     struct fdt_resource *res);
+ /**
+  * Look up a 32-bit integer property in a node and return it. The property
+  * must have at least 4 bytes of data. The value of the first cell is
+diff --git a/lib/fdtdec.c b/lib/fdtdec.c
+index 75d18a788e..9de0152753 100644
+--- a/lib/fdtdec.c
++++ b/lib/fdtdec.c
+@@ -296,6 +296,23 @@ int fdtdec_get_pci_bar32(struct udevice *dev, struct fdt_pci_addr *addr,
+ 
+ 	return 0;
+ }
++
++int fdtdec_get_pci_bus_range(const void *blob, int node,
++			     struct fdt_resource *res)
++{
++	const u32 *values;
++	int len;
++
++	values = fdt_getprop(blob, node, "bus-range", &len);
++	if (!values || len < sizeof(*values) * 2)
++		return -EINVAL;
++
++	res->start = be32_to_cpup(values++);
++	res->end = be32_to_cpup(values);
++
++	return 0;
++}
++
+ #endif
+ 
+ uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
+-- 
+2.29.0
+

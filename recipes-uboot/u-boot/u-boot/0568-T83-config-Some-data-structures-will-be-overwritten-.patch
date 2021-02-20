@@ -1,0 +1,49 @@
+From d4c7eda69eb23bc2fe3476a4a63da8123eb720e3 Mon Sep 17 00:00:00 2001
+From: Nithya <nithya.mani@caviumnetworks.com>
+Date: Mon, 14 Nov 2016 17:52:01 -0800
+Subject: [PATCH 0568/1239] T83 config : Some data structures will be
+ overwritten if U-Boot grows near 512K.
+
+Cherry-pick commit # 6ab0201729fc19e19cac8254eb19370365169c1d to T83 config
+
+This moves the stack and the CPU release from 512K - 16bytes to 1M - 16 bytes
+since it is easy to hit this location as U-Boot grows.  Ideally these will be
+moved elsewhere though this can be done at some later time.
+---
+ include/configs/thunderx_83xx.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index a296ebcc62..aa83f55abd 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -99,7 +99,7 @@
+ #define CONFIG_SYS_TEXT_BASE		0x00500000
+ 
+ /** Stack starting address */
+-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
++#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+ 
+ #define CONFIG_BOARD_LATE_INIT
+ 
+@@ -112,7 +112,7 @@
+ #define CONFIG_OF_BOARD_SETUP
+ 
+ /* SMP Spin Table Definitions */
+-#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
++#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+ 
+ 
+ /* Generic Timer Definitions */
+@@ -360,7 +360,7 @@
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+ /** Size of environment in bytes */
+-#define CONFIG_ENV_SIZE			0x80000
++#define CONFIG_ENV_SIZE			0x8000
+ /** Starting offset of the environment */
+ #define CONFIG_ENV_OFFSET		0xf00000
+ 
+-- 
+2.29.0
+

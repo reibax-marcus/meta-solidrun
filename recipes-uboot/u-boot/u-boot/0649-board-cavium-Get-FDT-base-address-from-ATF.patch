@@ -1,0 +1,92 @@
+From 5f9e15596dadafaea24a3358850d4b10d954c7ae Mon Sep 17 00:00:00 2001
+From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+Date: Mon, 17 Jul 2017 15:13:01 -0700
+Subject: [PATCH 0649/1239] board: cavium: Get FDT base address from ATF
+
+This commit adds proper support for passing FDT base address from
+ATF to U-Boot.
+
+ATF passes the FDT base address in x1 register. It's U-Boot entry
+point responsibility to read this value and use it as proper
+FDT base address.
+
+Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+---
+ arch/arm/mach-thunderx/lowlevel_init.S | 14 ++++++++++++++
+ board/cavium/thunderx/fdt.c            | 11 +++++++++++
+ configs/t81_defconfig                  |  1 +
+ configs/t83_defconfig                  |  1 +
+ 4 files changed, 27 insertions(+)
+
+diff --git a/arch/arm/mach-thunderx/lowlevel_init.S b/arch/arm/mach-thunderx/lowlevel_init.S
+index 33fb0b14d9..6f16cd7b2b 100644
+--- a/arch/arm/mach-thunderx/lowlevel_init.S
++++ b/arch/arm/mach-thunderx/lowlevel_init.S
+@@ -12,6 +12,20 @@
+ 
+ #include <asm/macro.h>
+ 
++.align 8
++.global fdt_base_addr
++fdt_base_addr:
++	.dword 0x0
++
++.global save_boot_params
++save_boot_params:
++	/* Read FDT base from x1 register passed by ATF */
++	adr	x21, fdt_base_addr
++	str	x1, [x21]
++
++	/* Returns */
++	b	save_boot_params_ret
++
+ ENTRY(lowlevel_init)
+ 	mov	x29, lr			/* Save LR */
+ 
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index 47959c6104..a511cd2f46 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -22,6 +22,8 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
++extern unsigned long fdt_base_addr;
++
+ void thunderx_parse_bdk_config(void)
+ {
+ 	char boardname[32];
+@@ -347,3 +349,12 @@ U_BOOT_CMD(
+ 	"    - enable or disable a CPU core"
+ );
+ 
++/**
++ * Return the FDT base address that was passed by ATF
++ *
++ * @return	FDT base address received from ATF in x1 register
++ */
++void *board_fdt_blob_setup(void)
++{
++	return (void *)fdt_base_addr;
++}
+diff --git a/configs/t81_defconfig b/configs/t81_defconfig
+index 99578649af..3aa448e871 100644
+--- a/configs/t81_defconfig
++++ b/configs/t81_defconfig
+@@ -48,3 +48,4 @@ CONFIG_ERRNO_STR=y
+ CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR=0x77
+ CONFIG_ENV_VARS_UBOOT_CONFIG=y
+ CONFIG_OF_LIBFDT=y
++CONFIG_OF_BOARD=y
+diff --git a/configs/t83_defconfig b/configs/t83_defconfig
+index 6f8a4b9429..c41668cf72 100644
+--- a/configs/t83_defconfig
++++ b/configs/t83_defconfig
+@@ -50,3 +50,4 @@ CONFIG_ERRNO_STR=y
+ CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR=0x77
+ CONFIG_ENV_VARS_UBOOT_CONFIG=y
+ CONFIG_OF_LIBFDT=y
++CONFIG_OF_BOARD=y
+-- 
+2.29.0
+

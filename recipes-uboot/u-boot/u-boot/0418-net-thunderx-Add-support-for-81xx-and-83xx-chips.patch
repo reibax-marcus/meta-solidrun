@@ -1,0 +1,172 @@
+From 092a2183beaf978fdab93094916d32f22735e879 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 9 May 2016 18:05:04 -0700
+Subject: [PATCH 0418/1239] net: thunderx: Add support for 81xx and 83xx chips
+
+This patch adds info on HW maximums on 81xx and 83xx and also
+configured receive and transmit datapaths accordingly.
+
+Signed-off-by: Sunil Goutham <sgoutham@cavium.com>
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/net/cavium/nic.h      |  2 +
+ drivers/net/cavium/nic_main.c | 84 ++++++++++++++++++++++++++++-------
+ drivers/net/cavium/nic_reg.h  |  1 +
+ 3 files changed, 72 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index 59870c9fb3..e5d23f36be 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -228,6 +228,8 @@ struct hw_info {
+ 	u8		bgx_cnt;
+ 	u8		chans_per_lmac;
+ 	u8		chans_per_bgx; /* Rx/Tx chans */
++	u8		chans_per_rgx;
++	u8		chans_per_lbk;
+ 	u16		cpi_cnt;
+ 	u16		rssi_cnt;
+ 	u16		rss_ind_tbl_size;
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index f88b088aa3..f14afbda1b 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -413,9 +413,17 @@ static void nic_set_lmac_vf_mapping(struct nicpf *nic)
+ 
+ static void nic_get_hw_info(struct nicpf *nic)
+ {
+-	u16 sdevid = PCI_SUBSYS_DEVID_88XX_NIC_PF;
++	u16 sdevid = 0;
+ 	struct hw_info *hw = nic->hw;
+ 
++#if defined(CONFIG_TARGET_THUNDERX_88XX)
++	sdevid = PCI_SUBSYS_DEVID_88XX_NIC_PF;
++#elif defined(CONFIG_TARGET_THUNDERX_81XX)
++	sdevid = PCI_SUBSYS_DEVID_81XX_NIC_PF;
++#elif defined(CONFIG_TARGET_THUNDERX_83XX)
++	sdevid = PCI_SUBSYS_DEVID_83XX_NIC_PF;
++#endif
++
+ //	pci_read_config_word(nic->pdev, PCI_SUBSYSTEM_ID, &sdevid);
+ 
+ 	switch (sdevid) {
+@@ -431,6 +439,33 @@ static void nic_get_hw_info(struct nicpf *nic)
+ 		hw->tl1_cnt = 2;
+ 		hw->tl1_per_bgx = true;
+ 		break;
++	case PCI_SUBSYS_DEVID_81XX_NIC_PF:
++		hw->bgx_cnt = CONFIG_MAX_BGX_PER_NODE;
++		hw->chans_per_lmac = 8;
++		hw->chans_per_bgx = 32;
++		hw->chans_per_rgx = 8;
++		hw->chans_per_lbk = 24;
++		hw->cpi_cnt = 512;
++		hw->rssi_cnt = 256;
++		hw->rss_ind_tbl_size = 32; /* Max RSSI / Max interfaces */
++		hw->tl3_cnt = 64;
++		hw->tl2_cnt = 16;
++		hw->tl1_cnt = 10;
++		hw->tl1_per_bgx = false;
++		break;
++	case PCI_SUBSYS_DEVID_83XX_NIC_PF:
++		hw->bgx_cnt = CONFIG_MAX_BGX_PER_NODE;
++		hw->chans_per_lmac = 8;
++		hw->chans_per_bgx = 32;
++		hw->chans_per_lbk = 64;
++		hw->cpi_cnt = 2048;
++		hw->rssi_cnt = 1024;
++		hw->rss_ind_tbl_size = 64; /* Max RSSI / Max interfaces */
++		hw->tl3_cnt = 256;
++		hw->tl2_cnt = 64;
++		hw->tl1_cnt = 18;
++		hw->tl1_per_bgx = false;
++		break;
+ 	}
+ 	hw->tl4_cnt = MAX_QUEUES_PER_QSET * /*pci_sriov_get_totalvfs(nic->pdev)*/ 8;
+ }
+@@ -597,20 +632,23 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
+ 	rr_quantum = ((NIC_HW_MAX_FRS + 24) / 4);
+ 
+ 	/* For 88xx 0-511 TL4 transmits via BGX0 and
+-	* 512-1023 TL4s transmit via BGX1.
+-	*/
+-	tl4 = bgx * (hw->tl4_cnt / hw->bgx_cnt);
+-
+-	if (!sq->sqs_mode) {
+-		tl4 += (lmac * MAX_QUEUES_PER_QSET);
+-	} else {
+-		for (svf = 0; svf < MAX_SQS_PER_VF; svf++) {
+-			if (nic->vf_sqs[pqs_vnic][svf] == vnic)
+-				break;
++	 * 512-1023 TL4s transmit via BGX1.
++	 */
++	if (hw->tl1_per_bgx) {
++		tl4 = bgx * (hw->tl4_cnt / hw->bgx_cnt);
++		if (!sq->sqs_mode) {
++			tl4 += (lmac * MAX_QUEUES_PER_QSET);
++		} else {
++			for (svf = 0; svf < MAX_SQS_PER_VF; svf++) {
++				if (nic->vf_sqs[pqs_vnic][svf] == vnic)
++					break;
++			}
++			tl4 += (MAX_LMAC_PER_BGX * MAX_QUEUES_PER_QSET);
++			tl4 += (lmac * MAX_QUEUES_PER_QSET * MAX_SQS_PER_VF);
++			tl4 += (svf * MAX_QUEUES_PER_QSET);
+ 		}
+-		tl4 += (MAX_LMAC_PER_BGX * MAX_QUEUES_PER_QSET);
+-		tl4 += (lmac * MAX_QUEUES_PER_QSET * MAX_SQS_PER_VF);
+-		tl4 += (svf * MAX_QUEUES_PER_QSET);
++	} else {
++		tl4 = (vnic * MAX_QUEUES_PER_QSET);
+ 	}
+ 
+ 	tl4 += sq_idx;
+@@ -626,9 +664,15 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
+ 
+ 	/* On 88xx 0-127 channels are for BGX0 and
+ 	 * 127-255 channels for BGX1.
++	 *
++	 * On 81xx/83xx TL3_CHAN reg should be configured with channel
++	 * within LMAC i.e 0-7 and not the actual channel number like on 88xx
+ 	 */
+ 	chan = (lmac * hw->chans_per_lmac) + (bgx * hw->chans_per_bgx);
+-	nic_reg_write(nic, NIC_PF_TL3_0_255_CHAN | (tl3 << 3), chan);
++	if (hw->tl1_per_bgx)
++		nic_reg_write(nic, NIC_PF_TL3_0_255_CHAN | (tl3 << 3), chan);
++	else
++		nic_reg_write(nic, NIC_PF_TL3_0_255_CHAN | (tl3 << 3), 0);
+ 
+ 	/* Enable backpressure on the channel */
+ 	nic_reg_write(nic, NIC_PF_CHAN_0_255_TX_CFG | (chan << 3), 1);
+@@ -638,6 +682,16 @@ static void nic_tx_channel_cfg(struct nicpf *nic, u8 vnic,
+ 	nic_reg_write(nic, NIC_PF_TL2_0_63_CFG | (tl2 << 3), rr_quantum);
+ 	/* No priorities as of now */
+ 	nic_reg_write(nic, NIC_PF_TL2_0_63_PRI | (tl2 << 3), 0x00);
++
++	/* Unlike 88xx where TL2s 0-31 transmits to TL1 '0' and rest to TL1 '1'
++	 * on 81xx/83xx TL2 needs to be configured to transmit to one of the
++	 * possible LMACs.
++	 *
++	 * This register doesn't exist on 88xx.
++	 */
++	if (!hw->tl1_per_bgx)
++		nic_reg_write(nic, NIC_PF_TL2_LMAC | (tl2 << 3),
++			      lmac + (bgx * MAX_LMAC_PER_BGX));
+ }
+ 
+ struct nicpf *nic_initialize(unsigned int node)
+diff --git a/drivers/net/cavium/nic_reg.h b/drivers/net/cavium/nic_reg.h
+index c0b10e2a9a..b9dc781be6 100644
+--- a/drivers/net/cavium/nic_reg.h
++++ b/drivers/net/cavium/nic_reg.h
+@@ -115,6 +115,7 @@
+ #define   NIC_PF_SW_SYNC_RX_DONE		(0x490008)
+ #define   NIC_PF_TL2_0_63_CFG			(0x500000)
+ #define   NIC_PF_TL2_0_63_PRI			(0x520000)
++#define   NIC_PF_TL2_LMAC			(0x540000)
+ #define   NIC_PF_TL2_0_63_SH_STATUS		(0x580000)
+ #define   NIC_PF_TL3A_0_63_CFG			(0x5F0000)
+ #define   NIC_PF_TL3_0_255_CFG			(0x600000)
+-- 
+2.29.0
+

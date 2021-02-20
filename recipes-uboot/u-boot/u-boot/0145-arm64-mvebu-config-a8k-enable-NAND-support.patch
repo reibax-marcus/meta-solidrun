@@ -1,0 +1,26 @@
+From ddf4931a215fecc5cc1e0b92afbf1792c79800b1 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Thu, 17 Oct 2019 23:37:54 +0200
+Subject: [PATCH 0145/1239] arm64: mvebu: config: a8k: enable NAND support
+
+Change-Id: I686f12f6890334eecfbbcf9c59818d7823283f42
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+---
+ configs/mvebu_db_armada8k_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index f40345ffd2..110e93d6de 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -28,7 +28,6 @@ CONFIG_CMD_MVEBU_SAR=y
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
+-# CONFIG_CMD_NAND is not set
+ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+-- 
+2.29.0
+

@@ -1,0 +1,50 @@
+From 8bfe4c2c502ba8da58e18df54c0205951d780de2 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 7 Aug 2017 14:27:15 +0300
+Subject: [PATCH 0006/1239] arm64: mvebu: config: move env to the end of the
+ 4MB boot device
+
+The size of flash_image.bin with the tee binary exceeds 1.5MB.
+The tee binary size can grow up to 2MB, and without the environment
+relocation leads to a boot image  corruption upon running saveenv.
+Relocate the u-boot environment to the end of a minimum-sized
+boot device (flash or eMMC boot partition of 4MB).
+And since nand device works only with block-aligned data, move
+env to block-aligned address.
+
+Change-Id: Ifaabf7d75c4f4df433af46a3d481e9fa84227245
+Signed-off-by: Zhoujie Wu <zjwu@marvell.com>
+Signed-off-by: wangwen <wangwen@marvell.com>
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Signed-off-by: Ken Ma <make@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ include/configs/mvebu_armada-common.h | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index 44c1d13ecf..f11129aef9 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -103,9 +103,17 @@
+ #define CONFIG_SF_DEFAULT_SPEED		1000000
+ #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
+ 
+-#define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */
++/*
++ * Assume minimum flash/eMMC boot partition size of 4MB
++ * and save the environment at the end of the boot device
++ */
+ #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
+ #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
++#ifdef CONFIG_MVEBU_NAND_BOOT
++#define CONFIG_ENV_OFFSET		0x400000
++#else
++#define CONFIG_ENV_OFFSET		(0x400000 - CONFIG_ENV_SIZE)
++#endif
+ 
+ /*
+  * SATA/SCSI/AHCI configuration
+-- 
+2.29.0
+

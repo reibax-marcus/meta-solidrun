@@ -1,0 +1,34 @@
+From 761f8cc5ae4de38d12b23cc1aa03bec5483a216b Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Thu, 23 Jan 2020 11:07:28 +0100
+Subject: [PATCH 1066/1239] arm64: dts: a8k: disable UHS modes
+
+Since some of the AP Xenon controllers have issues
+with the PHY operation, for safety reasons
+make sure it does not run in the UHS modes
+by forcing IO to work @3.3V.
+
+Change-Id: Ic65afded112aa6b884207fa1f57e7c3d1a456295
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/22156
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/armada-8040-db.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index 9c5486297f..65214d6f73 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -103,6 +103,7 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&ap_emmc_pins>;
+ 	bus-width = <8>;
++	no-1-8-v;
+ 	status = "okay";
+ };
+ 
+-- 
+2.29.0
+

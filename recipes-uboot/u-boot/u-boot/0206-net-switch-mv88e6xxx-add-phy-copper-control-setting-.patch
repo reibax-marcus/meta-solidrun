@@ -1,0 +1,64 @@
+From 1f8dcaf1d14d831a93d9bdc3bb9384eceea1761a Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Mon, 24 Jul 2017 17:57:27 +0800
+Subject: [PATCH 0206/1239] net: switch: mv88e6xxx: add phy copper control
+ setting for lan ports
+
+When Espressobin board gets reset by the reset-button, sometimes the
+switch lan ports' power down bit(0_0.11) in phy copper control register
+is set, then switch lan ports can not link up;
+This patch adds phy copper control setting for lan ports in switch
+initialization to clear power down bit by force.
+
+Change-Id: I02d1eb3dac780659b34197e7393ddb45178a4898
+Signed-off-by: Ken Ma <make@marvell.com>
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ drivers/net/phy/mv88e6xxx.c | 12 ++++++++++++
+ drivers/net/phy/mv88e6xxx.h |  7 +++++++
+ 2 files changed, 19 insertions(+)
+
+diff --git a/drivers/net/phy/mv88e6xxx.c b/drivers/net/phy/mv88e6xxx.c
+index 606ded5132..3bf660335c 100644
+--- a/drivers/net/phy/mv88e6xxx.c
++++ b/drivers/net/phy/mv88e6xxx.c
+@@ -410,6 +410,18 @@ int mv88e6xxx_initialize(const void *blob)
+ 					 REG_PORT(port),
+ 					 PORT_BASE_VLAN,
+ 					 soho_dev.port_mask & ~BIT(port));
++
++		if (port == soho_dev.cpu_port)
++			continue;
++
++		/* Set phy copper control for lan ports */
++		mv88e6xxx_write_phy_register(&soho_dev,
++					     REG_PORT(port),
++					     0,
++					     PHY_COPPER_CONTROL,
++					     PHY_COPPER_CONTROL_SPEED_1G |
++					     PHY_COPPER_CONTROL_DUPLEX |
++					     PHY_COPPER_CONTROL_AUTO_NEG_EN);
+ 	}
+ 
+ 	soho_dev_handle = &soho_dev;
+diff --git a/drivers/net/phy/mv88e6xxx.h b/drivers/net/phy/mv88e6xxx.h
+index e876e5a78c..7083b7dba1 100644
+--- a/drivers/net/phy/mv88e6xxx.h
++++ b/drivers/net/phy/mv88e6xxx.h
+@@ -362,6 +362,13 @@
+ #define GLOBAL2_QOS_WEIGHT			0x1c
+ #define GLOBAL2_MISC				0x1d
+ 
++#define PHY_COPPER_CONTROL		0x0
++#define PHY_COPPER_CONTROL_SPEED_1G	BIT(6)
++#define PHY_COPPER_CONTROL_DUPLEX	BIT(8)
++#define PHY_COPPER_CONTROL_POWER_DOWN	BIT(11)
++#define PHY_COPPER_CONTROL_AUTO_NEG_EN	BIT(12)
++#define PHY_COPPER_CONTROL_SPEED_100M	BIT(13)
++
+ struct mv88e6xxx_dev {
+ 	unsigned int phy_addr;
+ 	unsigned int port_mask;
+-- 
+2.29.0
+

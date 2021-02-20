@@ -1,0 +1,32 @@
+From dc3eb408d5dc30573415d53fc4f65bf54ef84eb8 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Wed, 25 Dec 2019 18:33:13 +0200
+Subject: [PATCH 1050/1239] drivers/pci_endpoint: fix PCIe bars cleanup in
+ mvebu_uio
+
+Change-Id: Id91edba8111298a80887715679335258d8709cb1
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20807
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/pci_endpoint/pcie_mvebu_ep_uio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c b/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+index bd06317d75..e711ea29e8 100644
+--- a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
++++ b/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+@@ -115,7 +115,7 @@ static int uio_pci_ep_probe(struct udevice *dev)
+ 	}
+ 
+ 	bar_mask = PCIE_EP_ALL_BARS & ~bar_mask;
+-	for (bar_id = 0; bar_mask >>= 1; bar_id++) {
++	for (bar_id = 0; bar_mask; bar_mask >>= 1, bar_id++) {
+ 		if (bar_mask & 1)
+ 			pci_ep_clear_bar(uio_pci->ep, 0, bar_id);
+ 	}
+-- 
+2.29.0
+

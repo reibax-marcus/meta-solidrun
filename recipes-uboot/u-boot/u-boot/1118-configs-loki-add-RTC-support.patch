@@ -1,0 +1,42 @@
+From 044b278974341ccf9997d827c60202a20b119de5 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Tue, 24 Mar 2020 16:40:08 -0700
+Subject: [PATCH 1118/1239] configs: loki: add RTC support
+
+Change-Id: I6c9fb27037cb79151df5aa5c033bedb93ef4a3b0
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/25485
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/octeontx2_loki_defconfig | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/configs/octeontx2_loki_defconfig b/configs/octeontx2_loki_defconfig
+index 096bc7dd29..d7866e6250 100644
+--- a/configs/octeontx2_loki_defconfig
++++ b/configs/octeontx2_loki_defconfig
+@@ -46,10 +46,10 @@ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_CMD_PXE=y
+-CONFIG_CMD_BOOTIMGUP=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_FAILSAFE=y
+ CONFIG_CMD_ETH=y
++CONFIG_CMD_BOOTIMGUP=y
+ CONFIG_CMD_EXT2=y
+ CONFIG_CMD_EXT4=y
+ CONFIG_CMD_EXT4_WRITE=y
+@@ -94,6 +94,8 @@ CONFIG_PCI_OCTEONTX=y
+ CONFIG_DM_REGULATOR=y
+ CONFIG_DM_REGULATOR_FIXED=y
+ CONFIG_DM_REGULATOR_GPIO=y
++CONFIG_DM_RTC=y
++CONFIG_RTC_DS1337=y
+ CONFIG_DM_SERIAL=y
+ CONFIG_DEBUG_UART_PL011=y
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+-- 
+2.29.0
+

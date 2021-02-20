@@ -1,0 +1,30 @@
+From 35037adeb6628027251de97b5871fa09df717cb6 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Mon, 31 Dec 2018 09:28:43 +0100
+Subject: [PATCH 0232/1239] arm64: mvebu: config: a3700: enable fixed regulator
+
+In order to use fixed regulator either for USB VBUS
+or SD power supply a proper driver compilation must be
+enabled.
+
+Change-Id: I494f08db7ad4744b8ae1011ae33d2b107acdd812
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+---
+ configs/mvebu_db-88f3720_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index 17e84892eb..b270412b1c 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -66,6 +66,7 @@ CONFIG_PCI_AARDVARK=y
+ CONFIG_MVEBU_COMPHY_SUPPORT=y
+ CONFIG_PINCTRL=y
+ CONFIG_PINCTRL_ARMADA_37XX=y
++CONFIG_DM_REGULATOR_FIXED=y
+ CONFIG_DM_REGULATOR_GPIO=y
+ CONFIG_DEBUG_MVEBU_A3700_UART=y
+ CONFIG_DEBUG_UART_SHIFT=2
+-- 
+2.29.0
+

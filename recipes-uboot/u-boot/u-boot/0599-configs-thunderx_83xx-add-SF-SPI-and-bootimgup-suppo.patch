@@ -1,0 +1,52 @@
+From 524c45d757458f777cb765141707eef14e5c5a5e Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Wed, 18 Jan 2017 15:28:50 -0800
+Subject: [PATCH 0599/1239] configs: thunderx_83xx: add SF SPI and bootimgup
+ support
+
+adds macros to add support for SF bootimgup commands and
+spi driver model framework.
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ include/configs/thunderx_83xx.h | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 3cd92da8c7..1bcc5b84ab 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -234,6 +234,9 @@
+ /** Enable grepenv command */
+ #define CONFIG_CMD_GREPENV
+ 
++/** Enable bootimgup command */
++#define CONFIG_CMD_BOOTIMGUP
++
+ /**
+  * Enable callback support when environment variables are set, or
+  * changed
+@@ -296,6 +299,20 @@
+ 
+ #define CONFIG_SYS_SPD_I2C_BUS 1
+ 
++/***** SPI Defines *********/
++#define CONFIG_DM_SPI
++#define CONFIG_DM_SPI_FLASH
++#define CONFIG_SPI_FLASH
++#define CONFIG_SPI_FLASH_STMICRO
++#define CONFIG_CAVIUM_SPI
++#define CONFIG_SF_DEFAULT_SPEED 12500000
++#define CONFIG_SF_DEFAULT_MODE	0
++#define CONFIG_SF_DEFAULT_BUS	0
++#define CONFIG_SF_DEFAULT_CS	0
++/** Enable sf command */
++#define CONFIG_CMD_SF
++
++/**************************/
+ #define CONFIG_CMD_SAVES
+ 
+ /* BOOTP options */
+-- 
+2.29.0
+

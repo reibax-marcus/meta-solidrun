@@ -1,0 +1,56 @@
+From c1781182a60a64caeca8c752b80c225e3694172e Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 3 May 2016 16:58:27 -0700
+Subject: [PATCH 0388/1239] PCI: DM: Add capability support
+
+This commit adds auxiliary functions for finding PCI
+capabilities without reliance on compat code
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/pci/pci_auto.c |  3 ++-
+ include/pci.h          | 10 ++++++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/pci/pci_auto.c b/drivers/pci/pci_auto.c
+index 1a3bf70834..48ffa4f949 100644
+--- a/drivers/pci/pci_auto.c
++++ b/drivers/pci/pci_auto.c
+@@ -311,11 +311,12 @@ int dm_pciauto_config_device(struct udevice *dev)
+ 	struct pci_region *pci_io;
+ 	unsigned int sub_bus = PCI_BUS(dm_pci_get_bdf(dev));
+ 	unsigned short class;
+-	bool enum_only = false;
++	bool enum_only;
+ 	struct udevice *ctlr = pci_get_controller(dev);
+ 	struct pci_controller *ctlr_hose = dev_get_uclass_priv(ctlr);
+ 	int n;
+ 
++	enum_only = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+ #ifdef CONFIG_PCI_ENUM_ONLY
+ 	enum_only = true;
+ #endif
+diff --git a/include/pci.h b/include/pci.h
+index 65309c1668..12cb4243b7 100644
+--- a/include/pci.h
++++ b/include/pci.h
+@@ -1687,6 +1687,16 @@ int dm_pci_flr(struct udevice *dev);
+ #define dm_pci_io_to_virt(dev, addr, len, map_flags) \
+ 	dm_pci_bus_to_virt((dev), (addr), PCI_REGION_IO, (len), (map_flags))
+ 
++/**
++ * dm_pci_find_capability() - find a capability offset for a given device
++ *
++ * @dev: 	Device to check
++ * @cap:	Capability ID
++ * @return: capability offset if found, 0 otherwise
++ */
++int dm_pci_find_capability(struct udevice *dev, int cap);
++
++
+ /**
+  * dm_pci_find_device() - find a device by vendor/device ID
+  *
+-- 
+2.29.0
+

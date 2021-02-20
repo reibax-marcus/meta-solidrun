@@ -1,0 +1,67 @@
+From cfa8ce5687250d6082c43fd8a53887057c47ea10 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 26 Jul 2017 16:58:37 +0300
+Subject: [PATCH 0660/1239] armv8: thunderx: Remove obsolete L2C cleanup code
+
+This is performed in ATF, so the code in question is redundant
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ arch/arm/mach-thunderx/lowlevel_init.S | 41 --------------------------
+ 1 file changed, 41 deletions(-)
+
+diff --git a/arch/arm/mach-thunderx/lowlevel_init.S b/arch/arm/mach-thunderx/lowlevel_init.S
+index 458842497c..2933ece17c 100644
+--- a/arch/arm/mach-thunderx/lowlevel_init.S
++++ b/arch/arm/mach-thunderx/lowlevel_init.S
+@@ -33,47 +33,6 @@ ENTRY(lowlevel_init)
+ 	mov	x1, xzr
+ 	smc	#0			/* Get the DRAM size */
+ 
+-	mov	x23, #2			/* Select L2 */
+-	msr	csselr_el1, x23
+-	mrs	x23, ccsidr_el1
+-	ubfx	x20, x23, #13, #15	/* x20 = Sets - 1 */
+-	ubfx	x21, x23, #3, #10	/* x21 = Assoc(Ways) - 1 */
+-
+-	ubfx	x22, x23, #0, #2
+-	add	x22, x22, #4
+-	mov	x23, #1
+-	lsl	x22, x23, x22		/* x22 = Line Size */
+-
+-	add	x20, x20, #1		/* x20 = Sets */
+-	add	x21, x21, #1		/* x21 = Ways */
+-
+-	mul	x20, x20, x21		/* x20 = Sets * Ways */
+-	mul	x20, x20, x22		/* x20 = L2size */
+-
+-	sub	x21, x0, x20		/* x21 = last address - L2size */
+-
+-	mrs	x23, dczid_el0
+-	ubfx	x1, x23, #4, #1		/* x1 = DZP bit */
+-	cbnz	x1, 3f			/* If dc zva is prohibited, do nothing */
+-	and	x23, x23, #15
+-	add	x23, x23, #2
+-	mov	x24, #1
+-	lsl	x23, x24, x23		/* ZVA block size */
+-
+-1:
+-	dc	zva, x21		/* Zero the end of DRAM block by block */
+-	add	x21, x21, x23
+-	cmp	x21, x0
+-	b.lt	1b
+-
+-	sub	x21, x0, x20		/* x21 = last address - L2size */
+-2:
+-	sys	#0,c11,C1,#2, x21	/* Flush and invalidate L2 line by line */
+-	add	x21, x21, x22
+-	cmp	x21, x0
+-	b.lt	2b
+-
+-3:
+ 	mov	lr, x29			/* Restore LR */
+ 	ret
+ ENDPROC(lowlevel_init)
+-- 
+2.29.0
+

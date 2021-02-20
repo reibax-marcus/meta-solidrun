@@ -1,0 +1,94 @@
+From eb60c59742f82c7168519c2e0908cad69e2ae840 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
+Date: Mon, 23 Mar 2015 17:46:41 +0300
+Subject: [PATCH 0290/1239] armv8: cavium: Add board-specific VNIC
+ initialization
+
+---
+ board/cavium/thunderx/thunderx.c | 37 ++++++++++++++++++++++++++++++++
+ include/configs/thunderx_88xx.h  |  7 ++++++
+ 2 files changed, 44 insertions(+)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index e30e9c57e1..f6de58eace 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -7,6 +7,9 @@
+ #include <dm.h>
+ #include <malloc.h>
+ #include <errno.h>
++#include <netdev.h>
++#include <asm/io.h>
++
+ #include <linux/compiler.h>
+ 
+ #ifdef CONFIG_OF_LIBFDT
+@@ -45,6 +48,11 @@ U_BOOT_DEVICE(thunderx_serial1) = {
+ 
+ #include <cavium/atf.h>
+ 
++#ifdef CONFIG_THUNDERX_VNIC
++ #include <cavium/atf.h>
++ #include <cavium/thunderx_smi.h>
++ #include <cavium/thunderx_vnic.h>
++#endif
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -130,6 +138,35 @@ int board_late_init(void)
+ int board_eth_init(bd_t *bis)
+ {
+ 	int rc = 0;
++#if defined(CONFIG_THUNDERX_VNIC)
++	struct nicpf* nicpf;
++	unsigned int node;
++#endif
++
++	thunderx_smi_initialize(bis, 0);
++	thunderx_smi_initialize(bis, 1);
++
++#if defined(CONFIG_THUNDERX_VNIC)
++#define VNIC_PER_NODE 8
++
++	for (node = 0; node < atf_node_count(); node++) {
++		nicpf = nic_initialize(node);
++
++		bgx_initialize(0, 0, node);
++		bgx_initialize(1, 1, node);
++
++		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 0, node);
++		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 1, node);
++		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 2, node);
++		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 3, node);
++
++		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 4, node);
++		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 5, node);
++		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 6, node);
++		nicvf_initialize(nicpf, VNIC_PER_NODE * node + 7, node);
++	}
++
++#endif
+ 
+ 	return rc;
+ }
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index a10fb7bfab..90e69306bf 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -49,6 +49,13 @@
+ #define CONFIG_SYS_SERIAL0		0x87e024000000
+ #define CONFIG_SYS_SERIAL1		0x87e025000000
+ 
++#define CONFIG_BAUDRATE			115200
++
++/* Command line configuration */
++#define CONFIG_MENU
++
++#define CONFIG_THUNDERX_VNIC
++
+ /* BOOTP options */
+ #define CONFIG_BOOTP_BOOTFILESIZE
+ 
+-- 
+2.29.0
+

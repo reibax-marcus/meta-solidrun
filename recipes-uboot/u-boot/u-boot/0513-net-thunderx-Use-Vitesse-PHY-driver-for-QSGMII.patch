@@ -1,0 +1,43 @@
+From 99e0d490b1d0afbffb47e7eb46eb1f46c522453b Mon Sep 17 00:00:00 2001
+From: Sunil Goutham <sgoutham@cavium.com>
+Date: Fri, 15 Jul 2016 17:57:38 +0530
+Subject: [PATCH 0513/1239] net: thunderx: Use Vitesse PHY driver for QSGMII
+
+Instead of generic driver use vitesse PHY driver for
+QSGMII interface which configures PHY with right
+mode e.t.c
+
+Signed-off-by: Sunil Goutham <sgoutham@cavium.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 2 +-
+ include/configs/thunderx_81xx.h  | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index d85eef6f29..00c017d2f4 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -34,7 +34,7 @@
+ static const phy_interface_t if_mode[] = {
+ 	[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
+ 	[QLM_MODE_RGMII]  = PHY_INTERFACE_MODE_SGMII,
+-	[QLM_MODE_QSGMII] = PHY_INTERFACE_MODE_SGMII,
++	[QLM_MODE_QSGMII] = PHY_INTERFACE_MODE_QSGMII,
+ 	[QLM_MODE_XAUI]   = PHY_INTERFACE_MODE_XAUI,
+ 	[QLM_MODE_RXAUI]  = PHY_INTERFACE_MODE_RXAUI,
+ };
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index feb2e59ba7..b72bac2422 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -178,6 +178,7 @@
+ 
+ /** Enable 10G PHY support */
+ #define CONFIG_PHYLIB_10G
++#define CONFIG_PHY_VITESSE
+ 
+ 
+ /** Command line configuration */
+-- 
+2.29.0
+

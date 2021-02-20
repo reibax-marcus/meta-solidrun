@@ -1,0 +1,27 @@
+From c63a790ced9f2628c42f1ce6fa8c2d82142953b8 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Mon, 28 Nov 2016 23:47:53 -0800
+Subject: [PATCH 0577/1239] Fix problem with GPIO pins 32-63 due to 64-bit
+ register and 32-bit value
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ drivers/gpio/thunderx_gpio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/thunderx_gpio.c b/drivers/gpio/thunderx_gpio.c
+index 3f44b21906..cb77adcb37 100644
+--- a/drivers/gpio/thunderx_gpio.c
++++ b/drivers/gpio/thunderx_gpio.c
+@@ -24,7 +24,7 @@
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+ /** Returns the bit value to write or read based on the offset */
+-#define GPIO_BIT(x)		(1 << ((x) & 0x3f))
++#define GPIO_BIT(x)		(1ULL << ((x) & 0x3f))
+ 
+ #define GPIO_RX_DAT		(0x0)
+ #define GPIO_TX_SET		(0x8)
+-- 
+2.29.0
+

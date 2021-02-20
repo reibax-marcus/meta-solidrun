@@ -1,0 +1,29 @@
+From a2d4af31a9aa88bbf06fd6b6db8254c2991db29b Mon Sep 17 00:00:00 2001
+From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+Date: Thu, 27 Oct 2016 02:00:30 +0530
+Subject: [PATCH 0535/1239] tx83: update kernel_addr to aligned address.
+
+there is bug in asim, which does not work with aligned kernel_addr
+if you are trying on asim set kernel_addr=0x4007ffc0
+
+Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+---
+ include/configs/thunderx_83xx.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 10d6eabab8..f4029be107 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -334,7 +334,7 @@
+ 
+ /** Extra environment settings */
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+-					"kernel_addr=0x4007ffc0\0"	\
++					"kernel_addr=0x40080000\0"	\
+ 					"fdt_addr=0x54C00000\0"		\
+ 					"fdt_high=0x5fffffff\0"		\
+ 					"smi0mode=0.0.0\0"		\
+-- 
+2.29.0
+

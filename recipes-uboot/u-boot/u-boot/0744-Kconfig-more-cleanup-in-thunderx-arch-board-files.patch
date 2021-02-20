@@ -1,0 +1,248 @@
+From a460b0e655951600988dd2b377f861e380b1a12a Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 17 Jan 2018 15:09:22 -0800
+Subject: [PATCH 0744/1239] Kconfig: more cleanup in thunderx arch/board files
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ arch/arm/Kconfig               | 10 ++--
+ arch/arm/cpu/armv8/Makefile    |  1 -
+ arch/arm/mach-thunderx/Kconfig | 93 +---------------------------------
+ board/cavium/thunderx/Kconfig  | 78 ++--------------------------
+ 4 files changed, 9 insertions(+), 173 deletions(-)
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 49d6b46783..ea6f061318 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1600,15 +1600,11 @@ config ARCH_ROCKCHIP
+ 
+ config ARCH_THUNDERX
+ 	bool "Support Cavium ThunderX SoCs"
++	select DM
+ 	select ARM64
+-	select SYS_CACHE_SHIFT_7
+ 	select OF_CONTROL
+-	select OF_SEPARATE
+-	select OF_LIBFDT
+-	select DM
+-	select DM_SERIAL
+-	select DM_PCI
+-	select DM_PCI_COMPAT
++	select BOARD_LATE_INIT
++	select SYS_CACHE_SHIFT_7
+ 
+ config TARGET_THUNDERX_88XX
+ 	bool "Support ThunderX 88xx"
+diff --git a/arch/arm/cpu/armv8/Makefile b/arch/arm/cpu/armv8/Makefile
+index ccd99d359f..b349b13f49 100644
+--- a/arch/arm/cpu/armv8/Makefile
++++ b/arch/arm/cpu/armv8/Makefile
+@@ -35,4 +35,3 @@ obj-$(CONFIG_S32V234) += s32v234/
+ obj-$(CONFIG_TARGET_HIKEY) += hisilicon/
+ obj-$(CONFIG_ARMV8_PSCI) += psci.o
+ obj-$(CONFIG_ARCH_SUNXI) += lowlevel_init.o
+-obj-$(CONFIG_THUNDERX) += cvm-thunderx/
+diff --git a/arch/arm/mach-thunderx/Kconfig b/arch/arm/mach-thunderx/Kconfig
+index be400bf575..e50bb6371d 100644
+--- a/arch/arm/mach-thunderx/Kconfig
++++ b/arch/arm/mach-thunderx/Kconfig
+@@ -1,13 +1,5 @@
+ if ARCH_THUNDERX
+ 
+-config PCI_AUTO
+-	bool
+-	default y
+-
+-config OF_LIBFDT
+-	bool
+-	default y
+-
+ config SYS_VENDOR
+ 	string
+ 	default	"cavium"
+@@ -16,93 +8,12 @@ config SYS_SOC
+ 	string
+ 	default "thunderx"
+ 
+-config SYS_CPU
++config SYS_BOARD
+ 	string
+-	default "armv8"
+-
+-config PL01X_SERIAL
+-	bool
+-	default y
+-
+-config PL011_CLOCK
+-	int
+-	default 24000000
+-	help
+-	 Default clock for the built-in serial port.
+-
+-config SYS_SERIAL0
+-	hex
+-	default 0x87e028000000
+-
+-config SYS_SERIAL1
+-	hex
+-	default 0x87e029000000
+-
+-config AP_STACK_ALIGN
+-	int
+-	default 16
+-	help
+-	 Stack alignment for PSCI calls
+-
+-config AP_STACK_SIZE
+-	hex
+-	default 10000
+-	help
+-	 Stack size for PSCI calls
+-
+-config SYS_64BIT
+-	bool
+-	default y
+-
+-config NO_RELOCATION
+-	bool
+-	default y
+-
+-config PCI
+-	bool
+-	default y
++	default "thunderx"
+ 
+ config SYS_PCI_64BIT
+ 	bool
+ 	default y
+ 
+-config PCI_PNP
+-	bool
+-	default y
+-
+-config DM_I2C
+-	bool
+-	default y
+-
+-config DM_I2C_COMPAT
+-	bool
+-	default y
+-
+-config DM_GPIO
+-	bool
+-	default y
+-
+-config DM
+-	bool
+-	default y
+-
+-config CAVIUM_MMC
+-	bool
+-	default y
+-	select DM_MMC
+-	select FS_EXT4
+-
+-config OF_CONTROL
+-	bool
+-	default y
+-
+-config PCI_THUNDERX_ECAM
+-	bool
+-	default y
+-	help
+-	 This enables support for the PCI Common Configuration Unit (PCC) in
+-	 the ThunderX series of processors.  The PCC implements the PCI
+-	 Enhanced Configuration Access Mechanism (ECAM), and PCI configuration
+-	 blocks for ThunderX on-chip functions.
+-
+ endif
+diff --git a/board/cavium/thunderx/Kconfig b/board/cavium/thunderx/Kconfig
+index 8e635ad63a..e426e01a1f 100644
+--- a/board/cavium/thunderx/Kconfig
++++ b/board/cavium/thunderx/Kconfig
+@@ -12,77 +12,7 @@ config	TARGET_THUNDERX_93XX
+ 
+ endchoice
+ 
+-config SYS_BOARD
+-	string
+-	default "thunderx"
+-
+-if TARGET_THUNDERX_88XX || TARGET_THUNDERX_81XX || TARGET_THUNDERX_83XX || TARGET_THUNDERX_93XX
+-
+-config CMD_ATF
+-	bool "Enable ATF query commands"
+-	default y
+-	help
+-	  Enable vendor specific ATF query commands such as SPI and SD/MMC
+-	  devices access, low level environment query, boot device layout
+-	  and node count.
+-endif
+-
+-if TARGET_THUNDERX_88XX
+-
+-	config SYS_CONFIG_NAME
+-		string
+-		default "thunderx_88xx"
+-
+-	config SYS_PROMPT
+-		string "Prompt to use"
+-		default	"ThunderX_88XX> "
+-
+-endif
+-
+-if TARGET_THUNDERX_81XX
+-
+-	config SYS_CONFIG_NAME
+-		string
+-		default "thunderx_81xx"
+-
+-	config IDENT_STRING
+-		string
+-		default " for Cavium OcteonTX CN81XX ARM V8 Core"
+-
+-	config SYS_PROMPT
+-		string "Prompt to use"
+-		default	"ThunderX_81XX> "
+-
+-endif
+-
+-if TARGET_THUNDERX_83XX
+-
+-	config SYS_CONFIG_NAME
+-		string
+-		default "thunderx_83xx"
+-
+-	config IDENT_STRING
+-		string
+-		default " for Cavium OcteonTX CN83XX ARM V8 Core"
+-
+-	config SYS_PROMPT
+-		string "Prompt to use"
+-		default	"ThunderX_83XX> "
+-
+-endif
+-
+-if TARGET_THUNDERX_93XX
+-
+-	config SYS_CONFIG_NAME
+-		string
+-		default "thunderx_93xx"
+-
+-	config IDENT_STRING
+-		string
+-		default " for Cavium OcteonTX CN93XX ARM V8 Core"
+-
+-	config SYS_PROMPT
+-		string "Prompt to use"
+-		default	"ThunderX_93XX> "
+-
+-endif
++config SYS_CONFIG_NAME
++	default "thunderx_81xx" if TARGET_THUNDERX_81XX
++	default "thunderx_83xx" if TARGET_THUNDERX_83XX
++	default "thunderx_93xx" if TARGET_THUNDERX_93XX
+-- 
+2.29.0
+

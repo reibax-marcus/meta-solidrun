@@ -1,0 +1,40 @@
+From 01d07cf01f396a83d463c2d508f730542af3aa0b Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Mon, 2 Dec 2019 12:25:02 -0800
+Subject: [PATCH 1019/1239] board: octeontx2: probe serial bootcmd using driver
+ instead of name
+
+With upgrade to v2019.10, uclass_get_device_by_name is altered to
+match on complete dev->name string instead of length of argument name.
+So use uclass_get_device_by_driver to avoid probe failure for serial
+pci-bootcmd.
+
+Change-Id: I525c120d2ef3e164e206829a5e4c927507035256
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19679
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ board/Marvell/octeontx2/board.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 493207391b..63a6cd442b 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -186,8 +186,9 @@ static int init_bootcmd_console(void)
+ 		stdinname = env_get("stdin");
+ 	}
+ 	stdin_set = !!strstr(stdinname, BOOTCMD_NAME);
+-	ret = uclass_get_device_by_name(UCLASS_SERIAL, BOOTCMD_NAME,
+-					&bootcmd_dev);
++	ret = uclass_get_device_by_driver(UCLASS_SERIAL,
++					  DM_GET_DRIVER(octeontx_bootcmd),
++					  &bootcmd_dev);
+ 	if (ret) {
+ 		pr_err("%s: Error getting %s serial class\n", __func__,
+ 		       BOOTCMD_NAME);
+-- 
+2.29.0
+

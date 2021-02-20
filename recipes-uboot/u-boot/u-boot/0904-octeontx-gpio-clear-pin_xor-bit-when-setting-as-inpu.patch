@@ -1,0 +1,35 @@
+From 9f0ae6175b756acfbd6dc5e92de1acfd7f668861 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 13 Mar 2019 17:21:38 -0700
+Subject: [PATCH 0904/1239] octeontx: gpio: clear pin_xor bit when setting as
+ input
+
+The Linux kernel will set the PIN_XOR bit if a falling edge
+interrupt is desired.  This clears it so the input is not
+inverted in U-Boot.
+
+Change-Id: Ia4a7dee6c097740347e150983c794c54ba27913a
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/5661
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/gpio/octeontx_gpio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/octeontx_gpio.c b/drivers/gpio/octeontx_gpio.c
+index 76c6750d10..00bbe66470 100644
+--- a/drivers/gpio/octeontx_gpio.c
++++ b/drivers/gpio/octeontx_gpio.c
+@@ -71,7 +71,7 @@ static int octeontx_gpio_dir_input(struct udevice *dev, unsigned offset)
+ 	struct octeontx_gpio *gpio = dev_get_priv(dev);
+ 	debug("%s(%s, %u)\n", __func__, dev->name, offset);
+ 	clrbits_le64(gpio->baseaddr + GPIO_BIT_CFG(offset),
+-		     (0x3ffUL << 16) | 4UL | 1UL);
++		     (0x3ffUL << 16) | 4UL | 2UL | 1UL);
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

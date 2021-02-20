@@ -1,0 +1,50 @@
+From 0619b1c4ff8a0ed306472ada34f71e45149e1b83 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 13 May 2020 16:39:32 -0700
+Subject: [PATCH 1160/1239] drivers: spi: octeontx: Apply correct checks on
+ conditional code
+
+Change-Id: Ia78cd06b548e30a22997788ac2a456c246da8e57
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29488
+Reviewed-by: Rick Farrington <rfarrington@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/spi/octeontx_spi.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/spi/octeontx_spi.c b/drivers/spi/octeontx_spi.c
+index ee4c426df9..a4c7c32c9a 100644
+--- a/drivers/spi/octeontx_spi.c
++++ b/drivers/spi/octeontx_spi.c
+@@ -16,6 +16,9 @@
+ 
+ #if defined(CONFIG_ARCH_OCTEONTX2)
+ #include <asm/arch/board.h>
++#endif
++
++#if !defined(CONFIG_ARCH_OCTEONTX)
+ #include <spi-mem.h>
+ #define USE_TBI_CLK
+ #endif
+@@ -302,7 +305,7 @@ static int octeontx_spi_claim_bus(struct udevice *dev)
+ 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
+ 		return -EINVAL;
+ 
+-#if !defined(CONFIG_ARCH_OCTEONTX)
++#if defined(CONFIG_ARCH_OCTEONTX2)
+ 	acquire_flash_arb(true);
+ #endif
+ 
+@@ -334,7 +337,7 @@ static int octeontx_spi_release_bus(struct udevice *dev)
+ 	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
+ 		return -EINVAL;
+ 
+-#if !defined(CONFIG_ARCH_OCTEONTX)
++#if defined(CONFIG_ARCH_OCTEONTX2)
+ 	acquire_flash_arb(false);
+ #endif
+ 
+-- 
+2.29.0
+

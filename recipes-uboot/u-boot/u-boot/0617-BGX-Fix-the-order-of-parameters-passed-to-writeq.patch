@@ -1,0 +1,45 @@
+From b35b1efb1045942eaf85c594255aa235e08ec658 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 27 Feb 2017 11:56:08 -0800
+Subject: [PATCH 0617/1239] BGX: Fix the order of parameters passed to writeq.
+
+The RX equalization performs some GSERX operations which updates
+GSERX CSRs.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index bd1b0c960e..8f124d0515 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -561,13 +561,13 @@ int __rx_equalization(int qlm, int lane)
+ 		/* Enable software control */
+ 		rctl = readq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
+ 		rctl |= GSER_BR_RXX_CTL_RXT_SWM;
+-		writeq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)), rctl);
++		writeq(rctl, CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
+ 
+ 		/* Clear the completion flag and initiate a new request */
+ 		reer = readq(CSR_PA(0, GSER_BR_RXX_EER(qlm, l)));
+ 		reer &= ~GSER_BR_RXX_EER_RXT_ESV;
+ 		reer |= GSER_BR_RXX_EER_RXT_EER;
+-		writeq(CSR_PA(0, GSER_BR_RXX_EER(qlm, l)), reer);
++		writeq(reer, CSR_PA(0, GSER_BR_RXX_EER(qlm, l)));
+ 	}
+ 
+ 	/* Wait for RX equalization to complete */
+@@ -583,7 +583,7 @@ int __rx_equalization(int qlm, int lane)
+ 		/* Switch back to hardware control */
+ 		rctl = readq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
+ 		rctl &= ~GSER_BR_RXX_CTL_RXT_SWM;
+-		writeq(CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)), rctl);
++		writeq(rctl, CSR_PA(0, GSER_BR_RXX_CTL(qlm, l)));
+ 
+ 		if (reer & GSER_BR_RXX_EER_RXT_ESV) {
+ 			debug("Rx equalization completed on DLM%d lane%d, rxt_esm = 0x%llx\n",
+-- 
+2.29.0
+

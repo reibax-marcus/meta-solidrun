@@ -1,0 +1,33 @@
+From 4126a7aa53c42fbebc6b50aa63fc1bdd81c1d015 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Fri, 6 Nov 2015 22:32:14 -0800
+Subject: [PATCH 0363/1239] cavium: Change PCIe bus address definitions
+
+---
+ include/configs/thunderx_88xx.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 32ae12458c..6165611b57 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -75,12 +75,12 @@
+ #define CONFIG_SYS_PCI_IO_CPU	{0x883000000000UL, 0x887000000000UL, 0x88b000000000UL,\
+ 				 0x893000000000UL, 0x897000000000UL, 0x89b000000000UL}
+ 
+-#define CONFIG_SYS_PCI_MEM_BUS	 0x40000000
++#define CONFIG_SYS_PCI_MEM_BUS	 0x10000000
+ #define CONFIG_SYS_PCI_PREF_BUS	 0x80000000
+-#define CONFIG_SYS_PCI_IO_BUS	 0x0
++#define CONFIG_SYS_PCI_IO_BUS	 0x1000000000
+ 
+-#define CONFIG_SYS_PCI_MEM_SIZE  0x40000000
+-#define CONFIG_SYS_PCI_PREF_SIZE 0x80000000
++#define CONFIG_SYS_PCI_MEM_SIZE  0xf0000000
++#define CONFIG_SYS_PCI_PREF_SIZE 0xf000000000
+ #define CONFIG_SYS_PCI_IO_SIZE   0x10000
+ 
+ #define CONFIG_SLT
+-- 
+2.29.0
+

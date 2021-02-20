@@ -1,0 +1,56 @@
+From 22524708a4e2a5f0815c4cb458bf9343d4053964 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 5 Feb 2019 12:10:13 -0800
+Subject: [PATCH 0876/1239] board: octeontx2: add missing kconfig entry for
+ 95xx
+
+Without this change, header config file octeontx2_95xx.h will
+not be picked. Also, remove redundant definitions in this header.
+
+Change-Id: I02fd808ad7e37aa5d4e21c5f53191e4eb335b443
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/3534
+---
+ board/Marvell/octeontx2/Kconfig  | 4 ++++
+ include/configs/octeontx2_95xx.h | 7 -------
+ 2 files changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/board/Marvell/octeontx2/Kconfig b/board/Marvell/octeontx2/Kconfig
+index cb5c457ae3..8a27164bcc 100644
+--- a/board/Marvell/octeontx2/Kconfig
++++ b/board/Marvell/octeontx2/Kconfig
+@@ -6,9 +6,13 @@ choice
+ config	TARGET_OCTEONTX2_96XX
+ 	bool "OcteonTX2 CN96XX"
+ 
++config	TARGET_OCTEONTX2_95XX
++	bool "OcteonTX2 CN95XX"
++
+ endchoice
+ 
+ config SYS_CONFIG_NAME
+ 	default "octeontx2_96xx" if TARGET_OCTEONTX2_96XX
++	default "octeontx2_95xx" if TARGET_OCTEONTX2_95XX
+ 
+ endif
+diff --git a/include/configs/octeontx2_95xx.h b/include/configs/octeontx2_95xx.h
+index f79c57f29e..7c1149a221 100644
+--- a/include/configs/octeontx2_95xx.h
++++ b/include/configs/octeontx2_95xx.h
+@@ -87,13 +87,6 @@
+ #define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
+ #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
+ 
+-/** Enable long help support */
+-#define CONFIG_SYS_LONGHELP
+-/** Enable editing of the command line */
+-#define CONFIG_CMDLINE_EDITING
+-
+-/** Enable tab autocomplete on command line */
+-#define CONFIG_AUTO_COMPLETE
+ #define CONFIG_SYS_MAXARGS		64	/** max command args */
+ 
+ #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
+-- 
+2.29.0
+

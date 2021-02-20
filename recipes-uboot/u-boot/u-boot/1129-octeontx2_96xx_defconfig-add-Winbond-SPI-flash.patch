@@ -1,0 +1,29 @@
+From 380a3281e792b1ed748f1b22db1bc8af69449f85 Mon Sep 17 00:00:00 2001
+From: Guo Yi <yi.guo@cavium.com>
+Date: Tue, 14 Apr 2020 09:59:06 -0700
+Subject: [PATCH 1129/1239] octeontx2_96xx_defconfig: add Winbond SPI flash
+
+Change-Id: I208b43928b4e310b5d0e634399883c9557dcd0fd
+Signed-off-by: Guo Yi <yi.guo@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/26817
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/octeontx2_96xx_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 4fa400f9b4..3a3613e2e1 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -93,6 +93,7 @@ CONFIG_SPI_FLASH_SFDP_SUPPORT=y
+ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_PHYLIB=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_VITESSE=y
+-- 
+2.29.0
+

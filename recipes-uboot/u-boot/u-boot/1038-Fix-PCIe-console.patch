@@ -1,0 +1,34 @@
+From ba55b0ae73a8a4d59472ee81c8f98ed78efb67c8 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Tue, 17 Dec 2019 21:21:34 -0800
+Subject: [PATCH 1038/1239] Fix PCIe console
+
+The PCIe console driver can no longer be loaded without adding the
+'@' value to the end.  U-Boot will always take console@0 now.  This
+may not be ideal if and when console support is added to ATF.
+
+Change-Id: I975d76156350122fe520fef740a99a70262e3b6a
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20469
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ board/Marvell/octeontx2/board.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index c15e970479..9e34860f38 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -23,7 +23,7 @@
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+ #define BOOTCMD_NAME	"pci-bootcmd"
+-#define CONSOLE_NAME	"pci-console"
++#define CONSOLE_NAME	"pci-console@0"
+ 
+ extern unsigned long fdt_base_addr;
+ extern void cgx_intf_shutdown(void);
+-- 
+2.29.0
+

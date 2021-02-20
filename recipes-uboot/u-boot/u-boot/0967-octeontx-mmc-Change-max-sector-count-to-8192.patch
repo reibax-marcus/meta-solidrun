@@ -1,0 +1,88 @@
+From 38bf18846baaa163592796c4e9475a39bc6c758d Mon Sep 17 00:00:00 2001
+From: aaronw <awilliams@marvell.com>
+Date: Wed, 18 Sep 2019 20:27:44 -0700
+Subject: [PATCH 0967/1239] octeontx: mmc: Change max sector count to 8192
+
+The maximum sector count is 8192, not 8191.
+
+Change-Id: I1a20c0f966b428274d4edb2b50c49d8eab197918
+Signed-off-by: aaronw <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/17148
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/octeontx2_95xx.h  | 2 +-
+ include/configs/octeontx2_96xx.h  | 2 +-
+ include/configs/octeontx2_98xx.h  | 2 +-
+ include/configs/octeontx2_loki.h  | 2 +-
+ include/configs/octeontx_common.h | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/include/configs/octeontx2_95xx.h b/include/configs/octeontx2_95xx.h
+index b94d018f59..e1492bf9c2 100644
+--- a/include/configs/octeontx2_95xx.h
++++ b/include/configs/octeontx2_95xx.h
+@@ -85,7 +85,7 @@
+ 
+ #define CONFIG_SYS_MAXARGS		64	/** max command args */
+ 
+-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
++#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
+ 
+ #undef CONFIG_SYS_PROMPT
+ #define CONFIG_SYS_PROMPT		env_get("prompt")
+diff --git a/include/configs/octeontx2_96xx.h b/include/configs/octeontx2_96xx.h
+index 0103818805..ed99a7c25b 100644
+--- a/include/configs/octeontx2_96xx.h
++++ b/include/configs/octeontx2_96xx.h
+@@ -97,7 +97,7 @@
+ 
+ #define CONFIG_SYS_MAXARGS		64	/** max command args */
+ 
+-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
++#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
+ 
+ #undef CONFIG_SYS_PROMPT
+ #define CONFIG_SYS_PROMPT		env_get("prompt")
+diff --git a/include/configs/octeontx2_98xx.h b/include/configs/octeontx2_98xx.h
+index 83baa6f5c0..08228cee38 100644
+--- a/include/configs/octeontx2_98xx.h
++++ b/include/configs/octeontx2_98xx.h
+@@ -96,7 +96,7 @@
+ 
+ #define CONFIG_SYS_MAXARGS		64	/** max command args */
+ 
+-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
++#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
+ 
+ #undef CONFIG_SYS_PROMPT
+ #define CONFIG_SYS_PROMPT		env_get("prompt")
+diff --git a/include/configs/octeontx2_loki.h b/include/configs/octeontx2_loki.h
+index d39eeb7383..647bf6a505 100644
+--- a/include/configs/octeontx2_loki.h
++++ b/include/configs/octeontx2_loki.h
+@@ -86,7 +86,7 @@
+ 
+ #define CONFIG_SYS_MAXARGS		64	/** max command args */
+ 
+-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
++#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
+ 
+ #undef CONFIG_SYS_PROMPT
+ #define CONFIG_SYS_PROMPT		env_get("prompt")
+diff --git a/include/configs/octeontx_common.h b/include/configs/octeontx_common.h
+index 07f5983847..3e91a027b1 100644
+--- a/include/configs/octeontx_common.h
++++ b/include/configs/octeontx_common.h
+@@ -91,7 +91,7 @@
+ 
+ #define CONFIG_SYS_MAXARGS		64	/** max command args */
+ 
+-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
++#define CONFIG_SYS_MMC_MAX_BLK_COUNT	8192
+ 
+ #undef CONFIG_SYS_PROMPT
+ #define CONFIG_SYS_PROMPT		env_get("prompt")
+-- 
+2.29.0
+

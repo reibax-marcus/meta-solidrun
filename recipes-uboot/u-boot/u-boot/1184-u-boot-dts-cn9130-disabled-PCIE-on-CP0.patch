@@ -1,0 +1,33 @@
+From 5a8f61cfd8ee2c0c7d07e4cb2bf93f953f5c6076 Mon Sep 17 00:00:00 2001
+From: Alex Leibovich <alexl@marvell.com>
+Date: Tue, 23 Jun 2020 16:32:10 +0300
+Subject: [PATCH 1184/1239] u-boot: dts: cn9130: disabled PCIE on CP0
+
+Disabling CP0 PCIE interface
+since it is used in EP mode.
+
+Signed-off-by: Alex Leibovich <alexl@marvell.com>
+Change-Id: Ibaf5815c14d2faf2978dec046e951b060ad125ba
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/30656
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/cn9130-db-C.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/dts/cn9130-db-C.dts b/arch/arm/dts/cn9130-db-C.dts
+index 4a512b0963..c08aaf428f 100644
+--- a/arch/arm/dts/cn9130-db-C.dts
++++ b/arch/arm/dts/cn9130-db-C.dts
+@@ -231,3 +231,7 @@
+ &cp0_sata0 {
+ 	status = "okay";
+ };
++
++&cp0_pcie0{
++	status = "disabled";
++};
+-- 
+2.29.0
+

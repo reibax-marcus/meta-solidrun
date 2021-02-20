@@ -1,0 +1,577 @@
+From 26adf424a7d5186ae32b8dba146495e91cecd368 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Tue, 25 Jun 2019 02:08:31 -0700
+Subject: [PATCH 0936/1239] cmd: marvell: add eth commands to set or get fec &
+ phymod
+
+Add command support including interface to ATF to set or get
+FEC and PHYMOD types for RVU PF network intefaces.
+
+Change-Id: I0d444cdfec76035523d0cb11a994977602436e75
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/11676
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ cmd/marvell/Kconfig              |  10 ++-
+ cmd/marvell/Makefile             |   3 +-
+ cmd/marvell/eth_cmds.c           | 120 +++++++++++++++++++++++++++++++
+ configs/octeontx2_95xx_defconfig |   1 +
+ configs/octeontx2_96xx_defconfig |   1 +
+ configs/octeontx2_loki_defconfig |   1 +
+ drivers/net/octeontx2/cgx_intf.c | 101 ++++++++++++++++++++++++--
+ drivers/net/octeontx2/cgx_intf.h | 112 +++++++++++++++++++++++++++--
+ drivers/net/octeontx2/nix.c      |  10 +++
+ 9 files changed, 345 insertions(+), 14 deletions(-)
+ create mode 100644 cmd/marvell/eth_cmds.c
+
+diff --git a/cmd/marvell/Kconfig b/cmd/marvell/Kconfig
+index 63b4c0b80e..f3c868ee28 100644
+--- a/cmd/marvell/Kconfig
++++ b/cmd/marvell/Kconfig
+@@ -2,10 +2,18 @@ menu "Marvell specific command line interface"
+ depends on ARCH_OCTEONTX2
+ 
+ config CMD_FAILSAFE
+-	bool "command for supporting fail safe boot"
++	bool "Command for supporting fail safe boot"
+ 	help
+ 	   Support for fail safe boot on Marvell's OcteonTX2 platforms.
+ 	   Disables forced secondary boot and reports if boot from
+ 	   primary device was successful.
+ 
++config CMD_ETH
++	depends on NET_OCTEONTX2
++	bool "Command to change fec and phy-mod type"
++	help
++	   Support for change of fec and phy-mod type for some specific
++	   LMAC modes on RVU PF [CGX] network interfaces on Marvell
++	   OcteonTX2 platforms.
++
+ endmenu
+diff --git a/cmd/marvell/Makefile b/cmd/marvell/Makefile
+index 43a9bf5ca9..06294de4e1 100644
+--- a/cmd/marvell/Makefile
++++ b/cmd/marvell/Makefile
+@@ -5,4 +5,5 @@
+ 
+ ifdef CONFIG_ARCH_OCTEONTX2
+ obj-$(CONFIG_CMD_FAILSAFE) += octeontx2_cmds.o
+-endif
+\ No newline at end of file
++obj-$(CONFIG_CMD_ETH) += eth_cmds.o
++endif
+diff --git a/cmd/marvell/eth_cmds.c b/cmd/marvell/eth_cmds.c
+new file mode 100644
+index 0000000000..cce930e30b
+--- /dev/null
++++ b/cmd/marvell/eth_cmds.c
+@@ -0,0 +1,120 @@
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <command.h>
++#include <dm.h>
++#include <dm/uclass-internal.h>
++#include <net.h>
++
++extern int cgx_intf_set_fec(struct udevice *ethdev, int type);
++extern int cgx_intf_get_fec(struct udevice *ethdev);
++extern int cgx_intf_get_phy_mod_type(struct udevice *ethdev);
++extern int cgx_intf_set_phy_mod_type(struct udevice *ethdev, int type);
++extern void nix_print_mac_info(struct udevice *dev);
++
++static int do_ethlist(cmd_tbl_t *cmdtp, int flag, int argc,
++		      char *const argv[])
++{
++	struct udevice *dev;
++
++	for (uclass_find_first_device(UCLASS_ETH, &dev); dev;
++	     uclass_find_next_device(&dev)) {
++		printf("eth%d [%s]", dev->seq, dev->name);
++		if (!strncmp(dev->name, "rvu_", 4))
++			nix_print_mac_info(dev);
++		printf("\n");
++	}
++	return 0;
++}
++
++U_BOOT_CMD(
++	ethlist, 1, 1, do_ethlist, "Display ethernet interface list",
++	"Prints all detected ethernet interfaces with below format\n"
++	"ethX [device name] [LMAC info for RVU PF devices]\n"
++);
++
++static int do_ethparam_common(cmd_tbl_t *cmdtp, int flag, int argc,
++			      char *const argv[])
++{
++	const char *cmd;
++	char *endp;
++	const char *devname;
++	int ret = -1, type;
++	struct udevice *dev;
++
++	if (argc < 2)
++		return CMD_RET_USAGE;
++
++	cmd = argv[0];
++	devname = argv[1];
++
++	dev = eth_get_dev_by_name(devname);
++	if (!dev) {
++		printf("device interface %s not found\n", devname);
++		return CMD_RET_FAILURE;
++	}
++	if (strncmp(dev->name, "rvu_", 4)) {
++		printf("Invalid eth interface, choose RVU PF device\n");
++		return CMD_RET_FAILURE;
++	}
++	if (strcmp(cmd, "set_fec") == 0) {
++		if (argc < 3)
++			return CMD_RET_FAILURE;
++		type = simple_strtol(argv[2], &endp, 0);
++		if (type < 0 || type > 2)
++			return CMD_RET_FAILURE;
++		ret = cgx_intf_set_fec(dev, type);
++	} else if (strcmp(cmd, "get_fec") == 0) {
++		ret = cgx_intf_get_fec(dev);
++	} else if (strcmp(cmd, "set_phymod") == 0) {
++		if (argc < 3)
++			return CMD_RET_FAILURE;
++		type = simple_strtol(argv[2], &endp, 0);
++		if (type < 0 || type > 1)
++			return CMD_RET_FAILURE;
++		ret = cgx_intf_set_phy_mod_type(dev, type);
++	} else if (strcmp(cmd, "get_phymod") == 0) {
++		ret = cgx_intf_get_phy_mod_type(dev);
++	}
++	return (ret == 0) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
++}
++
++U_BOOT_CMD(
++	set_fec, 3, 1, do_ethparam_common,
++	"Modify fec type for selected ethernet interface",
++	"Example - set_fec <ethX> [type]\n"
++	"Set FEC type for any of RVU PF based network interfaces\n"
++	"- where type - 0 [NO FEC] 1 [BASER_FEC] 2 [RS_FEC]\n"
++	"Use 'ethlist' command to display network interface names\n"
++);
++
++U_BOOT_CMD(
++	get_fec, 2, 1, do_ethparam_common,
++	"Display fec type for selected ethernet interface",
++	"Example - get_fec <ethX>\n"
++	"Get FEC type for any of RVU PF based network interfaces\n"
++	"Use 'ethlist' command to display network interface names\n"
++);
++
++U_BOOT_CMD(
++	set_phymod, 3, 1, do_ethparam_common,
++	"Modify line side phy-mod type for selected ethernet interface",
++	"Example - set_phymod <ethX> [type]\n"
++	"Set PHY MOD type for any of RVU PF based network interfaces\n"
++	"Currently, only 50G_R mode supports type 0 [NRZ] or 1 [PAM4]\n"
++	"Use 'ethlist' command to display network interface names\n"
++);
++
++U_BOOT_CMD(
++	get_phymod, 2, 1, do_ethparam_common,
++	"Display line side phy-mod type for selected ethernet interface",
++	"Example - get_phymod <ethX>\n"
++	"Get PHY MOD type for any of RVU PF based network interfaces\n"
++	"Use 'ethlist' command to display network interface names\n"
++);
++
+diff --git a/configs/octeontx2_95xx_defconfig b/configs/octeontx2_95xx_defconfig
+index 9bba587678..b9acb00a4e 100644
+--- a/configs/octeontx2_95xx_defconfig
++++ b/configs/octeontx2_95xx_defconfig
+@@ -37,6 +37,7 @@ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_CMD_BOOTIMGUP=y
++CONFIG_CMD_ETH=y
+ CONFIG_CMD_EXT2=y
+ CONFIG_CMD_EXT4=y
+ CONFIG_CMD_EXT4_WRITE=y
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 143550c611..355c429858 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -45,6 +45,7 @@ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_CMD_BOOTIMGUP=y
++CONFIG_CMD_ETH=y
+ CONFIG_CMD_EXT2=y
+ CONFIG_CMD_EXT4=y
+ CONFIG_CMD_EXT4_WRITE=y
+diff --git a/configs/octeontx2_loki_defconfig b/configs/octeontx2_loki_defconfig
+index 36564cfe78..29ddc1744a 100644
+--- a/configs/octeontx2_loki_defconfig
++++ b/configs/octeontx2_loki_defconfig
+@@ -37,6 +37,7 @@ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_CMD_BOOTIMGUP=y
++CONFIG_CMD_ETH=y
+ CONFIG_CMD_EXT2=y
+ CONFIG_CMD_EXT4=y
+ CONFIG_CMD_EXT4_WRITE=y
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index fe23e7942b..0a6d109c78 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -18,6 +18,7 @@
+ 
+ #include "cgx_intf.h"
+ #include "cgx.h"
++#include "nix.h"
+ 
+ static u64 cgx_rd_scrx(u8 cgx, u8 lmac, u8 index)
+ {
+@@ -102,7 +103,7 @@ static int wait_for_ownership(u8 cgx, u8 lmac)
+ 	return 0;
+ }
+ 
+-int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
++int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u8 type, u64 *rsp)
+ {
+ 	union cgx_scratchx1 scr1;
+ 	union cgx_scratchx0 scr0;
+@@ -118,6 +119,10 @@ int cgx_intf_req(u8 cgx, u8 lmac, u8 cmd, u64 *rsp)
+ 	/* send command */
+ 	scr1.u = cgx_rd_scr1(cgx, lmac);
+ 	scr1.s.cmd.id = cmd;
++	if (cmd == CGX_CMD_SET_PHY_MOD_TYPE)
++		scr1.s.phy_mod_args.mod = type;
++	if (cmd == CGX_CMD_SET_FEC)
++		scr1.s.fec_args.fec = type;
+ 	cgx_wr_scr1(cgx, lmac, scr1.u);
+ 
+ 	set_ownership(cgx, lmac, CGX_OWN_FIRMWARE);
+@@ -178,7 +183,7 @@ int cgx_intf_get_mac_addr(u8 cgx, u8 lmac, u8 *mac)
+ 	int ret;
+ 
+ 	ret = cgx_intf_req(cgx, lmac,
+-				CGX_CMD_GET_MAC_ADDR, &scr0.u);
++				CGX_CMD_GET_MAC_ADDR, 0, &scr0.u);
+ 	if (ret)
+ 		return -1;
+ 
+@@ -194,7 +199,7 @@ int cgx_intf_get_ver(u8 cgx, u8 lmac, u8 *ver)
+ 	int ret;
+ 
+ 	ret = cgx_intf_req(cgx, lmac,
+-				CGX_CMD_GET_FW_VER, &scr0.u);
++				CGX_CMD_GET_FW_VER, 0, &scr0.u);
+ 	if (ret)
+ 		return -1;
+ 
+@@ -210,7 +215,7 @@ int cgx_intf_get_link_sts(u8 cgx, u8 lmac, u64 *lnk_sts)
+ 	int ret;
+ 
+ 	ret = cgx_intf_req(cgx, lmac,
+-				CGX_CMD_GET_LINK_STS, &scr0.u);
++				CGX_CMD_GET_LINK_STS, 0, &scr0.u);
+ 	if (ret)
+ 		return -1;
+ 
+@@ -230,7 +235,7 @@ int cgx_intf_link_up_dwn(u8 cgx, u8 lmac, u8 up_dwn, u64 *lnk_sts)
+ 
+ 	cmd = up_dwn ? CGX_CMD_LINK_BRING_UP : CGX_CMD_LINK_BRING_DOWN;
+ 
+-	ret = cgx_intf_req(cgx, lmac, cmd, &scr0.u);
++	ret = cgx_intf_req(cgx, lmac, cmd, 0, &scr0.u);
+ 	if (ret)
+ 		return -1;
+ 
+@@ -246,6 +251,90 @@ void cgx_intf_shutdown(void)
+ {
+ 	union cgx_scratchx0 scr0;
+ 
+-	cgx_intf_req(0, 0, CGX_CMD_INTF_SHUTDOWN, &scr0.u);
++	cgx_intf_req(0, 0, CGX_CMD_INTF_SHUTDOWN, 0, &scr0.u);
++}
++
++int cgx_intf_get_fec(struct udevice *ethdev)
++{
++	struct rvu_pf *rvu = dev_get_priv(ethdev);
++	struct nix *nix = rvu->nix;
++	union cgx_scratchx0 scr0;
++	int ret;
++
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   CGX_CMD_GET_SUPPORTED_FEC, 0, &scr0.u);
++	if (ret) {
++		printf("Get FEC type failed for %s\n", ethdev->name);
++		return -1;
++	}
++
++	printf("Supported FEC type: ");
++	switch (scr0.s.supported_fec.fec) {
++	case 0:
++		printf("FEC_NONE\n");
++		break;
++	case 1:
++		printf("FEC_BASE_R\n");
++		break;
++	case 2:
++		printf("FEC_RS\n");
++		break;
++	case 3:
++		printf("FEC_BASE_R FEC_RS\n");
++		break;
++	}
++	return 0;
++}
++
++int cgx_intf_set_fec(struct udevice *ethdev, int type)
++{
++	struct rvu_pf *rvu = dev_get_priv(ethdev);
++	struct nix *nix = rvu->nix;
++	union cgx_scratchx0 scr0;
++	int ret;
++
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   CGX_CMD_SET_FEC, type, &scr0.u);
++	if (ret) {
++		printf("Set FEC type %d failed for %s\n", type, ethdev->name);
++		return -1;
++	}
++	return 0;
++}
++
++int cgx_intf_get_phy_mod_type(struct udevice *ethdev)
++{
++	struct rvu_pf *rvu = dev_get_priv(ethdev);
++	struct nix *nix = rvu->nix;
++	union cgx_scratchx0 scr0;
++	int ret;
++
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   CGX_CMD_GET_PHY_MOD_TYPE, 0, &scr0.u);
++	if (ret) {
++		printf("Get PHYMOD type failed for %s\n", ethdev->name);
++		return -1;
++	}
++	printf("Current phy mod type %s\n",
++	       scr0.s.phy_mod_type.mod ? "PAM4" : "NRZ");
++	return 0;
++}
++
++int cgx_intf_set_phy_mod_type(struct udevice *ethdev, int type)
++{
++	struct rvu_pf *rvu = dev_get_priv(ethdev);
++	struct nix *nix = rvu->nix;
++	union cgx_scratchx0 scr0;
++	int ret;
++
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   CGX_CMD_SET_PHY_MOD_TYPE, type, &scr0.u);
++	if (ret) {
++		printf("Set PHYMOD type %d failed for %s\n", type,
++		       ethdev->name);
++		return -1;
++	}
++
++	return 0;
+ }
+ 
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index c684b4abfb..ac02fe8270 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -5,7 +5,6 @@
+  * https://spdx.org/licenses
+  */
+ 
+-
+ #ifndef __CGX_INTF_H__
+ #define __CGX_INTF_H__
+ 
+@@ -40,12 +39,16 @@ enum cgx_error_type {
+ 	CGX_ERR_SPUX_AN_RESET_FAIL,
+ 	CGX_ERR_SPUX_USX_AN_RESET_FAIL,
+ 	CGX_ERR_SMUX_RX_LINK_NOT_OK,
+-	CGX_ERR_PCS_RECV_LINK_FAIL,
++	CGX_ERR_PCS_LINK_FAIL,
+ 	CGX_ERR_TRAINING_FAIL,
+ 	CGX_ERR_RX_EQU_FAIL,
+ 	CGX_ERR_SPUX_BER_FAIL,
+ 	CGX_ERR_SPUX_RSFEC_ALGN_FAIL,
+-	CGX_ERR_SPUX_MARKER_LOCK_FAIL,	/* = 23 */
++	CGX_ERR_SPUX_MARKER_LOCK_FAIL,
++	CGX_ERR_SET_FEC_INVALID,
++	CGX_ERR_SET_FEC_FAIL,
++	CGX_ERR_MODULE_INVALID,
++	CGX_ERR_MODULE_NOT_PRESENT,	/* = 27 */
+ 	/* FIXME : add more error types when adding support for new modes */
+ };
+ 
+@@ -81,7 +84,20 @@ enum cgx_cmd_id {
+ 	CGX_CMD_HIGIG,
+ 	CGX_CMD_LINK_STAT_CHANGE,
+ 	CGX_CMD_MODE_CHANGE,		/* hot plug support */
+-	CGX_CMD_INTF_SHUTDOWN
++	CGX_CMD_INTF_SHUTDOWN,
++	CGX_CMD_GET_MKEX_SIZE,
++	CGX_CMD_GET_MKEX_PROFILE,
++	CGX_CMD_GET_FWD_BASE,		/* get base address of shared FW data */
++	CGX_CMD_GET_LINK_MODES,		/* Supported Link Modes */
++	CGX_CMD_SET_LINK_MODE,
++	CGX_CMD_GET_SUPPORTED_FEC,
++	CGX_CMD_SET_FEC,
++	CGX_CMD_GET_AN,
++	CGX_CMD_SET_AN,
++	CGX_CMD_GET_ADV_LINK_MODES,
++	CGX_CMD_GET_ADV_FEC,
++	CGX_CMD_GET_PHY_MOD_TYPE, /* line-side modulation type: NRZ or PAM4 */
++	CGX_CMD_SET_PHY_MOD_TYPE,
+ };
+ 
+ /* async event ids */
+@@ -173,9 +189,50 @@ struct cgx_lnk_sts_s {
+ 	uint64_t reserved1:9;
+ 	uint64_t link_up:1;
+ 	uint64_t full_duplex:1;
+-	uint64_t speed:4;		/* cgx_link_speed */
++	uint64_t speed:4;	/* cgx_link_speed */
+ 	uint64_t err_type:10;
+-	uint64_t reserved2:39;
++	uint64_t an:1;		/* Current AN state : enabled/disabled */
++	uint64_t fec:2;		/* Current FEC type if enabled, if not 0 */
++	uint64_t port:8;	/* Share the current port info if required */
++	uint64_t reserved2:28;
++};
++
++struct sh_fwd_base_s {
++	uint64_t reserved1:9;
++	uint64_t addr:55;
++};
++
++struct cgx_link_modes_s {
++	uint64_t reserved1:9;
++	uint64_t modes:55;
++};
++
++/* Resp to cmd ID - CGX_CMD_GET_ADV_FEC/CGX_CMD_GET_SUPPORTED_FEC
++ * fec : 2 bits
++ * typedef enum cgx_fec_type {
++ *     CGX_FEC_NONE,
++ *     CGX_FEC_BASE_R,
++ *     CGX_FEC_RS
++ * } fec_type_t;
++ */
++struct cgx_fec_types_s {
++	uint64_t reserved1:9;
++	uint64_t fec:2;
++	uint64_t reserved2:53;
++};
++
++/* Resp to cmd ID - CGX_CMD_GET_AN */
++struct cgx_get_an_s {
++	uint64_t reserved1:9;
++	uint64_t an:1;
++	uint64_t reserved2:54;
++};
++
++/* Resp to cmd ID - CGX_CMD_GET_PHY_MOD_TYPE */
++struct cgx_get_phy_mod_type_s {
++	uint64_t reserved1:9;
++	uint64_t mod:1;		/* 0=NRZ, 1=PAM4 */
++	uint64_t reserved2:54;
+ };
+ 
+ union cgx_rsp_sts {
+@@ -187,8 +244,28 @@ union cgx_rsp_sts {
+ 	struct cgx_ver_s ver;
+ 	/* response to CGX_CMD_GET_MAC_ADDR */
+ 	struct cgx_mac_addr_s mac_s;
++	/* response to CGX_CMD_GET_FWD_BASE */
++	struct sh_fwd_base_s fwd_base_s;
+ 	/* response if evt_status = CMD_FAIL */
+ 	struct cgx_err_sts_s err;
++	/* response to CGX_CMD_GET_SUPPORTED_FEC */
++	struct cgx_fec_types_s supported_fec;
++	/* response to CGX_CMD_GET_LINK_MODES */
++	struct cgx_link_modes_s supported_modes;
++	/* response to CGX_CMD_GET_ADV_LINK_MODES */
++	struct cgx_link_modes_s adv_modes;
++	/* response to CGX_CMD_GET_ADV_FEC */
++	struct cgx_fec_types_s adv_fec;
++	/* response to CGX_CMD_GET_AN */
++	struct cgx_get_an_s an;
++	/* response to CGX_CMD_GET_PHY_MOD_TYPE */
++	struct cgx_get_phy_mod_type_s phy_mod_type;
++#ifdef NT_FW_CONFIG
++	/* response to CGX_CMD_GET_MKEX_SIZE */
++	struct cgx_mcam_profile_sz_s prfl_sz;
++	/* response to CGX_CMD_GET_MKEX_PROFILE */
++	struct cgx_mcam_profile_addr_s prfl_addr;
++#endif
+ };
+ 
+ union cgx_scratchx0 {
+@@ -235,12 +312,35 @@ struct cgx_link_change_args {		/* start from bit 8 */
+ 	uint64_t reserved2:50;
+ };
+ 
++/* command argument to be passed for cmd ID - CGX_CMD_SET_LINK_MODE */
++struct cgx_set_mode_args {
++	uint64_t reserved1:8;
++	uint64_t mode:56;
++};
++
++/* command argument to be passed for cmd ID - CGX_CMD_SET_FEC */
++struct cgx_set_fec_args {
++	uint64_t reserved1:8;
++	uint64_t fec:2;
++	uint64_t reserved2:54;
++};
++
++/* command argument to be passed for cmd ID - CGX_CMD_SET_PHY_MOD_TYPE */
++struct cgx_set_phy_mod_args {
++	uint64_t reserved1:8;
++	uint64_t mod:1;		/* 0=NRZ, 1=PAM4 */
++	uint64_t reserved2:55;
++};
++
+ union cgx_cmd_s {
+ 	uint64_t own_status:2;			/* cgx_cmd_own */
+ 	struct cgx_cmd cmd;
+ 	struct cgx_ctl_args cmd_args;
+ 	struct cgx_mtu_args mtu_size;
+ 	struct cgx_link_change_args lnk_args;	/* Input to CGX_CMD_LINK_CHANGE */
++	struct cgx_set_mode_args mode_args;
++	struct cgx_set_fec_args fec_args;
++	struct cgx_set_phy_mod_args phy_mod_args;
+ 	/* any other arg for command id * like : mtu, dmac filtering control */
+ };
+ 
+diff --git a/drivers/net/octeontx2/nix.c b/drivers/net/octeontx2/nix.c
+index 448889e115..581e048821 100644
+--- a/drivers/net/octeontx2/nix.c
++++ b/drivers/net/octeontx2/nix.c
+@@ -830,3 +830,13 @@ int nix_lf_init(struct udevice *dev)
+ 	return 0;
+ }
+ 
++void nix_print_mac_info(struct udevice *dev)
++{
++	struct rvu_pf *rvu = dev_get_priv(dev);
++	struct nix *nix = rvu->nix;
++	struct lmac *lmac = nix->lmac;
++
++	printf(" CGX%d LMAC%d [%s]", lmac->cgx->cgx_id, lmac->lmac_id,
++	       lmac_type_to_str[lmac->lmac_type]);
++}
++
+-- 
+2.29.0
+

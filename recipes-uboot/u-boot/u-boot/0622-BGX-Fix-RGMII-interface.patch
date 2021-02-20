@@ -1,0 +1,42 @@
+From 518db72feb0af5b596f83070563adc8eff3ac43a Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Sat, 11 Mar 2017 00:05:13 -0800
+Subject: [PATCH 0622/1239] BGX: Fix RGMII interface.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 8f124d0515..0eccaefbd3 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -657,13 +657,7 @@ static int bgx_xaui_check_link(struct lmac *lmac)
+ 		case BGX_MODE_RXAUI:
+ 			/* RXAUI0 uses LMAC0:QLM0/QLM2 and RXAUI1 uses LMAC1:QLM1/QLM3
+ 			   RXAUI requires 2 lanes for each interface */
+-			if (lmacid) {
+-				struct lmac *l;
+-				l = &bgx->lmac[2];
+-				qlm = l->qlm;
+-			} else {
+-				qlm = lmac->qlm;
+-			}
++			qlm = lmac->qlm;
+ 			if (__rx_equalization(qlm, 0)) {
+ 				printf("BGX%d:%d: Waiting for RX Equalization on DLM%d, Lane0\n",
+ 					bgx->bgx_id, lmacid, qlm);
+@@ -1007,8 +1001,8 @@ static void bgx_init_hw(struct bgx *bgx)
+ 					lmac->lmac_type = 2;
+ 					lmac->lane_to_sds = 0xe;
+ 					lmac_count++;
++					lmac->qlm = tlmac->qlm;
+ 				}
+-				continue;
+ 			} else
+ 				continue;
+ 			break;
+-- 
+2.29.0
+

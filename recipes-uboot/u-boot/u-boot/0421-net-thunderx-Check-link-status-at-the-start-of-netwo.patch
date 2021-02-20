@@ -1,0 +1,270 @@
+From fd8e58adf647c216040b1979663bbdc590eed682 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 11 May 2016 16:27:08 -0400
+Subject: [PATCH 0421/1239] net: thunderx: Check link status at the start of
+ network operation
+
+This commit makes the driver chieck link status at the beginning
+of a network operation so if it changes its state between ops
+it will be detected.
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/net/cavium/nic.h         |   1 +
+ drivers/net/cavium/nic_main.c    |   3 +
+ drivers/net/cavium/thunder_bgx.c | 134 +++++++++++++++++++------------
+ 3 files changed, 85 insertions(+), 53 deletions(-)
+
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index 35139588d0..1d809d7774 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -499,6 +499,7 @@ void nicvf_update_stats(struct nicvf *nic);
+ 
+ void nic_handle_mbx_intr(struct nicpf *nic, int vf);
+ 
++void bgx_poll_for_link(int node, int bgx_idx, int lmacid);
+ const u8 *bgx_get_lmac_mac(int node, int bgx_idx, int lmacid);
+ void bgx_set_lmac_mac(int node, int bgx_idx, int lmacid, const u8 *mac);
+ void bgx_lmac_rx_tx_enable(int node, int bgx_idx, int lmacid, bool enable);
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index 6ff1f47f7a..f033748bff 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -90,6 +90,7 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
+ 	union nic_mbx mbx = {};
+ 	int bgx_idx, lmac;
+ 	const u8 *mac;
++	struct lmac *lmac_dev;
+ 
+ 	mbx.nic_cfg.msg = NIC_MBOX_MSG_READY;
+ 	mbx.nic_cfg.vf_id = vf;
+@@ -106,6 +107,8 @@ static void nic_mbx_send_ready(struct nicpf *nic, int vf)
+ 		mac = bgx_get_lmac_mac(nic->node, bgx_idx, lmac);
+ 		if (mac)
+ 			memcpy((u8 *)&mbx.nic_cfg.mac_addr, mac, 6);
++
++		bgx_poll_for_link(nic->node, bgx_idx, lmac);
+ 	}
+ #ifdef VNIC_MULTI_QSET_SUPPORT
+ 	mbx.nic_cfg.sqs_mode = (vf >= nic->num_vf_en) ? true : false;
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index fd4ffc6a91..257e432af6 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -84,7 +84,7 @@ static void bgx_reg_write(struct bgx *bgx, uint8_t lmac,
+ }
+ 
+ static void bgx_reg_modify(struct bgx *bgx, uint8_t lmac,
+-                           uint64_t offset, uint64_t val)
++			   uint64_t offset, uint64_t val)
+ {
+ 	uint64_t addr = (uintptr_t)bgx->reg_base +
+ 				((uint32_t)lmac << 20) + offset;
+@@ -110,6 +110,16 @@ static int bgx_poll_reg(struct bgx *bgx, uint8_t lmac,
+ 	return 1;
+ }
+ 
++struct lmac *bgx_get_lmac(int node, int bgx_idx, int lmacid)
++{
++	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
++
++	if (bgx)
++		return &bgx->lmac[lmacid];
++
++	return NULL;
++}
++
+ const u8 *bgx_get_lmac_mac(int node, int bgx_idx, int lmacid)
+ {
+ 	struct bgx *bgx = bgx_vnic[(node * CONFIG_MAX_BGX_PER_NODE) + bgx_idx];
+@@ -490,35 +500,58 @@ static int bgx_xaui_check_link(struct lmac *lmac)
+ 	return 0;
+ }
+ 
+-static void bgx_poll_for_link(struct lmac *lmac)
++void bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ {
+ 	u64 link;
++	int ret;
++	struct lmac *lmac = bgx_get_lmac(node, bgx_idx, lmacid);
+ 
+-	/* Receive link is latching low. Force it high and verify it */
+-	bgx_reg_modify(lmac->bgx, lmac->lmacid,
+-		       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
+-	bgx_poll_reg(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1,
+-		     SPU_STATUS1_RCV_LNK, false);
+-
+-	link = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
+-	if (link & SPU_STATUS1_RCV_LNK) {
+-		lmac->link_up = 1;
+-		if (lmac->lmac_type == 4)
+-			lmac->last_speed = 40000;
+-		else
+-			lmac->last_speed = 10000;
+-		lmac->last_duplex = 1;
++	if (lmac->qlm_mode == QLM_MODE_SGMII){
++		ret = phy_startup(lmac->phydev);
++		if (ret) {
++			printf("%s: Could not initialize PHY %s\n",
++				lmac->netdev.name, lmac->phydev->dev->name);
++		}
+ 	} else {
+-		lmac->link_up = 0;
+-		lmac->last_speed = 0;
+-		lmac->last_duplex = 0;
+-	}
++		/* Receive link is latching low. Force it high and verify it */
++		bgx_reg_modify(lmac->bgx, lmac->lmacid,
++			       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
++		bgx_poll_reg(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1,
++			     SPU_STATUS1_RCV_LNK, false);
++
++		link = bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1);
++
++		debug("BGX%d LMAC%d BGX_SPUX_STATUS1: %lx\n",
++		      bgx_idx, lmacid,
++		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SPUX_STATUS1));
++		debug("BGX%d LMAC%d BGX_SMUX_RX_CTL: %lx\n",
++		      bgx_idx, lmacid,
++		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_RX_CTL));
++		debug("BGX%d LMAC%d BGX_SMUX_TX_CTL: %lx\n",
++		      bgx_idx, lmacid,
++		      (unsigned long)bgx_reg_read(lmac->bgx, lmac->lmacid, BGX_SMUX_TX_CTL));
++
++		if (link & SPU_STATUS1_RCV_LNK) {
++			lmac->link_up = 1;
++			if (lmac->lmac_type == 4)
++				lmac->last_speed = 40000;
++			else
++				lmac->last_speed = 10000;
++			lmac->last_duplex = 1;
++		} else {
++			lmac->link_up = 0;
++			lmac->last_speed = 0;
++			lmac->last_duplex = 0;
++		}
+ 
+-	if (lmac->last_link != lmac->link_up) {
+-		lmac->last_link = lmac->link_up;
+-		if (lmac->link_up)
+-			bgx_xaui_check_link(lmac);
++		if (lmac->last_link != lmac->link_up) {
++			lmac->last_link = lmac->link_up;
++			if (lmac->link_up)
++				bgx_xaui_check_link(lmac);
++		}
+ 	}
++
++	printf("LMAC %u link %s\n", lmacid,  (lmac->link_up) ? "up" : "down");
+ }
+ 
+ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
+@@ -566,15 +599,10 @@ static int bgx_lmac_enable(struct bgx *bgx, int8_t lmacid)
+ 				lmac->netdev.name, lmac->phydev->dev->name);
+ 			return ret;
+ 		}
+-
+-		ret = phy_startup(lmac->phydev);
+-		if (ret) {
+-			printf("%s: Could not initialize PHY %s\n",
+-				lmac->netdev.name, lmac->phydev->dev->name);
+-			return ret;
+-		}
+ 	} else {
+-		bgx_poll_for_link(lmac);
++		/* bgx_poll_for_link(lmac); */
++		bgx_reg_modify(lmac->bgx, lmac->lmacid,
++			       BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
+ 	}
+ 
+ 	return 0;
+@@ -696,11 +724,11 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 	struct lmac *lmac;
+ 	int lmacid;
+ 
+-        /* Read LMACx type to figure out QLM mode
++	/* Read LMACx type to figure out QLM mode
+ 	 * This is configured by low level firmware
+ 	 */
+ 	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
+-        	int lmac_type;
++		int lmac_type;
+ 		int train_en;
+ 		int index = (lmacid < 2) ? 1 : 3;
+ 
+@@ -709,30 +737,30 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 		if (lmac->qlm == -1)
+ 			continue;
+ 
+-        	lmac_type = bgx_reg_read(bgx, index, BGX_CMRX_CFG);
+-        	lmac->lmac_type = (lmac_type >> 8) & 0x07;
++		lmac_type = bgx_reg_read(bgx, index, BGX_CMRX_CFG);
++		lmac->lmac_type = (lmac_type >> 8) & 0x07;
+ 		debug("bgx_get_qlm_mode:%d:%d: lmac_type = %d\n", bgx->bgx_id,
+ 				lmacid, lmac->lmac_type);
+ 
+ 		train_en = (readq(CSR_PA(0, GSERX_SCRATCH(lmac->qlm))) & 0xf);
+ 
+-        	switch(lmac->lmac_type) {
+-        	case 0:
+-                	lmac->qlm_mode = QLM_MODE_SGMII;
++	switch(lmac->lmac_type) {
++		case 0:
++			lmac->qlm_mode = QLM_MODE_SGMII;
+ 			printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+-                	break;
+-        	case 1:
+-                	lmac->qlm_mode = QLM_MODE_XAUI;
++			break;
++		case 1:
++			lmac->qlm_mode = QLM_MODE_XAUI;
+ 			printf("BGX%d QLM%d LMAC%d mode: XAUI\n",
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+-                	break;
+-        	case 2:
+-                	lmac->qlm_mode = QLM_MODE_RXAUI;
++			break;
++		case 2:
++			lmac->qlm_mode = QLM_MODE_RXAUI;
+ 			printf("BGX%d QLM%d LMAC%d mode: RXAUI\n",
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+-                	break;
+-        	case 3:
++			break;
++		case 3:
+ 			if (((lmacid < 2) && (train_en & (1 << lmacid)))
+ 			    || (train_en & (1 << (lmacid - 2)))) {
+ 				lmac->qlm_mode = QLM_MODE_10G_KR;
+@@ -743,10 +771,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+ 			}
+-                	break;
+-        	case 4:
+-			if (((lmacid < 2) && (train_en & (1 << lmacid)))
+-			    || (train_en & (1 << (lmacid - 2)))) {
++			break;
++		case 4:
++			if (((lmacid < 2) && (train_en & (1 << lmacid))) ||
++			    (train_en & (1 << (lmacid - 2)))) {
+ 				lmac->qlm_mode = QLM_MODE_40G_KR4;
+ 				printf("BGX%d QLM%d LMAC%d mode: 40G_KR4\n",
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+@@ -755,10 +783,10 @@ static void bgx_get_qlm_mode(struct bgx *bgx)
+ 				printf("BGX%d QLM%d LMAC%d mode: XLAUI\n",
+ 					bgx->bgx_id, lmac->qlm, lmacid);
+ 			}
+-                	break;
++		break;
+ 		default:
+ 			break;
+-        	}
++		}
+ 	}
+ }
+ 
+-- 
+2.29.0
+

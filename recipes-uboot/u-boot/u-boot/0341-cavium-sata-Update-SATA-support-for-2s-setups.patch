@@ -1,0 +1,33 @@
+From 77b59f17e6e4f541a9c7e0660fa87b43c4ef7de9 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 4 Nov 2015 18:12:19 -0800
+Subject: [PATCH 0341/1239] cavium: sata: Update SATA support for 2s setups
+
+---
+ board/cavium/thunderx/sata.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/board/cavium/thunderx/sata.c b/board/cavium/thunderx/sata.c
+index 0d20ea25a3..478cce08fc 100644
+--- a/board/cavium/thunderx/sata.c
++++ b/board/cavium/thunderx/sata.c
+@@ -27,11 +27,16 @@ uintptr_t sata_baseaddress(int dev)
+ 	union satax_uctl_ctl uctl_ctl;
+ 	int node = dev / AHCI_PER_NODE;
+ 
++	dev %= AHCI_PER_NODE;
++
+ 	if (node >= atf_node_count())
+ 		return 0;
+ 
+ 	uctl_ctl.u = readq(CSR_PA(node, SATAX_UCTL_CTL(dev)));
+ 
++	debug("sata %d at node %d: uctl_ctl.u: %llx\n",
++	      dev, node, uctl_ctl.u);
++
+ 	if (!uctl_ctl.s.sata_uahc_rst &&
+ 		!uctl_ctl.s.sata_uctl_rst &&
+ 		uctl_ctl.s.a_clk_en) {
+-- 
+2.29.0
+

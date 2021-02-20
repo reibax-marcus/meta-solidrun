@@ -1,0 +1,72 @@
+From e59c7d413895fd94e86d5769d079d650d55e2368 Mon Sep 17 00:00:00 2001
+From: jinghua <jinghua@marvell.com>
+Date: Mon, 24 Apr 2017 15:51:03 +0800
+Subject: [PATCH 0011/1239] phy: marvell: add comphy type PHY_TYPE_USB3
+
+- For some Marvell SoCs, like armada-3700, there are both
+  USB host and device controller, but on PHY level the
+  configuration is the same.
+- The new type supports both USB device and USB host
+- This patch is cherry-picked from u-boot-2015 as-is.
+
+Change-Id: I01262027edd8ec23391cff6fb409b3009aedfbb9
+Signed-off-by: jinghua <jinghua@marvell.com>
+Signed-off-by: Ken Ma <make@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ drivers/phy/marvell/comphy_core.c        |  2 +-
+ include/dt-bindings/comphy/comphy_data.h | 25 ++++++++++++------------
+ 2 files changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/phy/marvell/comphy_core.c b/drivers/phy/marvell/comphy_core.c
+index 9c24692629..6cd0687d6a 100644
+--- a/drivers/phy/marvell/comphy_core.c
++++ b/drivers/phy/marvell/comphy_core.c
+@@ -36,7 +36,7 @@ static const char *get_type_string(u32 type)
+ 	static const char * const type_strings[] = {
+ 		"UNCONNECTED", "PEX0", "PEX1", "PEX2", "PEX3",
+ 		"SATA0", "SATA1", "SATA2", "SATA3", "SGMII0",
+-		"SGMII1", "SGMII2", "SGMII3", "QSGMII",
++		"SGMII1", "SGMII2", "SGMII3", "QSGMII", "USB3"
+ 		"USB3_HOST0", "USB3_HOST1", "USB3_DEVICE",
+ 		"XAUI0", "XAUI1", "XAUI2", "XAUI3",
+ 		"RXAUI0", "RXAUI1", "SFI", "IGNORE"
+diff --git a/include/dt-bindings/comphy/comphy_data.h b/include/dt-bindings/comphy/comphy_data.h
+index 4f7e2821b8..08544fa758 100644
+--- a/include/dt-bindings/comphy/comphy_data.h
++++ b/include/dt-bindings/comphy/comphy_data.h
+@@ -33,18 +33,19 @@
+ #define PHY_TYPE_SGMII2			11
+ #define PHY_TYPE_SGMII3			12
+ #define PHY_TYPE_QSGMII			13
+-#define PHY_TYPE_USB3_HOST0		14
+-#define PHY_TYPE_USB3_HOST1		15
+-#define PHY_TYPE_USB3_DEVICE		16
+-#define PHY_TYPE_XAUI0			17
+-#define PHY_TYPE_XAUI1			18
+-#define PHY_TYPE_XAUI2			19
+-#define PHY_TYPE_XAUI3			20
+-#define PHY_TYPE_RXAUI0			21
+-#define PHY_TYPE_RXAUI1			22
+-#define PHY_TYPE_SFI			23
+-#define PHY_TYPE_IGNORE			24
+-#define PHY_TYPE_MAX			25
++#define PHY_TYPE_USB3			14
++#define PHY_TYPE_USB3_HOST0		15
++#define PHY_TYPE_USB3_HOST1		16
++#define PHY_TYPE_USB3_DEVICE		17
++#define PHY_TYPE_XAUI0			18
++#define PHY_TYPE_XAUI1			19
++#define PHY_TYPE_XAUI2			20
++#define PHY_TYPE_XAUI3			21
++#define PHY_TYPE_RXAUI0			22
++#define PHY_TYPE_RXAUI1			23
++#define PHY_TYPE_SFI			24
++#define PHY_TYPE_IGNORE			25
++#define PHY_TYPE_MAX			26
+ #define PHY_TYPE_INVALID		0xff
+ 
+ #define PHY_POLARITY_NO_INVERT		0
+-- 
+2.29.0
+

@@ -1,0 +1,245 @@
+From f46d91114ced115a407db4104a6a07037b0598e5 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Thu, 19 Dec 2019 15:06:53 -0800
+Subject: [PATCH 1088/1239] cmd: marvell: eth_cmds: add set/get_ignore commands
+
+Add command support to set/get ignore parameter in persistent
+settings on flash of any selected ethernet interface.
+
+Change-Id: I433323a2cbae006df88f6bcffd8d2bfb9317d8a4
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20606
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ cmd/marvell/eth_cmds.c           | 60 +++++++++++++++++++++++---------
+ drivers/net/octeontx2/cgx_intf.c | 43 +++++++++++++++++++++++
+ drivers/net/octeontx2/cgx_intf.h | 19 ++++++++++
+ 3 files changed, 105 insertions(+), 17 deletions(-)
+
+diff --git a/cmd/marvell/eth_cmds.c b/cmd/marvell/eth_cmds.c
+index e2447e805e..a16d0d75ad 100644
+--- a/cmd/marvell/eth_cmds.c
++++ b/cmd/marvell/eth_cmds.c
+@@ -17,6 +17,8 @@ extern int cgx_intf_get_phy_mod_type(struct udevice *ethdev);
+ extern int cgx_intf_set_phy_mod_type(struct udevice *ethdev, int type);
+ extern int cgx_intf_set_mode(struct udevice *ethdev, int mode);
+ extern int cgx_intf_set_an_lbk(struct udevice *ethdev, int enable);
++extern int cgx_intf_set_ignore(struct udevice *ethdev, int ignore);
++extern int cgx_intf_get_ignore(struct udevice *ethdev);
+ extern int cgx_intf_get_mode(struct udevice *ethdev);
+ extern void nix_print_mac_info(struct udevice *dev);
+ 
+@@ -47,11 +49,11 @@ static int do_ethparam_common(cmd_tbl_t *cmdtp, int flag, int argc,
+ 	const char *cmd;
+ 	char *endp;
+ 	const char *devname;
+-	int ret = -1, type, mode;
++	int ret = CMD_RET_USAGE, arg;
+ 	struct udevice *dev;
+ 
+ 	if (argc < 2)
+-		return CMD_RET_USAGE;
++		return ret;
+ 
+ 	cmd = argv[0];
+ 	devname = argv[1];
+@@ -68,26 +70,35 @@ static int do_ethparam_common(cmd_tbl_t *cmdtp, int flag, int argc,
+ 	if (strcmp(cmd, "set_fec") == 0) {
+ 		if (argc < 3)
+ 			return CMD_RET_FAILURE;
+-		type = simple_strtol(argv[2], &endp, 0);
+-		if (type < 0 || type > 2)
+-			return CMD_RET_USAGE;
+-		ret = cgx_intf_set_fec(dev, type);
++		arg = simple_strtol(argv[2], &endp, 0);
++		if (arg < 0 || arg > 2)
++			return ret;
++		ret = cgx_intf_set_fec(dev, arg);
+ 	} else if (strcmp(cmd, "get_fec") == 0) {
+ 		ret = cgx_intf_get_fec(dev);
+ 	} else if (strcmp(cmd, "set_an_lbk") == 0) {
+ 		if (argc < 3)
+ 			return CMD_RET_FAILURE;
+-		type = simple_strtol(argv[2], &endp, 0);
+-		if (type < 0 || type > 1)
++		arg = simple_strtol(argv[2], &endp, 0);
++		if (arg < 0 || arg > 1)
+ 			return CMD_RET_USAGE;
+-		ret = cgx_intf_set_an_lbk(dev, type);
++		ret = cgx_intf_set_an_lbk(dev, arg);
++	} else if (strcmp(cmd, "set_ignore") == 0) {
++		if (argc < 3)
++			return CMD_RET_FAILURE;
++		arg = simple_strtol(argv[2], &endp, 0);
++		if (arg < 0 || arg > 1)
++			return ret;
++		ret = cgx_intf_set_ignore(dev, arg);
++	} else if (strcmp(cmd, "get_ignore") == 0) {
++		ret = cgx_intf_get_ignore(dev);
+ 	} else if (strcmp(cmd, "set_phymod") == 0) {
+ 		if (argc < 3)
+ 			return CMD_RET_FAILURE;
+-		type = simple_strtol(argv[2], &endp, 0);
+-		if (type < 0 || type > 1)
+-			return CMD_RET_USAGE;
+-		ret = cgx_intf_set_phy_mod_type(dev, type);
++		arg = simple_strtol(argv[2], &endp, 0);
++		if (arg < 0 || arg > 1)
++			return ret;
++		ret = cgx_intf_set_phy_mod_type(dev, arg);
+ 	} else if (strcmp(cmd, "get_phymod") == 0) {
+ 		ret = cgx_intf_get_phy_mod_type(dev);
+ 	} else if (strcmp(cmd, "get_mode") == 0) {
+@@ -95,10 +106,10 @@ static int do_ethparam_common(cmd_tbl_t *cmdtp, int flag, int argc,
+ 	} else if (strcmp(cmd, "set_mode") == 0) {
+ 		if (argc < 3)
+ 			return CMD_RET_FAILURE;
+-		mode = simple_strtol(argv[2], &endp, 0);
+-		if (mode < 0 || mode > 6)
+-			return CMD_RET_USAGE;
+-		ret = cgx_intf_set_mode(dev, mode);
++		arg = simple_strtol(argv[2], &endp, 0);
++		if (arg < 0 || arg > 6)
++			return ret;
++		ret = cgx_intf_set_mode(dev, arg);
+ 	}
+ 	return (ret == 0) ? CMD_RET_SUCCESS : CMD_RET_FAILURE;
+ }
+@@ -127,6 +138,21 @@ U_BOOT_CMD(set_an_lbk, 3, 1, do_ethparam_common,
+ 	   "Use 'ethlist' command to display network interface names\n"
+ );
+ 
++U_BOOT_CMD(set_ignore, 3, 1, do_ethparam_common,
++	   "Set or clear ignore param in persist storage for eth interface",
++	   "Example - set_ignore <ethX> [value]\n"
++	   "0 [clear ignore] or 1 [set ignore]\n"
++	   "Helps to ignore all persist settings for selected ethernet\n"
++	   "interface on next boot\n"
++	   "Use 'ethlist' command to display network interface names\n"
++);
++
++U_BOOT_CMD(get_ignore, 2, 1, do_ethparam_common,
++	   "Display ignore param in persist storage for ethernet interface",
++	   "Example - get_ignore <ethX>\n"
++	   "Use 'ethlist' command to display network interface names\n"
++);
++
+ U_BOOT_CMD(
+ 	set_phymod, 3, 1, do_ethparam_common,
+ 	"Modify line side phy-mod type for selected ethernet interface",
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index 99d1b6c50f..18365d8eb2 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -580,6 +580,49 @@ int cgx_intf_set_an_lbk(struct udevice *ethdev, int enable)
+ 	}
+ 	printf("AN loopback %s for %s\n", enable ? "set" : "clear",
+ 	       ethdev->name);
++
++	return 0;
++}
++
++int cgx_intf_get_ignore(struct udevice *ethdev)
++{
++	struct rvu_pf *rvu = dev_get_priv(ethdev);
++	struct nix *nix = rvu->nix;
++	union cgx_scratchx0 scr0;
++	int ret;
++	union cgx_cmd_s cmd;
++
++	cmd.cmd.id = CGX_CMD_GET_PERSIST_IGNORE;
++
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   cmd, &scr0.u, 1);
++	if (ret) {
++		printf("Get ignore command failed for %s\n", ethdev->name);
++		return -1;
++	}
++	printf("Persist settings %signored for %s\n",
++	       scr0.s.persist.ignore ? "" : "not ", ethdev->name);
++	return 0;
++}
++
++int cgx_intf_set_ignore(struct udevice *ethdev, int ignore)
++{
++	struct rvu_pf *rvu = dev_get_priv(ethdev);
++	struct nix *nix = rvu->nix;
++	union cgx_scratchx0 scr0;
++	int ret;
++	union cgx_cmd_s cmd;
++
++	cmd.cmd.id = CGX_CMD_SET_PERSIST_IGNORE;
++	cmd.persist_args.ignore = ignore;
++
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   cmd, &scr0.u, 0);
++	if (ret) {
++		printf("Set ignore command failed for %s\n", ethdev->name);
++		return -1;
++	}
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index 3fbb763fd3..5607b64afa 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -104,6 +104,8 @@ enum cgx_cmd_id {
+ 	CGX_CMD_GET_PHY_FEC_STATS,
+ 	CGX_CMD_DISPLAY_SERDES,
+ 	CGX_CMD_AN_LOOPBACK,	/* = 30 */
++	CGX_CMD_GET_PERSIST_IGNORE,
++	CGX_CMD_SET_PERSIST_IGNORE,
+ };
+ 
+ /* async event ids */
+@@ -277,6 +279,13 @@ struct cgx_get_phy_mod_type_s {
+ 	u64 reserved2:54;
+ };
+ 
++/* Resp to cmd ID - CGX_CMD_GET_PERSIST_IGNORE */
++struct cgx_get_flash_ignore_s {
++	uint64_t reserved1:9;
++	uint64_t ignore:1;
++	uint64_t reserved2:54;
++};
++
+ union cgx_rsp_sts {
+ 	/* Fixed, applicable for all commands/events */
+ 	struct cgx_evt_sts_s evt_sts;
+@@ -302,6 +311,8 @@ union cgx_rsp_sts {
+ 	struct cgx_get_an_s an;
+ 	/* response to CGX_CMD_GET_PHY_MOD_TYPE */
+ 	struct cgx_get_phy_mod_type_s phy_mod_type;
++	/* response to CGX_CMD_GET_PERSIST_IGNORE */
++	struct cgx_get_flash_ignore_s persist;
+ #ifdef NT_FW_CONFIG
+ 	/* response to CGX_CMD_GET_MKEX_SIZE */
+ 	struct cgx_mcam_profile_sz_s prfl_sz;
+@@ -384,6 +395,13 @@ struct cgx_set_phy_mod_args {
+ 	u64 reserved2:55;
+ };
+ 
++/* command argument to be passed for cmd ID - CGX_CMD_SET_PERSIST_IGNORE */
++struct cgx_set_flash_ignore_args {
++	uint64_t reserved1:8;
++	uint64_t ignore:1;
++	uint64_t reserved2:55;
++};
++
+ struct cgx_prbs_args {
+ 	u64 reserved1:8; /* start from bit 8 */
+ 	u64 qlm:8;
+@@ -408,6 +426,7 @@ union cgx_cmd_s {
+ 	struct cgx_mode_change_args mode_change_args;
+ 	struct cgx_set_fec_args fec_args;
+ 	struct cgx_set_phy_mod_args phy_mod_args;
++	struct cgx_set_flash_ignore_args persist_args;
+ 	/* any other arg for command id * like : mtu, dmac filtering control */
+ 	struct cgx_prbs_args prbs_args;
+ 	struct cgx_display_eye_args dsp_eye_args;
+-- 
+2.29.0
+

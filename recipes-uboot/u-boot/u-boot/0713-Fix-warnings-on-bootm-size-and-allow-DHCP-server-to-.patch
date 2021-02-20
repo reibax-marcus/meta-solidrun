@@ -1,0 +1,133 @@
+From 8df061290ba36b06224ed1fc499db2bcfafae658 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Thu, 21 Sep 2017 15:55:09 -0700
+Subject: [PATCH 0713/1239] Fix warnings on bootm size and allow DHCP server to
+ specify tftp server.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 7 +++----
+ include/configs/thunderx_83xx.h | 7 ++++---
+ include/configs/thunderx_88xx.h | 8 +++++++-
+ include/configs/thunderx_93xx.h | 7 +++----
+ 4 files changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index b41e9714cf..eb6a49e7f5 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -16,7 +16,8 @@
+ 
+ #define CONFIG_SUPPORT_RAW_INITRD
+ 
+-#define CONFIG_SYS_BOOTM_LEN (16 << 20)
++/** Maximum size of image supported for bootm (and bootable FIT images) */
++#define CONFIG_SYS_BOOTM_LEN (256 << 20)
+ 
+ /** Enable vsnprintf support */
+ #define CONFIG_SYS_VSNPRINTF
+@@ -234,6 +235,7 @@
+ #define CONFIG_BOOTP_GATEWAY
+ #define CONFIG_BOOTP_HOSTNAME
+ #define CONFIG_BOOTP_PXE
++#define CONFIG_BOOTP_TFTP_SERVERIP
+ 
+ /* Miscellaneous configurable options */
+ #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
+@@ -346,7 +348,4 @@
+ 
+ #define CONFIG_CMD_TIME
+ 
+-/** Maximum size of image supported for bootm (and bootable FIT images) */
+-#define CONFIG_SYS_BOOTM_LEN		0x10000000	/* 256MiB */
+-
+ #endif /* __THUNDERX_81XX_H__ */
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 29041a4141..aba071a137 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -12,6 +12,9 @@
+ 
+ #define CONFIG_SUPPORT_RAW_INITRD
+ 
++/** Maximum size of image supported for bootm (and bootable FIT images) */
++#define CONFIG_SYS_BOOTM_LEN (256 << 20)
++
+ /** Enable vsnprintf support */
+ #define CONFIG_SYS_VSNPRINTF
+ 
+@@ -218,6 +221,7 @@
+ #define CONFIG_BOOTP_GATEWAY
+ #define CONFIG_BOOTP_HOSTNAME
+ #define CONFIG_BOOTP_PXE
++#define CONFIG_BOOTP_TFTP_SERVERIP
+ 
+ /* Miscellaneous configurable options */
+ #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
+@@ -337,7 +341,4 @@
+ 
+ #define CONFIG_CMD_TIME
+ 
+-/** Maximum size of image supported for bootm (and bootable FIT images) */
+-#define CONFIG_SYS_BOOTM_LEN		0x10000000	/* 256MiB */
+-
+ #endif /* __THUNDERX_83XX_H__ */
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index a6774031d1..74740e25f0 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -16,7 +16,8 @@
+ 
+ #define CONFIG_SUPPORT_RAW_INITRD
+ 
+-#define CONFIG_SYS_BOOTM_LEN (16 << 20)
++/** Maximum size of image supported for bootm (and bootable FIT images) */
++#define CONFIG_SYS_BOOTM_LEN (256 << 20)
+ 
+ #define CONFIG_SYS_VSNPRINTF
+ 
+@@ -222,6 +223,11 @@
+ 
+ /* BOOTP options */
+ #define CONFIG_BOOTP_BOOTFILESIZE
++#define CONFIG_BOOTP_BOOTPATH
++#define CONFIG_BOOTP_GATEWAY
++#define CONFIG_BOOTP_HOSTNAME
++#define CONFIG_BOOTP_PXE
++#define CONFIG_BOOTP_TFTP_SERVERIP
+ 
+ /* Miscellaneous configurable options */
+ #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index fc6d15d87c..bf2830d345 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -13,7 +13,8 @@
+ 
+ #define CONFIG_SUPPORT_RAW_INITRD
+ 
+-#define CONFIG_SYS_BOOTM_LEN (16 << 20)
++/** Maximum size of image supported for bootm (and bootable FIT images) */
++#define CONFIG_SYS_BOOTM_LEN (256 << 20)
+ 
+ /* starting uboot and linux kernel from offset 40MB
+  * below 40MB will be used for mailboxes of pko/pki
+@@ -206,6 +207,7 @@
+ #define CONFIG_BOOTP_GATEWAY
+ #define CONFIG_BOOTP_HOSTNAME
+ #define CONFIG_BOOTP_PXE
++#define CONFIG_BOOTP_TFTP_SERVERIP
+ 
+ /* Miscellaneous configurable options */
+ #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
+@@ -320,7 +322,4 @@
+ 
+ #define CONFIG_CMD_TIME
+ 
+-/** Maximum size of image supported for bootm (and bootable FIT images) */
+-#define CONFIG_SYS_BOOTM_LEN		0x10000000	/* 256MiB */
+-
+ #endif /* __THUNDERX_93XX_H__ */
+-- 
+2.29.0
+

@@ -1,0 +1,72 @@
+From 5956e0fb0f0d0d3f3a41650ffc35216da509bdb6 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Fri, 18 Sep 2020 00:22:30 -0700
+Subject: [PATCH 1224/1239] board: marvell: Fix disable_ooo and enable_wfe smc
+ call definition
+
+Now these env varaiables take mask, change the parameter to 'uint64_t'
+from 'unsigned int' to be able to take 36 cores coremask.
+
+Change-Id: I0a888138d8330443b0ec7c3ca57b9bf83ce97b32
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/36176
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/smc.h | 3 ++-
+ board/Marvell/octeontx2/board.c           | 2 +-
+ board/Marvell/octeontx2/smc.c             | 4 ++--
+ 3 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/smc.h b/arch/arm/include/asm/arch-octeontx2/smc.h
+index ecbed3882c..886082c6ed 100644
+--- a/arch/arm/include/asm/arch-octeontx2/smc.h
++++ b/arch/arm/include/asm/arch-octeontx2/smc.h
+@@ -10,7 +10,8 @@
+ 
+ #include <asm/arch/smc-id.h>
+ 
+-ssize_t smc_configure_ooo(unsigned int val);
++ssize_t smc_configure_ooo(u64 val);
++ssize_t smc_configure_wfe(u64 val);
+ ssize_t smc_dram_size(unsigned int node);
+ ssize_t smc_disable_rvu_lfs(unsigned int node);
+ ssize_t smc_flsf_fw_booted(void);
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 281d9067ac..0b1b0e54f3 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -333,7 +333,7 @@ int board_late_init(void)
+ {
+ 	char boardname[32];
+ 	char boardserial[150], boardrev[150];
+-	long val;
++	u64 val;
+ 	bool save_env = false;
+ 	const char *str;
+ 
+diff --git a/board/Marvell/octeontx2/smc.c b/board/Marvell/octeontx2/smc.c
+index 129ee28ee8..1bcba61a63 100644
+--- a/board/Marvell/octeontx2/smc.c
++++ b/board/Marvell/octeontx2/smc.c
+@@ -39,7 +39,7 @@ ssize_t smc_disable_rvu_lfs(unsigned int node)
+ 	return regs.regs[0];
+ }
+ 
+-ssize_t smc_configure_ooo(unsigned int val)
++ssize_t smc_configure_ooo(u64 val)
+ {
+ 	struct pt_regs regs;
+ 
+@@ -50,7 +50,7 @@ ssize_t smc_configure_ooo(unsigned int val)
+ 	return regs.regs[0];
+ }
+ 
+-ssize_t smc_configure_wfe(unsigned int val)
++ssize_t smc_configure_wfe(u64 val)
+ {
+ 	struct pt_regs regs;
+ 
+-- 
+2.29.0
+

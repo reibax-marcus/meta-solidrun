@@ -1,0 +1,31 @@
+From 3d6e4a95254d6712835556e56490d49a29f74047 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 10 Dec 2018 05:40:01 -0800
+Subject: [PATCH 0847/1239] octeontx2: mmc: update max card slot count for 9xx
+
+Change-Id: Ia397081c9e18ab846b6be97a4adc27a366502646
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1460
+Tested-by: sa_ip-sw-jenkins
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ arch/arm/include/asm/arch-octeontx/octeontx_mmc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h b/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h
+index d1573a0b0b..bddc4e1315 100644
+--- a/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_mmc.h
+@@ -116,7 +116,7 @@
+ #endif
+ 
+ /** Maximum supported MMC slots */
+-#define OCTEONTX_MAX_MMC_SLOT		2
++#define OCTEONTX_MAX_MMC_SLOT		3
+ 
+ #define OCTEONTX_MMC_NAME_LEN		32
+ 
+-- 
+2.29.0
+

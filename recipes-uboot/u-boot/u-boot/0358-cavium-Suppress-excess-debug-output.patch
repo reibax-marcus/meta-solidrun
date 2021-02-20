@@ -1,0 +1,35 @@
+From aa08adc5c7b199f93ff2738c2d258d1ce4a48eb6 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Fri, 6 Nov 2015 16:23:20 -0800
+Subject: [PATCH 0358/1239] cavium: Suppress excess debug output
+
+---
+ board/cavium/thunderx/pcie.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/board/cavium/thunderx/pcie.c b/board/cavium/thunderx/pcie.c
+index 07af5b3d73..fe95ee3a84 100644
+--- a/board/cavium/thunderx/pcie.c
++++ b/board/cavium/thunderx/pcie.c
+@@ -638,8 +638,7 @@ int pci_postscan_config(struct pci_controller *hose, pci_dev_t dev)
+ 
+ 	res = pci_hose_ea_init(hose, dev);
+ 
+-	printf("%s: %d: cap: %lx\n", __FUNCTION__, __LINE__, res);
+-
++	debug("%s: %d: cap: %lx\n", __FUNCTION__, __LINE__, res);
+ 
+ 	for (bar = 0; bar <= 5; bar++) {
+ 		bar_start = pci_read_bar32(hose, dev, bar);
+@@ -649,7 +648,7 @@ int pci_postscan_config(struct pci_controller *hose, pci_dev_t dev)
+ 			bar_size = 1 << ffs(bar_start);
+ 		}
+ 
+-		printf("%s: %d: bar_start: %lx, bar_size: %lx\n",
++		debug("%s: %d: bar_start: %lx, bar_size: %lx\n",
+ 		       __FUNCTION__, __LINE__, bar_start, bar_size);
+ 	}
+ 
+-- 
+2.29.0
+

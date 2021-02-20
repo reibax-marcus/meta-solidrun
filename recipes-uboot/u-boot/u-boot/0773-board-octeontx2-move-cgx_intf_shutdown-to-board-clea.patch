@@ -1,0 +1,79 @@
+From 80af401a7277a748d29e603ba6c3bdfabf158dd7 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 3 Apr 2018 16:25:42 -0700
+Subject: [PATCH 0773/1239] board: octeontx2: move cgx_intf_shutdown to board
+ cleanup
+
+Invoke cgx_intf_shutdown from board_quiesce_devices.
+Also, remove of_match_ids as the cgx nodes are not trimmed like
+earlier. Enable cgx for f95 platform.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/cavium/octeontx2/octeontx2.c | 6 ++++++
+ configs/octeontx2_95xx_defconfig   | 3 +++
+ drivers/net/cavium/octeontx2/cgx.c | 8 --------
+ 3 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/board/cavium/octeontx2/octeontx2.c b/board/cavium/octeontx2/octeontx2.c
+index 072006d772..d15875cc14 100644
+--- a/board/cavium/octeontx2/octeontx2.c
++++ b/board/cavium/octeontx2/octeontx2.c
+@@ -19,6 +19,12 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ extern unsigned long fdt_base_addr;
++extern void cgx_intf_shutdown(void);
++
++void board_quiesce_devices(void)
++{
++	cgx_intf_shutdown();
++}
+ 
+ #ifdef CONFIG_BOARD_EARLY_INIT_R
+ extern void eth_common_init(void);
+diff --git a/configs/octeontx2_95xx_defconfig b/configs/octeontx2_95xx_defconfig
+index 089d31e0c4..8ebdfe6aef 100644
+--- a/configs/octeontx2_95xx_defconfig
++++ b/configs/octeontx2_95xx_defconfig
+@@ -70,6 +70,9 @@ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_SPI_FLASH_WINBOND=y
++CONFIG_NETDEVICES=y
++CONFIG_CAVIUM_NET_OCTEONTX2=y
++CONFIG_OCTEONTX2_CGX=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+diff --git a/drivers/net/cavium/octeontx2/cgx.c b/drivers/net/cavium/octeontx2/cgx.c
+index 82caf173c8..bf679cda2f 100644
+--- a/drivers/net/cavium/octeontx2/cgx.c
++++ b/drivers/net/cavium/octeontx2/cgx.c
+@@ -42,23 +42,15 @@ int cgx_probe(struct udevice *dev)
+ 
+ int cgx_remove(struct udevice *dev)
+ {
+-	cgx_intf_shutdown();
+ 	return 0;
+ }
+ 
+-static const struct udevice_id cgx_ids[] = {
+-        { .compatible = "cavium,cgx" },
+-        {}
+-};
+-
+ U_BOOT_DRIVER(cgx) = {
+         .name   = "cgx",
+         .id     = UCLASS_MISC,
+         .probe  = cgx_probe,
+ 	.remove	= cgx_remove,
+-        .of_match = cgx_ids,
+         .priv_auto_alloc_size = sizeof(struct cgx),
+-	.flags  = DM_FLAG_OS_PREPARE,
+ };
+ 
+ static struct pci_device_id cgx_supported[] = {
+-- 
+2.29.0
+

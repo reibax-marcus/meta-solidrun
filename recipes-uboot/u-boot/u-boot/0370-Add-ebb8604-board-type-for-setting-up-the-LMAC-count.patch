@@ -1,0 +1,29 @@
+From 79aa48305d29a1593830b683a70b10e09c938adc Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 19 Nov 2015 05:41:24 -0800
+Subject: [PATCH 0370/1239] Add ebb8604 board type for setting up the LMAC
+ count
+
+Signed-off-by: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 39e2cc7f45..7216d9b688 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -562,7 +562,9 @@ static int bgx_lmac_count(struct bgx *bgx)
+ 	const char *boardtype = getenv("board");
+ 	int lmac_count = 0;
+ 
+-	if (!strcmp(boardtype, "ebb8800") || !strcmp(boardtype, "ebb8804")) {
++	if (!strcmp(boardtype, "ebb8800") ||
++	    !strcmp(boardtype, "ebb8804") ||
++	    !strcmp(boardtype, "ebb8604")) {
+ 		switch (bgx->qlm_mode) {
+ 		case QLM_MODE_SGMII:
+ 		case QLM_MODE_XFI_4X1:
+-- 
+2.29.0
+

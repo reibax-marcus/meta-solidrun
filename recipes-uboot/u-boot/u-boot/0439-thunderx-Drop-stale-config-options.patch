@@ -1,0 +1,50 @@
+From 668f3eea38f0873f26bad2109b72a5c7b512ea77 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Sat, 14 May 2016 17:41:04 -0400
+Subject: [PATCH 0439/1239] thunderx: Drop stale config options
+
+Remove stale config options which aren't relevant anymore
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ include/configs/thunderx_81xx.h | 14 --------------
+ 1 file changed, 14 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index ad488d200d..7cb7088fa4 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -208,12 +208,7 @@
+ 
+ #define CONFIG_SYS_CACHELINE_SIZE 128
+ 
+-#define CONFIG_SYS_I2C
+ #define CONFIG_SYS_I2C_THUNDERX
+-#define CONFIG_SYS_I2C_THUNDERX_SPEED_0 100000
+-#define CONFIG_SYS_I2C_THUNDERX_SLAVE_0 0
+-#define CONFIG_SYS_I2C_THUNDERX_SPEED_1 100000
+-#define CONFIG_SYS_I2C_THUNDERX_SLAVE_1 0
+ 
+ #define CONFIG_DDR_SPD
+ #define CONFIG_SYS_SPD_ADDR_LIST {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}
+@@ -280,17 +275,8 @@
+ #define CONFIG_ENV_SIZE			0x80000
+ #define CONFIG_ENV_OFFSET		0xf00000
+ 
+-#define CONFIG_BDK_FDT_START		0xa00000
+ #define CONFIG_BDK_FDT_SIZE		0x20000
+ 
+-#define CONFIG_SYS_I2C
+-#define CONFIG_SYS_I2C_THUNDERX
+-#define CONFIG_SYS_I2C_THUNDERX_SPEED_0	100000
+-#define CONFIG_SYS_I2C_THUNDERX_SLAVE_0	0
+-#define CONFIG_SYS_I2C_THUNDERX_SPEED_1	100000
+-#define CONFIG_SYS_I2C_THUNDERX_SLAVE_1	0
+-
+-
+ /* Monitor Command Prompt */
+ #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
+ #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
+-- 
+2.29.0
+

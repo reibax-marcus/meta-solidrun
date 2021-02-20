@@ -1,0 +1,54 @@
+From 01138f8f75a1715841d28b88da969b4aef020299 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 7 Jun 2016 21:02:08 -0700
+Subject: [PATCH 0502/1239] Enable USB was removed from previous commits.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ configs/thunderx_81xx_defconfig | 10 +++++-----
+ include/configs/thunderx_81xx.h |  4 ++--
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/configs/thunderx_81xx_defconfig b/configs/thunderx_81xx_defconfig
+index 03effe5e22..aa97947a91 100644
+--- a/configs/thunderx_81xx_defconfig
++++ b/configs/thunderx_81xx_defconfig
+@@ -10,7 +10,7 @@ CONFIG_CMD_MEMTEST=y
+ CONFIG_CMD_MX_CYCLIC=y
+ # CONFIG_CMD_FLASH is not set
+ CONFIG_CMD_I2C=y
+-#CONFIG_CMD_USB=y
++CONFIG_CMD_USB=y
+ # CONFIG_CMD_FPGA is not set
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_TFTPPUT=y
+@@ -33,7 +33,7 @@ CONFIG_DEBUG_UART_PL011=y
+ CONFIG_DEBUG_UART_BASE=0x87e028000000
+ CONFIG_DEBUG_UART_CLOCK=24000000
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+-#CONFIG_USB=y
+-#CONFIG_DM_USB=y
+-#CONFIG_USB_XHCI_HCD=y
+-#CONFIG_USB_STORAGE=y
++CONFIG_USB=y
++CONFIG_DM_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_STORAGE=y
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index fe73b6784f..5b86a1726d 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -224,8 +224,8 @@
+ #define PHYS_SDRAM_1_SIZE		(0x80000000-MEM_BASE)	/* 2048 MB */
+ #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+ 
+-//#define CONFIG_USB_XHCI_PCI
+-//#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
++#define CONFIG_USB_XHCI_PCI
++#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
+ 
+ 
+ 
+-- 
+2.29.0
+

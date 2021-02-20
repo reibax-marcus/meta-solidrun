@@ -1,0 +1,2686 @@
+From bf42a33e53695c96fd459cf703ae61bfe3a2a1d8 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 1 Mar 2018 16:01:26 -0800
+Subject: [PATCH 0763/1239] cavm: move usage from thunder to octeontx across
+ code/configs
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ arch/arm/Kconfig                              |  14 +-
+ arch/arm/Makefile                             |   4 +-
+ arch/arm/dts/Makefile                         |   1 +
+ .../{arch-thunderx => arch-octeontx}/atf.h    |   0
+ .../atf_part.h                                |   0
+ .../cavium_mmc.h                              |   0
+ .../{arch-thunderx => arch-octeontx}/clock.h  |   8 +-
+ .../fdt-helper.h                              |   0
+ .../thunderx.h => arch-octeontx/octeontx.h}   |  15 +--
+ .../include/asm/arch-octeontx/octeontx_fdt.h  |  13 ++
+ .../include/asm/arch-octeontx/octeontx_smi.h  |  12 ++
+ .../include/asm/arch-octeontx/octeontx_svc.h  |  26 ++++
+ .../octeontx_vnic.h}                          |   2 +-
+ .../octeontx_xcv.h}                           |   6 +-
+ .../include/asm/arch-thunderx/thunderx_fdt.h  |  13 --
+ .../include/asm/arch-thunderx/thunderx_smi.h  |  12 --
+ .../include/asm/arch-thunderx/thunderx_svc.h  |  26 ----
+ .../{mach-thunderx => mach-octeontx}/Kconfig  |   6 +-
+ .../{mach-thunderx => mach-octeontx}/Makefile |   0
+ .../{mach-thunderx => mach-octeontx}/clock.c  |   4 +-
+ arch/arm/mach-octeontx/cpu.c                  |  49 +++++++
+ .../fdt-helper.c                              |   0
+ .../lowlevel_init.S                           |   2 +-
+ board/cavium/common/env_atf.c                 |   2 +-
+ board/cavium/octeontx/Kconfig                 |  18 +++
+ board/cavium/octeontx/MAINTAINERS             |   6 +
+ board/cavium/{thunderx => octeontx}/Makefile  |   2 +-
+ board/cavium/{thunderx => octeontx}/atf.c     |   6 +-
+ board/cavium/{thunderx => octeontx}/fdt.c     |  26 ++--
+ .../thunderx.c => octeontx/octeontx.c}        |   8 +-
+ board/cavium/thunderx/Kconfig                 |  18 ---
+ board/cavium/thunderx/MAINTAINERS             |   6 -
+ ...{t81_defconfig => octeontx_81xx_defconfig} |  17 ++-
+ ...{t83_defconfig => octeontx_83xx_defconfig} |  12 +-
+ configs/octeontx_88xx_defconfig               |  29 +++++
+ ...{t93_defconfig => octeontx_93xx_defconfig} |   6 +-
+ configs/t88_defconfig                         |   5 +-
+ drivers/ata/ahci.c                            |   4 +-
+ drivers/gpio/Kconfig                          |   7 +
+ drivers/gpio/Makefile                         |   1 +
+ .../gpio/{thunderx_gpio.c => octeontx_gpio.c} |   0
+ drivers/i2c/Kconfig                           |   7 +
+ drivers/i2c/Makefile                          |   2 +-
+ .../i2c/{thunderx_i2c.c => octeontx_i2c.c}    | 120 +++++++++---------
+ drivers/mmc/Kconfig                           |   8 +-
+ drivers/mmc/cavium_mmc.c                      |   2 +-
+ drivers/net/cavium/Kconfig                    |  10 +-
+ drivers/net/cavium/Makefile                   |   8 +-
+ drivers/net/cavium/nic.h                      |   8 +-
+ drivers/net/cavium/nic_main.c                 |  26 ++--
+ drivers/net/cavium/nicvf_main.c               |  28 ++--
+ .../cavium/{thunder_bgx.c => octeontx_bgx.c}  |  32 ++---
+ .../cavium/{thunder_bgx.h => octeontx_bgx.h}  |   8 +-
+ .../cavium/{thunderx_smi.c => octeontx_smi.c} |  76 +++++------
+ .../cavium/{thunder_xcv.c => octeontx_xcv.c}  |  22 ++--
+ drivers/pci/Kconfig                           |   8 +-
+ ...ci_thunderx_ecam.c => pci_octeontx_ecam.c} |  68 +++++-----
+ drivers/rtc/ds1337.c                          |  50 ++++----
+ drivers/spi/Kconfig                           |   2 +-
+ drivers/spi/cavium_spi.c                      |  98 +++++++-------
+ .../{thunderx_81xx.h => octeontx_81xx.h}      |   6 +-
+ .../{thunderx_83xx.h => octeontx_83xx.h}      |   6 +-
+ .../{thunderx_93xx.h => octeontx_93xx.h}      |   6 +-
+ include/configs/thunderx_88xx.h               |  28 ++--
+ 64 files changed, 551 insertions(+), 464 deletions(-)
+ rename arch/arm/include/asm/{arch-thunderx => arch-octeontx}/atf.h (100%)
+ rename arch/arm/include/asm/{arch-thunderx => arch-octeontx}/atf_part.h (100%)
+ rename arch/arm/include/asm/{arch-thunderx => arch-octeontx}/cavium_mmc.h (100%)
+ rename arch/arm/include/asm/{arch-thunderx => arch-octeontx}/clock.h (97%)
+ rename arch/arm/include/asm/{arch-thunderx => arch-octeontx}/fdt-helper.h (100%)
+ rename arch/arm/include/asm/{arch-thunderx/thunderx.h => arch-octeontx/octeontx.h} (68%)
+ create mode 100644 arch/arm/include/asm/arch-octeontx/octeontx_fdt.h
+ create mode 100644 arch/arm/include/asm/arch-octeontx/octeontx_smi.h
+ create mode 100644 arch/arm/include/asm/arch-octeontx/octeontx_svc.h
+ rename arch/arm/include/asm/{arch-thunderx/thunderx_vnic.h => arch-octeontx/octeontx_vnic.h} (87%)
+ rename arch/arm/include/asm/{arch-thunderx/thunderx_xcv.h => arch-octeontx/octeontx_xcv.h} (99%)
+ delete mode 100644 arch/arm/include/asm/arch-thunderx/thunderx_fdt.h
+ delete mode 100644 arch/arm/include/asm/arch-thunderx/thunderx_smi.h
+ delete mode 100644 arch/arm/include/asm/arch-thunderx/thunderx_svc.h
+ rename arch/arm/{mach-thunderx => mach-octeontx}/Kconfig (71%)
+ rename arch/arm/{mach-thunderx => mach-octeontx}/Makefile (100%)
+ rename arch/arm/{mach-thunderx => mach-octeontx}/clock.c (88%)
+ create mode 100644 arch/arm/mach-octeontx/cpu.c
+ rename arch/arm/{mach-thunderx => mach-octeontx}/fdt-helper.c (100%)
+ rename arch/arm/{mach-thunderx => mach-octeontx}/lowlevel_init.S (94%)
+ create mode 100644 board/cavium/octeontx/Kconfig
+ create mode 100644 board/cavium/octeontx/MAINTAINERS
+ rename board/cavium/{thunderx => octeontx}/Makefile (80%)
+ rename board/cavium/{thunderx => octeontx}/atf.c (82%)
+ rename board/cavium/{thunderx => octeontx}/fdt.c (95%)
+ rename board/cavium/{thunderx/thunderx.c => octeontx/octeontx.c} (94%)
+ delete mode 100644 board/cavium/thunderx/Kconfig
+ delete mode 100644 board/cavium/thunderx/MAINTAINERS
+ rename configs/{t81_defconfig => octeontx_81xx_defconfig} (91%)
+ rename configs/{t83_defconfig => octeontx_83xx_defconfig} (94%)
+ create mode 100644 configs/octeontx_88xx_defconfig
+ rename configs/{t93_defconfig => octeontx_93xx_defconfig} (96%)
+ rename drivers/gpio/{thunderx_gpio.c => octeontx_gpio.c} (100%)
+ rename drivers/i2c/{thunderx_i2c.c => octeontx_i2c.c} (89%)
+ rename drivers/net/cavium/{thunder_bgx.c => octeontx_bgx.c} (98%)
+ rename drivers/net/cavium/{thunder_bgx.h => octeontx_bgx.h} (98%)
+ rename drivers/net/cavium/{thunderx_smi.c => octeontx_smi.c} (78%)
+ rename drivers/net/cavium/{thunder_xcv.c => octeontx_xcv.c} (89%)
+ rename drivers/pci/{pci_thunderx_ecam.c => pci_octeontx_ecam.c} (75%)
+ rename include/configs/{thunderx_81xx.h => octeontx_81xx.h} (97%)
+ rename include/configs/{thunderx_83xx.h => octeontx_83xx.h} (97%)
+ rename include/configs/{thunderx_93xx.h => octeontx_93xx.h} (96%)
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index ea6f061318..6c10fa1bf3 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -464,7 +464,7 @@ config TPL_USE_ARCH_MEMSET
+ config ARM64_SUPPORT_AARCH32
+ 	bool "ARM64 system support AArch32 execution state"
+ 	depends on ARM64
+-	default y if !TARGET_THUNDERX_88XX
++	default y if !TARGET_OCTEONTX_88XX
+ 	help
+ 	  This ARM64 system supports AArch32 execution state.
+ 
+@@ -1598,16 +1598,16 @@ config ARCH_ROCKCHIP
+ 	imply TPL_SYSRESET
+ 	imply USB_FUNCTION_FASTBOOT
+ 
+-config ARCH_THUNDERX
+-	bool "Support Cavium ThunderX SoCs"
++config ARCH_OCTEONTX
++	bool "Support Cavium OcteonTX SoCs"
+ 	select DM
+ 	select ARM64
+ 	select OF_CONTROL
+ 	select BOARD_LATE_INIT
+ 	select SYS_CACHE_SHIFT_7
+ 
+-config TARGET_THUNDERX_88XX
+-	bool "Support ThunderX 88xx"
++config TARGET_OCTEONTX_88XX
++	bool "Support OcteonTX 88xx"
+ 	select ARM64
+ 	select OF_CONTROL
+ 	select PL01X_SERIAL
+@@ -1694,6 +1694,8 @@ source "arch/arm/cpu/arm926ejs/lpc32xx/Kconfig"
+ 
+ source "arch/arm/mach-mvebu/Kconfig"
+ 
++source "arch/arm/mach-octeontx/Kconfig"
++
+ source "arch/arm/cpu/armv7/ls102xa/Kconfig"
+ 
+ source "arch/arm/mach-imx/mx2/Kconfig"
+@@ -1783,7 +1785,7 @@ source "board/broadcom/bcm968580xref/Kconfig"
+ source "board/broadcom/bcmcygnus/Kconfig"
+ source "board/broadcom/bcmnsp/Kconfig"
+ source "board/broadcom/bcmns2/Kconfig"
+-source "board/cavium/thunderx/Kconfig"
++source "board/cavium/octeontx/Kconfig"
+ source "board/cirrus/edb93xx/Kconfig"
+ source "board/eets/pdu001/Kconfig"
+ source "board/emulation/qemu-arm/Kconfig"
+diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+index bff453ac41..47b72051c9 100644
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -43,7 +43,7 @@ tune-$(CONFIG_CPU_ARM1176)	=
+ tune-$(CONFIG_CPU_V7A)		=-mtune=generic-armv7-a
+ tune-$(CONFIG_CPU_V7R)		=
+ tune-$(CONFIG_ARM64)		=
+-tune-$(CONFIG_THUNDERX)		=
++tune-$(CONFIG_OCTEONTX)		=
+ 
+ # Evaluate tune cc-option calls now
+ tune-y := $(tune-y)
+@@ -80,7 +80,7 @@ machine-$(CONFIG_ARCH_ROCKCHIP)		+= rockchip
+ machine-$(CONFIG_STM32)			+= stm32
+ machine-$(CONFIG_ARCH_STM32MP)		+= stm32mp
+ machine-$(CONFIG_TEGRA)			+= tegra
+-machine-$(CONFIG_ARCH_THUNDERX)		+= thunderx
++machine-$(CONFIG_ARCH_OCTEONTX)		+= octeontx
+ machine-$(CONFIG_ARCH_UNIPHIER)		+= uniphier
+ machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
+ machine-$(CONFIG_ARCH_ZYNQMP)		+= zynqmp
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 5c158f735c..d811240757 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -343,6 +343,7 @@ dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
+ 	am437x-cm-t43.dtb
+ dtb-$(CONFIG_TARGET_AM3517_EVM) += am3517-evm.dtb
+ dtb-$(CONFIG_TI816X) += dm8168-evm.dtb
++dtb-$(CONFIG_OCTEONTX) += octeontx-88xx.dtb
+ 
+ dtb-$(CONFIG_ARCH_SOCFPGA) +=				\
+ 	socfpga_arria5_socdk.dtb			\
+diff --git a/arch/arm/include/asm/arch-thunderx/atf.h b/arch/arm/include/asm/arch-octeontx/atf.h
+similarity index 100%
+rename from arch/arm/include/asm/arch-thunderx/atf.h
+rename to arch/arm/include/asm/arch-octeontx/atf.h
+diff --git a/arch/arm/include/asm/arch-thunderx/atf_part.h b/arch/arm/include/asm/arch-octeontx/atf_part.h
+similarity index 100%
+rename from arch/arm/include/asm/arch-thunderx/atf_part.h
+rename to arch/arm/include/asm/arch-octeontx/atf_part.h
+diff --git a/arch/arm/include/asm/arch-thunderx/cavium_mmc.h b/arch/arm/include/asm/arch-octeontx/cavium_mmc.h
+similarity index 100%
+rename from arch/arm/include/asm/arch-thunderx/cavium_mmc.h
+rename to arch/arm/include/asm/arch-octeontx/cavium_mmc.h
+diff --git a/arch/arm/include/asm/arch-thunderx/clock.h b/arch/arm/include/asm/arch-octeontx/clock.h
+similarity index 97%
+rename from arch/arm/include/asm/arch-thunderx/clock.h
+rename to arch/arm/include/asm/arch-octeontx/clock.h
+index f93a564bec..b46d0de186 100644
+--- a/arch/arm/include/asm/arch-thunderx/clock.h
++++ b/arch/arm/include/asm/arch-octeontx/clock.h
+@@ -4,7 +4,7 @@
+  * SPDX-License-Identifier:	GPL-2.0+
+  **/
+ 
+-#ifndef __THUNDERX_CLOCK_H__
++#ifndef __OCTEONTX_CLOCK_H__
+ 
+ /** System PLL reference clock */
+ #define PLL_REF_CLK                     50000000        /* 50 MHz */
+@@ -219,11 +219,11 @@ union cavm_rst_boot {
+ /**
+  * Returns the I/O clock speed in Hz
+  */
+-u64 thunderx_get_io_clock(void);
++u64 octeontx_get_io_clock(void);
+ 
+ /**
+  * Returns the core clock speed in Hz
+  */
+-u64 thunderx_get_core_clock(void);
++u64 octeontx_get_core_clock(void);
+ 
+-#endif /* __THUNDERX_CLOCK_H__ */
++#endif /* __OCTEONTX_CLOCK_H__ */
+diff --git a/arch/arm/include/asm/arch-thunderx/fdt-helper.h b/arch/arm/include/asm/arch-octeontx/fdt-helper.h
+similarity index 100%
+rename from arch/arm/include/asm/arch-thunderx/fdt-helper.h
+rename to arch/arm/include/asm/arch-octeontx/fdt-helper.h
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx.h b/arch/arm/include/asm/arch-octeontx/octeontx.h
+similarity index 68%
+rename from arch/arm/include/asm/arch-thunderx/thunderx.h
+rename to arch/arm/include/asm/arch-octeontx/octeontx.h
+index 1c5c5d7b5a..d2a63b1030 100644
+--- a/arch/arm/include/asm/arch-thunderx/thunderx.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx.h
+@@ -3,8 +3,8 @@
+  *
+  * SPDX-License-Identifier:	GPL-2.0+
+ **/
+-#ifndef __THUNDERX_H__
+-#define __THUNDERX_H__
++#ifndef __OCTEONTX_H__
++#define __OCTEONTX_H__
+ 
+ #define CN81XX	0xA2
+ #define CN83XX	0xA3
+@@ -18,13 +18,8 @@
+ #define CAVM_RST_SOFT_RST	0x87E006001680ULL
+ #define CAVM_MIO_FUS_DAT2	0x87E003001410ULL
+ 
+-#if CONFIG_TARGET_THUNDERX_81XX
+ #define CAVM_GTI_CWD_POKEX	0x844000050000ULL
+ #define CAVM_GTI_CWD_WDOGX	0x844000040000ULL
+-#elif CONFIG_TARGET_THUNDERX_83XX
+-#define CAVM_GTI_CWD_POKEX	0x802000050000ULL
+-#define CAVM_GTI_CWD_WDOGX	0x802000040000ULL
+-#endif
+ 
+ /** Structure definitions */
+ 
+@@ -32,9 +27,9 @@
+ 
+ 
+ /** Function definitions */
+-void thunderx_parse_board_info(void);
+-void thunderx_parse_phy_info(void);
+-void thunderx_parse_mac_addr(void);
++void octeontx_parse_board_info(void);
++void octeontx_parse_phy_info(void);
++void octeontx_parse_mac_addr(void);
+ 
+ /** Board data definitions */
+ struct cavm_bdt {
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_fdt.h b/arch/arm/include/asm/arch-octeontx/octeontx_fdt.h
+new file mode 100644
+index 0000000000..6a68ffa21f
+--- /dev/null
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_fdt.h
+@@ -0,0 +1,13 @@
++/**
++ * (C) Copyright 2016, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++#ifndef __OCTEONTX_FDT_H__
++#define __OCTEONTX_FDT_H__
++
++void octeontx_parse_bdk_config(void);
++void octeontx_parse_phy_info(void);
++void octeontx_parse_mac_addr(void);
++
++#endif
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_smi.h b/arch/arm/include/asm/arch-octeontx/octeontx_smi.h
+new file mode 100644
+index 0000000000..8fd18b7d49
+--- /dev/null
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_smi.h
+@@ -0,0 +1,12 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++
++#ifndef OCTEONTX_SMI_H_
++#define OCTEONTX_SMI_H_
++
++int octeontx_smi_initialize(bd_t *bis, unsigned int index);
++
++#endif /* OCTEONTX_SMI_H_ */
+diff --git a/arch/arm/include/asm/arch-octeontx/octeontx_svc.h b/arch/arm/include/asm/arch-octeontx/octeontx_svc.h
+new file mode 100644
+index 0000000000..8eb95e2a4f
+--- /dev/null
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_svc.h
+@@ -0,0 +1,26 @@
++/**
++ * (C) Copyright 2014, Cavium Inc.
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++**/
++
++#ifndef __OCTEONTX_SVC_H__
++#define __OCTEONTX_SVC_H__
++
++/* SMC function IDs for general purpose queries */
++
++#define OCTEONTX_SVC_CALL_COUNT		0x4300ff00
++#define OCTEONTX_SVC_UID		0x4300ff01
++
++#define OCTEONTX_SVC_VERSION		0x4300ff03
++
++/* OcteonTX Service Calls version numbers */
++#define OCTEONTX_VERSION_MAJOR	0x0
++#define OCTEONTX_VERSION_MINOR	0x2
++
++/* x1 - node number
++ */
++#define OCTEONTX_DRAM_SIZE		0x43000301
++#define OCTEONTX_NODE_COUNT		0x43000601
++
++#endif /* __OCTEONTX_SVC_H__ */
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_vnic.h b/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h
+similarity index 87%
+rename from arch/arm/include/asm/arch-thunderx/thunderx_vnic.h
+rename to arch/arm/include/asm/arch-octeontx/octeontx_vnic.h
+index c19da45102..f0a36dad0b 100644
+--- a/arch/arm/include/asm/arch-thunderx/thunderx_vnic.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_vnic.h
+@@ -11,7 +11,7 @@ struct nicpf;
+ struct nicvf;
+ 
+ int nicvf_initialize(struct udevice *dev, int vf_num);
+-int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
++int octeontx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
+ void bgx_get_count(int node, int *bgx_count);
+ int bgx_get_lmac_count(int node, int bgx_idx);
+ void bgx_set_board_info(int bgx_id, int *mdio_bus,
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_xcv.h b/arch/arm/include/asm/arch-octeontx/octeontx_xcv.h
+similarity index 99%
+rename from arch/arm/include/asm/arch-thunderx/thunderx_xcv.h
+rename to arch/arm/include/asm/arch-octeontx/octeontx_xcv.h
+index a365c7cdc8..45f82d997a 100644
+--- a/arch/arm/include/asm/arch-thunderx/thunderx_xcv.h
++++ b/arch/arm/include/asm/arch-octeontx/octeontx_xcv.h
+@@ -4,8 +4,8 @@
+  * SPDX-License-Identifier:	GPL-2.0+
+ **/
+ 
+-#ifndef THUNDERX_XCV_H_
+-#define THUNDERX_XCV_H_
++#ifndef OCTEONTX_XCV_H_
++#define OCTEONTX_XCV_H_
+ 
+ #define CAVM_XCVX_RESET		0x87E0DB000000ULL
+ #define CAVM_XCVX_DLL_CTL	0x87E0DB000010ULL
+@@ -251,4 +251,4 @@ union cavm_xcvx_batch_crd_ret
+ 
+ 
+ 
+-#endif /* THUNDERX_XCV_H_ */
++#endif /* OCTEONTX_XCV_H_ */
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_fdt.h b/arch/arm/include/asm/arch-thunderx/thunderx_fdt.h
+deleted file mode 100644
+index c362d70104..0000000000
+--- a/arch/arm/include/asm/arch-thunderx/thunderx_fdt.h
++++ /dev/null
+@@ -1,13 +0,0 @@
+-/**
+- * (C) Copyright 2016, Cavium Inc.
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
+-#ifndef __THUNDERX_FDT_H__
+-#define __THUNDERX_FDT_H__
+-
+-void thunderx_parse_bdk_config(void);
+-void thunderx_parse_phy_info(void);
+-void thunderx_parse_mac_addr(void);
+-
+-#endif
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_smi.h b/arch/arm/include/asm/arch-thunderx/thunderx_smi.h
+deleted file mode 100644
+index a3929cab8f..0000000000
+--- a/arch/arm/include/asm/arch-thunderx/thunderx_smi.h
++++ /dev/null
+@@ -1,12 +0,0 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
+-
+-#ifndef THUNDERX_SMI_H_
+-#define THUNDERX_SMI_H_
+-
+-int thunderx_smi_initialize(bd_t *bis, unsigned int index);
+-
+-#endif /* THUNDERX_SMI_H_ */
+diff --git a/arch/arm/include/asm/arch-thunderx/thunderx_svc.h b/arch/arm/include/asm/arch-thunderx/thunderx_svc.h
+deleted file mode 100644
+index eb9ab8cf82..0000000000
+--- a/arch/arm/include/asm/arch-thunderx/thunderx_svc.h
++++ /dev/null
+@@ -1,26 +0,0 @@
+-/**
+- * (C) Copyright 2014, Cavium Inc.
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
+-**/
+-
+-#ifndef __THUNDERX_SVC_H__
+-#define __THUNDERX_SVC_H__
+-
+-/* SMC function IDs for general purpose queries */
+-
+-#define THUNDERX_SVC_CALL_COUNT		0x4300ff00
+-#define THUNDERX_SVC_UID		0x4300ff01
+-
+-#define THUNDERX_SVC_VERSION		0x4300ff03
+-
+-/* ThunderX Service Calls version numbers */
+-#define THUNDERX_VERSION_MAJOR	0x0
+-#define THUNDERX_VERSION_MINOR	0x2
+-
+-/* x1 - node number
+- */
+-#define THUNDERX_DRAM_SIZE		0x43000301
+-#define THUNDERX_NODE_COUNT		0x43000601
+-
+-#endif /* __THUNDERX_SVC_H__ */
+diff --git a/arch/arm/mach-thunderx/Kconfig b/arch/arm/mach-octeontx/Kconfig
+similarity index 71%
+rename from arch/arm/mach-thunderx/Kconfig
+rename to arch/arm/mach-octeontx/Kconfig
+index e50bb6371d..e060512e7f 100644
+--- a/arch/arm/mach-thunderx/Kconfig
++++ b/arch/arm/mach-octeontx/Kconfig
+@@ -1,4 +1,4 @@
+-if ARCH_THUNDERX
++if ARCH_OCTEONTX
+ 
+ config SYS_VENDOR
+ 	string
+@@ -6,11 +6,11 @@ config SYS_VENDOR
+ 
+ config SYS_SOC
+ 	string
+-	default "thunderx"
++	default "octeontx"
+ 
+ config SYS_BOARD
+ 	string
+-	default "thunderx"
++	default "octeontx"
+ 
+ config SYS_PCI_64BIT
+ 	bool
+diff --git a/arch/arm/mach-thunderx/Makefile b/arch/arm/mach-octeontx/Makefile
+similarity index 100%
+rename from arch/arm/mach-thunderx/Makefile
+rename to arch/arm/mach-octeontx/Makefile
+diff --git a/arch/arm/mach-thunderx/clock.c b/arch/arm/mach-octeontx/clock.c
+similarity index 88%
+rename from arch/arm/mach-thunderx/clock.c
+rename to arch/arm/mach-octeontx/clock.c
+index c80cecaf8a..e963dc7dfa 100644
+--- a/arch/arm/mach-thunderx/clock.c
++++ b/arch/arm/mach-octeontx/clock.c
+@@ -12,7 +12,7 @@
+ /**
+  * Returns the I/O clock speed in Hz
+  */
+-u64 thunderx_get_io_clock(void)
++u64 octeontx_get_io_clock(void)
+ {
+ 	union cavm_rst_boot rst_boot;
+ 
+@@ -24,7 +24,7 @@ u64 thunderx_get_io_clock(void)
+ /**
+  * Returns the core clock speed in Hz
+  */
+-u64 thunderx_get_core_clock(void)
++u64 octeontx_get_core_clock(void)
+ {
+ 	union cavm_rst_boot rst_boot;
+ 
+diff --git a/arch/arm/mach-octeontx/cpu.c b/arch/arm/mach-octeontx/cpu.c
+new file mode 100644
+index 0000000000..8c7cf6a92b
+--- /dev/null
++++ b/arch/arm/mach-octeontx/cpu.c
+@@ -0,0 +1,49 @@
++/**
++ * (C) Copyright 2016, Cavium, Inc. <support@cavium.com>
++ * Suneel Garapati, <suneel.garapati@cavium.com>
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ **/
++
++#include <common.h>
++#include <asm/armv8/mmu.h>
++#include <asm/io.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++static struct mm_region octeontx_mem_map[] = {
++	{
++		.virt = 0x0UL,
++		.phys = 0x0UL,
++		.size = 0x40000000000UL,
++		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
++			 PTE_BLOCK_NON_SHARE
++	}, {
++		.virt = 0x800000000000UL,
++		.phys = 0x800000000000UL,
++		.size = 0x40000000000UL,
++		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
++			 PTE_BLOCK_NON_SHARE
++	}, {
++		.virt = 0x840000000000UL,
++		.phys = 0x840000000000UL,
++		.size = 0x40000000000UL,
++		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
++			 PTE_BLOCK_NON_SHARE
++	}, {
++		.virt = 0x880000000000UL,
++		.phys = 0x880000000000UL,
++		.size = 0x40000000000UL,
++		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
++			 PTE_BLOCK_NON_SHARE
++	}, {
++		/* List terminator */
++		0,
++	}
++};
++struct mm_region *mem_map = octeontx_mem_map;
++
++u64 get_page_table_size(void)
++{
++	return 0x4c000;
++}
+diff --git a/arch/arm/mach-thunderx/fdt-helper.c b/arch/arm/mach-octeontx/fdt-helper.c
+similarity index 100%
+rename from arch/arm/mach-thunderx/fdt-helper.c
+rename to arch/arm/mach-octeontx/fdt-helper.c
+diff --git a/arch/arm/mach-thunderx/lowlevel_init.S b/arch/arm/mach-octeontx/lowlevel_init.S
+similarity index 94%
+rename from arch/arm/mach-thunderx/lowlevel_init.S
+rename to arch/arm/mach-octeontx/lowlevel_init.S
+index 3e59f595ef..a8877e5bc3 100644
+--- a/arch/arm/mach-thunderx/lowlevel_init.S
++++ b/arch/arm/mach-octeontx/lowlevel_init.S
+@@ -8,7 +8,7 @@
+ 
+ #include <config.h>
+ #include <linux/linkage.h>
+-#include <asm/arch/thunderx_svc.h>
++#include <asm/arch/octeontx_svc.h>
+ 
+ #include <asm/macro.h>
+ 
+diff --git a/board/cavium/common/env_atf.c b/board/cavium/common/env_atf.c
+index 8c31df9941..553757728f 100755
+--- a/board/cavium/common/env_atf.c
++++ b/board/cavium/common/env_atf.c
+@@ -22,7 +22,7 @@
+ 
+ #include <asm/arch/atf.h>
+ #include <asm/arch/atf_part.h>
+-#include <asm/arch/thunderx_svc.h>
++#include <asm/arch/octeontx_svc.h>
+ 
+ #include <search.h>
+ #include <errno.h>
+diff --git a/board/cavium/octeontx/Kconfig b/board/cavium/octeontx/Kconfig
+new file mode 100644
+index 0000000000..acf1645fdb
+--- /dev/null
++++ b/board/cavium/octeontx/Kconfig
+@@ -0,0 +1,18 @@
++choice
++	prompt "Target board"
++
++config	TARGET_OCTEONTX_83XX
++	bool "OcteonTX CN83XX"
++
++config	TARGET_OCTEONTX_81XX
++	bool "OcteonTX CN81XX"
++
++config	TARGET_OCTEONTX_93XX
++	bool "OcteonTX CN93XX"
++
++endchoice
++
++config SYS_CONFIG_NAME
++	default "octeontx_81xx" if TARGET_OCTEONTX_81XX
++	default "octeontx_83xx" if TARGET_OCTEONTX_83XX
++	default "octeontx_93xx" if TARGET_OCTEONTX_93XX
+diff --git a/board/cavium/octeontx/MAINTAINERS b/board/cavium/octeontx/MAINTAINERS
+new file mode 100644
+index 0000000000..5ae4a8f800
+--- /dev/null
++++ b/board/cavium/octeontx/MAINTAINERS
+@@ -0,0 +1,6 @@
++OCTEONTX BOARD
++M:	Sergey Temerkhanov <s.temerkhanov@gmail.com>
++S:	Maintained
++F:	board/cavium/octeontx/
++F:	include/configs/octeontx_88xx.h
++F:	configs/octeontx_88xx_defconfig
+diff --git a/board/cavium/thunderx/Makefile b/board/cavium/octeontx/Makefile
+similarity index 80%
+rename from board/cavium/thunderx/Makefile
+rename to board/cavium/octeontx/Makefile
+index 828dcf6793..dca8b152d5 100644
+--- a/board/cavium/thunderx/Makefile
++++ b/board/cavium/octeontx/Makefile
+@@ -3,5 +3,5 @@
+ #
+ #
+ 
+-obj-y	:= thunderx.o atf.o
++obj-y	:= octeontx.o atf.o
+ obj-$(CONFIG_OF_LIBFDT) += fdt.o
+diff --git a/board/cavium/thunderx/atf.c b/board/cavium/octeontx/atf.c
+similarity index 82%
+rename from board/cavium/thunderx/atf.c
+rename to board/cavium/octeontx/atf.c
+index fedcf9ec4d..89e6a06bc1 100644
+--- a/board/cavium/thunderx/atf.c
++++ b/board/cavium/octeontx/atf.c
+@@ -7,7 +7,7 @@
+ #include <asm/io.h>
+ 
+ #include <asm/system.h>
+-#include <asm/arch/thunderx_svc.h>
++#include <asm/arch/octeontx_svc.h>
+ #include <asm/arch/atf.h>
+ #include <asm/arch/atf_part.h>
+ 
+@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ ssize_t atf_dram_size(unsigned int node)
+ {
+ 	struct pt_regs regs;
+-	regs.regs[0] = THUNDERX_DRAM_SIZE;
++	regs.regs[0] = OCTEONTX_DRAM_SIZE;
+ 	regs.regs[1] = node;
+ 
+ 	smc_call(&regs);
+@@ -31,7 +31,7 @@ ssize_t atf_dram_size(unsigned int node)
+ ssize_t atf_node_count(void)
+ {
+ 	struct pt_regs regs;
+-	regs.regs[0] = THUNDERX_NODE_COUNT;
++	regs.regs[0] = OCTEONTX_NODE_COUNT;
+ 
+ 	smc_call(&regs);
+ 
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/octeontx/fdt.c
+similarity index 95%
+rename from board/cavium/thunderx/fdt.c
+rename to board/cavium/octeontx/fdt.c
+index 6635bd524d..834be26f5b 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/octeontx/fdt.c
+@@ -14,10 +14,10 @@
+ #include <fdtdec.h>
+ #include <fdt_support.h>
+ #include <asm/arch/atf.h>
+-#include <asm/arch/thunderx.h>
++#include <asm/arch/octeontx.h>
+ 
+-#ifdef CONFIG_THUNDERX_VNIC
+-# include <asm/arch/thunderx_vnic.h>
++#ifdef CONFIG_OCTEONTX_VNIC
++# include <asm/arch/octeontx_vnic.h>
+ #endif
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+@@ -40,7 +40,7 @@ static inline uint64_t cavm_get_model(void)
+ #endif
+ }
+ 
+-void thunderx_parse_board_info(void)
++void octeontx_parse_board_info(void)
+ {
+ 	const char *str;
+ 	int node;
+@@ -89,8 +89,8 @@ void thunderx_parse_board_info(void)
+ 	p_cavm_bdt = &g_cavm_bdt;
+ }
+ 
+-#ifdef CONFIG_THUNDERX_BGX
+-static int thunderx_get_mdio_bus(const void *fdt, int phy_offset)
++#ifdef CONFIG_OCTEONTX_BGX
++static int octeontx_get_mdio_bus(const void *fdt, int phy_offset)
+ {
+ 	int node, bus = -1;
+ 	const u64 *reg;
+@@ -109,7 +109,7 @@ static int thunderx_get_mdio_bus(const void *fdt, int phy_offset)
+ 	return bus;
+ }
+ 
+-static int thunderx_get_phy_addr(const void *fdt, int phy_offset)
++static int octeontx_get_phy_addr(const void *fdt, int phy_offset)
+ {
+ 	const u32 *reg;
+ 	int addr = -1;
+@@ -122,9 +122,9 @@ static int thunderx_get_phy_addr(const void *fdt, int phy_offset)
+ }
+ #endif
+ 
+-void thunderx_parse_phy_info(void)
++void octeontx_parse_phy_info(void)
+ {
+-#ifdef CONFIG_THUNDERX_BGX
++#ifdef CONFIG_OCTEONTX_BGX
+ 	const void *fdt = gd->fdt_blob;
+ 	int offset = 0, node, bgx_id = 0, lmacid = 0;
+ 	const u32 *val;
+@@ -188,11 +188,11 @@ void thunderx_parse_phy_info(void)
+ 						fdt_node_offset_by_phandle
+ 							(fdt, phandle);
+ 						phy_addr[lmacid] =
+-						thunderx_get_phy_addr
++						octeontx_get_phy_addr
+ 							(fdt, phy_offset);
+ 
+ 						mdio_bus[lmacid] =
+-						thunderx_get_mdio_bus
++						octeontx_get_mdio_bus
+ 							(fdt, phy_offset);
+ 					}
+ 				} else
+@@ -246,9 +246,9 @@ int ethaddr_exists(const char *name)
+ 	return (ep == NULL) ? 1 : 0;
+ }
+ 
+-void thunderx_parse_mac_addr(void)
++void octeontx_parse_mac_addr(void)
+ {
+-#ifdef CONFIG_THUNDERX_BGX
++#ifdef CONFIG_OCTEONTX_BGX
+ 	const char *mac_addr;
+ 	const void *fdt = gd->fdt_blob;
+ 	int subnode, mismatch = 0;
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/octeontx/octeontx.c
+similarity index 94%
+rename from board/cavium/thunderx/thunderx.c
+rename to board/cavium/octeontx/octeontx.c
+index c6d82e5f71..eea787295c 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/octeontx/octeontx.c
+@@ -12,7 +12,7 @@
+ #include <linux/compiler.h>
+ #include <libfdt.h>
+ #include <fdt_support.h>
+-#include <asm/arch/thunderx.h>
++#include <asm/arch/octeontx.h>
+ #include <asm/arch/atf.h>
+ #include <dm/util.h>
+ 
+@@ -31,8 +31,8 @@ int board_early_init_r(void)
+ 
+ int board_init(void)
+ {
+-	thunderx_parse_board_info();
+-	thunderx_parse_phy_info();
++	octeontx_parse_board_info();
++	octeontx_parse_phy_info();
+ 	printf("Board: %s\n", p_cavm_bdt->type);
+ 	return 0;
+ }
+@@ -85,7 +85,7 @@ int board_late_init(void)
+ 	 * Now that pci_init initializes env device.
+ 	 * Try to validate ethaddr env variables
+ 	 */
+-	thunderx_parse_mac_addr();
++	octeontx_parse_mac_addr();
+ 
+ 	debug("bdt.type %s\n", p_cavm_bdt->type);
+ 	snprintf(boardname, sizeof(boardname), "%s> ", p_cavm_bdt->type);
+diff --git a/board/cavium/thunderx/Kconfig b/board/cavium/thunderx/Kconfig
+deleted file mode 100644
+index e426e01a1f..0000000000
+--- a/board/cavium/thunderx/Kconfig
++++ /dev/null
+@@ -1,18 +0,0 @@
+-choice
+-	prompt "Target board"
+-
+-config	TARGET_THUNDERX_83XX
+-	bool "ThunderX CN83XX"
+-
+-config	TARGET_THUNDERX_81XX
+-	bool "ThunderX CN81XX"
+-
+-config	TARGET_THUNDERX_93XX
+-	bool "ThunderX CN93XX"
+-
+-endchoice
+-
+-config SYS_CONFIG_NAME
+-	default "thunderx_81xx" if TARGET_THUNDERX_81XX
+-	default "thunderx_83xx" if TARGET_THUNDERX_83XX
+-	default "thunderx_93xx" if TARGET_THUNDERX_93XX
+diff --git a/board/cavium/thunderx/MAINTAINERS b/board/cavium/thunderx/MAINTAINERS
+deleted file mode 100644
+index c84d3b553d..0000000000
+--- a/board/cavium/thunderx/MAINTAINERS
++++ /dev/null
+@@ -1,6 +0,0 @@
+-THUNDERX BOARD
+-M:	Sergey Temerkhanov <s.temerkhanov@gmail.com>
+-S:	Maintained
+-F:	board/cavium/thunderx/
+-F:	include/configs/thunderx_88xx.h
+-F:	configs/thunderx_88xx_defconfig
+diff --git a/configs/t81_defconfig b/configs/octeontx_81xx_defconfig
+similarity index 91%
+rename from configs/t81_defconfig
+rename to configs/octeontx_81xx_defconfig
+index d912e7e514..afd34948c3 100644
+--- a/configs/t81_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -1,11 +1,10 @@
+ CONFIG_ARM=y
+-CONFIG_THUNDERX_COMMON=y
+-#CONFIG_SYS_SOC="thunderx"
+-CONFIG_ARCH_THUNDERX=y
++# CONFIG_ARM64_SUPPORT_AARCH32 is not set
++CONFIG_ARCH_OCTEONTX=y
+ CONFIG_SYS_TEXT_BASE=0x500000
+ CONFIG_IDENT_STRING=" for Cavium OcteonTX CN81XX ARM V8 Core"
+ # CONFIG_PSCI_RESET is not set
+-CONFIG_TARGET_THUNDERX_81XX=y
++CONFIG_TARGET_OCTEONTX_81XX=y
+ CONFIG_DEBUG_UART=y
+ CONFIG_AHCI=y
+ CONFIG_FIT=y
+@@ -85,14 +84,14 @@ CONFIG_E1000_SPI=y
+ CONFIG_CMD_E1000=y
+ CONFIG_RTL8169=y
+ CONFIG_CAVIUM_NET=y
+-CONFIG_THUNDERX_VNIC=y
+-CONFIG_THUNDERX_BGX=y
+-CONFIG_THUNDERX_XCV=y
+-CONFIG_THUNDERX_SMI=y
++CONFIG_OCTEONTX_VNIC=y
++CONFIG_OCTEONTX_BGX=y
++CONFIG_OCTEONTX_XCV=y
++CONFIG_OCTEONTX_SMI=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+-CONFIG_PCI_THUNDERX_ECAM=y
++CONFIG_PCI_OCTEONTX_ECAM=y
+ CONFIG_DM_RTC=y
+ CONFIG_RTC_DS1307=y
+ CONFIG_RTC_DS1337=y
+diff --git a/configs/t83_defconfig b/configs/octeontx_83xx_defconfig
+similarity index 94%
+rename from configs/t83_defconfig
+rename to configs/octeontx_83xx_defconfig
+index 7e3b5f38b2..d9a8a4e3a1 100644
+--- a/configs/t83_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -1,10 +1,10 @@
+ CONFIG_ARM=y
+ # CONFIG_ARM64_SUPPORT_AARCH32 is not set
+-CONFIG_ARCH_THUNDERX=y
++CONFIG_ARCH_OCTEONTX=y
+ CONFIG_SYS_TEXT_BASE=0x2800000
+ CONFIG_IDENT_STRING=" for Cavium OcteonTX CN83XX ARM V8 Core"
+ # CONFIG_PSCI_RESET is not set
+-CONFIG_TARGET_THUNDERX_83XX=y
++CONFIG_TARGET_OCTEONTX_83XX=y
+ CONFIG_DEBUG_UART=y
+ CONFIG_AHCI=y
+ CONFIG_FIT=y
+@@ -84,14 +84,14 @@ CONFIG_E1000_SPI=y
+ CONFIG_CMD_E1000=y
+ CONFIG_RTL8169=y
+ CONFIG_CAVIUM_NET=y
+-CONFIG_THUNDERX_VNIC=y
+-CONFIG_THUNDERX_BGX=y
+-CONFIG_THUNDERX_SMI=y
++CONFIG_OCTEONTX_VNIC=y
++CONFIG_OCTEONTX_BGX=y
++CONFIG_OCTEONTX_SMI=y
+ CONFIG_NVME=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+-CONFIG_PCI_THUNDERX_ECAM=y
++CONFIG_PCI_OCTEONTX_ECAM=y
+ CONFIG_DM_RTC=y
+ CONFIG_RTC_DS1337=y
+ CONFIG_SCSI=y
+diff --git a/configs/octeontx_88xx_defconfig b/configs/octeontx_88xx_defconfig
+new file mode 100644
+index 0000000000..38c4433426
+--- /dev/null
++++ b/configs/octeontx_88xx_defconfig
+@@ -0,0 +1,29 @@
++CONFIG_ARM=y
++CONFIG_TARGET_OCTEONTX_88XX=y
++CONFIG_IDENT_STRING=" for Cavium Thunder CN88XX ARM v8 Multi-Core"
++CONFIG_DEFAULT_DEVICE_TREE="thunderx-88xx"
++CONFIG_DEBUG_UART=y
++CONFIG_BOOTDELAY=5
++CONFIG_USE_BOOTARGS=y
++CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e024000000 debug maxcpus=48 rootwait rw root=/dev/sda2 coherent_pool=16M"
++# CONFIG_DISPLAY_CPUINFO is not set
++# CONFIG_DISPLAY_BOARDINFO is not set
++CONFIG_HUSH_PARSER=y
++CONFIG_SYS_PROMPT="OcteonTX_88XX> "
++# CONFIG_CMD_EXPORTENV is not set
++# CONFIG_CMD_IMPORTENV is not set
++# CONFIG_CMD_EDITENV is not set
++# CONFIG_CMD_SAVEENV is not set
++# CONFIG_CMD_ENV_EXISTS is not set
++# CONFIG_CMD_FLASH is not set
++# CONFIG_CMD_FPGA is not set
++# CONFIG_CMD_NET is not set
++# CONFIG_CMD_NFS is not set
++CONFIG_DM=y
++# CONFIG_MMC is not set
++CONFIG_DM_SERIAL=y
++CONFIG_DEBUG_UART_PL011=y
++CONFIG_DEBUG_UART_BASE=0x87e024000000
++CONFIG_DEBUG_UART_CLOCK=24000000
++CONFIG_DEBUG_UART_SKIP_INIT=y
++CONFIG_REGEX=y
+diff --git a/configs/t93_defconfig b/configs/octeontx_93xx_defconfig
+similarity index 96%
+rename from configs/t93_defconfig
+rename to configs/octeontx_93xx_defconfig
+index 5215e8bcf8..a7444d8660 100644
+--- a/configs/t93_defconfig
++++ b/configs/octeontx_93xx_defconfig
+@@ -1,10 +1,10 @@
+ CONFIG_ARM=y
+ # CONFIG_ARM64_SUPPORT_AARCH32 is not set
+-CONFIG_ARCH_THUNDERX=y
++CONFIG_ARCH_OCTEONTX=y
+ CONFIG_SYS_TEXT_BASE=0x04000000
+ CONFIG_IDENT_STRING=" for Cavium OcteonTX2 CN93XX ARM V8 Core"
+ # CONFIG_PSCI_RESET is not set
+-CONFIG_TARGET_THUNDERX_93XX=y
++CONFIG_TARGET_OCTEONTX_93XX=y
+ CONFIG_DEBUG_UART=y
+ CONFIG_AHCI=y
+ CONFIG_FIT=y
+@@ -72,7 +72,7 @@ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+-CONFIG_PCI_THUNDERX_ECAM=y
++CONFIG_PCI_OCTEONTX_ECAM=y
+ CONFIG_SCSI=y
+ CONFIG_DM_SCSI=y
+ CONFIG_DM_SERIAL=y
+diff --git a/configs/t88_defconfig b/configs/t88_defconfig
+index 338012aff0..6764bd6813 100644
+--- a/configs/t88_defconfig
++++ b/configs/t88_defconfig
+@@ -42,10 +42,7 @@ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_NET_RANDOM_ETHADDR=y
+-CONFIG_DM=y
+-# CONFIG_MMC is not set
+-CONFIG_DM_SERIAL=y
+-CONFIG_PCI_THUNDERX_ECAM=y
++CONFIG_PCI_OCTEONTX_ECAM=y
+ CONFIG_DEBUG_UART=y
+ CONFIG_DEBUG_UART_PL011=y
+ CONFIG_DEBUG_UART_SKIP_INIT=y
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index a8263a3127..872061cf73 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -25,8 +25,8 @@
+ #include <ahci.h>
+ #include <dm/device-internal.h>
+ #include <dm/lists.h>
+-#if CONFIG_ARCH_THUNDERX
+-#include <asm/arch/thunderx.h>
++#if CONFIG_ARCH_OCTEONTX
++#include <asm/arch/octeontx.h>
+ #endif
+ 
+ static int ata_io_flush(struct ahci_uc_priv *uc_priv, u8 port);
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 3c18fa2a3d..6de1c76f90 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -276,6 +276,13 @@ config PIC32_GPIO
+ 	help
+ 	  Say yes here to support Microchip PIC32 GPIOs.
+ 
++config OCTEONTX_GPIO
++	bool "Cavium OcteonTX GPIO driver"
++	depends on DM_GPIO
++	default y
++	help
++	  Say yes here to support Cavium OcteonTX GPIOs.
++
+ config STM32_GPIO
+ 	bool "ST STM32 GPIO driver"
+ 	depends on DM_GPIO && (STM32 || ARCH_STM32MP)
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index f1e72529bb..696521eda7 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -55,6 +55,7 @@ obj-$(CONFIG_HIKEY_GPIO)	+= hi6220_gpio.o
+ obj-$(CONFIG_HSDK_CREG_GPIO)	+= hsdk-creg-gpio.o
+ obj-$(CONFIG_IMX_RGPIO2P)	+= imx_rgpio2p.o
+ obj-$(CONFIG_PIC32_GPIO)	+= pic32_gpio.o
++obj-$(CONFIG_OCTEONTX_GPIO)	+= octeontx_gpio.o
+ obj-$(CONFIG_MVEBU_GPIO)	+= mvebu_gpio.o
+ obj-$(CONFIG_MSM_GPIO)		+= msm_gpio.o
+ obj-$(CONFIG_$(SPL_)PCF8575_GPIO)	+= pcf8575_gpio.o
+diff --git a/drivers/gpio/thunderx_gpio.c b/drivers/gpio/octeontx_gpio.c
+similarity index 100%
+rename from drivers/gpio/thunderx_gpio.c
+rename to drivers/gpio/octeontx_gpio.c
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index 384a9051c7..b500717b0d 100644
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -366,6 +366,13 @@ config SYS_I2C_SANDBOX
+ 	  bus. Devices can be attached to the bus using the device tree
+ 	  which specifies the driver to use.  See sandbox.dts as an example.
+ 
++config SYS_I2C_OCTEONTX
++	bool "OcteonTX i2c driver"
++	depends on ARCH_OCTEONTX && DM_I2C
++	default y
++	help
++	 Enable I2C support for Cavium OcteonTX line of processors.
++
+ config SYS_I2C_S3C24X0
+ 	bool "Samsung I2C driver"
+ 	depends on ARCH_EXYNOS4 && DM_I2C
+diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
+index 96af768e94..e2ae95e770 100644
+--- a/drivers/i2c/Makefile
++++ b/drivers/i2c/Makefile
+@@ -33,7 +33,7 @@ obj-$(CONFIG_SYS_I2C_SH) += sh_i2c.o
+ obj-$(CONFIG_SYS_I2C_SOFT) += soft_i2c.o
+ obj-$(CONFIG_SYS_I2C_STM32F7) += stm32f7_i2c.o
+ obj-$(CONFIG_SYS_I2C_TEGRA) += tegra_i2c.o
+-obj-$(CONFIG_SYS_I2C_THUNDERX) += thunderx_i2c.o
++obj-$(CONFIG_SYS_I2C_OCTEONTX) += octeontx_i2c.o
+ obj-$(CONFIG_SYS_I2C_UNIPHIER) += i2c-uniphier.o
+ obj-$(CONFIG_SYS_I2C_UNIPHIER_F) += i2c-uniphier-f.o
+ obj-$(CONFIG_SYS_I2C_VERSATILE) += i2c-versatile.o
+diff --git a/drivers/i2c/thunderx_i2c.c b/drivers/i2c/octeontx_i2c.c
+similarity index 89%
+rename from drivers/i2c/thunderx_i2c.c
+rename to drivers/i2c/octeontx_i2c.c
+index 089c77c069..b5a9511858 100644
+--- a/drivers/i2c/thunderx_i2c.c
++++ b/drivers/i2c/octeontx_i2c.c
+@@ -14,61 +14,61 @@
+ /**
+  * Slave address to use for Thunder when accessed by another master
+  */
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR
+-# define CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR	0x77
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SLAVE_ADDR
++# define CONFIG_SYS_I2C_OCTEONTX_SLAVE_ADDR	0x77
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_0
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_0
+ # ifdef CONFIG_SYS_I2C_SPEED
+-#  define CONFIG_SYS_I2C_THUNDERX_SPEED_0	CONFIG_SYS_I2C_SPEED
++#  define CONFIG_SYS_I2C_OCTEONTX_SPEED_0	CONFIG_SYS_I2C_SPEED
+ # else
+ #  define CONFIG_SYS_I2C_SPEED			100000
+-#  define CONFIG_SYS_I2C_THUNDERX_SPEED_0	CONFIG_SYS_I2C_SPEED
++#  define CONFIG_SYS_I2C_OCTEONTX_SPEED_0	CONFIG_SYS_I2C_SPEED
+ # endif
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_1
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_1	CONFIG_SYS_I2C_THUNDERX_SPEED_0
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_1
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_1	CONFIG_SYS_I2C_OCTEONTX_SPEED_0
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_2
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_2	CONFIG_SYS_I2C_THUNDERX_SPEED_1
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_2
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_2	CONFIG_SYS_I2C_OCTEONTX_SPEED_1
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_3
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_3	CONFIG_SYS_I2C_THUNDERX_SPEED_2
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_3
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_3	CONFIG_SYS_I2C_OCTEONTX_SPEED_2
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_4
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_4	CONFIG_SYS_I2C_THUNDERX_SPEED_3
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_4
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_4	CONFIG_SYS_I2C_OCTEONTX_SPEED_3
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_5
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_5	CONFIG_SYS_I2C_THUNDERX_SPEED_4
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_5
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_5	CONFIG_SYS_I2C_OCTEONTX_SPEED_4
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_6
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_6	CONFIG_SYS_I2C_THUNDERX_SPEED_5
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_6
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_6	CONFIG_SYS_I2C_OCTEONTX_SPEED_5
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_7
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_7	CONFIG_SYS_I2C_THUNDERX_SPEED_6
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_7
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_7	CONFIG_SYS_I2C_OCTEONTX_SPEED_6
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_8
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_8	CONFIG_SYS_I2C_THUNDERX_SPEED_7
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_8
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_8	CONFIG_SYS_I2C_OCTEONTX_SPEED_7
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_9
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_9	CONFIG_SYS_I2C_THUNDERX_SPEED_8
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_9
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_9	CONFIG_SYS_I2C_OCTEONTX_SPEED_8
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_10
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_10	CONFIG_SYS_I2C_THUNDERX_SPEED_9
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_10
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_10	CONFIG_SYS_I2C_OCTEONTX_SPEED_9
+ #endif
+ 
+-#ifndef CONFIG_SYS_I2C_THUNDERX_SPEED_11
+-# define CONFIG_SYS_I2C_THUNDERX_SPEED_11	CONFIG_SYS_I2C_THUNDERX_SPEED_10
++#ifndef CONFIG_SYS_I2C_OCTEONTX_SPEED_11
++# define CONFIG_SYS_I2C_OCTEONTX_SPEED_11	CONFIG_SYS_I2C_OCTEONTX_SPEED_10
+ #endif
+ 
+ #define RST_BOOT	0x87e006001600ll
+@@ -254,7 +254,7 @@ enum {
+ 	TWSI_STAT_IDLE		= 0xF8
+ };
+ 
+-struct thunderx_twsi {
++struct octeontx_twsi {
+ 	int			id;
+ 	int			speed;
+ 	void			*baseaddr;
+@@ -262,18 +262,18 @@ struct thunderx_twsi {
+ 
+ /** Array of bus speeds */
+ static unsigned speeds[] = {
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_0,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_1,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_2,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_3,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_4,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_5,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_6,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_7,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_8,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_9,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_10,
+-	CONFIG_SYS_I2C_THUNDERX_SPEED_11,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_0,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_1,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_2,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_3,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_4,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_5,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_6,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_7,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_8,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_9,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_10,
++	CONFIG_SYS_I2C_OCTEONTX_SPEED_11,
+ };
+ 
+ /** Last i2c id assigned */
+@@ -870,15 +870,15 @@ static int twsi_init(void *baseaddr, unsigned int speed, int slaveaddr)
+  *
+  * @return	0 for success, otherwise error
+  */
+-static int thunderx_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
++static int octeontx_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+ 			     int nmsgs)
+ {
+-	struct thunderx_twsi *twsi = dev_get_priv(bus);
++	struct octeontx_twsi *twsi = dev_get_priv(bus);
+ 	int result;
+ 
+-	debug("thunderx_i2c_xfer: %d messages\n", nmsgs);
++	debug("octeontx_i2c_xfer: %d messages\n", nmsgs);
+ 	for (; nmsgs > 0; nmsgs--, msg++) {
+-		debug("thunderx_i2c_xfer: chip=0x%x, len=0x%x\n",
++		debug("octeontx_i2c_xfer: chip=0x%x, len=0x%x\n",
+ 		      msg->addr, msg->len);
+ 		if (msg->flags & I2C_M_RD) {
+ 			debug("%s: Reading data\n", __func__);
+@@ -890,7 +890,7 @@ static int thunderx_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+ 					      msg->buf, msg->len);
+ 		}
+ 		if (result) {
+-			debug("thunderx_i2c_xfer: error sending\n");
++			debug("octeontx_i2c_xfer: error sending\n");
+ 			return -EREMOTEIO;
+ 		}
+ 	}
+@@ -898,9 +898,9 @@ static int thunderx_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
+ 	return 0;
+ }
+ 
+-static int thunderx_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
++static int octeontx_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
+ {
+-	struct thunderx_twsi *twsi = dev_get_priv(bus);
++	struct octeontx_twsi *twsi = dev_get_priv(bus);
+ 	int m_div, n_div;
+ 	unsigned io_clock_hz;
+ 	union twsx_sw_twsi sw_twsi;
+@@ -940,9 +940,9 @@ static int thunderx_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
+ 	return 0;
+ }
+ 
+-static int thunderx_pci_i2c_probe(struct udevice *dev)
++static int octeontx_pci_i2c_probe(struct udevice *dev)
+ {
+-	struct thunderx_twsi *twsi = dev_get_priv(dev);
++	struct octeontx_twsi *twsi = dev_get_priv(dev);
+ 	pci_dev_t bdf = dm_pci_get_bdf(dev);
+ 	size_t size;
+ 
+@@ -957,25 +957,25 @@ static int thunderx_pci_i2c_probe(struct udevice *dev)
+ 	return twsi_init(twsi->baseaddr,
+ 			 twsi->id < ARRAY_SIZE(speeds) ?
+ 			 speeds[twsi->id] : CONFIG_SYS_I2C_SPEED,
+-			 CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR);
++			 CONFIG_SYS_I2C_OCTEONTX_SLAVE_ADDR);
+ }
+ 
+-static const struct dm_i2c_ops thunderx_i2c_ops = {
+-	.xfer		= thunderx_i2c_xfer,
+-	.set_bus_speed	= thunderx_i2c_set_bus_speed,
++static const struct dm_i2c_ops octeontx_i2c_ops = {
++	.xfer		= octeontx_i2c_xfer,
++	.set_bus_speed	= octeontx_i2c_set_bus_speed,
+ };
+ 
+-static const struct udevice_id thunderx_i2c_ids[] = {
++static const struct udevice_id octeontx_i2c_ids[] = {
+ 	{ .compatible = "cavium,thunder-8890-twsi" },
+ 	{ }
+ };
+ 
+-U_BOOT_DRIVER(thunderx_pci_twsi) = {
+-	.name	= "i2c_thunderx",
++U_BOOT_DRIVER(octeontx_pci_twsi) = {
++	.name	= "i2c_octeontx",
+ 	.id	= UCLASS_I2C,
+-	.of_match = thunderx_i2c_ids,
+-	.probe	= thunderx_pci_i2c_probe,
+-	.priv_auto_alloc_size = sizeof(struct thunderx_twsi),
+-	.ops	= &thunderx_i2c_ops,
++	.of_match = octeontx_i2c_ids,
++	.probe	= octeontx_pci_i2c_probe,
++	.priv_auto_alloc_size = sizeof(struct octeontx_twsi),
++	.ops	= &octeontx_i2c_ops,
+ };
+ 
+diff --git a/drivers/mmc/Kconfig b/drivers/mmc/Kconfig
+index 1f3589fc09..7d14e2a2b1 100644
+--- a/drivers/mmc/Kconfig
++++ b/drivers/mmc/Kconfig
+@@ -40,12 +40,12 @@ config SPL_DM_MMC
+ 	  as EXT4 and FAT.
+ 
+ config MMC_CAVIUM
+-	bool "Cavium ThunderX Multimedia Card Interface support"
+-	depends on ARCH_THUNDERX
++	bool "Cavium OcteonTX Multimedia Card Interface support"
++	depends on ARCH_OCTEONTX
+ 	depends on DM_MMC
+ 	help
+-	  This selects the Cavium ThunderX Multimedia card Interface.
+-	  If you have an ThunderX board with a Multimedia Card slot,
++	  This selects the Cavium OcteonTX Multimedia card Interface.
++	  If you have an OcteonTX board with a Multimedia Card slot,
+ 	  say Y here.  If unsure, say N.
+ 
+ if MMC
+diff --git a/drivers/mmc/cavium_mmc.c b/drivers/mmc/cavium_mmc.c
+index 649c70e1b8..09bb84a734 100644
+--- a/drivers/mmc/cavium_mmc.c
++++ b/drivers/mmc/cavium_mmc.c
+@@ -5864,7 +5864,7 @@ static int cavium_mmc_get_config(struct udevice *dev)
+ 
+ 	debug("%s(%p, %d, %p)\n", __func__, blob, host->of_offset, host);
+ 
+-	host->sclock = thunderx_get_io_clock();
++	host->sclock = octeontx_get_io_clock();
+ 	debug("%s: sclock: %llu\n", __func__, host->sclock);
+ 
+ 	slot_node = host->of_offset;
+diff --git a/drivers/net/cavium/Kconfig b/drivers/net/cavium/Kconfig
+index a6b38a96ef..b9b6f37d2e 100644
+--- a/drivers/net/cavium/Kconfig
++++ b/drivers/net/cavium/Kconfig
+@@ -1,6 +1,6 @@
+ config CAVIUM_NET
+ 	bool "Cavium Ethernet support"
+-	depends on NET && ARCH_THUNDERX
++	depends on NET && ARCH_OCTEONTX
+ 	help
+ 	  You must select Y to enable cavium network device support
+ 
+@@ -8,25 +8,25 @@ config CAVIUM_NET
+ 
+ if CAVIUM_NET
+ 
+-config THUNDERX_VNIC
++config OCTEONTX_VNIC
+ 	bool "Enable vNIC device support"
+ 	depends on CAVIUM_NET
+ 	help
+ 	  Enables support for NIC controller
+ 
+-config THUNDERX_BGX
++config OCTEONTX_BGX
+ 	bool "Enable BGX device support"
+ 	depends on CAVIUM_NET
+ 	help
+ 	  Enables support for LMAC layer
+ 
+-config THUNDERX_XCV
++config OCTEONTX_XCV
+ 	bool "Enable RGMII(XCV) device support"
+ 	depends on CAVIUM_NET
+ 	help
+ 	  Enables support for RGMII
+ 
+-config THUNDERX_SMI
++config OCTEONTX_SMI
+ 	bool "Enable MDIO device support"
+ 	depends on CAVIUM_NET
+ 	help
+diff --git a/drivers/net/cavium/Makefile b/drivers/net/cavium/Makefile
+index 42c96283ba..18821795d4 100644
+--- a/drivers/net/cavium/Makefile
++++ b/drivers/net/cavium/Makefile
+@@ -3,8 +3,8 @@
+ #
+ # SPDX-License-Identifier:	GPL-2.0+
+ #
+-obj-$(CONFIG_THUNDERX_BGX) += thunder_bgx.o
+-obj-$(CONFIG_THUNDERX_VNIC) += nic_main.o nicvf_queues.o nicvf_main.o
+-obj-$(CONFIG_THUNDERX_SMI) += thunderx_smi.o
+-obj-$(CONFIG_THUNDERX_XCV) += thunder_xcv.o
++obj-$(CONFIG_OCTEONTX_BGX) += octeontx_bgx.o
++obj-$(CONFIG_OCTEONTX_VNIC) += nic_main.o nicvf_queues.o nicvf_main.o
++obj-$(CONFIG_OCTEONTX_SMI) += octeontx_smi.o
++obj-$(CONFIG_OCTEONTX_XCV) += octeontx_xcv.o
+ 
+diff --git a/drivers/net/cavium/nic.h b/drivers/net/cavium/nic.h
+index 3d8beaa521..7a91955853 100644
+--- a/drivers/net/cavium/nic.h
++++ b/drivers/net/cavium/nic.h
+@@ -11,7 +11,7 @@
+ #define	NIC_H
+ 
+ #include <linux/netdevice.h>
+-#include "thunder_bgx.h"
++#include "octeontx_bgx.h"
+ 
+ /**
+  * Macro to get the physical address of a CSR on a node
+@@ -19,9 +19,9 @@
+ #define CSR_PA(node, csr) ((csr) | ((uint64_t)(node) << 44))
+ 
+ /* PCI device IDs */
+-#define	PCI_DEVICE_ID_THUNDER_NIC_PF	0xA01E
+-#define	PCI_DEVICE_ID_THUNDER_NIC_VF_1	0x0011
+-#define PCI_DEVICE_ID_THUNDER_NIC_VF_2	0xA034
++#define	PCI_DEVICE_ID_OCTEONTX_NIC_PF	0xA01E
++#define	PCI_DEVICE_ID_OCTEONTX_NIC_VF_1	0x0011
++#define PCI_DEVICE_ID_OCTEONTX_NIC_VF_2	0xA034
+ 
+ /* Subsystem device IDs */
+ #define PCI_SUBSYS_DEVID_88XX_NIC_PF		0xA11E
+diff --git a/drivers/net/cavium/nic_main.c b/drivers/net/cavium/nic_main.c
+index 59020c4433..716fb54e01 100644
+--- a/drivers/net/cavium/nic_main.c
++++ b/drivers/net/cavium/nic_main.c
+@@ -18,12 +18,12 @@
+ #include <pci.h>
+ #include <asm/io.h>
+ 
+-#include <asm/arch/thunderx_vnic.h>
++#include <asm/arch/octeontx_vnic.h>
+ 
+ #include "nic_reg.h"
+ #include "nic.h"
+ #include "q_struct.h"
+-#include "thunder_bgx.h"
++#include "octeontx_bgx.h"
+ 
+ #define ETH_HLEN 6
+ 
+@@ -751,7 +751,7 @@ exit:
+ 	return -ENODEV;
+ }
+ 
+-int thunderx_nic_probe(struct udevice *dev)
++int octeontx_nic_probe(struct udevice *dev)
+ {
+ 	int vf;
+ 	int ret;
+@@ -774,27 +774,27 @@ int thunderx_nic_probe(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static const struct misc_ops thunderx_nic_ops = {
++static const struct misc_ops octeontx_nic_ops = {
+ };
+ 
+-static const struct udevice_id thunderx_nic_ids[] = {
++static const struct udevice_id octeontx_nic_ids[] = {
+ 	{ .compatible = "cavium,nic" },
+ 	{}
+ };
+ 
+-U_BOOT_DRIVER(thunderx_nic) = {
+-	.name	= "thunderx_nic",
++U_BOOT_DRIVER(octeontx_nic) = {
++	.name	= "octeontx_nic",
+ 	.id	= UCLASS_MISC,
+-	.probe	= thunderx_nic_probe,
+-	.of_match = thunderx_nic_ids,
+-	.ops	= &thunderx_nic_ops,
++	.probe	= octeontx_nic_probe,
++	.of_match = octeontx_nic_ids,
++	.ops	= &octeontx_nic_ops,
+ 	.priv_auto_alloc_size = sizeof(struct nicpf),
+ };
+ 
+-static struct pci_device_id thunderx_nic_supported[] = {
+-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_NIC_PF) },
++static struct pci_device_id octeontx_nic_supported[] = {
++	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_NIC_PF) },
+ 	{}
+ };
+ 
+-U_BOOT_PCI_DEVICE(thunderx_nic, thunderx_nic_supported);
++U_BOOT_PCI_DEVICE(octeontx_nic, octeontx_nic_supported);
+ 
+diff --git a/drivers/net/cavium/nicvf_main.c b/drivers/net/cavium/nicvf_main.c
+index 4b169c818d..fff02d3ef7 100644
+--- a/drivers/net/cavium/nicvf_main.c
++++ b/drivers/net/cavium/nicvf_main.c
+@@ -17,12 +17,12 @@
+ #include <malloc.h>
+ #include <asm/io.h>
+ 
+-#include <asm/arch/thunderx_vnic.h>
++#include <asm/arch/octeontx_vnic.h>
+ 
+ #include "nic_reg.h"
+ #include "nic.h"
+ #include "nicvf_queues.h"
+-#include "thunder_bgx.h"
++#include "octeontx_bgx.h"
+ 
+ #define ETH_ALEN 6
+ 
+@@ -523,7 +523,7 @@ fail:
+ 	return ret;
+ }
+ 
+-int thunderx_vnic_probe(struct udevice *dev)
++int octeontx_vnic_probe(struct udevice *dev)
+ {
+ 	void *regs;
+ 	size_t size;
+@@ -535,27 +535,27 @@ int thunderx_vnic_probe(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static const struct misc_ops thunderx_vnic_ops = {
++static const struct misc_ops octeontx_vnic_ops = {
+ };
+ 
+-static const struct udevice_id thunderx_vnic_ids[] = {
++static const struct udevice_id octeontx_vnic_ids[] = {
+ 	{ .compatible = "cavium,vnic" },
+ 	{}
+ };
+ 
+-U_BOOT_DRIVER(thunderx_vnic) = {
+-	.name	= "thunderx_vnic",
++U_BOOT_DRIVER(octeontx_vnic) = {
++	.name	= "octeontx_vnic",
+ 	.id	= UCLASS_MISC,
+-	.probe	= thunderx_vnic_probe,
+-	.of_match = thunderx_vnic_ids,
+-	.ops	= &thunderx_vnic_ops,
++	.probe	= octeontx_vnic_probe,
++	.of_match = octeontx_vnic_ids,
++	.ops	= &octeontx_vnic_ops,
+ 	.priv_auto_alloc_size = sizeof(struct nicvf),
+ };
+ 
+-static struct pci_device_id thunderx_vnic_supported[] = {
+-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_NIC_VF_1) },
+-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_NIC_VF_2) },
++static struct pci_device_id octeontx_vnic_supported[] = {
++	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_NIC_VF_1) },
++	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_OCTEONTX_NIC_VF_2) },
+ 	{}
+ };
+ 
+-U_BOOT_PCI_DEVICE(thunderx_vnic, thunderx_vnic_supported);
++U_BOOT_PCI_DEVICE(octeontx_vnic, octeontx_vnic_supported);
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/octeontx_bgx.c
+similarity index 98%
+rename from drivers/net/cavium/thunder_bgx.c
+rename to drivers/net/cavium/octeontx_bgx.c
+index 0f46a24f08..6d2add8836 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/octeontx_bgx.c
+@@ -24,12 +24,12 @@
+  #include <fdt_support.h>
+ #endif
+ 
+-#include <asm/arch/thunderx.h>
+-#include <asm/arch/thunderx_vnic.h>
++#include <asm/arch/octeontx.h>
++#include <asm/arch/octeontx_vnic.h>
+ 
+ #include "nic_reg.h"
+ #include "nic.h"
+-#include "thunder_bgx.h"
++#include "octeontx_bgx.h"
+ 
+ static const phy_interface_t if_mode[] = {
+ 	[QLM_MODE_SGMII]  = PHY_INTERFACE_MODE_SGMII,
+@@ -882,7 +882,7 @@ int bgx_poll_for_link(int node, int bgx_idx, int lmacid)
+ 				lmac->netdev.name, lmac->phydev->dev->name);
+ 		}
+ 
+-#ifdef CONFIG_THUNDERX_XCV
++#ifdef CONFIG_OCTEONTX_XCV
+ 		if (lmac->qlm_mode == QLM_MODE_RGMII)
+ 			xcv_setup_link(lmac->phydev->link, lmac->phydev->speed);
+ #endif
+@@ -1337,7 +1337,7 @@ void bgx_set_board_info(int bgx_id, int *mdio_bus,
+ }
+ 
+ 
+-int thunderx_bgx_remove(struct udevice *dev)
++int octeontx_bgx_remove(struct udevice *dev)
+ {
+ 	int lmacid;
+ 	u64 cfg;
+@@ -1371,7 +1371,7 @@ int thunderx_bgx_remove(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-int thunderx_bgx_probe(struct udevice *dev)
++int octeontx_bgx_probe(struct udevice *dev)
+ {
+ 	int err;
+ 	struct bgx *bgx = dev_get_priv(dev);
+@@ -1388,7 +1388,7 @@ int thunderx_bgx_probe(struct udevice *dev)
+ 	}
+ 	is_altpkg = p_cavm_bdt->alt_pkg;
+ 
+-#ifdef CONFIG_THUNDERX_XCV
++#ifdef CONFIG_OCTEONTX_XCV
+ 	/* Use FAKE BGX2 for RGX interface */
+ 	if ((((uintptr_t)bgx->reg_base >> 24) & 0xf) == 0x8) {
+ 		bgx->bgx_id = 2;
+@@ -1439,7 +1439,7 @@ int thunderx_bgx_probe(struct udevice *dev)
+ 		bgx->lmac[lmac].lmacid = lmac;
+ 	}
+ 
+-#ifdef CONFIG_THUNDERX_XCV
++#ifdef CONFIG_OCTEONTX_XCV
+ skip_qlm_config:
+ #endif
+ 	bgx_vnic[bgx->bgx_id] = bgx;
+@@ -1464,21 +1464,21 @@ skip_qlm_config:
+ 	return 0;
+ }
+ 
+-static const struct misc_ops thunderx_bgx_ops = {
++static const struct misc_ops octeontx_bgx_ops = {
+ };
+ 
+-static const struct udevice_id thunderx_bgx_ids[] = {
++static const struct udevice_id octeontx_bgx_ids[] = {
+ 	{ .compatible = "cavium,thunder-8890-bgx" },
+ 	{}
+ };
+ 
+-U_BOOT_DRIVER(thunderx_bgx) = {
+-	.name	= "thunderx_bgx",
++U_BOOT_DRIVER(octeontx_bgx) = {
++	.name	= "octeontx_bgx",
+ 	.id	= UCLASS_MISC,
+-	.probe	= thunderx_bgx_probe,
+-	.remove	= thunderx_bgx_remove,
+-	.of_match = thunderx_bgx_ids,
+-	.ops	= &thunderx_bgx_ops,
++	.probe	= octeontx_bgx_probe,
++	.remove	= octeontx_bgx_remove,
++	.of_match = octeontx_bgx_ids,
++	.ops	= &octeontx_bgx_ops,
+ 	.priv_auto_alloc_size = sizeof(struct bgx),
+ 	.flags  = DM_FLAG_OS_PREPARE,
+ };
+diff --git a/drivers/net/cavium/thunder_bgx.h b/drivers/net/cavium/octeontx_bgx.h
+similarity index 98%
+rename from drivers/net/cavium/thunder_bgx.h
+rename to drivers/net/cavium/octeontx_bgx.h
+index b7e64ef368..a983e9e2fe 100644
+--- a/drivers/net/cavium/thunder_bgx.h
++++ b/drivers/net/cavium/octeontx_bgx.h
+@@ -7,8 +7,8 @@
+  * the License, or (at your option) any later version.
+  */
+ 
+-#ifndef THUNDER_BGX_H
+-#define THUNDER_BGX_H
++#ifndef OCTEONT_BGX_H
++#define OCTEONT_BGX_H
+ 
+ #define    MAX_LMAC_PER_BGX			4
+ #define    MAX_BGX_CHANS_PER_LMAC		16
+@@ -201,7 +201,7 @@ enum MCAST_MODE {
+ #define BCAST_ACCEPT	1
+ #define CAM_ACCEPT	1
+ 
+-int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
++int octeontx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
+ void bgx_add_dmac_addr(uint64_t dmac, int node, int bgx_idx, int lmac);
+ void bgx_get_count(int node, int *bgx_count);
+ int bgx_get_lmac_count(int node, int bgx);
+@@ -249,4 +249,4 @@ enum LMAC_TYPE {
+ 	BGX_MODE_INVALID = 7,
+ };
+ 
+-#endif /* THUNDER_BGX_H */
++#endif /* OCTEONT_BGX_H */
+diff --git a/drivers/net/cavium/thunderx_smi.c b/drivers/net/cavium/octeontx_smi.c
+similarity index 78%
+rename from drivers/net/cavium/thunderx_smi.c
+rename to drivers/net/cavium/octeontx_smi.c
+index de24c51909..c26c653f68 100644
+--- a/drivers/net/cavium/thunderx_smi.c
++++ b/drivers/net/cavium/octeontx_smi.c
+@@ -17,7 +17,7 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+-enum thunderx_smi_mode {
++enum octeontx_smi_mode {
+ 	CLAUSE22 = 0,
+ 	CLAUSE45 = 1,
+ };
+@@ -89,16 +89,16 @@ union smi_x_en {
+ #define SMI_X_CLK	0x18ull
+ #define SMI_X_EN	0x20ull
+ 
+-struct thunderx_smi_priv {
++struct octeontx_smi_priv {
+ 	void __iomem *baseaddr;
+-	enum thunderx_smi_mode mode;
++	enum octeontx_smi_mode mode;
+ };
+ 
+ #define MDIO_TIMEOUT 10000
+ 
+-void thunderx_smi_setmode(struct mii_dev *bus, enum thunderx_smi_mode mode)
++void octeontx_smi_setmode(struct mii_dev *bus, enum octeontx_smi_mode mode)
+ {
+-	struct thunderx_smi_priv *priv = bus->priv;
++	struct octeontx_smi_priv *priv = bus->priv;
+ 	union smi_x_clk smix_clk;
+ 
+ 	smix_clk.u = readq(priv->baseaddr + SMI_X_CLK);
+@@ -109,9 +109,9 @@ void thunderx_smi_setmode(struct mii_dev *bus, enum thunderx_smi_mode mode)
+ 	priv->mode = mode;
+ }
+ 
+-int thunderx_c45_addr(struct mii_dev *bus, int addr, int devad, int regnum)
++int octeontx_c45_addr(struct mii_dev *bus, int addr, int devad, int regnum)
+ {
+-	struct thunderx_smi_priv *priv = bus->priv;
++	struct octeontx_smi_priv *priv = bus->priv;
+ 
+ 	union smi_x_cmd smix_cmd;
+ 	union smi_x_wr_dat smix_wr_dat;
+@@ -138,23 +138,23 @@ int thunderx_c45_addr(struct mii_dev *bus, int addr, int devad, int regnum)
+ 	return timeout == 0;
+ }
+ 
+-int thunderx_phy_read(struct mii_dev *bus, int addr, int devad, int regnum)
++int octeontx_phy_read(struct mii_dev *bus, int addr, int devad, int regnum)
+ {
+-	struct thunderx_smi_priv *priv = bus->priv;
++	struct octeontx_smi_priv *priv = bus->priv;
+ 	union smi_x_cmd smix_cmd;
+ 	union smi_x_rd_dat smix_rd_dat;
+ 	unsigned long timeout = MDIO_TIMEOUT;
+ 	int ret;
+ 
+-	enum thunderx_smi_mode mode = (devad < 0) ? CLAUSE22 : CLAUSE45;
++	enum octeontx_smi_mode mode = (devad < 0) ? CLAUSE22 : CLAUSE45;
+ 
+ 	debug("RD: Mode: %u, baseaddr: %p, addr: %d, devad: %d, reg: %d\n",
+ 	      mode, priv->baseaddr, addr, devad, regnum);
+ 
+-	thunderx_smi_setmode(bus, mode);
++	octeontx_smi_setmode(bus, mode);
+ 
+ 	if (mode == CLAUSE45) {
+-		ret = thunderx_c45_addr(bus, addr, devad, regnum);
++		ret = octeontx_c45_addr(bus, addr, devad, regnum);
+ 
+ 		debug("RD: ret: %u\n", ret);
+ 
+@@ -187,22 +187,22 @@ int thunderx_phy_read(struct mii_dev *bus, int addr, int devad, int regnum)
+ 	return smix_rd_dat.s.dat;
+ }
+ 
+-int thunderx_phy_write(struct mii_dev *bus, int addr, int devad, int regnum,
++int octeontx_phy_write(struct mii_dev *bus, int addr, int devad, int regnum,
+ 		       u16 value)
+ {
+-	struct thunderx_smi_priv *priv = bus->priv;
++	struct octeontx_smi_priv *priv = bus->priv;
+ 	union smi_x_cmd smix_cmd;
+ 	union smi_x_wr_dat smix_wr_dat;
+ 	unsigned long timeout = MDIO_TIMEOUT;
+ 	int ret;
+ 
+-	enum thunderx_smi_mode mode = (devad < 0) ? CLAUSE22 : CLAUSE45;
++	enum octeontx_smi_mode mode = (devad < 0) ? CLAUSE22 : CLAUSE45;
+ 
+ 	debug("WR: Mode: %u, baseaddr: %p, addr: %d, devad: %d, reg: %d\n",
+ 	      mode, priv->baseaddr, addr, devad, regnum);
+ 
+ 	if (mode == CLAUSE45) {
+-		ret = thunderx_c45_addr(bus, addr, devad, regnum);
++		ret = octeontx_c45_addr(bus, addr, devad, regnum);
+ 
+ 		debug("WR: ret: %u\n", ret);
+ 
+@@ -239,9 +239,9 @@ int thunderx_phy_write(struct mii_dev *bus, int addr, int devad, int regnum,
+ 	return timeout == 0;
+ }
+ 
+-int thunderx_smi_reset(struct mii_dev *bus)
++int octeontx_smi_reset(struct mii_dev *bus)
+ {
+-	struct thunderx_smi_priv *priv = bus->priv;
++	struct octeontx_smi_priv *priv = bus->priv;
+ 
+ 	union smi_x_en smi_en;
+ 
+@@ -251,7 +251,7 @@ int thunderx_smi_reset(struct mii_dev *bus)
+ 	smi_en.s.en = 1;
+ 	writeq(smi_en.u, priv->baseaddr + SMI_X_EN);
+ 
+-	thunderx_smi_setmode(bus, CLAUSE22);
++	octeontx_smi_setmode(bus, CLAUSE22);
+ 
+ 	return 0;
+ }
+@@ -266,8 +266,8 @@ int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr)
+ 	int phy_id1, phy_id2;
+ 	int oui, model_number;
+ 
+-	phy_id1 = thunderx_phy_read(bus, phy_addr, 1, 0x2);
+-	phy_id2 = thunderx_phy_read(bus, phy_addr, 1, 0x3);
++	phy_id1 = octeontx_phy_read(bus, phy_addr, 1, 0x2);
++	phy_id2 = octeontx_phy_read(bus, phy_addr, 1, 0x3);
+ 	model_number = (phy_id2 >> 4) & 0x3F;
+ 	debug("%s model %x\n", __func__,model_number);
+ 	oui = phy_id1;
+@@ -281,15 +281,15 @@ int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr)
+ 			{
+ 				debug("%s +\n", __func__);
+ 				/* Perform hardware reset in XGXS control */
+-				reg = thunderx_phy_read(bus, phy_addr, 4, 0x0);
++				reg = octeontx_phy_read(bus, phy_addr, 4, 0x0);
+ 				if ((reg & 0xffff) < 0)
+ 				       goto read_error;
+ 				reg |= 0x8000;
+-				thunderx_phy_write(bus, phy_addr, 4, 0x0, reg);
++				octeontx_phy_write(bus, phy_addr, 4, 0x0, reg);
+ 
+ 				start_time = get_timer(0);
+ 				do {
+-				       reg = thunderx_phy_read(bus, phy_addr, 4, 0x0);
++				       reg = octeontx_phy_read(bus, phy_addr, 4, 0x0);
+ 				       if ((reg & 0xffff) < 0)
+ 					       goto read_error;
+ 				} while ((reg & 0x8000) && get_timer(start_time) < 500);
+@@ -298,7 +298,7 @@ int __cavm_if_phy_xs_init(struct mii_dev *bus, int phy_addr)
+ 				       return -1;
+ 				}
+ 				/* program 4.49155 with 0x5 */
+-				thunderx_phy_write(bus, phy_addr, 4, 0xc003, 0x5);
++				octeontx_phy_write(bus, phy_addr, 4, 0xc003, 0x5);
+ 			}
+ 			break;
+ 			default:
+@@ -312,12 +312,12 @@ read_error:
+ 	return -1;
+ }
+ 
+-int thunderx_smi_probe(struct udevice *dev)
++int octeontx_smi_probe(struct udevice *dev)
+ {
+ 	size_t size;
+ 	int ret, subnode, cnt = 0, node = dev->node.of_offset;
+ 	struct mii_dev *bus;
+-	struct thunderx_smi_priv *priv;
++	struct octeontx_smi_priv *priv;
+ 	pci_dev_t bdf = dm_pci_get_bdf(dev);
+ 
+         debug("SMI PCI device: %x\n", bdf);
+@@ -336,14 +336,14 @@ int thunderx_smi_probe(struct udevice *dev)
+ 		bus = mdio_alloc();
+ 		priv = malloc(sizeof(*priv));
+ 		if (!bus || !priv) {
+-			printf("Failed to allocate ThunderX MDIO bus # %u\n",
++			printf("Failed to allocate OcteonTX MDIO bus # %u\n",
+ 				dev->seq);
+ 			return -1;
+ 		}
+ 
+-		bus->read = thunderx_phy_read;
+-		bus->write = thunderx_phy_write;
+-		bus->reset = thunderx_smi_reset;
++		bus->read = octeontx_phy_read;
++		bus->write = octeontx_phy_write;
++		bus->reset = octeontx_smi_reset;
+ 		bus->priv = priv;
+ 
+ 		priv->mode = CLAUSE22;
+@@ -362,19 +362,19 @@ int thunderx_smi_probe(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static const struct misc_ops thunderx_smi_ops = {
++static const struct misc_ops octeontx_smi_ops = {
+ };
+ 
+-static const struct udevice_id thunderx_smi_ids[] = {
++static const struct udevice_id octeontx_smi_ids[] = {
+ 	{ .compatible = "cavium,thunder-8890-mdio-nexus" },
+ 	{}
+ };
+ 
+-U_BOOT_DRIVER(thunderx_smi) = {
+-	.name	= "thunderx_smi",
++U_BOOT_DRIVER(octeontx_smi) = {
++	.name	= "octeontx_smi",
+ 	.id	= UCLASS_MISC,
+-	.probe	= thunderx_smi_probe,
+-	.of_match = thunderx_smi_ids,
+-	.ops	= &thunderx_smi_ops,
++	.probe	= octeontx_smi_probe,
++	.of_match = octeontx_smi_ids,
++	.ops	= &octeontx_smi_ops,
+ };
+ 
+diff --git a/drivers/net/cavium/thunder_xcv.c b/drivers/net/cavium/octeontx_xcv.c
+similarity index 89%
+rename from drivers/net/cavium/thunder_xcv.c
+rename to drivers/net/cavium/octeontx_xcv.c
+index d458ed8a8e..ff299b84cf 100644
+--- a/drivers/net/cavium/thunder_xcv.c
++++ b/drivers/net/cavium/octeontx_xcv.c
+@@ -24,9 +24,9 @@
+  #include <fdt_support.h>
+ #endif
+ 
+-#include <asm/arch/thunderx_xcv.h>
+-#include <asm/arch/thunderx_smi.h>
+-#include <asm/arch/thunderx_vnic.h>
++#include <asm/arch/octeontx_xcv.h>
++#include <asm/arch/octeontx_smi.h>
++#include <asm/arch/octeontx_vnic.h>
+ 
+ struct lxcv {
+ 	void __iomem		*reg_base;
+@@ -139,7 +139,7 @@ void xcv_setup_link(bool link_up, int link_speed)
+ 	}
+ }
+ 
+-int thunderx_xcv_probe(struct udevice *dev)
++int octeontx_xcv_probe(struct udevice *dev)
+ {
+ 	size_t size;
+ 
+@@ -153,20 +153,20 @@ int thunderx_xcv_probe(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static const struct misc_ops thunderx_xcv_ops = {
++static const struct misc_ops octeontx_xcv_ops = {
+ };
+ 
+-static const struct udevice_id thunderx_xcv_ids[] = {
++static const struct udevice_id octeontx_xcv_ids[] = {
+ 	{ .compatible = "cavium,xcv" },
+ 	{}
+ };
+ 
+-U_BOOT_DRIVER(thunderx_xcv) = {
+-        .name   = "thunderx_xcv",
++U_BOOT_DRIVER(octeontx_xcv) = {
++        .name   = "octeontx_xcv",
+         .id     = UCLASS_MISC,
+-        .probe  = thunderx_xcv_probe,
+-        .of_match = thunderx_xcv_ids,
+-        .ops    = &thunderx_xcv_ops,
++        .probe  = octeontx_xcv_probe,
++        .of_match = octeontx_xcv_ids,
++        .ops    = &octeontx_xcv_ops,
+         .priv_auto_alloc_size = sizeof(struct lxcv),
+ };
+ 
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index 6a3e5a3f21..bb2871d5a0 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -106,11 +106,11 @@ config PCI_TEGRA
+ 	  with a total of 5 lanes. Some boards require this for Ethernet
+ 	  support to work (e.g. beaver, jetson-tk1).
+ 
+-config PCI_THUNDERX_ECAM
+-	bool "ThunderX ECAM support"
+-	depends on ARCH_THUNDERX
++config PCI_OCTEONTX_ECAM
++	bool "OcteonTX ECAM support"
++	depends on ARCH_OCTEONTX
+ 	help
+-	  Enable support for the Cavium ThunderX SoC family ECAM controllers.
++	  Enable support for the Cavium OcteonTX SoC family ECAM controllers.
+ 	  These controllers provide PCI configuration access to all on-board
+ 	  peripherals so it should only be disabled for testing purposes
+ 
+diff --git a/drivers/pci/pci_thunderx_ecam.c b/drivers/pci/pci_octeontx_ecam.c
+similarity index 75%
+rename from drivers/pci/pci_thunderx_ecam.c
+rename to drivers/pci/pci_octeontx_ecam.c
+index db380e0697..20b95e1b85 100644
+--- a/drivers/pci/pci_thunderx_ecam.c
++++ b/drivers/pci/pci_octeontx_ecam.c
+@@ -23,18 +23,18 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+-struct thunderx_pci {
++struct octeontx_pci {
+ 	unsigned int type;
+ 
+ 	struct fdt_resource cfg;
+ 	struct fdt_resource bus;
+ };
+ 
+-static int pci_thunderx_ecam_read_config(struct udevice *bus, pci_dev_t bdf,
++static int pci_octeontx_ecam_read_config(struct udevice *bus, pci_dev_t bdf,
+ 					 uint offset, ulong *valuep,
+ 					 enum pci_size_t size)
+ {
+-	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
++	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+ 	struct pci_controller *hose = dev_get_uclass_priv(bus);
+ 	uintptr_t address;
+ 	u32 b, d, f;
+@@ -66,11 +66,11 @@ static int pci_thunderx_ecam_read_config(struct udevice *bus, pci_dev_t bdf,
+ 	return 0;
+ }
+ 
+-static int pci_thunderx_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
++static int pci_octeontx_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
+ 					 uint offset, ulong valuep,
+ 					 enum pci_size_t size)
+ {
+-	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
++	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+ 	struct pci_controller *hose = dev_get_uclass_priv(bus);
+ 	uintptr_t address;
+ 	u32 b, d, f;
+@@ -102,11 +102,11 @@ static int pci_thunderx_ecam_write_config(struct udevice *bus, pci_dev_t bdf,
+ 	return 0;
+ }
+ 
+-static int pci_thunderx_pem_read_config(struct udevice *bus, pci_dev_t bdf,
++static int pci_octeontx_pem_read_config(struct udevice *bus, pci_dev_t bdf,
+ 					uint offset, ulong *valuep,
+ 					enum pci_size_t size)
+ {
+-	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
++	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+ 	struct pci_controller *hose = dev_get_uclass_priv(bus);
+ 	uintptr_t address;
+ 	u32 b, d, f;
+@@ -156,11 +156,11 @@ static int pci_thunderx_pem_read_config(struct udevice *bus, pci_dev_t bdf,
+ 	return 0;
+ }
+ 
+-static int pci_thunderx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
++static int pci_octeontx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
+ 					 uint offset, ulong value,
+ 					 enum pci_size_t size)
+ {
+-	struct thunderx_pci *pcie = (void *)dev_get_priv(bus);
++	struct octeontx_pci *pcie = (void *)dev_get_priv(bus);
+ 	struct pci_controller *hose = dev_get_uclass_priv(bus);
+ 	uintptr_t address;
+ 	u32 b, d, f;
+@@ -208,14 +208,14 @@ static int pci_thunderx_pem_write_config(struct udevice *bus, pci_dev_t bdf,
+ 	return 0;
+ }
+ 
+-static int pci_thunderx_ofdata_to_platdata(struct udevice *dev)
++static int pci_octeontx_ofdata_to_platdata(struct udevice *dev)
+ {
+ 	return 0;
+ }
+ 
+-static int pci_thunderx_ecam_probe(struct udevice *dev)
++static int pci_octeontx_ecam_probe(struct udevice *dev)
+ {
+-	struct thunderx_pci *pcie = (void *)dev_get_priv(dev);
++	struct octeontx_pci *pcie = (void *)dev_get_priv(dev);
+ 	int err;
+ 
+ 	err = fdt_get_resource(gd->fdt_blob, dev->node.of_offset, "reg", 0,
+@@ -237,45 +237,45 @@ static int pci_thunderx_ecam_probe(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static const struct dm_pci_ops pci_thunderx_ecam_ops = {
+-	.read_config	= pci_thunderx_ecam_read_config,
+-	.write_config	= pci_thunderx_ecam_write_config,
++static const struct dm_pci_ops pci_octeontx_ecam_ops = {
++	.read_config	= pci_octeontx_ecam_read_config,
++	.write_config	= pci_octeontx_ecam_write_config,
+ };
+ 
+-static const struct udevice_id pci_thunderx_ecam_ids[] = {
++static const struct udevice_id pci_octeontx_ecam_ids[] = {
+ 	{ .compatible = "cavium,pci-host-thunder-ecam" },
+ 	{ .compatible = "cavium,pci-host-octeontx-ecam" },
+ 	{ .compatible = "pci-host-ecam-generic" },
+ 	{ }
+ };
+ 
+-static const struct dm_pci_ops pci_thunderx_pem_ops = {
+-	.read_config	= pci_thunderx_pem_read_config,
+-	.write_config	= pci_thunderx_pem_write_config,
++static const struct dm_pci_ops pci_octeontx_pem_ops = {
++	.read_config	= pci_octeontx_pem_read_config,
++	.write_config	= pci_octeontx_pem_write_config,
+ };
+ 
+-static const struct udevice_id pci_thunderx_pem_ids[] = {
++static const struct udevice_id pci_octeontx_pem_ids[] = {
+ 	{ .compatible = "cavium,pci-host-thunder-pem" },
+ 	{ }
+ };
+ 
+-U_BOOT_DRIVER(pci_thunderx_ecam) = {
+-	.name	= "pci_thunderx_ecam",
++U_BOOT_DRIVER(pci_octeontx_ecam) = {
++	.name	= "pci_octeontx_ecam",
+ 	.id	= UCLASS_PCI,
+-	.of_match = pci_thunderx_ecam_ids,
+-	.ops	= &pci_thunderx_ecam_ops,
+-	.ofdata_to_platdata = pci_thunderx_ofdata_to_platdata,
+-	.probe	= pci_thunderx_ecam_probe,
+-	.priv_auto_alloc_size = sizeof(struct thunderx_pci),
++	.of_match = pci_octeontx_ecam_ids,
++	.ops	= &pci_octeontx_ecam_ops,
++	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
++	.probe	= pci_octeontx_ecam_probe,
++	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
+ 	.flags = DM_FLAG_PRE_RELOC,
+ };
+ 
+-U_BOOT_DRIVER(pci_thunderx_pcie) = {
+-	.name	= "pci_thunderx_pem",
++U_BOOT_DRIVER(pci_octeontx_pcie) = {
++	.name	= "pci_octeontx_pem",
+ 	.id	= UCLASS_PCI,
+-	.of_match = pci_thunderx_pem_ids,
+-	.ops	= &pci_thunderx_pem_ops,
+-	.ofdata_to_platdata = pci_thunderx_ofdata_to_platdata,
+-	.probe	= pci_thunderx_ecam_probe,
+-	.priv_auto_alloc_size = sizeof(struct thunderx_pci),
++	.of_match = pci_octeontx_pem_ids,
++	.ops	= &pci_octeontx_pem_ops,
++	.ofdata_to_platdata = pci_octeontx_ofdata_to_platdata,
++	.probe	= pci_octeontx_ecam_probe,
++	.priv_auto_alloc_size = sizeof(struct octeontx_pci),
+ };
+diff --git a/drivers/rtc/ds1337.c b/drivers/rtc/ds1337.c
+index 0e2fd93301..7ff50340e0 100644
+--- a/drivers/rtc/ds1337.c
++++ b/drivers/rtc/ds1337.c
+@@ -73,7 +73,7 @@ enum model{
+ 	ISL12057
+ };
+ 
+-struct thunderx_rtc {
++struct ds1337_rtc {
+ 	unsigned int regaddr;
+ 	enum model rtcmodel;
+ };
+@@ -91,7 +91,7 @@ static void dm_rtc_write (struct udevice *dev, uchar reg, uchar val)
+ 	dm_i2c_reg_write (dev, reg, val);
+ }
+ 
+-static int ds133x_rtc_get(struct udevice *dev, struct rtc_time *tmp)
++static int ds1337_rtc_get(struct udevice *dev, struct rtc_time *tmp)
+ {
+ 	int rel = 0;
+ 	uchar sec, min, hour, mday, wday, mon_cent, year, control, status;
+@@ -140,7 +140,7 @@ static int ds133x_rtc_get(struct udevice *dev, struct rtc_time *tmp)
+ 	return rel;
+ }
+ 
+-static int ds133x_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
++static int ds1337_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
+ {
+ 	uchar century;
+ 
+@@ -174,9 +174,9 @@ static int ds133x_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
+  * 600 nA to 2uA. Define CONFIG_SYS_RTC_DS1337_NOOSC if you wish to turn
+  * off the OSC output.
+  */
+-static int ds133x_rtc_reset(struct udevice *dev)
++static int ds1337_rtc_reset(struct udevice *dev)
+ {
+-	struct thunderx_rtc *rtcpriv = dev->priv;
++	struct ds1337_rtc *rtcpriv = dev->priv;
+ 	uchar resetval = RTC_CTL_BIT_RS1 | RTC_CTL_BIT_RS2; /* Default DS1337 */
+ 
+ 	if(rtcpriv->rtcmodel == DS1337_NOOSC)
+@@ -195,21 +195,21 @@ static int ds133x_rtc_reset(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static int ds133x_rtc_read8(struct udevice *dev, unsigned int reg)
++static int ds1337_rtc_read8(struct udevice *dev, unsigned int reg)
+ {
+ 	return dm_rtc_read(dev, reg);
+ }
+ 
+-static int ds133x_rtc_write8(struct udevice *dev, unsigned int reg, int val)
++static int ds1337_rtc_write8(struct udevice *dev, unsigned int reg, int val)
+ {
+ 	dm_rtc_write(dev, reg, val);
+ 
+ 	return 0;
+ }
+ 
+-static int ds133x_ofdata_to_platdata(struct udevice *dev)
++static int ds1337_ofdata_to_platdata(struct udevice *dev)
+ {
+-	struct thunderx_rtc *platdata = dev->priv;
++	struct ds1337_rtc *platdata = dev->priv;
+ 	const void *blob = gd->fdt_blob;
+ 	int node = dev->node.of_offset;
+ 
+@@ -220,35 +220,35 @@ static int ds133x_ofdata_to_platdata(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static int ds133x_rtc_probe(struct udevice *dev)
++static int ds1337_rtc_probe(struct udevice *dev)
+ {
+-	ds133x_rtc_reset(dev);
++	ds1337_rtc_reset(dev);
+ 
+ 	return 0;
+ }
+ 
+-static const struct rtc_ops ds133x_rtc_ops = {
+-	.get = ds133x_rtc_get,
+-	.set = ds133x_rtc_set,
+-	.reset = ds133x_rtc_reset,
+-	.read8 = ds133x_rtc_read8,
+-	.write8 = ds133x_rtc_write8,
++static const struct rtc_ops ds1337_rtc_ops = {
++	.get = ds1337_rtc_get,
++	.set = ds1337_rtc_set,
++	.reset = ds1337_rtc_reset,
++	.read8 = ds1337_rtc_read8,
++	.write8 = ds1337_rtc_write8,
+ };
+ 
+-static const struct udevice_id ds133x_rtc_ids[] = {
++static const struct udevice_id ds1337_rtc_ids[] = {
+ 	{ .compatible = "dallas,ds1337" },
+ 	{ .compatible = "isil,isl12057" },
+ 	{ }
+ };
+ 
+-U_BOOT_DRIVER(ds133x_rtc) = {
+-	.name = "ds133x_rtc",
++U_BOOT_DRIVER(ds1337_rtc) = {
++	.name = "ds1337_rtc",
+ 	.id = UCLASS_RTC,
+-	.of_match = ds133x_rtc_ids,
+-	.ofdata_to_platdata = ds133x_ofdata_to_platdata,
+-	.priv_auto_alloc_size = sizeof (struct thunderx_rtc),
+-	.probe = ds133x_rtc_probe,
+-	.ops = &ds133x_rtc_ops,
++	.of_match = ds1337_rtc_ids,
++	.ofdata_to_platdata = ds1337_ofdata_to_platdata,
++	.priv_auto_alloc_size = sizeof (struct ds1337_rtc),
++	.probe = ds1337_rtc_probe,
++	.ops = &ds1337_rtc_ops,
+ };
+ 
+ #else /* !CONFIG_DM_RTC */
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index 084f97eadb..813b629638 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -105,7 +105,7 @@ config CAVIUM_SPI
+ 	bool "Cavium SPI driver"
+ 	help
+ 	  Enable the Cavium SPI driver. This driver can be used to
+-	  access the SPI NOR flash on ThunderX SoC platforms.
++	  access the SPI NOR flash on OcteonTX SoC platforms.
+ 
+ config DESIGNWARE_SPI
+ 	bool "Designware SPI driver"
+diff --git a/drivers/spi/cavium_spi.c b/drivers/spi/cavium_spi.c
+index 32aab734a5..f163fef73e 100755
+--- a/drivers/spi/cavium_spi.c
++++ b/drivers/spi/cavium_spi.c
+@@ -1,11 +1,11 @@
+ /**
+- * ThunderX SPI U_BOOT_DRIVER
++ * OcteonTX SPI U_BOOT_DRIVER
+  *
+  * Copyright (C) 2016 Cavium, Inc.
+  *
+  * SPDX-LICENSE-IDENTIFIER:	GPL-2.0+
+  *
+- * SPI/MPI driver for Cavium ThunderX series of SoCs
++ * SPI/MPI driver for Cavium OcteonTX series of SoCs
+  */
+ #include <common.h>
+ #include <spi.h>
+@@ -16,12 +16,12 @@
+ #include <asm/unaligned.h>
+ #include <watchdog.h>
+ 
+-#define THUNDERX_SPI_MAX_BYTES		9
+-#define THUNDERX_SPI_MAX_CLOCK_HZ	50000000
++#define OCTEONTX_SPI_MAX_BYTES		9
++#define OCTEONTX_SPI_MAX_CLOCK_HZ	50000000
+ 
+-#define THUNDERX_SPI_NUM_CS		4
++#define OCTEONTX_SPI_NUM_CS		4
+ 
+-#define THUNDERX_SPI_CS_VALID(cs)	((cs) < THUNDERX_SPI_NUM_CS)
++#define OCTEONTX_SPI_CS_VALID(cs)	((cs) < OCTEONTX_SPI_NUM_CS)
+ 
+ #define MPI_CFG				0x1000
+ #define MPI_STS				0x1008
+@@ -191,32 +191,32 @@ union mpi_tx {
+ };
+ 
+ /** Local driver data structure */
+-struct thunderx_spi {
++struct octeontx_spi {
+ 	void *baseaddr;		/** Register base address */
+ 	u32 clkdiv;		/** Clock divisor for device speed */
+ };
+ 
+-void *thunderx_spi_get_baseaddr(struct udevice *dev)
++void *octeontx_spi_get_baseaddr(struct udevice *dev)
+ {
+ 	struct udevice *bus = dev_get_parent(dev);
+-	struct thunderx_spi *priv = dev_get_priv(bus);
++	struct octeontx_spi *priv = dev_get_priv(bus);
+ 
+ 	return priv->baseaddr;
+ }
+ 
+-static union mpi_cfg thunderx_spi_set_mpicfg(struct udevice *dev)
++static union mpi_cfg octeontx_spi_set_mpicfg(struct udevice *dev)
+ {
+ 	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
+ 	struct udevice *bus = dev_get_parent(dev);
+-	struct thunderx_spi *priv = dev_get_priv(bus);
++	struct octeontx_spi *priv = dev_get_priv(bus);
+ 	union mpi_cfg mpi_cfg;
+ 	uint max_speed = slave->max_hz;
+ 	bool cpha, cpol;
+ 
+ 	if (!max_speed)
+ 		max_speed = 12500000;
+-	if (max_speed > THUNDERX_SPI_MAX_CLOCK_HZ)
+-		max_speed = THUNDERX_SPI_MAX_CLOCK_HZ;
++	if (max_speed > OCTEONTX_SPI_MAX_CLOCK_HZ)
++		max_speed = OCTEONTX_SPI_MAX_CLOCK_HZ;
+ 
+ 	debug ("\n slave params %d %d %d \n", slave->cs,
+ 		slave->max_hz, slave->mode);
+@@ -244,9 +244,9 @@ static union mpi_cfg thunderx_spi_set_mpicfg(struct udevice *dev)
+  *
+  * @param	dev	SPI device to wait for
+  */
+-static void thunderx_spi_wait_ready(struct udevice *dev)
++static void octeontx_spi_wait_ready(struct udevice *dev)
+ {
+-	void *baseaddr = thunderx_spi_get_baseaddr(dev);
++	void *baseaddr = octeontx_spi_get_baseaddr(dev);
+ 	union mpi_sts mpi_sts;
+ 
+ 	do {
+@@ -262,13 +262,13 @@ static void thunderx_spi_wait_ready(struct udevice *dev)
+  *
+  * @return	0 for success, -EINVAL if chip select is invalid
+  */
+-static int thunderx_spi_claim_bus(struct udevice *dev)
++static int octeontx_spi_claim_bus(struct udevice *dev)
+ {
+-	void *baseaddr = thunderx_spi_get_baseaddr(dev);
++	void *baseaddr = octeontx_spi_get_baseaddr(dev);
+ 	union mpi_cfg mpi_cfg;
+ 
+ 	debug("%s(%s)\n", __func__, dev->name);
+-	if (!THUNDERX_SPI_CS_VALID(spi_chip_select(dev)))
++	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
+ 		return -EINVAL;
+ 
+ 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
+@@ -286,13 +286,13 @@ static int thunderx_spi_claim_bus(struct udevice *dev)
+  *
+  * @return	0 for success, -EINVAL if chip select is invalid
+  */
+-static int thunderx_spi_release_bus(struct udevice *dev)
++static int octeontx_spi_release_bus(struct udevice *dev)
+ {
+-	void *baseaddr = thunderx_spi_get_baseaddr(dev);
++	void *baseaddr = octeontx_spi_get_baseaddr(dev);
+ 	union mpi_cfg mpi_cfg;
+ 
+ 	debug("%s(%s)\n", __func__, dev->name);
+-	if (!THUNDERX_SPI_CS_VALID(spi_chip_select(dev)))
++	if (!OCTEONTX_SPI_CS_VALID(spi_chip_select(dev)))
+ 		return -EINVAL;
+ 
+ 	mpi_cfg.u = readq(baseaddr + MPI_CFG);
+@@ -302,10 +302,10 @@ static int thunderx_spi_release_bus(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
++static int octeontx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+ 			     const void *dout, void *din, unsigned long flags)
+ {
+-	void *baseaddr = thunderx_spi_get_baseaddr(dev);
++	void *baseaddr = octeontx_spi_get_baseaddr(dev);
+ 	union mpi_tx mpi_tx;
+ 	union mpi_cfg mpi_cfg;
+ 	uint64_t wide_dat = 0;
+@@ -315,13 +315,13 @@ static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+ 	uint8_t *rx_data = din;
+ 	int cs = spi_chip_select(dev);
+ 
+-	if (!THUNDERX_SPI_CS_VALID(cs))
++	if (!OCTEONTX_SPI_CS_VALID(cs))
+ 		return -EINVAL;
+ 
+ 	debug("%s(%s, %u, %p, %p, 0x%lx), cs: %d\n",
+ 	      __func__, dev->name, bitlen, dout, din, flags, cs);
+ 
+-	mpi_cfg = thunderx_spi_set_mpicfg(dev);
++	mpi_cfg = octeontx_spi_set_mpicfg(dev);
+ 
+ 	if (mpi_cfg.u != readq(baseaddr + MPI_CFG))
+ 		writeq(mpi_cfg.u, baseaddr + MPI_CFG);
+@@ -343,7 +343,7 @@ static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+ 		mpi_tx.s.totnum = 8;
+ 		writeq(mpi_tx.u, baseaddr + MPI_TX);
+ 
+-		thunderx_spi_wait_ready(dev);
++		octeontx_spi_wait_ready(dev);
+ 
+ 		if (rx_data) {
+ 			wide_dat = readq(baseaddr + MPI_WIDE_DAT);
+@@ -369,7 +369,7 @@ static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+ 
+ 	writeq(mpi_tx.u, baseaddr + MPI_TX);
+ 
+-	thunderx_spi_wait_ready(dev);
++	octeontx_spi_wait_ready(dev);
+ 
+ 	if (rx_data) {
+ 		for (i = 0; i < len; i++) {
+@@ -388,28 +388,28 @@ static int thunderx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+  * @param	bus	bus to set
+  * @param	max_hz	maximum speed supported
+  */
+-static int thunderx_spi_set_speed(struct udevice *bus, uint max_hz)
++static int octeontx_spi_set_speed(struct udevice *bus, uint max_hz)
+ {
+-	struct thunderx_spi *priv = dev_get_priv(bus);
++	struct octeontx_spi *priv = dev_get_priv(bus);
+ 
+-	debug("%s(%s, %u, %llu)\n", __func__, bus->name, max_hz, thunderx_get_io_clock());
+-	if (max_hz > THUNDERX_SPI_MAX_CLOCK_HZ)
+-		max_hz = THUNDERX_SPI_MAX_CLOCK_HZ;
+-	priv->clkdiv = (thunderx_get_io_clock()) / (2 * max_hz);
++	debug("%s(%s, %u, %llu)\n", __func__, bus->name, max_hz, octeontx_get_io_clock());
++	if (max_hz > OCTEONTX_SPI_MAX_CLOCK_HZ)
++		max_hz = OCTEONTX_SPI_MAX_CLOCK_HZ;
++	priv->clkdiv = (octeontx_get_io_clock()) / (2 * max_hz);
+ 	debug("%s %d\n", __func__, priv->clkdiv);
+ 
+ 	return 0;
+ }
+ 
+-static int thunderx_spi_set_mode(struct udevice *bus, uint mode)
++static int octeontx_spi_set_mode(struct udevice *bus, uint mode)
+ {
+ 	/* We don't set it here */
+ 	return 0;
+ }
+ 
+-static int thunderx_pci_spi_probe(struct udevice *dev)
++static int octeontx_pci_spi_probe(struct udevice *dev)
+ {
+-	struct thunderx_spi *priv = dev_get_priv(dev);
++	struct octeontx_spi *priv = dev_get_priv(dev);
+ 	pci_dev_t bdf = dm_pci_get_bdf(dev);
+ 	size_t size;
+ 
+@@ -422,26 +422,26 @@ static int thunderx_pci_spi_probe(struct udevice *dev)
+ 	return 0;
+ }
+ 
+-static const struct dm_spi_ops thunderx_spi_ops = {
+-	.claim_bus	= thunderx_spi_claim_bus,
+-	.release_bus	= thunderx_spi_release_bus,
+-	.xfer		= thunderx_spi_xfer,
+-	.set_speed	= thunderx_spi_set_speed,
+-	.set_mode	= thunderx_spi_set_mode,
++static const struct dm_spi_ops octeontx_spi_ops = {
++	.claim_bus	= octeontx_spi_claim_bus,
++	.release_bus	= octeontx_spi_release_bus,
++	.xfer		= octeontx_spi_xfer,
++	.set_speed	= octeontx_spi_set_speed,
++	.set_mode	= octeontx_spi_set_mode,
+ };
+ 
+-static const struct udevice_id thunderx_spi_ids[] = {
++static const struct udevice_id octeontx_spi_ids[] = {
+ 	{ .compatible	= "cavium,thunder-8890-spi" },
+ 	{ .compatible	= "cavium,thunder-8190-spi" },
+ 	{ }
+ };
+ 
+-U_BOOT_DRIVER(thunderx_pci_spi) = {
+-	.name			= "spi_thunderx",
++U_BOOT_DRIVER(octeontx_pci_spi) = {
++	.name			= "spi_octeontx",
+ 	.id			= UCLASS_SPI,
+-	.of_match 		= thunderx_spi_ids,
+-	.probe			= thunderx_pci_spi_probe,
+-	.priv_auto_alloc_size 	= sizeof(struct thunderx_spi),
+-	.ops			= &thunderx_spi_ops,
++	.of_match 		= octeontx_spi_ids,
++	.probe			= octeontx_pci_spi_probe,
++	.priv_auto_alloc_size 	= sizeof(struct octeontx_spi),
++	.ops			= &octeontx_spi_ops,
+ };
+ 
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/octeontx_81xx.h
+similarity index 97%
+rename from include/configs/thunderx_81xx.h
+rename to include/configs/octeontx_81xx.h
+index 3ae99a22f2..ae60a740fd 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/octeontx_81xx.h
+@@ -4,8 +4,8 @@
+  * SPDX-License-Identifier:	GPL-2.0+
+ **/
+ 
+-#ifndef __THUNDERX_81XX_H__
+-#define __THUNDERX_81XX_H__
++#ifndef __OCTEONTX_81XX_H__
++#define __OCTEONTX_81XX_H__
+ 
+ /* Generic Interrupt Controller Definitions */
+ #define GICD_BASE			(0x801000000000)
+@@ -115,4 +115,4 @@
+ #define CONFIG_SUPPORT_EMMC_RPMB
+ #define CONFIG_CMD_BKOPS_ENABLE
+ 
+-#endif /* __THUNDERX_81XX_H__ */
++#endif /* __OCTEONTX_81XX_H__ */
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/octeontx_83xx.h
+similarity index 97%
+rename from include/configs/thunderx_83xx.h
+rename to include/configs/octeontx_83xx.h
+index a7c1e7f818..1ada9d6b51 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/octeontx_83xx.h
+@@ -4,8 +4,8 @@
+  * SPDX-License-Identifier:	GPL-2.0+
+ **/
+ 
+-#ifndef __THUNDERX_83XX_H__
+-#define __THUNDERX_83XX_H__
++#ifndef __OCTEONTX_83XX_H__
++#define __OCTEONTX_83XX_H__
+ 
+ /* Generic Interrupt Controller Definitions */
+ #define GICD_BASE			(0x801000000000)
+@@ -115,4 +115,4 @@
+ #define CONFIG_SUPPORT_EMMC_RPMB
+ #define CONFIG_CMD_BKOPS_ENABLE
+ 
+-#endif /* __THUNDERX_83XX_H__ */
++#endif /* __OCTEONTX_83XX_H__ */
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/octeontx_93xx.h
+similarity index 96%
+rename from include/configs/thunderx_93xx.h
+rename to include/configs/octeontx_93xx.h
+index 1831aa420f..1de7449e92 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/octeontx_93xx.h
+@@ -4,8 +4,8 @@
+  * SPDX-License-Identifier:	GPL-2.0+
+ **/
+ 
+-#ifndef __THUNDERX_93XX_H__
+-#define __THUNDERX_93XX_H__
++#ifndef __OCTEONTX_93XX_H__
++#define __OCTEONTX_93XX_H__
+ 
+ /* Generic Interrupt Controller Definitions */
+ #define GICD_BASE			(0x801000000000)
+@@ -102,4 +102,4 @@
+ #undef CONFIG_SYS_PROMPT
+ #define CONFIG_SYS_PROMPT		env_get("prompt")
+ 
+-#endif /* __THUNDERX_93XX_H__ */
++#endif /* __OCTEONTX_93XX_H__ */
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 74740e25f0..baf47f71dc 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -3,8 +3,8 @@
+  * (C) Copyright 2014, Cavium Inc.
+ **/
+ 
+-#ifndef __THUNDERX_88XX_H__
+-#define __THUNDERX_88XX_H__
++#ifndef __OCTEONTX_88XX_H__
++#define __OCTEONTX_88XX_H__
+ 
+ #define CONFIG_SPECIAL_SYNC_HANDLER
+ 
+@@ -130,9 +130,9 @@
+ #define CONFIG_BAUDRATE			115200
+ 
+ /* Net */
+-#define CONFIG_THUNDERX_BGX
+-#define CONFIG_THUNDERX_SMI
+-#define CONFIG_THUNDERX_VNIC
++#define CONFIG_OCTEONTX_BGX
++#define CONFIG_OCTEONTX_SMI
++#define CONFIG_OCTEONTX_VNIC
+ #define CONFIG_RANDOM_MACADDR
+ 
+ #ifndef CONFIG_RANDOM_MACADDR
+@@ -195,18 +195,18 @@
+ #undef CONFIG_PCI_ENUM_ONLY
+ #define CONFIG_PCI_PNP
+ #define CONFIG_SYS_PCI_ARI
+-#define CONFIG_THUNDERX_ECAMS 8
+-#define CONFIG_THUNDERX_RCS 12
+-#define CONFIG_THUNDERX_RCS_PER_NODE 6
++#define CONFIG_OCTEONTX_ECAMS 8
++#define CONFIG_OCTEONTX_RCS 12
++#define CONFIG_OCTEONTX_RCS_PER_NODE 6
+ 
+ #define CONFIG_SYS_CACHELINE_SIZE 128
+ 
+ #define CONFIG_SYS_I2C
+-#define CONFIG_SYS_I2C_THUNDERX
+-#define CONFIG_SYS_I2C_THUNDERX_SPEED_0 100000
+-#define CONFIG_SYS_I2C_THUNDERX_SLAVE_0 0
+-#define CONFIG_SYS_I2C_THUNDERX_SPEED_1 100000
+-#define CONFIG_SYS_I2C_THUNDERX_SLAVE_1 0
++#define CONFIG_SYS_I2C_OCTEONTX
++#define CONFIG_SYS_I2C_OCTEONTX_SPEED_0 100000
++#define CONFIG_SYS_I2C_OCTEONTX_SLAVE_0 0
++#define CONFIG_SYS_I2C_OCTEONTX_SPEED_1 100000
++#define CONFIG_SYS_I2C_OCTEONTX_SLAVE_1 0
+ 
+ #define CONFIG_DDR_SPD
+ #define CONFIG_SYS_SPD_ADDR_LIST {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}
+@@ -291,4 +291,4 @@
+ #define PLL_REF_CLK			50000000	/* 50 MHz */
+ #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
+ 
+-#endif /* __THUNDERX_88XX_H__ */
++#endif /* __OCTEONTX_88XX_H__ */
+-- 
+2.29.0
+

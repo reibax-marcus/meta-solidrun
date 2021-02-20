@@ -1,0 +1,135 @@
+From 4fcff7258502a066ed56b7834352206e64edd7cb Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 8 Nov 2019 13:03:46 -0800
+Subject: [PATCH 0984/1239] drivers: watchdog: add reset support for OcteonTX
+
+Adds support for Core 0 poke on OcteonTX and OcteonTX2
+platforms.
+
+Change-Id: I77f85fb41ca792217e39593b2d1691afb9f9dc84
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+---
+ drivers/watchdog/Kconfig        | 10 +++++
+ drivers/watchdog/Makefile       |  1 +
+ drivers/watchdog/octeontx_wdt.c | 76 +++++++++++++++++++++++++++++++++
+ 3 files changed, 87 insertions(+)
+ create mode 100644 drivers/watchdog/octeontx_wdt.c
+
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index a66a9bcbe2..68bfa92f41 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -112,6 +112,16 @@ config WDT_MTK
+ 	  The watchdog timer is stopped when initialized.
+ 	  It performs full SoC reset.
+ 
++config WDT_OCTEONTX
++	bool "OcteonTX core watchdog support"
++	depends on WDT && (ARCH_OCTEONTX || ARCH_OCTEONTX2)
++	default y if WDT && ARCH_OCTEONTX || ARCH_OCTEONTX2
++	imply WATCHDOG
++	help
++	  This enables OcteonTX watchdog driver, which can be
++	  found on OcteonTX/TX2 chipsets and inline with driver model.
++	  Only supports watchdog reset.
++
+ config WDT_OMAP3
+         bool "TI OMAP watchdog timer support"
+         depends on WDT && ARCH_OMAP2PLUS
+diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+index 955caef815..66b20b0e98 100644
+--- a/drivers/watchdog/Makefile
++++ b/drivers/watchdog/Makefile
+@@ -25,6 +25,7 @@ obj-$(CONFIG_WDT_CDNS) += cdns_wdt.o
+ obj-$(CONFIG_WDT_MPC8xx) += mpc8xx_wdt.o
+ obj-$(CONFIG_WDT_MT7621) += mt7621_wdt.o
+ obj-$(CONFIG_WDT_MTK) += mtk_wdt.o
++obj-$(CONFIG_WDT_OCTEONTX) += octeontx_wdt.o
+ obj-$(CONFIG_WDT_OMAP3) += omap_wdt.o
+ obj-$(CONFIG_WDT_SP805) += sp805_wdt.o
+ obj-$(CONFIG_WDT_STM32MP) += stm32mp_wdt.o
+diff --git a/drivers/watchdog/octeontx_wdt.c b/drivers/watchdog/octeontx_wdt.c
+new file mode 100644
+index 0000000000..9362ad99bf
+--- /dev/null
++++ b/drivers/watchdog/octeontx_wdt.c
+@@ -0,0 +1,76 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2019 Marvell International Ltd.
++ *
++ * https://spdx.org/licenses
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <wdt.h>
++#include <asm/io.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define CORE0_POKE_OFFSET 0x50000
++
++#if CONFIG_IS_ENABLED(ARCH_OCTEONTX)
++#define REG_BASE 0x844000000000
++#elif CONFIG_IS_ENABLED(ARCH_OCTEONTX2)
++#define REG_BASE 0x802000000000
++#endif
++
++struct octeontx_wdt {
++	void __iomem *reg;
++};
++
++static struct udevice *wdt_dev;
++
++static int octeontx_wdt_reset(struct udevice *dev)
++{
++	struct octeontx_wdt *priv;
++	u64 poke_reg;
++
++	if (dev) {
++		priv = dev_get_priv(dev);
++		poke_reg = ((u64)priv->reg & ~0xfffffULL) | CORE0_POKE_OFFSET;
++	} else {
++		poke_reg = REG_BASE + CORE0_POKE_OFFSET;
++	}
++	writeq(~0ULL, poke_reg);
++
++	return 0;
++}
++
++static int octeontx_wdt_probe(struct udevice *dev)
++{
++	struct octeontx_wdt *priv = dev_get_priv(dev);
++	fdt_addr_t addr;
++
++	addr = dev_read_addr_index(dev, 0);
++	if (addr == FDT_ADDR_T_NONE)
++		return -ENODEV;
++
++	priv->reg = (void __iomem *)addr;
++	wdt_dev = dev;
++
++	return 0;
++}
++
++static const struct wdt_ops octeontx_wdt_ops = {
++	.reset = octeontx_wdt_reset,
++};
++
++static const struct udevice_id octeontx_wdt_ids[] = {
++	{ .compatible = "arm,sbsa-gwdt" },
++	{}
++};
++
++U_BOOT_DRIVER(wdt_octeontx) = {
++	.name = "wdt_octeontx",
++	.id = UCLASS_WDT,
++	.of_match = octeontx_wdt_ids,
++	.ops = &octeontx_wdt_ops,
++	.priv_auto_alloc_size = sizeof(struct octeontx_wdt),
++	.probe = octeontx_wdt_probe,
++};
+-- 
+2.29.0
+

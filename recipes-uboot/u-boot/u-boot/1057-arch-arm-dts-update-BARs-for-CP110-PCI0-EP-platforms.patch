@@ -1,0 +1,134 @@
+From 4a6e17045f545b2d251e0016ec0b904cc60ee7ad Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 13 Jan 2020 18:52:06 +0200
+Subject: [PATCH 1057/1239] arch/arm/dts: update BARs for CP110 PCI0 EP
+ platforms
+
+- move BAR regions from DTS to CP110 DTSI file
+- add back BAR2 16MB @ 0x3f000000
+- move PCIe console to 0x3f000000
+- Add BAR4 16MB @ 0xf0000000
+
+Change-Id: I1cb8883271579227830968fdc6c7eb39cc773421
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/21469
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/armada-8040-ocp.dts | 18 ++++++++++++++----
+ arch/arm/dts/armada-cp110.dtsi   |  7 +++++--
+ arch/arm/dts/cn9130-crb-C.dts    |  8 ++------
+ arch/arm/dts/cn9130-db-C.dts     |  8 ++------
+ 4 files changed, 23 insertions(+), 18 deletions(-)
+
+diff --git a/arch/arm/dts/armada-8040-ocp.dts b/arch/arm/dts/armada-8040-ocp.dts
+index 96cf3fbe9e..0d0fdd8738 100644
+--- a/arch/arm/dts/armada-8040-ocp.dts
++++ b/arch/arm/dts/armada-8040-ocp.dts
+@@ -52,6 +52,20 @@
+ 			gpio = <&cp0_gpio1 15 GPIO_ACTIVE_HIGH>; /* GPIO[47] */
+ 		};
+ 	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		/* The PCI console memory must be reserved */
++		console_reserved: pci-console-nexus@3f000000 {
++			compatible = "marvell,pci-console-nexus-memory";
++			reg = <0 0x3f000000 0 0x1000000>;
++			no-map;
++		};
++	};
++
+ };
+ 
+ /*
+@@ -97,10 +111,6 @@
+ };
+ 
+ &cp0_pci_ep_uio {
+-	reg = <0 0 0 0x100000>,
+-	      <0 0x7f000000 0 0x1000000>,
+-	      <0x80 0x00000000 0x8 0x000000000>;
+-	reg-names = "bar0", "bar2", "host-map";
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index c1912da509..ff1f1e284d 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -274,8 +274,11 @@
+ 
+ 		CP110_LABEL(pci_ep_uio): pci-ep-uio {
+ 			compatible = "marvell,pci-ep-uio";
+-			reg = <0 0 0 0x100000>, <0x80 0x00000000 0x8 0x000000000>;
+-			reg-names = "bar0", "host-map";
++			reg = <0x00 0x00000000 0x0 0x00100000>,
++			      <0x00 0x3f000000 0x0 0x01000000>,
++			      <0x00 0xf0000000 0x0 0x01000000>,
++			      <0x80 0x00000000 0x8 0x00000000>;
++			reg-names = "bar0", "bar2", "bar4", "host-map";
+ 			device-id = <0x7080>;
+ 			vf-device-id = <0x7081>;
+ 			class-code = <0x2>;
+diff --git a/arch/arm/dts/cn9130-crb-C.dts b/arch/arm/dts/cn9130-crb-C.dts
+index eb20e4c65a..3acbf9bae2 100644
+--- a/arch/arm/dts/cn9130-crb-C.dts
++++ b/arch/arm/dts/cn9130-crb-C.dts
+@@ -18,9 +18,9 @@
+ 		ranges;
+ 
+ 		/* The PCI console memory must be reserved */
+-		console_reserved: pci-console-nexus@7f000000 {
++		console_reserved: pci-console-nexus@3f000000 {
+ 			compatible = "marvell,pci-console-nexus-memory";
+-			reg = <0 0x7f000000 0 0x100000>;
++			reg = <0 0x3f000000 0 0x1000000>;
+ 			no-map;
+ 		};
+ 	};
+@@ -55,10 +55,6 @@
+ };
+ 
+ &cp0_pci_ep_uio {
+-	reg = <0 0 0 0x100000>,
+-	      <0 0x7f000000 0 0x1000000>,
+-	      <0x80 0x00000000 0x8 0x000000000>;
+-	reg-names = "bar0", "bar2", "host-map";
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm/dts/cn9130-db-C.dts b/arch/arm/dts/cn9130-db-C.dts
+index 519108de89..2a754c58fd 100644
+--- a/arch/arm/dts/cn9130-db-C.dts
++++ b/arch/arm/dts/cn9130-db-C.dts
+@@ -36,9 +36,9 @@
+ 		ranges;
+ 
+ 		/* The PCI console memory must be reserved */
+-		console_reserved: pci-console-nexus@7f000000 {
++		console_reserved: pci-console-nexus@3f000000 {
+ 			compatible = "marvell,pci-console-nexus-memory";
+-			reg = <0 0x7f000000 0 0x100000>;
++			reg = <0 0x3f000000 0 0x1000000>;
+ 			no-map;
+ 		};
+ 	};
+@@ -101,10 +101,6 @@
+ };
+ 
+ &cp0_pci_ep_uio {
+-	reg = <0 0 0 0x100000>,
+-	      <0 0x7f000000 0 0x1000000>,
+-	      <0x80 0x00000000 0x8 0x000000000>;
+-	reg-names = "bar0", "bar2", "host-map";
+ 	status = "okay";
+ };
+ 
+-- 
+2.29.0
+

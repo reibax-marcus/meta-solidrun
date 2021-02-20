@@ -1,0 +1,97 @@
+From 4b35b5db5d4d8614df2b5184c45045bc30018e16 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Thu, 5 Dec 2019 14:02:17 +0200
+Subject: [PATCH 1031/1239] pcie-ep: Add snic EP SRIOV VF ID configuration
+
+Change-Id: I1d784fe263cf8b9f57e4432797f6d64c93f96929
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19871
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/armada-cp110.dtsi           | 1 +
+ drivers/pci_endpoint/pcie_dw_mvebu_ep.c  | 1 +
+ drivers/pci_endpoint/pcie_dw_mvebu_ep.h  | 2 ++
+ drivers/pci_endpoint/pcie_mvebu_ep_uio.c | 7 +++++++
+ include/pci_ep.h                         | 2 ++
+ 5 files changed, 13 insertions(+)
+
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index 9b29938f11..c1912da509 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -277,6 +277,7 @@
+ 			reg = <0 0 0 0x100000>, <0x80 0x00000000 0x8 0x000000000>;
+ 			reg-names = "bar0", "host-map";
+ 			device-id = <0x7080>;
++			vf-device-id = <0x7081>;
+ 			class-code = <0x2>;
+ 			subclass-code = <0x0>;
+ 			status = "disabled";
+diff --git a/drivers/pci_endpoint/pcie_dw_mvebu_ep.c b/drivers/pci_endpoint/pcie_dw_mvebu_ep.c
+index 9287704f8d..6d7e2e9231 100644
+--- a/drivers/pci_endpoint/pcie_dw_mvebu_ep.c
++++ b/drivers/pci_endpoint/pcie_dw_mvebu_ep.c
+@@ -169,6 +169,7 @@ static int pcie_dw_armada_write_header(struct udevice *dev, uint func_id,
+ 
+ 	writew(hdr->vendorid, cfg_addr + PCI_VENDOR_ID);
+ 	writew(hdr->deviceid, cfg_addr + PCI_DEVICE_ID);
++	writew(hdr->vf_deviceid, cfg_addr + PCIE_SRIOV_DEVID_OFFSET);
+ 
+ 	writeb(hdr->revid,  cfg_addr + PCI_REVISION_ID);
+ 	writeb(hdr->progif_code,  cfg_addr + PCI_CLASS_PROG);
+diff --git a/drivers/pci_endpoint/pcie_dw_mvebu_ep.h b/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
+index 0ad44a1147..108bebbc4f 100644
+--- a/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
++++ b/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
+@@ -48,6 +48,8 @@
+ #define PCIE_ATU_FUNC(x)		(((x) & 0x7) << 16)
+ #define PCIE_ATU_UPPER_TARGET		0x91C
+ 
++#define PCIE_SRIOV_DEVID_OFFSET		0x192
++
+ #define MAX_ATU_REGIONS			16
+ #define MAX_ATU_SIZE			(4ul * SZ_1G)
+ 
+diff --git a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c b/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+index 951a4ae33f..4330ce9db7 100644
+--- a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
++++ b/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+@@ -60,6 +60,13 @@ static int uio_pci_ep_probe(struct udevice *dev)
+ 	}
+ 	hdr.deviceid = val;
+ 
++	ret = dev_read_u32(dev, "vf-device-id", &val);
++	if (ret) {
++		printf("missing vf-device-id from DT node\n");
++		return ret;
++	}
++	hdr.vf_deviceid = val;
++
+ 	ret = dev_read_u32(dev, "class-code", &val);
+ 	if (ret) {
+ 		printf("missing class-code from DT node\n");
+diff --git a/include/pci_ep.h b/include/pci_ep.h
+index 00e8c6d8ab..ddde08ba4f 100644
+--- a/include/pci_ep.h
++++ b/include/pci_ep.h
+@@ -66,6 +66,7 @@ struct pci_bar {
+  * struct pci_ep_header - represents standard configuration header
+  * @vendorid: identifies device manufacturer
+  * @deviceid: identifies a particular device
++ * @vf_deviceid: identifies virtual function device id for SRIOV
+  * @revid: specifies a device-specific revision identifier
+  * @progif_code: identifies a specific register-level programming interface
+  * @subclass_code: identifies more specifically the function of the device
+@@ -78,6 +79,7 @@ struct pci_bar {
+ struct pci_ep_header {
+ 	u16	vendorid;
+ 	u16	deviceid;
++	u16     vf_deviceid;
+ 	u8	revid;
+ 	u8	progif_code;
+ 	u8	subclass_code;
+-- 
+2.29.0
+

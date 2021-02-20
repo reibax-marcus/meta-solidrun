@@ -1,0 +1,156 @@
+From 8f70d9a6b929c4e8766f16b0e2a9b7bcb00fa285 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Wed, 12 Sep 2018 15:40:11 +0200
+Subject: [PATCH 0194/1239] arm64: mvebu: a3700: use smc call for obtaining
+ memory size
+
+Desired runtime service in fw was implemented to allow obtaining the
+real ddr size. Take advantage of it and determine memory size by using
+appropriate smc call.
+
+In Armada 3700 firmware there are two different layouts used:
+- for ddr size less or equal to 2GB one memory decoding window is used.
+- for 4GB ddr four decoding windows are used and the layout looks like
+bellow:
+		0xE8000000 ---> |-----------------------|
+				|	 DDR window 3	| 128 MB
+		0xE0000000 ---> +-----------------------+
+				:			:
+				:			:
+		0xD0000000 ---> |-----------------------|
+				|	 DDR window 2	| 256 MB
+		0xC0000000 ---> |-----------------------|
+				|			|
+				|	 DDR window 1	| 1 GB
+				|			|
+		0x80000000 ---> |-----------------------|
+				|			|
+				|			|
+				|	 DDR window 0	| 2 GB
+				|			|
+				|			|
+		0x00000000 ---> +-----------------------+
+
+Reflect relevant ddr layout in dram bank init.
+
+Change-Id: Icc709a2df2d089c24a7b94c06f933c4b022e06fb
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+[Adjust to mainline U-Boot]
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+---
+ arch/arm/mach-mvebu/arm64-common.c          | 44 +++++++++++++++++++--
+ configs/mvebu_db-88f3720_defconfig          |  1 -
+ configs/mvebu_espressobin-88f3720_defconfig |  1 -
+ include/configs/mvebu_armada-37xx.h         |  5 ---
+ 4 files changed, 40 insertions(+), 11 deletions(-)
+
+diff --git a/arch/arm/mach-mvebu/arm64-common.c b/arch/arm/mach-mvebu/arm64-common.c
+index 41765b86a9..fb584c522f 100644
+--- a/arch/arm/mach-mvebu/arm64-common.c
++++ b/arch/arm/mach-mvebu/arm64-common.c
+@@ -86,10 +86,44 @@ static void a8k_dram_init_banksize(void)
+ 	}
+ }
+ 
++static u64 a3700_dram_scan_ap_sz(void)
++{
++	struct pt_regs pregs;
++
++	pregs.regs[0] = MV_SIP_DRAM_SIZE;
++	smc_call(&pregs);
++
++	return pregs.regs[0];
++}
++
++static void a3700_dram_init_banksize(void)
++{
++	/* If ddr size is below 2GB there is only one ddr bank used */
++	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
++	if (gd->ram_size <= SZ_2G) {
++		gd->bd->bi_dram[0].size = gd->ram_size;
++		return;
++	}
++
++	/*
++	 * If ddr size is above 2GB there is only one case 4GB but the firmware
++	 * uses 4 decoding windows for describing it in way reflected below.
++	 */
++	gd->bd->bi_dram[0].size = SZ_2G;
++	gd->bd->bi_dram[1].start = SZ_2G;
++	gd->bd->bi_dram[1].size = SZ_1G;
++	gd->bd->bi_dram[2].start = SZ_2G + SZ_1G;
++	gd->bd->bi_dram[2].size = SZ_256M;
++	gd->bd->bi_dram[3].start = 0xe0000000;
++	gd->bd->bi_dram[3].size = SZ_128M;
++}
++
+ __weak int dram_init_banksize(void)
+ {
+ 	if (CONFIG_IS_ENABLED(ARMADA_8K))
+ 		a8k_dram_init_banksize();
++	else if (CONFIG_IS_ENABLED(ARMADA_3700))
++		a3700_dram_init_banksize();
+ 	else
+ 		fdtdec_setup_memory_banksize();
+ 
+@@ -98,11 +132,13 @@ __weak int dram_init_banksize(void)
+ 
+ __weak int dram_init(void)
+ {
+-	if (CONFIG_IS_ENABLED(ARMADA_8K)) {
++	if (CONFIG_IS_ENABLED(ARMADA_8K))
+ 		gd->ram_size = a8k_dram_scan_ap_sz();
+-		if (gd->ram_size != 0)
+-			return 0;
+-	}
++	else if (CONFIG_IS_ENABLED(ARMADA_3700))
++		gd->ram_size = a3700_dram_scan_ap_sz();
++
++	if (gd->ram_size != 0)
++		return 0;
+ 
+ 	if (fdtdec_setup_mem_size_base() != 0)
+ 		return -EINVAL;
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index c7d8aa5186..d7f0bc769f 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -4,7 +4,6 @@ CONFIG_ARCH_MVEBU=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_MVEBU_ARMADA_37XX=y
+-CONFIG_NR_DRAM_BANKS=1
+ CONFIG_DEBUG_UART_BASE=0xd0012000
+ CONFIG_DEBUG_UART_CLOCK=25804800
+ CONFIG_DEBUG_UART=y
+diff --git a/configs/mvebu_espressobin-88f3720_defconfig b/configs/mvebu_espressobin-88f3720_defconfig
+index 0d19dd5a05..0f8dffe82c 100644
+--- a/configs/mvebu_espressobin-88f3720_defconfig
++++ b/configs/mvebu_espressobin-88f3720_defconfig
+@@ -4,7 +4,6 @@ CONFIG_ARCH_MVEBU=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_MVEBU_ARMADA_37XX=y
+-CONFIG_NR_DRAM_BANKS=1
+ CONFIG_DEBUG_UART_BASE=0xd0012000
+ CONFIG_DEBUG_UART_CLOCK=25804800
+ CONFIG_DEBUG_UART=y
+diff --git a/include/configs/mvebu_armada-37xx.h b/include/configs/mvebu_armada-37xx.h
+index 1d3db87dd1..7b701d10a0 100644
+--- a/include/configs/mvebu_armada-37xx.h
++++ b/include/configs/mvebu_armada-37xx.h
+@@ -11,11 +11,6 @@
+ 
+ #include <configs/mvebu_armada-common.h>
+ 
+-/*
+- * High Level Configuration Options (easy to change)
+- */
+-#define CONFIG_NR_DRAM_BANKS	1
+-
+ /*
+  * I2C
+  */
+-- 
+2.29.0
+

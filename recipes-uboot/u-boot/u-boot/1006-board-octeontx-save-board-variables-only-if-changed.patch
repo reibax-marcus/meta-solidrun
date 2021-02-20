@@ -1,0 +1,123 @@
+From 5317e7be969045fb509592a83ec6213c356b68ee Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Tue, 12 Nov 2019 16:55:38 -0800
+Subject: [PATCH 1006/1239] board: octeontx: save board variables only if
+ changed
+
+Save boardrev and serial# variables in environment only
+if different or don't exist in environment.
+
+Change-Id: I85eb0e834c57158d4b1f6e5e62dc0f4067df654a
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/18590
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+(cherry picked from commit a74e915cceac01f171c7ca519dcce03facb2687a)
+Reviewed-on: https://sj1git1.cavium.com/19360
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx/board.c  | 21 ++++++++++++++-------
+ board/Marvell/octeontx2/board.c | 21 ++++++++++++++-------
+ 2 files changed, 28 insertions(+), 14 deletions(-)
+
+diff --git a/board/Marvell/octeontx/board.c b/board/Marvell/octeontx/board.c
+index 10c7d2f90b..45acbb1021 100644
+--- a/board/Marvell/octeontx/board.c
++++ b/board/Marvell/octeontx/board.c
+@@ -100,6 +100,8 @@ int board_late_init(void)
+ {
+ 	char boardname[32];
+ 	char boardserial[150], boardrev[150];
++	bool save_env = false;
++	const char *str;
+ 
+ 	/*
+ 	 * Try to cleanup ethaddr env variables, this is needed
+@@ -112,22 +114,27 @@ int board_late_init(void)
+ 
+ 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+ 
+-	if (fdt_get_board_revision()) {
+-		snprintf(boardrev, sizeof(boardrev), "%s",
+-			 fdt_get_board_revision());
++	str = fdt_get_board_revision();
++	if (str) {
++		snprintf(boardrev, sizeof(boardrev), "%s", str);
++		if (strcmp(boardrev, env_get("boardrev")))
++			save_env = true;
+ 		env_set("boardrev", boardrev);
+ 	}
+ 
+-	if (fdt_get_board_serial()) {
+-		snprintf(boardserial, sizeof(boardserial), "%s",
+-			 fdt_get_board_serial());
++	str = fdt_get_board_serial();
++	if (str) {
++		snprintf(boardserial, sizeof(boardserial), "%s", str);
++		if (strcmp(boardserial, env_get("serial#")))
++			save_env = true;
+ 		env_set("serial#", boardserial);
+ 	}
+ 
+ #ifdef CONFIG_NET_OCTEONTX
+ 	board_late_probe_devices();
+ #endif
+-	env_save();
++	if (save_env)
++		env_save();
+ 	return 0;
+ }
+ 
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index e854cad9d4..2d1f577d99 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -320,6 +320,8 @@ int board_late_init(void)
+ 	char boardname[32];
+ 	char boardserial[150], boardrev[150];
+ 	long val;
++	bool save_env = false;
++	const char *str;
+ 
+ 	debug("%s()\n", __func__);
+ 
+@@ -334,15 +336,19 @@ int board_late_init(void)
+ 	env_set("prompt", boardname);
+ 	set_working_fdt_addr(env_get_hex("fdtcontroladdr", fdt_base_addr));
+ 
+-	if (fdt_get_board_revision()) {
+-		snprintf(boardrev, sizeof(boardrev), "%s",
+-			 fdt_get_board_revision());
++	str = fdt_get_board_revision();
++	if (str) {
++		snprintf(boardrev, sizeof(boardrev), "%s", str);
++		if (strcmp(boardrev, env_get("boardrev")))
++			save_env = true;
+ 		env_set("boardrev", boardrev);
+ 	}
+ 
+-	if (fdt_get_board_serial()) {
+-		snprintf(boardserial, sizeof(boardserial), "%s",
+-			 fdt_get_board_serial());
++	str = fdt_get_board_serial();
++	if (str) {
++		snprintf(boardserial, sizeof(boardserial), "%s", str);
++		if (strcmp(boardserial, env_get("serial#")))
++			save_env = true;
+ 		env_set("serial#", boardserial);
+ 	}
+ 
+@@ -361,7 +367,8 @@ int board_late_init(void)
+ 	if (init_pcie_console())
+ 		printf("Failed to init pci console\n");
+ #endif
+-	env_save();
++	if (save_env)
++		env_save();
+ 
+ 	return 0;
+ }
+-- 
+2.29.0
+

@@ -1,0 +1,114 @@
+From 5b0923b7c17c6f0b9e22fb47dbdac889503d3f23 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Thu, 14 Jun 2018 13:33:15 +0300
+Subject: [PATCH 0124/1239] arm64: mvebu: a8k: set cpuidle.off=1 in bootargs
+ for A8040 A1/2
+
+Linux kernel cpuidle feature is not supported
+in Armada8040 A1/A2 revisions, in order to be able
+to enable it by default in Linux kernel, we need
+to set in Linux kernel bootargs cpuidle.off=1.
+
+This patch adds $cpuidle variable to set_bootargs.
+By default $cpuidle is empty.
+For SoC revision is A1/2, set $cpuidle to cpuidle.off=1,
+this will disable cpuidle in Linux kernel.
+
+In addition, enable CONFIG_ARCH_MISC_INIT, in order
+to use arch_misc_init() for this purpose.
+
+Change-Id: Ie0c98bb0644708e6ab89fa71599e8bf7ea1a59da
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/mach-mvebu/armada8k/soc.c    | 30 +++++++++++++++++++++++++++
+ configs/mvebu_db_armada8k_defconfig   |  1 +
+ configs/mvebu_mcbin-88f8040_defconfig |  1 +
+ include/configs/mvebu_armada-common.h |  3 ++-
+ 4 files changed, 34 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-mvebu/armada8k/soc.c b/arch/arm/mach-mvebu/armada8k/soc.c
+index effa647d28..586e844043 100644
+--- a/arch/arm/mach-mvebu/armada8k/soc.c
++++ b/arch/arm/mach-mvebu/armada8k/soc.c
+@@ -14,6 +14,8 @@
+ #define SW_REV_STATUS_OFFSET		16
+ #define SW_REV_STATUS_MASK		0xf
+ 
++#define A8040_DEVICE_ID			0x8040
++
+ struct mochi_module {
+ 	u32 module_type;
+ 	u32 module_rev;
+@@ -139,3 +141,31 @@ void soc_print_device_info(void)
+ 	else
+ 		printf("CP%x-A%d\n", cp_type, cp_rev);
+ }
++
++#ifdef CONFIG_ARCH_MISC_INIT
++int arch_misc_init(void)
++{
++	u32 type, rev;
++
++	get_soc_type_rev(&type, &rev);
++
++	/* A8040 A1/A2 doesn't support linux kernel cpuidle feautre,
++	 * so U-boot needs to update Linux bootargs according
++	 * to the device id:
++	 *
++	 * Device	Device_ID
++	 * -------------------------------
++	 * A8040 A1	0x18040
++	 * A8040 A2	0x28040
++	 * A8040 B0	0x08045
++	 *
++	 * So we need to check if 16 LSB bits are 0x8040.
++	 * The variable 'type', which is returned by
++	 * get_soc_type_rev() holds these bits.
++	 */
++	if (type == A8040_DEVICE_ID)
++		env_set("cpuidle", "cpuidle.off=1");
++
++	return 0;
++}
++#endif
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index b47b6c3dfb..f40345ffd2 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -20,6 +20,7 @@ CONFIG_SYS_CONSOLE_INFO_QUIET=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_DISPLAY_BOARDINFO_LATE=y
+ CONFIG_ARCH_EARLY_INIT_R=y
++CONFIG_ARCH_MISC_INIT=y
+ CONFIG_BOARD_EARLY_INIT_F=y
+ CONFIG_SYS_PROMPT="Marvell>> "
+ CONFIG_CMD_MVEBU_SAR=y
+diff --git a/configs/mvebu_mcbin-88f8040_defconfig b/configs/mvebu_mcbin-88f8040_defconfig
+index d0b9630ac2..2cbd356109 100644
+--- a/configs/mvebu_mcbin-88f8040_defconfig
++++ b/configs/mvebu_mcbin-88f8040_defconfig
+@@ -19,6 +19,7 @@ CONFIG_SYS_CONSOLE_INFO_QUIET=y
+ # CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_DISPLAY_BOARDINFO_LATE=y
+ CONFIG_ARCH_EARLY_INIT_R=y
++CONFIG_ARCH_MISC_INIT=y
+ CONFIG_BOARD_EARLY_INIT_F=y
+ CONFIG_SYS_PROMPT="Marvell>> "
+ # CONFIG_CMD_FLASH is not set
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index f11129aef9..b2d2cb162e 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -59,7 +59,8 @@
+ 						"$gatewayip:$netmask:$hostname"\
+ 						":$netdev:none nfsroot="\
+ 						"$serverip:$rootpath " \
+-						"$extra_params"
++						"$extra_params " \
++						"$cpuidle"
+ 
+ /*
+  * For booting Linux, the board info and command line data
+-- 
+2.29.0
+

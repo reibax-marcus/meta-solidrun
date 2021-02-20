@@ -1,0 +1,40 @@
+From b2f32edd4df954b4f61bb42efb89f10bc2e0e402 Mon Sep 17 00:00:00 2001
+From: allen yan <yanwei@marvell.com>
+Date: Wed, 19 Apr 2017 17:22:13 +0800
+Subject: [PATCH 0096/1239] arm64: dts: armada-3720-db: update model and
+ compatible string
+
+This patch updates devel-board dts file's model and compatible string
+to make it work for Armada 3720 DDR3 DB v2 board:
+- "v2" implies devel-board's reversion 2.x.
+- "DDR3" implies the type of ddr device mounted on the board.
+  document 'armada-3700-db-setup.txt' for details.
+More serdes/board configuration will be supported with later
+patches.
+
+Change-Id: I22898868af41b8fe6f40ea72837dd6e868b51674
+Signed-off-by: allen yan <yanwei@marvell.com>
+---
+ arch/arm/dts/armada-3720-db.dts | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/dts/armada-3720-db.dts b/arch/arm/dts/armada-3720-db.dts
+index a96164a2af..0f8b8c59b3 100644
+--- a/arch/arm/dts/armada-3720-db.dts
++++ b/arch/arm/dts/armada-3720-db.dts
+@@ -49,8 +49,10 @@
+ #include "armada-372x.dtsi"
+ 
+ / {
+-	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3";
+-	compatible = "marvell,armada-3720-db", "marvell,armada3720", "marvell,armada3710";
++	model = "Marvell Armada 3720 Development Board DB-88F3720-DDR3-V2";
++	compatible = "marvell,armada-3720-db-v2",
++		     "marvell,armada3720",
++		     "marvell,armada3710";
+ 
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+-- 
+2.29.0
+

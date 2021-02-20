@@ -1,0 +1,27 @@
+From 33bfd1a314b8e567e4ac9d7a4862872af20becba Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Tue, 6 Jun 2017 14:31:48 +0800
+Subject: [PATCH 0212/1239] arm64: mvebu: config: espressobin: enable mv88e6xxx
+ switch
+
+Change-Id: I7735416a85dd4bdf7014fbfb4511a13daec46eee
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ configs/mvebu_espressobin-88f3720_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/mvebu_espressobin-88f3720_defconfig b/configs/mvebu_espressobin-88f3720_defconfig
+index 0f8dffe82c..deb023f1dd 100644
+--- a/configs/mvebu_espressobin-88f3720_defconfig
++++ b/configs/mvebu_espressobin-88f3720_defconfig
+@@ -53,6 +53,7 @@ CONFIG_SPI_FLASH_MACRONIX=y
+ CONFIG_SPI_FLASH_SPANSION=y
+ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_SPI_FLASH_WINBOND=y
++CONFIG_MV88E6XXX_SWITCH=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_DM_MDIO=y
+ CONFIG_PHY_GIGE=y
+-- 
+2.29.0
+

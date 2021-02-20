@@ -1,0 +1,31 @@
+From 6f76dc1ffad2751145c4771d1e10ec6764a137ba Mon Sep 17 00:00:00 2001
+From: Nithya <nithya.mani@caviumnetworks.com>
+Date: Wed, 19 Oct 2016 15:56:18 -0700
+Subject: [PATCH 0543/1239] Renamed the platform config files for
+ multi-platform support
+
+Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+---
+ configs/{thunderx_81xx_defconfig => t81_defconfig} | 0
+ configs/{thunderx_83xx_defconfig => t83_defconfig} | 0
+ configs/{thunderx_88xx_defconfig => t88_defconfig} | 0
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+ rename configs/{thunderx_81xx_defconfig => t81_defconfig} (100%)
+ rename configs/{thunderx_83xx_defconfig => t83_defconfig} (100%)
+ rename configs/{thunderx_88xx_defconfig => t88_defconfig} (100%)
+
+diff --git a/configs/thunderx_81xx_defconfig b/configs/t81_defconfig
+similarity index 100%
+rename from configs/thunderx_81xx_defconfig
+rename to configs/t81_defconfig
+diff --git a/configs/thunderx_83xx_defconfig b/configs/t83_defconfig
+similarity index 100%
+rename from configs/thunderx_83xx_defconfig
+rename to configs/t83_defconfig
+diff --git a/configs/thunderx_88xx_defconfig b/configs/t88_defconfig
+similarity index 100%
+rename from configs/thunderx_88xx_defconfig
+rename to configs/t88_defconfig
+-- 
+2.29.0
+

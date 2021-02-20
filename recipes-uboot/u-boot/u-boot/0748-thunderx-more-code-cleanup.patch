@@ -1,0 +1,3787 @@
+From 33c7db1bf061137d0dd352ef1559a0265eef742a Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 17 Jan 2018 15:14:55 -0800
+Subject: [PATCH 0748/1239] thunderx: more code cleanup
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ arch/arm/mach-thunderx/Makefile   |    4 +-
+ board/cavium/thunderx/thunderx.c  |   39 +-
+ cmd/bootimgup.c                   |    2 +-
+ common/board_r.c                  |    9 -
+ drivers/block/nvme-uclass.c       |   65 --
+ drivers/block/nvme.c              | 1073 -----------------------------
+ drivers/block/nvme.h              |  133 ----
+ drivers/block/nvme_uapi.h         |  574 ---------------
+ drivers/block/sata_ahci.c         | 1019 ---------------------------
+ drivers/block/sata_ahci.h         |  500 --------------
+ drivers/gpio/thunderx_gpio.c      |    4 +-
+ drivers/net/cavium/thunderx_smi.c |    4 +-
+ drivers/net/e1000.c               |    2 -
+ drivers/pci/Kconfig               |    9 -
+ drivers/pci/Makefile              |    2 +-
+ drivers/pci/pci_thunderx_ecam.c   |    4 +-
+ drivers/rtc/ds1337.c              |    2 +-
+ drivers/spi/cavium_spi.c          |    4 +-
+ drivers/usb/host/Makefile         |    1 -
+ drivers/usb/host/xhci-pci.c       |    3 +-
+ include/configs/thunderx_81xx.h   |    7 -
+ include/mmc.h                     |    6 +-
+ 22 files changed, 33 insertions(+), 3433 deletions(-)
+ delete mode 100644 drivers/block/nvme-uclass.c
+ delete mode 100644 drivers/block/nvme.c
+ delete mode 100644 drivers/block/nvme.h
+ delete mode 100644 drivers/block/nvme_uapi.h
+ delete mode 100644 drivers/block/sata_ahci.c
+ delete mode 100644 drivers/block/sata_ahci.h
+
+diff --git a/arch/arm/mach-thunderx/Makefile b/arch/arm/mach-thunderx/Makefile
+index 5b9b4af219..01b3f77ec2 100644
+--- a/arch/arm/mach-thunderx/Makefile
++++ b/arch/arm/mach-thunderx/Makefile
+@@ -4,7 +4,5 @@
+ # SPDX-License-Identifier:	GPL-2.0+
+ #
+ 
+-obj-y += lowlevel_init.o clock.o
++obj-y += lowlevel_init.o clock.o cpu.o
+ 
+-obj-$(CONFIG_THUNDERX_CN81XX)	+= cn81xx/
+-obj-$(CONFIG_THUNDERX_CN88XX)	+= cn88xx/
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 5bd5835149..0b99d9eb78 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -55,9 +55,6 @@ U_BOOT_DEVICE(thunderx_serial1) = {
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+-#define BOARD_TYPE "BOARD="
+-
+-char thunderx_prompt[CONFIG_THUNDERX_PROMPT_SIZE] = "ThunderX> ";
+ extern unsigned long fdt_base_addr;
+ 
+ #ifdef CONFIG_BOARD_EARLY_INIT_R
+@@ -100,7 +97,7 @@ int dram_init(void)
+ 		gd->ram_size += dram_size;
+ 	}
+ 
+-	gd->ram_size -= MEM_BASE;
++	gd->ram_size -= CONFIG_SYS_SDRAM_BASE;
+ 
+ 	return 0;
+ }
+@@ -167,19 +164,16 @@ int board_late_init(void)
+ 		}
+ 		board = env_get("board");
+ 	}
+-
+-	if (board != NULL && !env_get("prompt")) {
+-		snprintf(thunderx_prompt, sizeof(thunderx_prompt), "%s> ",
+-			 board);
+-		debug("Set prompt to \"%s\"\n", thunderx_prompt);
+-		env_set("prompt", thunderx_prompt);
+-	} else if (env_get("prompt")) {
+-		debug("%s: prompt already set to \"%s\"\n",
+-		       __func__, env_get("prompt"));
+-	} else {
+-		printf("%s: board is NULL\n", __func__);
+-	}
+-
++#if 0
++	strncpy(boardname, board, sizeof(boardname));
++	strcat(boardname,"> ");
++	debug("boardname: %s\n", boardname);
++	env_set("PS1", boardname);
++	debug("PS1: %s\n", env_get("PS1"));
++#else
++	snprintf(boardname, sizeof(boardname), "%s> ", board);
++	env_set("prompt", boardname);
++#endif
+ 	printf("Board type: %s\n", env_get("board"));
+ #ifdef DEBUG
+ 	dm_dump_all();
+@@ -195,8 +189,6 @@ int board_late_init(void)
+ int board_eth_init(bd_t *bis)
+ {
+ 	int rc = 0;
+-
+-#ifdef CONFIG_RANDOM_MACADDR
+ 	unsigned char ethaddr[6];
+ 
+ 	if (!eth_env_get_enetaddr("ethaddr", ethaddr)) {
+@@ -204,7 +196,6 @@ int board_eth_init(bd_t *bis)
+ 		printf("Generating random MAC address: %pM\n", ethaddr);
+ 		eth_env_set_enetaddr("ethaddr", ethaddr);
+ 	}
+-#endif
+ 
+ 	rc = pci_eth_init(bis);
+ 
+@@ -217,8 +208,8 @@ void hw_watchdog_reset(void)
+ 	ssize_t node, core;
+ 
+ 	for (node = 0; node < atf_node_count(); node++)
+-		for (core = 0; core < thunderx_core_count(); core++)
+-			writeq(~0ULL, CSR_PA(node, CAVM_GTI_CWD_POKE(core)));
++		for (core = 0; core < 1; core++)
++			writeq(~0ULL, CSR_PA(node, CAVM_GTI_CWD_POKEX(core)));
+ }
+ 
+ void hw_watchdog_disable(void)
+@@ -226,7 +217,7 @@ void hw_watchdog_disable(void)
+ 	ssize_t node, core;
+ 
+ 	for (node = 0; node < atf_node_count(); node++)
+-		for (core = 0; core < thunderx_core_count(); core++)
+-			writeq(0ULL, CSR_PA(node, CAVM_GTI_CWD_WDOG(core)));
++		for (core = 0; core < 1; core++)
++			writeq(0ULL, CSR_PA(node, CAVM_GTI_CWD_WDOGX(core)));
+ }
+ #endif
+diff --git a/cmd/bootimgup.c b/cmd/bootimgup.c
+index 858a2b34fd..a4aea17dbb 100644
+--- a/cmd/bootimgup.c
++++ b/cmd/bootimgup.c
+@@ -172,7 +172,7 @@ static int do_spi_flash_probe(int argc, char * const argv[])
+ 	/* Remove the old device, otherwise probe will just be a nop */
+ 	ret = spi_find_bus_and_cs(bus, cs, &bus_dev, &new);
+ 	if (!ret) {
+-		device_remove(new);
++		device_remove(new, DM_REMOVE_NORMAL);
+ 		device_unbind(new);
+ 	}
+ 	flash = NULL;
+diff --git a/common/board_r.c b/common/board_r.c
+index ce0c15c763..a99e3c5fe5 100644
+--- a/common/board_r.c
++++ b/common/board_r.c
+@@ -36,7 +36,6 @@
+ #include <of_live.h>
+ #include <onenand_uboot.h>
+ #include <scsi.h>
+-#include <nvme.h>
+ #include <serial.h>
+ #include <stdio_dev.h>
+ #include <timer.h>
+@@ -425,14 +424,6 @@ static int initr_mmc(void)
+ }
+ #endif
+ 
+-#ifdef CONFIG_NVME
+-static int initr_nvme(void)
+-{
+-	nvme_initialize();
+-	return 0;
+-}
+-#endif
+-
+ /*
+  * Tell if it's OK to load the environment early in boot.
+  *
+diff --git a/drivers/block/nvme-uclass.c b/drivers/block/nvme-uclass.c
+deleted file mode 100644
+index fe6cff3838..0000000000
+--- a/drivers/block/nvme-uclass.c
++++ /dev/null
+@@ -1,65 +0,0 @@
+-/*
+- * Copyright (C) 2017 NXP Semiconductors
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
+- */
+-
+-#include <common.h>
+-#include <errno.h>
+-#include <linux/compat.h>
+-#include <dm.h>
+-#include <dm/device.h>
+-#include <pci.h>
+-#include <memalign.h>
+-#include <linux/err.h>
+-#include <linux/ioport.h>
+-#include <console.h>
+-#include <asm/armv8/mmu.h>
+-#include "nvme.h"
+-
+-static int nvme_info_init(struct uclass *uc)
+-{
+-	struct nvme_info *info = (struct nvme_info *)uc->priv;
+-	info->ns_num = 0;
+-	info->ndev_num = 0;
+-	INIT_LIST_HEAD(&info->dev_list);
+-	nvme_info = info;
+-	return 0;
+-}
+-
+-static int nvme_uclass_post_probe(struct udevice *udev)
+-{
+-	char name[20];
+-	char *str;
+-	struct udevice *ns_udev;
+-	int i, ret;
+-	struct nvme_dev *ndev = dev_get_priv(udev);
+-
+-	/*Create a blk device for each namespace.*/
+-	for (i = 0; i < ndev->nn; i++) {
+-		sprintf(name, "nvme-blk#%d", nvme_info->ns_num);
+-		str = strdup(name);
+-		if (!str)
+-			return -ENOMEM;
+-#ifdef CONFIG_BLK
+-		/*The real blksz and size will be set by nvme_blk_probe()*/
+-		ret = blk_create_device(udev, "nvme-blk", str, IF_TYPE_NVME,
+-					nvme_info->ns_num++, 512, 0, &ns_udev);
+-		if (ret) {
+-			free(str);
+-			nvme_info->ns_num--;
+-			return ret;
+-		}
+-		device_set_name_alloced(ns_udev);
+-#endif
+-	}
+-	return 0;
+-}
+-
+-UCLASS_DRIVER(nvme) = {
+-	.name			= "nvme",
+-	.id			= UCLASS_NVME,
+-	.post_probe		= nvme_uclass_post_probe,
+-	.priv_auto_alloc_size	= sizeof(struct nvme_info),
+-	.init			= nvme_info_init,
+-};
+diff --git a/drivers/block/nvme.c b/drivers/block/nvme.c
+deleted file mode 100644
+index 477eb9b2f1..0000000000
+--- a/drivers/block/nvme.c
++++ /dev/null
+@@ -1,1073 +0,0 @@
+-/*
+- * Copyright (C) 2017 NXP Semiconductors
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
+- */
+-
+-#include <common.h>
+-#include <errno.h>
+-#include <linux/compat.h>
+-#include <dm.h>
+-#include <dm/device.h>
+-#include <pci.h>
+-#include <memalign.h>
+-#include <linux/err.h>
+-#include <linux/ioport.h>
+-#include <console.h>
+-#include <asm/armv8/mmu.h>
+-#include "nvme.h"
+-
+-#define NVME_Q_DEPTH		2
+-#define NVME_AQ_DEPTH		2
+-#define SQ_SIZE(depth)		(depth * sizeof(struct nvme_command))
+-#define CQ_SIZE(depth)		(depth * sizeof(struct nvme_completion))
+-#define ADMIN_TIMEOUT		60
+-#define MAX_PRP_POOL		512
+-
+-struct blk_desc nvme_dev_desc[CONFIG_SYS_NVME_MAX_DEVICE];
+-
+-struct nvme_info *nvme_info;
+-
+-/*
+- *An NVM Express queue. Each device has at least two(one for admin
+- *commands and one for I/O commands).
+- */
+-struct nvme_queue {
+-	struct nvme_dev *dev;
+-	struct nvme_command *sq_cmds;
+-	struct nvme_completion *cqes;
+-	wait_queue_head_t sq_full;
+-	u32 __iomem *q_db;
+-	u16 q_depth;
+-	s16 cq_vector;
+-	u16 sq_head;
+-	u16 sq_tail;
+-	u16 cq_head;
+-	u16 qid;
+-	u8 cq_phase;
+-	u8 cqe_seen;
+-	unsigned long cmdid_data[];
+-};
+-
+-static int nvme_wait_ready(struct nvme_dev *dev, u64 cap, bool enabled)
+-{
+-	u32 bit = enabled ? NVME_CSTS_RDY : 0;
+-	while ((readl(&dev->bar->csts) & NVME_CSTS_RDY) != bit)
+-		udelay(10000);
+-
+-	return 0;
+-}
+-
+-static int nvme_setup_prps(struct nvme_dev *dev, u64 *prp2,
+-		int total_len, u64 dma_addr)
+-{
+-	u32 page_size = dev->page_size;
+-	int offset = dma_addr & (page_size - 1);
+-	u64 *prp_pool;
+-	int length = total_len;
+-	int i, nprps;
+-	length -= (page_size - offset);
+-
+-	if (length <= 0) {
+-		*prp2 = 0;
+-		return 0;
+-	}
+-
+-	if (length)
+-		dma_addr += (page_size - offset);
+-
+-	if (length <= page_size) {
+-		*prp2 = dma_addr;
+-		return 0;
+-	}
+-
+-	nprps = DIV_ROUND_UP(length, page_size);
+-
+-	if (nprps > dev->prp_entry_num) {
+-		free(dev->prp_pool);
+-		dev->prp_pool = malloc(nprps << 3);
+-		if (!dev->prp_pool) {
+-			printf("Error: malloc prp_pool fail\n");
+-			return -ENOMEM;
+-		}
+-		dev->prp_entry_num = nprps;
+-	}
+-	prp_pool = dev->prp_pool;
+-	i = 0;
+-	while (nprps) {
+-		if (i == ((page_size >> 3) - 1)) {
+-			*(prp_pool + i) = cpu_to_le64((u64)prp_pool +
+-					page_size);
+-			i = 0;
+-			prp_pool += page_size;
+-		}
+-		*(prp_pool + i++) = cpu_to_le64(dma_addr);
+-		dma_addr += page_size;
+-		nprps--;
+-	}
+-	*prp2 = (u64)dev->prp_pool;
+-	return 0;
+-}
+-
+-static __le16 get_cmdid(void)
+-{
+-	static unsigned short cmdid;
+-	return cpu_to_le16((cmdid < USHRT_MAX) ? cmdid++ : 0);
+-}
+-
+-static u16 read_completion_status(struct nvme_queue *nvmeq, u16 index)
+-{
+-	u64 start = (u64)&nvmeq->cqes[index];
+-	u64 stop = start + sizeof(struct nvme_completion);
+-	invalidate_dcache_range(start, stop);
+-	return le16_to_cpu(readw(&(nvmeq->cqes[index].status)));
+-}
+-
+-/**
+- * nvme_submit_cmd() - Copy a command into a queue and ring the doorbell
+- * @nvmeq: The queue to use
+- * @cmd: The command to send
+- */
+-static int nvme_submit_cmd(struct nvme_queue *nvmeq, struct nvme_command *cmd)
+-{
+-	u16 tail = nvmeq->sq_tail;
+-	flush_dcache_all();
+-	memcpy(&nvmeq->sq_cmds[tail], cmd, sizeof(*cmd));
+-	flush_dcache_range((ulong)&nvmeq->sq_cmds[tail],
+-			   (ulong)&nvmeq->sq_cmds[tail] + sizeof(*cmd));
+-	if (++tail == nvmeq->q_depth)
+-		tail = 0;
+-	writel(tail, nvmeq->q_db);
+-	nvmeq->sq_tail = tail;
+-
+-	return 0;
+-}
+-
+-static int nvme_submit_sync_cmd(struct nvme_queue *nvmeq,
+-		struct nvme_command *cmd, u32 *result, unsigned timeout)
+-{
+-	u16 head = nvmeq->cq_head;
+-	u16 phase = nvmeq->cq_phase;
+-	u16 status;
+-	ulong start_time;
+-	ulong timeout_us = timeout * 100000;
+-
+-	cmd->common.command_id = get_cmdid();
+-	nvme_submit_cmd(nvmeq, cmd);
+-
+-	start_time = timer_get_us();
+-
+-	for (;;) {
+-		status = read_completion_status(nvmeq, head);
+-		if ((status & 0x01) == phase)
+-			break;
+-		if (timeout_us > 0 && (timer_get_us() - start_time)
+-		    >= timeout_us)
+-			return -ETIMEDOUT;
+-	}
+-	status >>= 1;
+-	if (status) {
+-		printf("ERROR: status = %d, phase = %d, head = %d\n",
+-		       status, phase, head);
+-		status = 0;
+-		if (++head == nvmeq->q_depth) {
+-			head = 0;
+-			phase = !phase;
+-		}
+-		writel(head, nvmeq->q_db + nvmeq->dev->db_stride);
+-		nvmeq->cq_head = head;
+-		nvmeq->cq_phase = phase;
+-		return -1;
+-	}
+-
+-	if (result)
+-		*result = le32_to_cpu(readl(&(nvmeq->cqes[head].result)));
+-
+-	if (++head == nvmeq->q_depth) {
+-		head = 0;
+-		phase = !phase;
+-	}
+-	writel(head, nvmeq->q_db + nvmeq->dev->db_stride);
+-	nvmeq->cq_head = head;
+-	nvmeq->cq_phase = phase;
+-
+-	return status;
+-}
+-
+-static int nvme_submit_admin_cmd(struct nvme_dev *dev,
+-		struct nvme_command *cmd, u32 *result)
+-{
+-	return nvme_submit_sync_cmd(dev->queues[0], cmd, result, ADMIN_TIMEOUT);
+-}
+-
+-static struct nvme_queue *nvme_alloc_queue(struct nvme_dev *dev,
+-		int qid, int depth)
+-{
+-	struct nvme_queue *nvmeq = malloc(sizeof(*nvmeq));
+-	if (!nvmeq)
+-		return NULL;
+-	memset(nvmeq, 0, sizeof(*nvmeq));
+-
+-	nvmeq->cqes = (void *)memalign(4096, CQ_SIZE(depth));
+-	if (!nvmeq->cqes)
+-		goto free_nvmeq;
+-	memset((void *)nvmeq->cqes, 0, CQ_SIZE(depth));
+-
+-	nvmeq->sq_cmds = (void *)memalign(4096, SQ_SIZE(depth));
+-	if (!nvmeq->sq_cmds)
+-		goto free_queue;
+-	memset((void *)nvmeq->sq_cmds, 0, SQ_SIZE(depth));
+-
+-	nvmeq->dev = dev;
+-
+-	nvmeq->cq_head = 0;
+-	nvmeq->cq_phase = 1;
+-	nvmeq->q_db = &dev->dbs[qid * 2 * dev->db_stride];
+-	nvmeq->q_depth = depth;
+-	nvmeq->qid = qid;
+-	dev->queue_count++;
+-	dev->queues[qid] = nvmeq;
+-
+-	return nvmeq;
+- free_queue:
+-	free((void *)nvmeq->cqes);
+- free_nvmeq:
+-	free(nvmeq);
+-	return NULL;
+-}
+-
+-static int adapter_delete_queue(struct nvme_dev *dev, u8 opcode, u16 id)
+-{
+-	struct nvme_command c;
+-	memset(&c, 0, sizeof(c));
+-	c.delete_queue.opcode = opcode;
+-	c.delete_queue.qid = cpu_to_le16(id);
+-	return nvme_submit_admin_cmd(dev, &c, NULL);
+-}
+-
+-static int adapter_delete_sq(struct nvme_dev *dev, u16 sqid)
+-{
+-	return adapter_delete_queue(dev, nvme_admin_delete_sq, sqid);
+-}
+-
+-static int adapter_delete_cq(struct nvme_dev *dev, u16 cqid)
+-{
+-	return adapter_delete_queue(dev, nvme_admin_delete_cq, cqid);
+-}
+-
+-static int nvme_enable_ctrl(struct nvme_dev *dev, u64 cap)
+-{
+-	dev->ctrl_config &= ~NVME_CC_SHN_MASK;
+-	dev->ctrl_config |= NVME_CC_ENABLE;
+-	writel(cpu_to_le32(dev->ctrl_config), &dev->bar->cc);
+-	return nvme_wait_ready(dev, cap, true);
+-}
+-
+-static int nvme_disable_ctrl(struct nvme_dev *dev, u64 cap)
+-{
+-	dev->ctrl_config &= ~NVME_CC_SHN_MASK;
+-	dev->ctrl_config &= ~NVME_CC_ENABLE;
+-	writel(cpu_to_le32(dev->ctrl_config), &dev->bar->cc);
+-	return nvme_wait_ready(dev, cap, false);
+-}
+-
+-static void nvme_free_queue(struct nvme_queue *nvmeq)
+-{
+-	free((void *)nvmeq->cqes);
+-	free(nvmeq->sq_cmds);
+-	free(nvmeq);
+-}
+-
+-static void nvme_free_queues(struct nvme_dev *dev, int lowest)
+-{
+-	int i;
+-	for (i = dev->queue_count - 1; i >= lowest; i--) {
+-		struct nvme_queue *nvmeq = dev->queues[i];
+-		dev->queue_count--;
+-		dev->queues[i] = NULL;
+-		nvme_free_queue(nvmeq);
+-	}
+-}
+-
+-static void nvme_init_queue(struct nvme_queue *nvmeq, u16 qid)
+-{
+-	struct nvme_dev *dev = nvmeq->dev;
+-	nvmeq->sq_tail = 0;
+-	nvmeq->cq_head = 0;
+-	nvmeq->cq_phase = 1;
+-	nvmeq->q_db = &dev->dbs[qid * 2 * dev->db_stride];
+-	memset((void *)nvmeq->cqes, 0, CQ_SIZE(nvmeq->q_depth));
+-	flush_dcache_range((u64)nvmeq->cqes,
+-			   (u64)nvmeq->cqes + CQ_SIZE(nvmeq->q_depth));
+-	dev->online_queues++;
+-}
+-
+-static int nvme_configure_admin_queue(struct nvme_dev *dev)
+-{
+-	int result;
+-	u32 aqa;
+-	u64 cap = readq(&dev->bar->cap);
+-	struct nvme_queue *nvmeq;
+-	unsigned page_shift = PAGE_SHIFT;
+-	unsigned dev_page_min = NVME_CAP_MPSMIN(cap) + 12;
+-	unsigned dev_page_max = NVME_CAP_MPSMAX(cap) + 12;
+-	if (page_shift < dev_page_min) {
+-		dev_err(&dev->pci_dev->dev,
+-			"Minimum device page size (%u) too large for host (%u)\n",
+-			1 << dev_page_min,
+-			1 << page_shift);
+-		return -ENODEV;
+-	}
+-
+-	if (page_shift > dev_page_max) {
+-		dev_info(&dev->pci_dev->dev,
+-			 "Device maximum page size (%u) smaller than host (%u); enabling work-around\n",
+-			 1 << dev_page_max,
+-			 1 << page_shift);
+-		page_shift = dev_page_max;
+-	}
+-
+-	result = nvme_disable_ctrl(dev, cap);
+-	if (result < 0)
+-		return result;
+-
+-	nvmeq = dev->queues[0];
+-	if (!nvmeq) {
+-		nvmeq = nvme_alloc_queue(dev, 0, NVME_AQ_DEPTH);
+-		if (!nvmeq)
+-			return -ENOMEM;
+-	}
+-
+-	aqa = nvmeq->q_depth - 1;
+-	aqa |= aqa << 16;
+-	aqa |= aqa << 16;
+-
+-	dev->page_size = 1 << page_shift;
+-
+-	dev->ctrl_config = NVME_CC_CSS_NVM;
+-	dev->ctrl_config |= (page_shift - 12) << NVME_CC_MPS_SHIFT;
+-	dev->ctrl_config |= NVME_CC_ARB_RR | NVME_CC_SHN_NONE;
+-	dev->ctrl_config |= NVME_CC_IOSQES | NVME_CC_IOCQES;
+-
+-	writel(aqa, &dev->bar->aqa);
+-	writeq((u64)nvmeq->sq_cmds, &dev->bar->asq);
+-	writeq((u64)nvmeq->cqes, &dev->bar->acq);
+-
+-	result = nvme_enable_ctrl(dev, cap);
+-	if (result)
+-		goto free_nvmeq;
+-
+-	nvmeq->cq_vector = 0;
+-
+-	nvme_init_queue(dev->queues[0], 0);
+-	return result;
+-
+- free_nvmeq:
+-	nvme_free_queues(dev, 0);
+-	return result;
+-}
+-
+-static int adapter_alloc_cq(struct nvme_dev *dev,
+-		u16 qid, struct nvme_queue *nvmeq)
+-{
+-	struct nvme_command c;
+-	int flags = NVME_QUEUE_PHYS_CONTIG | NVME_CQ_IRQ_ENABLED;
+-	memset(&c, 0, sizeof(c));
+-	c.create_cq.opcode = nvme_admin_create_cq;
+-	c.create_cq.prp1 = cpu_to_le64(nvmeq->cqes);
+-	c.create_cq.cqid = cpu_to_le16(qid);
+-	c.create_cq.qsize = cpu_to_le16(nvmeq->q_depth - 1);
+-	c.create_cq.cq_flags = cpu_to_le16(flags);
+-	c.create_cq.irq_vector = cpu_to_le16(nvmeq->cq_vector);
+-
+-	return nvme_submit_admin_cmd(dev, &c, NULL);
+-}
+-
+-static int adapter_alloc_sq(struct nvme_dev *dev,
+-		u16 qid, struct nvme_queue *nvmeq)
+-{
+-	struct nvme_command c;
+-	int flags = NVME_QUEUE_PHYS_CONTIG | NVME_SQ_PRIO_MEDIUM;
+-	memset(&c, 0, sizeof(c));
+-	c.create_sq.opcode = nvme_admin_create_sq;
+-	c.create_sq.prp1 = cpu_to_le64(nvmeq->sq_cmds);
+-	c.create_sq.sqid = cpu_to_le16(qid);
+-	c.create_sq.qsize = cpu_to_le16(nvmeq->q_depth - 1);
+-	c.create_sq.sq_flags = cpu_to_le16(flags);
+-	c.create_sq.cqid = cpu_to_le16(qid);
+-
+-	return nvme_submit_admin_cmd(dev, &c, NULL);
+-}
+-
+-static int nvme_identify(struct nvme_dev *dev, unsigned nsid,
+-		unsigned cns, dma_addr_t dma_addr)
+-{
+-	struct nvme_command c;
+-	memset(&c, 0, sizeof(c));
+-	u32 page_size = dev->page_size;
+-	int offset = dma_addr & (page_size - 1);
+-	int length = sizeof(struct nvme_id_ctrl);
+-
+-	c.identify.opcode = nvme_admin_identify;
+-	c.identify.nsid = cpu_to_le32(nsid);
+-	c.identify.prp1 = cpu_to_le64(dma_addr);
+-
+-	length -= (page_size - offset);
+-	if (length <= 0) {
+-		c.identify.prp2 = 0;
+-	} else {
+-		dma_addr += (page_size - offset);
+-		c.identify.prp2 = dma_addr;
+-	}
+-
+-	c.identify.cns = cpu_to_le32(cns);
+-
+-	return nvme_submit_admin_cmd(dev, &c, NULL);
+-}
+-
+-static __maybe_unused int nvme_get_features(struct nvme_dev *dev, unsigned fid,
+-		unsigned nsid, dma_addr_t dma_addr, u32 *result)
+-{
+-	struct nvme_command c;
+-	memset(&c, 0, sizeof(c));
+-
+-	c.features.opcode = nvme_admin_get_features;
+-	c.features.nsid = cpu_to_le32(nsid);
+-	c.features.prp1 = cpu_to_le64(dma_addr);
+-	c.features.fid = cpu_to_le32(fid);
+-
+-	return nvme_submit_admin_cmd(dev, &c, result);
+-}
+-
+-static __maybe_unused int nvme_set_features(struct nvme_dev *dev, unsigned fid,
+-		unsigned dword11, dma_addr_t dma_addr, u32 *result)
+-{
+-	struct nvme_command c;
+-	memset(&c, 0, sizeof(c));
+-
+-	c.features.opcode = nvme_admin_set_features;
+-	c.features.prp1 = cpu_to_le64(dma_addr);
+-	c.features.fid = cpu_to_le32(fid);
+-	c.features.dword11 = cpu_to_le32(dword11);
+-
+-	return nvme_submit_admin_cmd(dev, &c, result);
+-}
+-
+-static int nvme_create_queue(struct nvme_queue *nvmeq, int qid)
+-{
+-	struct nvme_dev *dev = nvmeq->dev;
+-	int result;
+-
+-	nvmeq->cq_vector = qid - 1;
+-	result = adapter_alloc_cq(dev, qid, nvmeq);
+-	if (result < 0)
+-		goto release_cq;
+-
+-	result = adapter_alloc_sq(dev, qid, nvmeq);
+-	if (result < 0)
+-		goto release_sq;
+-
+-	nvme_init_queue(nvmeq, qid);
+-	return result;
+-
+- release_sq:
+-	adapter_delete_sq(dev, qid);
+- release_cq:
+-	adapter_delete_cq(dev, qid);
+-	return result;
+-}
+-
+-static int set_queue_count(struct nvme_dev *dev, int count)
+-{
+-	int status;
+-	u32 result;
+-	u32 q_count = (count - 1) | ((count - 1) << 16);
+-
+-	status = nvme_set_features(dev, NVME_FEAT_NUM_QUEUES,
+-			q_count, 0, &result);
+-
+-	if (status < 0)
+-		return status;
+-	if (status > 1)
+-		return 0;
+-
+-	return min(result & 0xffff, result >> 16) + 1;
+-}
+-
+-static void nvme_create_io_queues(struct nvme_dev *dev)
+-{
+-	unsigned int i;
+-
+-	for (i = dev->queue_count; i <= dev->max_qid; i++)
+-		if (!nvme_alloc_queue(dev, i, dev->q_depth))
+-			break;
+-
+-	for (i = dev->online_queues; i <= dev->queue_count - 1; i++)
+-		if (nvme_create_queue(dev->queues[i], i))
+-			break;
+-}
+-
+-static int nvme_setup_io_queues(struct nvme_dev *dev)
+-{
+-	int nr_io_queues;
+-	int result;
+-
+-	nr_io_queues = 1;
+-	result = set_queue_count(dev, nr_io_queues);
+-	if (result <= 0)
+-		return result;
+-
+-	if (result < nr_io_queues)
+-		nr_io_queues = result;
+-
+-	dev->max_qid = nr_io_queues;
+-
+-	/* Free previously allocated queues*/
+-	nvme_free_queues(dev, nr_io_queues + 1);
+-	nvme_create_io_queues(dev);
+-
+-	return 0;
+-}
+-
+-static int nvme_get_info_from_identify(struct nvme_dev *dev)
+-{
+-	u16 vendor, device;
+-	struct nvme_id_ctrl buf, *ctrl = &buf;
+-	int ret;
+-	int shift = NVME_CAP_MPSMIN(readq(&dev->bar->cap)) + 12;
+-
+-	ret = nvme_identify(dev, 0, 1, (dma_addr_t)ctrl);
+-	if (ret)
+-		return -EIO;
+-
+-	dev->nn = le32_to_cpu(ctrl->nn);
+-	dev->vwc = ctrl->vwc;
+-	memcpy(dev->serial, ctrl->sn, sizeof(ctrl->sn));
+-	memcpy(dev->model, ctrl->mn, sizeof(ctrl->mn));
+-	memcpy(dev->firmware_rev, ctrl->fr, sizeof(ctrl->fr));
+-	if (ctrl->mdts)
+-		dev->max_transfer_shift = (ctrl->mdts + shift);
+-
+-	dm_pci_read_config16(dev->pdev, PCI_VENDOR_ID, &vendor);
+-	dm_pci_read_config16(dev->pdev, PCI_DEVICE_ID, &device);
+-	if ((vendor == PCI_VENDOR_ID_INTEL) &&
+-	    (device == 0x0953) && ctrl->vs[3]) {
+-		unsigned int max_transfer_shift;
+-		dev->stripe_size = (ctrl->vs[3] + shift);
+-		max_transfer_shift = (ctrl->vs[3] + 18);
+-		if (dev->max_transfer_shift) {
+-			dev->max_transfer_shift = min(max_transfer_shift,
+-						       dev->max_transfer_shift);
+-		} else {
+-			dev->max_transfer_shift = max_transfer_shift;
+-		}
+-	}
+-	return 0;
+-}
+-
+-int init_nvme(struct udevice *udev)
+-{
+-	int ret;
+-#ifdef CONFIG_BLK
+-	struct nvme_dev *ndev = dev_get_priv(udev);
+-#else
+-	struct nvme_ns *ns = dev_get_priv(udev);
+-	struct nvme_dev *ndev = ns->dev;
+-#endif
+-	u32 val;
+-	u64 cap;
+-	size_t size;
+-
+-	ndev->pdev = udev;
+-
+-	ndev->instance = trailing_strtol(udev->name);
+-
+-	INIT_LIST_HEAD(&ndev->namespaces);
+-	ndev->bar = dm_pci_map_bar(udev, 0, &size, PCI_REGION_MEM);
+-	if (readl(&ndev->bar->csts) == -1) {
+-		ret = -ENODEV;
+-		printf("Error: %s: Out of Memory!\n", udev->name);
+-		goto free_nvme;
+-	}
+-
+-	ndev->queues = malloc(2 * sizeof(struct nvme_queue));
+-	if (!ndev->queues) {
+-		ret = -ENOMEM;
+-		printf("Error: %s: Out of Memory!\n", udev->name);
+-		goto free_nvme;
+-	}
+-	memset(ndev->queues, 0, sizeof(2 * sizeof(struct nvme_queue)));
+-
+-	ndev->prp_pool = malloc(MAX_PRP_POOL);
+-	if (!ndev->prp_pool) {
+-		ret = -ENOMEM;
+-		printf("Error: %s: Out of Memory!\n", udev->name);
+-		goto free_nvme;
+-	}
+-	ndev->prp_entry_num = MAX_PRP_POOL >> 3;
+-
+-	/* Try to enable I/O accesses and bus-mastering */
+-	val = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER;
+-	dm_pci_write_config32(udev, PCI_COMMAND, val);
+-
+-	/* Print a debug message with the IO base address */
+-	dm_pci_read_config32(udev, PCI_BASE_ADDRESS_0, &val);
+-
+-	/* Make sure it worked */
+-	dm_pci_read_config32(udev, PCI_COMMAND, &val);
+-	if (!(val & PCI_COMMAND_MEMORY)) {
+-		printf("Can't enable I/O memory\n");
+-		ret = -ENOSPC;
+-		goto free_queue;
+-	}
+-
+-	if (!(val & PCI_COMMAND_MASTER)) {
+-		printf("Can't enable bus-mastering\n");
+-		ret = -EPERM;
+-		goto free_queue;
+-	}
+-
+-	if (readl(&ndev->bar->csts) == -1) {
+-		ret = -ENODEV;
+-		goto free_queue;
+-	}
+-
+-	cap = readq(&ndev->bar->cap);
+-	ndev->q_depth = min_t(int, NVME_CAP_MQES(cap) + 1, NVME_Q_DEPTH);
+-	ndev->db_stride = 1 << NVME_CAP_STRIDE(cap);
+-	ndev->dbs = ((void __iomem *)ndev->bar) + 4096;
+-
+-	ret = nvme_configure_admin_queue(ndev);
+-	if (ret)
+-		goto free_queue;
+-
+-	ret = nvme_setup_io_queues(ndev);
+-	if (ret)
+-		goto free_queue;
+-
+-	nvme_get_info_from_identify(ndev);
+-	ndev->blk_dev_start = nvme_info->ns_num;
+-	list_add(&ndev->node, &nvme_info->dev_list);
+-	return 0;
+- free_queue:
+-	free((void *)ndev->queues);
+- free_nvme:
+-	return ret;
+-}
+-
+-static void print_optional_admin_cmd(u16 oacs, int devnum)
+-{
+-	printf("Blk device %d: Optional Admin Command Support:\n",
+-	       devnum);
+-	printf("\tNamespace Management/Attachment: %s\n",
+-	       oacs & 0x08 ? "yes" : "no");
+-	printf("\tFirmware Commit/Image download: %s\n",
+-	       oacs & 0x04 ? "yes" : "no");
+-	printf("\tFormat NVM: %s\n",
+-	       oacs & 0x02 ? "yes" : "no");
+-	printf("\tSecurity Send/Receive: %s\n",
+-	       oacs & 0x01 ? "yes" : "no");
+-}
+-
+-static void print_optional_nvm_cmd(u16 oncs, int devnum)
+-{
+-	printf("Blk device %d: Optional NVM Command Support:\n",
+-	       devnum);
+-	printf("\tReservation: %s\n",
+-	       oncs & 0x10 ? "yes" : "no");
+-	printf("\tSave/Select field in the Set/Get features: %s\n",
+-	       oncs & 0x08 ? "yes" : "no");
+-	printf("\tWrite Zeroes: %s\n",
+-	       oncs & 0x04 ? "yes" : "no");
+-	printf("\tDataset Management: %s\n",
+-	       oncs & 0x02 ? "yes" : "no");
+-	printf("\tWrite Uncorrectable: %s\n",
+-	       oncs & 0x01 ? "yes" : "no");
+-}
+-
+-static void print_format_nvme_attributes(u8 fna, int devnum)
+-{
+-	printf("Blk device %d: Format NVM Attributes:\n", devnum);
+-	printf("\tSupport Cryptographic Erase: %s\n",
+-	       fna & 0x04 ? "yes" : "No");
+-	printf("\tSupport erase a particular namespace: %s\n",
+-	       fna & 0x02 ? "No" : "Yes");
+-	printf("\tSupport format a particular namespace: %s\n",
+-	       fna & 0x01 ? "No" : "Yes");
+-}
+-
+-static void print_format(struct nvme_lbaf *lbaf)
+-{
+-	u8 str[][10] = {"Best", "Better", "Good", "Degraded"};
+-	printf("\t\tMetadata Size: %d\n", le16_to_cpu(lbaf->ms));
+-	printf("\t\tLBA Data Size: %d\n", 1 << lbaf->ds);
+-	printf("\t\tRelative Performance: %s\n", str[lbaf->rp & 0x03]);
+-}
+-
+-static void print_formats(struct nvme_id_ns *id, struct nvme_ns *ns)
+-{
+-	int i;
+-	printf("Blk device %d: LBA Format Support:\n", ns->devnum);
+-	for (i = 0; i < id->nlbaf; i++) {
+-		printf("\tLBA Foramt %d Support: ", i);
+-		if (i == ns->flbas)
+-			printf("(current)\n");
+-		else
+-			printf("\n");
+-		print_format(id->lbaf + i);
+-	}
+-}
+-
+-static void print_data_protect_cap(u8 dpc, int devnum)
+-{
+-	printf("Blk device %d: End-to-End Data", devnum);
+-	printf("Protect Capabilities:\n");
+-	printf("\tAs last eight bytes: %s\n",
+-	       dpc & 0x10 ? "yes" : "No");
+-	printf("\tAs first eight bytes: %s\n",
+-	       dpc & 0x08 ? "yes" : "No");
+-	printf("\tSupport Type3: %s\n",
+-	       dpc & 0x04 ? "yes" : "No");
+-	printf("\tSupport Type2: %s\n",
+-	       dpc & 0x02 ? "yes" : "No");
+-	printf("\tSupport Type1: %s\n",
+-	       dpc & 0x01 ? "yes" : "No");
+-}
+-
+-static void print_metadata_cap(u8 mc, int devnum)
+-{
+-	printf("Blk device %d: Metadata capabilities:\n", devnum);
+-	printf("\tAs part of a separate buffer: %s\n",
+-	       mc & 0x02 ? "yes" : "No");
+-	printf("\tAs part of an extended data LBA: %s\n",
+-	       mc & 0x01 ? "yes" : "No");
+-}
+-
+-int nvme_print_info(struct udevice *udev)
+-{
+-	struct nvme_ns *ns = dev_get_priv(udev);
+-	struct nvme_dev *dev = ns->dev;
+-	struct nvme_id_ns buf_ns, *id = &buf_ns;
+-	struct nvme_id_ctrl buf_ctrl, *ctrl = &buf_ctrl;
+-
+-	if (nvme_identify(dev, 0, 1, (dma_addr_t)ctrl))
+-		return -EIO;
+-
+-	print_optional_admin_cmd(le16_to_cpu(ctrl->oacs), ns->devnum);
+-	print_optional_nvm_cmd(le16_to_cpu(ctrl->oncs), ns->devnum);
+-	print_format_nvme_attributes(ctrl->fna, ns->devnum);
+-
+-	if (nvme_identify(dev, ns->ns_id, 0, (dma_addr_t)id))
+-		return -EIO;
+-
+-	print_formats(id, ns);
+-	print_data_protect_cap(id->dpc, ns->devnum);
+-	print_metadata_cap(id->mc, ns->devnum);
+-	return 0;
+-}
+-#ifndef CONFIG_BLK
+-static ulong nvme_write(struct blk_desc *desc, lbaint_t blknr, lbaint_t blkcnt,
+-			const void *buffer)
+-#else
+-static ulong nvme_write(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
+-		const void *buffer)
+-#endif
+-{
+-#ifndef CONFIG_BLK
+-	struct udevice *udev = desc->priv;
+-#else
+-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+-#endif
+-	struct nvme_ns *ns = dev_get_priv(udev);
+-	struct nvme_dev *dev = ns->dev;
+-	struct nvme_command c;
+-	int status;
+-	u64 prp2;
+-	u64 total_len = blkcnt << desc->log2blksz;
+-	u64 temp_len = total_len;
+-
+-	u64 slba = blknr;
+-	u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
+-	u64 total_lbas = blkcnt;
+-
+-	c.rw.opcode = nvme_cmd_write;
+-	c.rw.flags = 0;
+-	c.rw.nsid = cpu_to_le32(ns->ns_id);
+-	c.rw.control = 0;
+-	c.rw.dsmgmt = 0;
+-	c.rw.reftag = 0;
+-	c.rw.apptag = 0;
+-	c.rw.appmask = 0;
+-	c.rw.metadata = 0;
+-
+-	while (total_lbas) {
+-		if (total_lbas < lbas) {
+-			lbas = (u16)total_lbas;
+-			total_lbas = 0;
+-		} else {
+-			total_lbas -= lbas;
+-		}
+-
+-		if (nvme_setup_prps
+-		   (dev, &prp2, lbas << ns->lba_shift, (u64)buffer))
+-			return -EIO;
+-		c.rw.slba = cpu_to_le64(slba);
+-		slba += lbas;
+-		c.rw.length = cpu_to_le16(lbas - 1);
+-		c.rw.prp1 = cpu_to_le64(buffer);
+-		c.rw.prp2 = cpu_to_le64(prp2);
+-		status = nvme_submit_sync_cmd(dev->queues[1],
+-				&c, NULL, NVME_IO_TIMEOUT);
+-		if (status)
+-			break;
+-		temp_len -= lbas << ns->lba_shift;
+-		buffer += lbas << ns->lba_shift;
+-	}
+-	return (total_len - temp_len) >> desc->log2blksz;
+-}
+-
+-#ifndef CONFIG_BLK
+-static ulong nvme_read(struct blk_desc *desc, lbaint_t blknr, lbaint_t blkcnt,
+-		       void *buffer)
+-#else
+-static ulong nvme_read(struct udevice *udev, lbaint_t blknr, lbaint_t blkcnt,
+-		       void *buffer)
+-#endif
+-{
+-#ifndef CONFIG_BLK
+-	struct udevice *udev = desc->priv;
+-#else
+-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+-#endif
+-	struct nvme_ns *ns = dev_get_priv(udev);
+-	struct nvme_dev *dev = ns->dev;
+-	struct nvme_command c;
+-	int status;
+-	u64 prp2;
+-	u64 total_len = blkcnt << desc->log2blksz;
+-	u64 temp_len = total_len;
+-
+-	u64 slba = blknr;
+-	u16 lbas = 1 << (dev->max_transfer_shift - ns->lba_shift);
+-	u64 total_lbas = blkcnt;
+-
+-	c.rw.opcode = nvme_cmd_read;
+-	c.rw.flags = 0;
+-	c.rw.nsid = cpu_to_le32(ns->ns_id);
+-	c.rw.control = 0;
+-	c.rw.dsmgmt = 0;
+-	c.rw.reftag = 0;
+-	c.rw.apptag = 0;
+-	c.rw.appmask = 0;
+-	c.rw.metadata = 0;
+-
+-	while (total_lbas) {
+-		if (total_lbas < lbas) {
+-			lbas = (u16)total_lbas;
+-			total_lbas = 0;
+-		} else {
+-			total_lbas -= lbas;
+-		}
+-
+-		if (nvme_setup_prps
+-		   (dev, &prp2, lbas << ns->lba_shift, (u64)buffer))
+-			return -EIO;
+-		c.rw.slba = cpu_to_le64(slba);
+-		slba += lbas;
+-		c.rw.length = cpu_to_le16(lbas - 1);
+-		c.rw.prp1 = cpu_to_le64(buffer);
+-		c.rw.prp2 = cpu_to_le64(prp2);
+-		status = nvme_submit_sync_cmd(dev->queues[1],
+-				&c, NULL, NVME_IO_TIMEOUT);
+-		if (status)
+-			break;
+-		temp_len -= lbas << ns->lba_shift;
+-		buffer += lbas << ns->lba_shift;
+-	}
+-	return (total_len - temp_len) >> desc->log2blksz;
+-}
+-
+-struct pci_device_id nvme_supported[] = {
+-		{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x0953) },
+-		{}
+-};
+-
+-int __nvme_initialize(void)
+-{
+-	int i, ret = 0;
+-	struct udevice *pdev;
+-	struct udevice *nsdev;
+-#ifdef CONFIG_BLK
+-	struct udevice *ndev;
+-
+-	for (i = 0; ; i++) {
+-		ret = pci_find_device_id(nvme_supported, i, &pdev);
+-		if (ret)
+-			break;
+-
+-		puts("NVMe:  ");
+-
+-		for (uclass_first_device(UCLASS_NVME, &ndev);
+-		     ndev;
+-		     uclass_next_device(&ndev)) {
+-			for (device_find_first_child(ndev, &nsdev);
+-			     nsdev;
+-			     device_find_next_child(&nsdev)) {
+-				printf(" %s ", nsdev->name);
+-			}
+-		}
+-	}
+-	printf("\n");
+-#else
+-
+-	struct nvme_info *info = malloc(sizeof(*info));
+-	info->ns_num = 0;
+-	info->ndev_num = 0;
+-	INIT_LIST_HEAD(&info->dev_list);
+-	nvme_info = info;
+-
+-	for (i = 0; i < CONFIG_SYS_NVME_MAX_DEVICE; i++) {
+-		memset(&nvme_dev_desc[i], 0, sizeof(struct blk_desc));
+-		nvme_dev_desc[i].if_type = IF_TYPE_NVME;
+-		nvme_dev_desc[i].devnum = i;
+-		nvme_dev_desc[i].part_type = PART_TYPE_UNKNOWN;
+-		nvme_dev_desc[i].type = DEV_TYPE_UNKNOWN;
+-		nvme_dev_desc[i].lba = 0;
+-		nvme_dev_desc[i].blksz = 512;
+-		nvme_dev_desc[i].log2blksz = LOG2(nvme_dev_desc[i].blksz);
+-		nvme_dev_desc[i].block_read = nvme_read;
+-		nvme_dev_desc[i].block_write = nvme_write;
+-
+-		ret = pci_find_device_id(nvme_supported, i, &pdev);
+-
+-		if (!ret) {
+-			struct nvme_id_ns buf, *id = &buf;
+-			struct nvme_ns *ns = malloc(sizeof(*ns));
+-			struct nvme_dev *ndev = malloc(sizeof(*ndev));
+-			u8 flbas;
+-			u16 vendor;
+-			char name[20];
+-
+-			memset(ns, 0, sizeof(*ns));
+-
+-			sprintf(name, "nvme#%d", nvme_info->ndev_num++);
+-			pdev->priv = ns;
+-			ns->dev = ndev;
+-			device_set_name(pdev, name);
+-
+-			ret = init_nvme(pdev);
+-			if (ret)
+-				return ret;
+-
+-			ns->ns_id = i + 1;
+-			info->ns_num++;
+-
+-			if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)id))
+-				return -EIO;
+-
+-			flbas = id->flbas & NVME_NS_FLBAS_LBA_MASK;
+-			ns->flbas = flbas;
+-			ns->lba_shift = id->lbaf[flbas].ds;
+-			ns->mode_select_num_blocks = le64_to_cpu(id->nuse);
+-			ns->mode_select_block_len = 1 << ns->lba_shift;
+-			list_add(&ns->list, &ndev->namespaces);
+-
+-			nvme_dev_desc[i].lba = ns->mode_select_num_blocks;
+-			nvme_dev_desc[i].log2blksz = ns->lba_shift;
+-			nvme_dev_desc[i].blksz = 1 << ns->lba_shift;
+-
+-			nvme_dev_desc[i].priv = pdev;
+-			nvme_dev_desc[i].type = DEV_TYPE_HARDDISK;
+-
+-			dm_pci_read_config16(ndev->pdev, PCI_VENDOR_ID, &vendor);
+-			memcpy(nvme_dev_desc[i].product, ndev->serial, sizeof(ndev->serial));
+-			sprintf(nvme_dev_desc[i].vendor, "0x%.4x", vendor);
+-			memcpy(nvme_dev_desc[i].revision, ndev->firmware_rev, sizeof(ndev->firmware_rev));
+-			part_init(&nvme_dev_desc[i]);
+-		}
+-	}
+-#endif
+-	return ret;
+-}
+-
+-int nvme_initialize(void) __attribute__((weak, alias("__nvme_initialize")));
+-
+-#ifdef CONFIG_BLK
+-static int nvme_blk_probe(struct udevice *udev)
+-{
+-	struct nvme_dev *ndev = dev_get_priv(udev->parent);
+-	struct blk_desc *desc = dev_get_uclass_platdata(udev);
+-	struct nvme_ns *ns = dev_get_priv(udev);
+-	u8 flbas;
+-	u16 vendor;
+-	struct nvme_id_ns buf, *id = &buf;
+-
+-	memset(ns, 0, sizeof(*ns));
+-	ns->dev = ndev;
+-	ns->ns_id = desc->devnum - ndev->blk_dev_start + 1;
+-	if (nvme_identify(ndev, ns->ns_id, 0, (dma_addr_t)id))
+-		return -EIO;
+-
+-	flbas = id->flbas & NVME_NS_FLBAS_LBA_MASK;
+-	ns->flbas = flbas;
+-	ns->lba_shift = id->lbaf[flbas].ds;
+-	ns->mode_select_num_blocks = le64_to_cpu(id->nuse);
+-	ns->mode_select_block_len = 1 << ns->lba_shift;
+-	list_add(&ns->list, &ndev->namespaces);
+-
+-	desc->lba = ns->mode_select_num_blocks;
+-	desc->log2blksz = ns->lba_shift;
+-	desc->blksz = 1 << ns->lba_shift;
+-	desc->bdev = udev;
+-	dm_pci_read_config16(ndev->pdev, PCI_VENDOR_ID, &vendor);
+-	memcpy(desc->product, ndev->serial, sizeof(ndev->serial));
+-	sprintf(desc->vendor, "0x%.4x", vendor);
+-	memcpy(desc->revision, ndev->firmware_rev, sizeof(ndev->firmware_rev));
+-	part_init(desc);
+-	return 0;
+-}
+-
+-static const struct blk_ops nvme_blk_ops = {
+-	.read	= nvme_read,
+-	.write	= nvme_write,
+-};
+-
+-U_BOOT_DRIVER(nvme_blk) = {
+-	.name = "nvme-blk",
+-	.id = UCLASS_BLK,
+-	.ops = &nvme_blk_ops,
+-	.probe = nvme_blk_probe,
+-	.priv_auto_alloc_size = sizeof(struct nvme_ns),
+-};
+-
+-
+-static int nvme_bind(struct udevice *udev)
+-{
+-	char name[20];
+-	sprintf(name, "nvme#%d", nvme_info->ndev_num++);
+-	return device_set_name(udev, name);
+-}
+-
+-int nvme_probe(struct udevice *udev)
+-{
+-	return init_nvme(udev);
+-}
+-
+-U_BOOT_DRIVER(nvme) = {
+-	.name		= "nvme",
+-	.id		= UCLASS_NVME,
+-	.bind		= nvme_bind,
+-	.probe		= nvme_probe,
+-	.priv_auto_alloc_size	= sizeof(struct nvme_dev),
+-};
+-
+-U_BOOT_PCI_DEVICE(nvme, nvme_supported);
+-#else
+-
+-U_BOOT_LEGACY_BLK(nvme) = {
+-	.if_typename = "nvme",
+-	.if_type = IF_TYPE_NVME,
+-	.max_devs = CONFIG_SYS_NVME_MAX_DEVICE,
+-	.desc = nvme_dev_desc,
+-};
+-#endif
+diff --git a/drivers/block/nvme.h b/drivers/block/nvme.h
+deleted file mode 100644
+index c1f6789528..0000000000
+--- a/drivers/block/nvme.h
++++ /dev/null
+@@ -1,133 +0,0 @@
+-/*
+- * Copyright (C) 2017 NXP Semiconductors
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
+- */
+-
+-#ifndef __DRIVER_NVME_H__
+-#define __DRIVER_NVME_H__
+-
+-#include <pci.h>
+-#include <asm/io.h>
+-#include "nvme_uapi.h"
+-#include <linux/list.h>
+-#include <nvme.h>
+-extern struct nvme_info *nvme_info;
+-struct nvme_bar {
+-	__u64			cap;	/* Controller Capabilities */
+-	__u32			vs;	/* Version */
+-	__u32			intms;	/* Interrupt Mask Set */
+-	__u32			intmc;	/* Interrupt Mask Clear */
+-	__u32			cc;	/* Controller Configuration */
+-	__u32			rsvd1;	/* Reserved */
+-	__u32			csts;	/* Controller Status */
+-	__u32			rsvd2;	/* Reserved */
+-	__u32			aqa;	/* Admin Queue Attributes */
+-	__u64			asq;	/* Admin SQ Base Address */
+-	__u64			acq;	/* Admin CQ Base Address */
+-};
+-
+-#define NVME_CAP_MQES(cap)	((cap) & 0xffff)
+-#define NVME_CAP_TIMEOUT(cap)	(((cap) >> 24) & 0xff)
+-#define NVME_CAP_STRIDE(cap)	(((cap) >> 32) & 0xf)
+-#define NVME_CAP_MPSMIN(cap)	(((cap) >> 48) & 0xf)
+-#define NVME_CAP_MPSMAX(cap)	(((cap) >> 52) & 0xf)
+-
+-enum {
+-	NVME_CC_ENABLE		= 1 << 0,
+-	NVME_CC_CSS_NVM		= 0 << 4,
+-	NVME_CC_MPS_SHIFT	= 7,
+-	NVME_CC_ARB_RR		= 0 << 11,
+-	NVME_CC_ARB_WRRU	= 1 << 11,
+-	NVME_CC_ARB_VS		= 7 << 11,
+-	NVME_CC_SHN_NONE	= 0 << 14,
+-	NVME_CC_SHN_NORMAL	= 1 << 14,
+-	NVME_CC_SHN_ABRUPT	= 2 << 14,
+-	NVME_CC_SHN_MASK	= 3 << 14,
+-	NVME_CC_IOSQES		= 6 << 16,
+-	NVME_CC_IOCQES		= 4 << 20,
+-	NVME_CSTS_RDY		= 1 << 0,
+-	NVME_CSTS_CFS		= 1 << 1,
+-	NVME_CSTS_SHST_NORMAL	= 0 << 2,
+-	NVME_CSTS_SHST_OCCUR	= 1 << 2,
+-	NVME_CSTS_SHST_CMPLT	= 2 << 2,
+-	NVME_CSTS_SHST_MASK	= 3 << 2,
+-};
+-
+-#define NVME_IO_TIMEOUT  30
+-
+-/*
+- * Represents an NVM Express device.  Each nvme_dev is a PCI function.
+- */
+-struct nvme_dev {
+-	struct list_head node;
+-	struct nvme_queue **queues;
+-	u32 __iomem *dbs;
+-	unsigned int cardnum;
+-	struct udevice *pdev;
+-	pci_dev_t pci_dev;
+-	int instance;
+-	uint8_t *hw_addr;
+-	unsigned queue_count;
+-	unsigned online_queues;
+-	unsigned max_qid;
+-	int q_depth;
+-	u32 db_stride;
+-	u32 ctrl_config;
+-	struct nvme_bar __iomem *bar;
+-	struct list_head namespaces;
+-	const char *name;
+-	char serial[20];
+-	char model[40];
+-	char firmware_rev[8];
+-	u32 max_transfer_shift;
+-	u32 stripe_size;
+-	u32 page_size;
+-	u16 oncs;
+-	u16 abort_limit;
+-	u8 event_limit;
+-	u8 vwc;
+-	u64 *prp_pool;
+-	u32 prp_entry_num;
+-	u32 nn;
+-	u32 blk_dev_start;
+-};
+-
+-struct nvme_info {
+-	int ns_num;	/*the number of nvme namespaces*/
+-	int ndev_num;	/*the number of nvme devices*/
+-	struct list_head dev_list;
+-};
+-
+-/*
+- * The nvme_iod describes the data in an I/O, including the list of PRP
+- * entries.  You can't see it in this data structure because C doesn't let
+- * me express that.  Use nvme_alloc_iod to ensure there's enough space
+- * allocated to store the PRP list.
+- */
+-struct nvme_iod {
+-	unsigned long private;	/* For the use of the submitter of the I/O */
+-	int npages;		/* In the PRP list. 0 means small pool in use */
+-	int offset;		/* Of PRP list */
+-	int nents;		/* Used in scatterlist */
+-	int length;		/* Of data, in bytes */
+-	dma_addr_t first_dma;
+-};
+-
+-/*
+- * An NVM Express namespace is equivalent to a SCSI LUN
+- * Each namespace is operated as an independent "device".
+- */
+-struct nvme_ns {
+-	struct list_head list;
+-	struct nvme_dev *dev;
+-	unsigned ns_id;
+-	int devnum;
+-	int lba_shift;
+-	u16 ms;
+-	u8 flbas;
+-	u8 pi_type;
+-	u64 mode_select_num_blocks;
+-	u32 mode_select_block_len;
+-};
+-#endif
+diff --git a/drivers/block/nvme_uapi.h b/drivers/block/nvme_uapi.h
+deleted file mode 100644
+index 20c36aec60..0000000000
+--- a/drivers/block/nvme_uapi.h
++++ /dev/null
+@@ -1,574 +0,0 @@
+-/*
+- * Copyright (C) 2017 NXP Semiconductors
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
+- */
+-
+-#ifndef __NVME_UAPI_H__
+-#define __NVME_UAPI_H__
+-
+-#include <linux/types.h>
+-
+-struct nvme_id_power_state {
+-	__le16			max_power;	/* centiwatts */
+-	__u8			rsvd2;
+-	__u8			flags;
+-	__le32			entry_lat;	/* microseconds */
+-	__le32			exit_lat;	/* microseconds */
+-	__u8			read_tput;
+-	__u8			read_lat;
+-	__u8			write_tput;
+-	__u8			write_lat;
+-	__le16			idle_power;
+-	__u8			idle_scale;
+-	__u8			rsvd19;
+-	__le16			active_power;
+-	__u8			active_work_scale;
+-	__u8			rsvd23[9];
+-};
+-
+-enum {
+-	NVME_PS_FLAGS_MAX_POWER_SCALE	= 1 << 0,
+-	NVME_PS_FLAGS_NON_OP_STATE	= 1 << 1,
+-};
+-
+-struct nvme_id_ctrl {
+-	__le16			vid;
+-	__le16			ssvid;
+-	char			sn[20];
+-	char			mn[40];
+-	char			fr[8];
+-	__u8			rab;
+-	__u8			ieee[3];
+-	__u8			mic;
+-	__u8			mdts;
+-	__u16			cntlid;
+-	__u32			ver;
+-	__u8			rsvd84[172];
+-	__le16			oacs;
+-	__u8			acl;
+-	__u8			aerl;
+-	__u8			frmw;
+-	__u8			lpa;
+-	__u8			elpe;
+-	__u8			npss;
+-	__u8			avscc;
+-	__u8			apsta;
+-	__le16			wctemp;
+-	__le16			cctemp;
+-	__u8			rsvd270[242];
+-	__u8			sqes;
+-	__u8			cqes;
+-	__u8			rsvd514[2];
+-	__le32			nn;
+-	__le16			oncs;
+-	__le16			fuses;
+-	__u8			fna;
+-	__u8			vwc;
+-	__le16			awun;
+-	__le16			awupf;
+-	__u8			nvscc;
+-	__u8			rsvd531;
+-	__le16			acwu;
+-	__u8			rsvd534[2];
+-	__le32			sgls;
+-	__u8			rsvd540[1508];
+-	struct nvme_id_power_state	psd[32];
+-	__u8			vs[1024];
+-};
+-
+-enum {
+-	NVME_CTRL_ONCS_COMPARE			= 1 << 0,
+-	NVME_CTRL_ONCS_WRITE_UNCORRECTABLE	= 1 << 1,
+-	NVME_CTRL_ONCS_DSM			= 1 << 2,
+-	NVME_CTRL_VWC_PRESENT			= 1 << 0,
+-};
+-
+-struct nvme_lbaf {
+-	__le16			ms;
+-	__u8			ds;
+-	__u8			rp;
+-};
+-
+-struct nvme_id_ns {
+-	__le64			nsze;
+-	__le64			ncap;
+-	__le64			nuse;
+-	__u8			nsfeat;
+-	__u8			nlbaf;
+-	__u8			flbas;
+-	__u8			mc;
+-	__u8			dpc;
+-	__u8			dps;
+-	__u8			nmic;
+-	__u8			rescap;
+-	__u8			fpi;
+-	__u8			rsvd33;
+-	__le16			nawun;
+-	__le16			nawupf;
+-	__le16			nacwu;
+-	__le16			nabsn;
+-	__le16			nabo;
+-	__le16			nabspf;
+-	__u16			rsvd46;
+-	__le64			nvmcap[2];
+-	__u8			rsvd64[40];
+-	__u8			nguid[16];
+-	__u8			eui64[8];
+-	struct nvme_lbaf	lbaf[16];
+-	__u8			rsvd192[192];
+-	__u8			vs[3712];
+-};
+-
+-enum {
+-	NVME_NS_FEAT_THIN	= 1 << 0,
+-	NVME_NS_FLBAS_LBA_MASK	= 0xf,
+-	NVME_NS_FLBAS_META_EXT	= 0x10,
+-	NVME_LBAF_RP_BEST	= 0,
+-	NVME_LBAF_RP_BETTER	= 1,
+-	NVME_LBAF_RP_GOOD	= 2,
+-	NVME_LBAF_RP_DEGRADED	= 3,
+-	NVME_NS_DPC_PI_LAST	= 1 << 4,
+-	NVME_NS_DPC_PI_FIRST	= 1 << 3,
+-	NVME_NS_DPC_PI_TYPE3	= 1 << 2,
+-	NVME_NS_DPC_PI_TYPE2	= 1 << 1,
+-	NVME_NS_DPC_PI_TYPE1	= 1 << 0,
+-	NVME_NS_DPS_PI_FIRST	= 1 << 3,
+-	NVME_NS_DPS_PI_MASK	= 0x7,
+-	NVME_NS_DPS_PI_TYPE1	= 1,
+-	NVME_NS_DPS_PI_TYPE2	= 2,
+-	NVME_NS_DPS_PI_TYPE3	= 3,
+-};
+-
+-struct nvme_smart_log {
+-	__u8			critical_warning;
+-	__u8			temperature[2];
+-	__u8			avail_spare;
+-	__u8			spare_thresh;
+-	__u8			percent_used;
+-	__u8			rsvd6[26];
+-	__u8			data_units_read[16];
+-	__u8			data_units_written[16];
+-	__u8			host_reads[16];
+-	__u8			host_writes[16];
+-	__u8			ctrl_busy_time[16];
+-	__u8			power_cycles[16];
+-	__u8			power_on_hours[16];
+-	__u8			unsafe_shutdowns[16];
+-	__u8			media_errors[16];
+-	__u8			num_err_log_entries[16];
+-	__le32			warning_temp_time;
+-	__le32			critical_comp_time;
+-	__le16			temp_sensor[8];
+-	__u8			rsvd216[296];
+-};
+-
+-enum {
+-	NVME_SMART_CRIT_SPARE		= 1 << 0,
+-	NVME_SMART_CRIT_TEMPERATURE	= 1 << 1,
+-	NVME_SMART_CRIT_RELIABILITY	= 1 << 2,
+-	NVME_SMART_CRIT_MEDIA		= 1 << 3,
+-	NVME_SMART_CRIT_VOLATILE_MEMORY	= 1 << 4,
+-};
+-
+-struct nvme_lba_range_type {
+-	__u8			type;
+-	__u8			attributes;
+-	__u8			rsvd2[14];
+-	__u64			slba;
+-	__u64			nlb;
+-	__u8			guid[16];
+-	__u8			rsvd48[16];
+-};
+-
+-enum {
+-	NVME_LBART_TYPE_FS	= 0x01,
+-	NVME_LBART_TYPE_RAID	= 0x02,
+-	NVME_LBART_TYPE_CACHE	= 0x03,
+-	NVME_LBART_TYPE_SWAP	= 0x04,
+-
+-	NVME_LBART_ATTRIB_TEMP	= 1 << 0,
+-	NVME_LBART_ATTRIB_HIDE	= 1 << 1,
+-};
+-
+-struct nvme_reservation_status {
+-	__le32	gen;
+-	__u8	rtype;
+-	__u8	regctl[2];
+-	__u8	resv5[2];
+-	__u8	ptpls;
+-	__u8	resv10[13];
+-	struct {
+-		__le16	cntlid;
+-		__u8	rcsts;
+-		__u8	resv3[5];
+-		__le64	hostid;
+-		__le64	rkey;
+-	} regctl_ds[];
+-};
+-
+-/* I/O commands */
+-
+-enum nvme_opcode {
+-	nvme_cmd_flush		= 0x00,
+-	nvme_cmd_write		= 0x01,
+-	nvme_cmd_read		= 0x02,
+-	nvme_cmd_write_uncor	= 0x04,
+-	nvme_cmd_compare	= 0x05,
+-	nvme_cmd_write_zeroes	= 0x08,
+-	nvme_cmd_dsm		= 0x09,
+-	nvme_cmd_resv_register	= 0x0d,
+-	nvme_cmd_resv_report	= 0x0e,
+-	nvme_cmd_resv_acquire	= 0x11,
+-	nvme_cmd_resv_release	= 0x15,
+-};
+-
+-struct nvme_common_command {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__le32			nsid;
+-	__le32			cdw2[2];
+-	__le64			metadata;
+-	__le64			prp1;
+-	__le64			prp2;
+-	__le32			cdw10[6];
+-};
+-
+-struct nvme_rw_command {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__le32			nsid;
+-	__u64			rsvd2;
+-	__le64			metadata;
+-	__le64			prp1;
+-	__le64			prp2;
+-	__le64			slba;
+-	__le16			length;
+-	__le16			control;
+-	__le32			dsmgmt;
+-	__le32			reftag;
+-	__le16			apptag;
+-	__le16			appmask;
+-};
+-
+-enum {
+-	NVME_RW_LR			= 1 << 15,
+-	NVME_RW_FUA			= 1 << 14,
+-	NVME_RW_DSM_FREQ_UNSPEC		= 0,
+-	NVME_RW_DSM_FREQ_TYPICAL	= 1,
+-	NVME_RW_DSM_FREQ_RARE		= 2,
+-	NVME_RW_DSM_FREQ_READS		= 3,
+-	NVME_RW_DSM_FREQ_WRITES		= 4,
+-	NVME_RW_DSM_FREQ_RW		= 5,
+-	NVME_RW_DSM_FREQ_ONCE		= 6,
+-	NVME_RW_DSM_FREQ_PREFETCH	= 7,
+-	NVME_RW_DSM_FREQ_TEMP		= 8,
+-	NVME_RW_DSM_LATENCY_NONE	= 0 << 4,
+-	NVME_RW_DSM_LATENCY_IDLE	= 1 << 4,
+-	NVME_RW_DSM_LATENCY_NORM	= 2 << 4,
+-	NVME_RW_DSM_LATENCY_LOW		= 3 << 4,
+-	NVME_RW_DSM_SEQ_REQ		= 1 << 6,
+-	NVME_RW_DSM_COMPRESSED		= 1 << 7,
+-	NVME_RW_PRINFO_PRCHK_REF	= 1 << 10,
+-	NVME_RW_PRINFO_PRCHK_APP	= 1 << 11,
+-	NVME_RW_PRINFO_PRCHK_GUARD	= 1 << 12,
+-	NVME_RW_PRINFO_PRACT		= 1 << 13,
+-};
+-
+-struct nvme_dsm_cmd {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__le32			nsid;
+-	__u64			rsvd2[2];
+-	__le64			prp1;
+-	__le64			prp2;
+-	__le32			nr;
+-	__le32			attributes;
+-	__u32			rsvd12[4];
+-};
+-
+-enum {
+-	NVME_DSMGMT_IDR		= 1 << 0,
+-	NVME_DSMGMT_IDW		= 1 << 1,
+-	NVME_DSMGMT_AD		= 1 << 2,
+-};
+-
+-struct nvme_dsm_range {
+-	__le32			cattr;
+-	__le32			nlb;
+-	__le64			slba;
+-};
+-
+-/* Admin commands */
+-
+-enum nvme_admin_opcode {
+-	nvme_admin_delete_sq		= 0x00,
+-	nvme_admin_create_sq		= 0x01,
+-	nvme_admin_get_log_page		= 0x02,
+-	nvme_admin_delete_cq		= 0x04,
+-	nvme_admin_create_cq		= 0x05,
+-	nvme_admin_identify		= 0x06,
+-	nvme_admin_abort_cmd		= 0x08,
+-	nvme_admin_set_features		= 0x09,
+-	nvme_admin_get_features		= 0x0a,
+-	nvme_admin_async_event		= 0x0c,
+-	nvme_admin_activate_fw		= 0x10,
+-	nvme_admin_download_fw		= 0x11,
+-	nvme_admin_format_nvm		= 0x80,
+-	nvme_admin_security_send	= 0x81,
+-	nvme_admin_security_recv	= 0x82,
+-};
+-
+-enum {
+-	NVME_QUEUE_PHYS_CONTIG	= (1 << 0),
+-	NVME_CQ_IRQ_ENABLED	= (1 << 1),
+-	NVME_SQ_PRIO_URGENT	= (0 << 1),
+-	NVME_SQ_PRIO_HIGH	= (1 << 1),
+-	NVME_SQ_PRIO_MEDIUM	= (2 << 1),
+-	NVME_SQ_PRIO_LOW	= (3 << 1),
+-	NVME_FEAT_ARBITRATION	= 0x01,
+-	NVME_FEAT_POWER_MGMT	= 0x02,
+-	NVME_FEAT_LBA_RANGE	= 0x03,
+-	NVME_FEAT_TEMP_THRESH	= 0x04,
+-	NVME_FEAT_ERR_RECOVERY	= 0x05,
+-	NVME_FEAT_VOLATILE_WC	= 0x06,
+-	NVME_FEAT_NUM_QUEUES	= 0x07,
+-	NVME_FEAT_IRQ_COALESCE	= 0x08,
+-	NVME_FEAT_IRQ_CONFIG	= 0x09,
+-	NVME_FEAT_WRITE_ATOMIC	= 0x0a,
+-	NVME_FEAT_ASYNC_EVENT	= 0x0b,
+-	NVME_FEAT_AUTO_PST	= 0x0c,
+-	NVME_FEAT_SW_PROGRESS	= 0x80,
+-	NVME_FEAT_HOST_ID	= 0x81,
+-	NVME_FEAT_RESV_MASK	= 0x82,
+-	NVME_FEAT_RESV_PERSIST	= 0x83,
+-	NVME_LOG_ERROR		= 0x01,
+-	NVME_LOG_SMART		= 0x02,
+-	NVME_LOG_FW_SLOT	= 0x03,
+-	NVME_LOG_RESERVATION	= 0x80,
+-	NVME_FWACT_REPL		= (0 << 3),
+-	NVME_FWACT_REPL_ACTV	= (1 << 3),
+-	NVME_FWACT_ACTV		= (2 << 3),
+-};
+-
+-struct nvme_identify {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__le32			nsid;
+-	__u64			rsvd2[2];
+-	__le64			prp1;
+-	__le64			prp2;
+-	__le32			cns;
+-	__u32			rsvd11[5];
+-};
+-
+-struct nvme_features {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__le32			nsid;
+-	__u64			rsvd2[2];
+-	__le64			prp1;
+-	__le64			prp2;
+-	__le32			fid;
+-	__le32			dword11;
+-	__u32			rsvd12[4];
+-};
+-
+-struct nvme_create_cq {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__u32			rsvd1[5];
+-	__le64			prp1;
+-	__u64			rsvd8;
+-	__le16			cqid;
+-	__le16			qsize;
+-	__le16			cq_flags;
+-	__le16			irq_vector;
+-	__u32			rsvd12[4];
+-};
+-
+-struct nvme_create_sq {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__u32			rsvd1[5];
+-	__le64			prp1;
+-	__u64			rsvd8;
+-	__le16			sqid;
+-	__le16			qsize;
+-	__le16			sq_flags;
+-	__le16			cqid;
+-	__u32			rsvd12[4];
+-};
+-
+-struct nvme_delete_queue {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__u32			rsvd1[9];
+-	__le16			qid;
+-	__u16			rsvd10;
+-	__u32			rsvd11[5];
+-};
+-
+-struct nvme_abort_cmd {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__u32			rsvd1[9];
+-	__le16			sqid;
+-	__u16			cid;
+-	__u32			rsvd11[5];
+-};
+-
+-struct nvme_download_firmware {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__u32			rsvd1[5];
+-	__le64			prp1;
+-	__le64			prp2;
+-	__le32			numd;
+-	__le32			offset;
+-	__u32			rsvd12[4];
+-};
+-
+-struct nvme_format_cmd {
+-	__u8			opcode;
+-	__u8			flags;
+-	__u16			command_id;
+-	__le32			nsid;
+-	__u64			rsvd2[4];
+-	__le32			cdw10;
+-	__u32			rsvd11[5];
+-};
+-
+-struct nvme_command {
+-	union {
+-		struct nvme_common_command common;
+-		struct nvme_rw_command rw;
+-		struct nvme_identify identify;
+-		struct nvme_features features;
+-		struct nvme_create_cq create_cq;
+-		struct nvme_create_sq create_sq;
+-		struct nvme_delete_queue delete_queue;
+-		struct nvme_download_firmware dlfw;
+-		struct nvme_format_cmd format;
+-		struct nvme_dsm_cmd dsm;
+-		struct nvme_abort_cmd abort;
+-	};
+-};
+-
+-enum {
+-	NVME_SC_SUCCESS			= 0x0,
+-	NVME_SC_INVALID_OPCODE		= 0x1,
+-	NVME_SC_INVALID_FIELD		= 0x2,
+-	NVME_SC_CMDID_CONFLICT		= 0x3,
+-	NVME_SC_DATA_XFER_ERROR		= 0x4,
+-	NVME_SC_POWER_LOSS		= 0x5,
+-	NVME_SC_INTERNAL		= 0x6,
+-	NVME_SC_ABORT_REQ		= 0x7,
+-	NVME_SC_ABORT_QUEUE		= 0x8,
+-	NVME_SC_FUSED_FAIL		= 0x9,
+-	NVME_SC_FUSED_MISSING		= 0xa,
+-	NVME_SC_INVALID_NS		= 0xb,
+-	NVME_SC_CMD_SEQ_ERROR		= 0xc,
+-	NVME_SC_SGL_INVALID_LAST	= 0xd,
+-	NVME_SC_SGL_INVALID_COUNT	= 0xe,
+-	NVME_SC_SGL_INVALID_DATA	= 0xf,
+-	NVME_SC_SGL_INVALID_METADATA	= 0x10,
+-	NVME_SC_SGL_INVALID_TYPE	= 0x11,
+-	NVME_SC_LBA_RANGE		= 0x80,
+-	NVME_SC_CAP_EXCEEDED		= 0x81,
+-	NVME_SC_NS_NOT_READY		= 0x82,
+-	NVME_SC_RESERVATION_CONFLICT	= 0x83,
+-	NVME_SC_CQ_INVALID		= 0x100,
+-	NVME_SC_QID_INVALID		= 0x101,
+-	NVME_SC_QUEUE_SIZE		= 0x102,
+-	NVME_SC_ABORT_LIMIT		= 0x103,
+-	NVME_SC_ABORT_MISSING		= 0x104,
+-	NVME_SC_ASYNC_LIMIT		= 0x105,
+-	NVME_SC_FIRMWARE_SLOT		= 0x106,
+-	NVME_SC_FIRMWARE_IMAGE		= 0x107,
+-	NVME_SC_INVALID_VECTOR		= 0x108,
+-	NVME_SC_INVALID_LOG_PAGE	= 0x109,
+-	NVME_SC_INVALID_FORMAT		= 0x10a,
+-	NVME_SC_FIRMWARE_NEEDS_RESET	= 0x10b,
+-	NVME_SC_INVALID_QUEUE		= 0x10c,
+-	NVME_SC_FEATURE_NOT_SAVEABLE	= 0x10d,
+-	NVME_SC_FEATURE_NOT_CHANGEABLE	= 0x10e,
+-	NVME_SC_FEATURE_NOT_PER_NS	= 0x10f,
+-	NVME_SC_FW_NEEDS_RESET_SUBSYS	= 0x110,
+-	NVME_SC_BAD_ATTRIBUTES		= 0x180,
+-	NVME_SC_INVALID_PI		= 0x181,
+-	NVME_SC_READ_ONLY		= 0x182,
+-	NVME_SC_WRITE_FAULT		= 0x280,
+-	NVME_SC_READ_ERROR		= 0x281,
+-	NVME_SC_GUARD_CHECK		= 0x282,
+-	NVME_SC_APPTAG_CHECK		= 0x283,
+-	NVME_SC_REFTAG_CHECK		= 0x284,
+-	NVME_SC_COMPARE_FAILED		= 0x285,
+-	NVME_SC_ACCESS_DENIED		= 0x286,
+-	NVME_SC_DNR			= 0x4000,
+-};
+-
+-struct nvme_completion {
+-	__le32	result;		/* Used by admin commands to return data */
+-	__u32	rsvd;
+-	__le16	sq_head;	/* how much of this queue may be reclaimed */
+-	__le16	sq_id;		/* submission queue that generated this entry */
+-	__u16	command_id;	/* of the command which completed */
+-	__le16	status;		/* did the command fail, and if so, why? */
+-};
+-
+-struct nvme_user_io {
+-	__u8	opcode;
+-	__u8	flags;
+-	__u16	control;
+-	__u16	nblocks;
+-	__u16	rsvd;
+-	__u64	metadata;
+-	__u64	addr;
+-	__u64	slba;
+-	__u32	dsmgmt;
+-	__u32	reftag;
+-	__u16	apptag;
+-	__u16	appmask;
+-};
+-
+-struct nvme_passthru_cmd {
+-	__u8	opcode;
+-	__u8	flags;
+-	__u16	rsvd1;
+-	__u32	nsid;
+-	__u32	cdw2;
+-	__u32	cdw3;
+-	__u64	metadata;
+-	__u64	addr;
+-	__u32	metadata_len;
+-	__u32	data_len;
+-	__u32	cdw10;
+-	__u32	cdw11;
+-	__u32	cdw12;
+-	__u32	cdw13;
+-	__u32	cdw14;
+-	__u32	cdw15;
+-	__u32	timeout_ms;
+-	__u32	result;
+-};
+-
+-#define NVME_VS(major, minor) (((major) << 16) | ((minor) << 8))
+-
+-#define nvme_admin_cmd nvme_passthru_cmd
+-
+-#define NVME_IOCTL_ID		_IO('N', 0x40)
+-#define NVME_IOCTL_ADMIN_CMD	_IOWR('N', 0x41, struct nvme_admin_cmd)
+-#define NVME_IOCTL_SUBMIT_IO	_IOW('N', 0x42, struct nvme_user_io)
+-#define NVME_IOCTL_IO_CMD	_IOWR('N', 0x43, struct nvme_passthru_cmd)
+-#endif
+diff --git a/drivers/block/sata_ahci.c b/drivers/block/sata_ahci.c
+deleted file mode 100644
+index 26d165ee88..0000000000
+--- a/drivers/block/sata_ahci.c
++++ /dev/null
+@@ -1,1019 +0,0 @@
+-/*
+- * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
+- * Terry Lv <r65388@freescale.com>
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
+- */
+-
+-#include <libata.h>
+-#include <fis.h>
+-#include <sata.h>
+-#include <pci.h>
+-
+-#include <common.h>
+-#include <malloc.h>
+-#include <linux/ctype.h>
+-#include <asm/errno.h>
+-#include <asm/io.h>
+-#include <linux/bitops.h>
+-#include "sata_ahci.h"
+-
+-struct sata_port_regs {
+-	u32 clb;	/* Command List Base Address */
+-	u32 clbu;	/* Command List Base Address Upper 32-bits */
+-	u32 fb;		/* FIS Base Address */
+-	u32 fbu;	/* FIS Base Address Upper 32-bits */
+-	u32 is;		/* Interrupt Status */
+-	u32 ie;		/* Interrupt Enable */
+-	u32 cmd;	/* Command and Status */
+-	u32 res1[1];
+-	u32 tfd;	/* Task File Data */
+-	u32 sig;	/* Signature */
+-	u32 ssts;	/* Serial ATA Status */
+-	u32 sctl;	/* Serial ATA Control */
+-	u32 serr;	/* Serial ATA Error */
+-	u32 sact;	/* offset=0x134 Serial ATA Active */
+-	u32 ci;		/* Command Issue */
+-	u32 sntf;	/* Serial ATA Notification */
+-	u32 fbs;	/* FIS-based Switching Control */
+-        u32 res3[11];   /* offset 0x144 - 0x16c */
+-	u32 dmacr;	/* offset = 0x170 */
+-	u32 res4[1];
+-	u32 phycr;
+-	u32 physr;
+-};
+-
+-struct sata_host_regs {
+-	u32 cap;
+-	u32 ghc;
+-	u32 is;
+-	u32 pi;
+-	u32 vs;
+-	u32 ccc_ctl;
+-	u32 ccc_ports;
+-	u32 res1[2];
+-	u32 cap2;
+-	u32 res2[30];
+-	u32 bistafr;
+-	u32 bistcr;
+-	u32 bistfctr;
+-	u32 bistsr;
+-	u32 bistdecr;
+-	u32 res3[2];
+-	u32 oobr;
+-	u32 res4[8];
+-	u32 timer1ms;
+-	u32 res5[1];
+-	u32 gparam1r;
+-	u32 gparam2r;
+-	u32 pparamr;
+-	u32 testr;
+-	u32 versionr;
+-	u32 idr;
+-};
+-
+-#define MAX_DATA_BYTES_PER_SG  (4 * 1024 * 1024)
+-#define MAX_BYTES_PER_TRANS (AHCI_MAX_SG * MAX_DATA_BYTES_PER_SG)
+-
+-void print_h2d(struct sata_fis_h2d *cfis)
+-{
+-	printf("print sata_fis_h2d:\n");
+-	printf("fis_type = 0x%x\n", cfis->fis_type);
+-	printf("pm_port_c = 0x%x\n", cfis->pm_port_c);
+-}
+-
+-
+-static inline void ahci_writel(u32 value, volatile const void *addr)
+-{
+-	writel(value, addr);
+-	debug("W %p <= 0x%x\n", addr, value);
+-}
+-
+-static inline u32 ahci_readl(volatile const void *addr)
+-{
+-	uint32_t val = readl(addr);
+-	debug("R %p => 0x%x\n", addr, val);
+-	return val;
+-}
+-#define ahci_writel_with_flush(a,b)     do { ahci_writel(a,b); ahci_readl(b); } while (0)
+-
+-static int is_ready;
+-
+-static inline u64 ahci_port_base(u64 base, u32 port)
+-{
+-	return base + 0x100 + (u64)(port * 0x80);
+-}
+-
+-static int waiting_for_cmd_completed(u8 *addr,
+-					int timeout_msec,
+-					u32 sign)
+-{
+-	int i;
+-	u32 status;
+-
+-	for (i = 0;
+-		((status = readl(addr)) & sign) && i < timeout_msec;
+-		++i)
+-		mdelay(1);
+-
+-	return (i < timeout_msec) ? 0 : -1;
+-}
+-
+-static int ahci_setup_oobr(struct ahci_probe_ent *probe_ent,
+-						int clk)
+-{
+-#if 0
+-	struct sata_host_regs *host_mmio =
+-		(struct sata_host_regs *)probe_ent->mmio_base;
+-
+-
+-	/* If needed, then write a value to this register */
+-	writel(0x070E182B, &(host_mmio->oobr)); /* Default value*/
+-#endif
+-
+-	return 0;
+-}
+-
+-static int ahci_host_init(struct ahci_probe_ent *probe_ent)
+-{
+-	u32 tmp, cap_save, num_ports;
+-	int i, j, timeout = 1000;
+-	struct sata_port_regs *port_mmio = NULL;
+-	struct sata_host_regs *host_mmio =
+-		(struct sata_host_regs *)probe_ent->mmio_base;
+-/* 	int clk = mxc_get_clock(MXC_SATA_CLK); */
+-//	int clk = 100000000; /* arbitrary for now */
+-
+-	cap_save = ahci_readl(&(host_mmio->cap));
+-	cap_save |= SATA_HOST_CAP_SSS;
+-
+-	/* global controller reset, self-clear */
+-	tmp = ahci_readl(&(host_mmio->ghc));
+-	if ((tmp & SATA_HOST_GHC_HR) == 0)
+-		ahci_writel_with_flush(tmp | SATA_HOST_GHC_HR, &(host_mmio->ghc));
+-
+-	while ((readl(&(host_mmio->ghc)) & SATA_HOST_GHC_HR)
+-		&& --timeout)
+-		;
+-
+-	if (timeout <= 0) {
+-		debug("controller reset failed (0x%x)\n", tmp);
+-		return -1;
+-	}
+-
+-	/* Set timer 1ms */
+-//	ahci_writel(clk / 1000, &(host_mmio->timer1ms));
+-	ahci_setup_oobr(probe_ent, 0);
+-
+-	ahci_writel_with_flush(SATA_HOST_GHC_AE, &(host_mmio->ghc));
+-	ahci_writel(cap_save, &(host_mmio->cap));
+-	num_ports = (cap_save & SATA_HOST_CAP_NP_MASK) + 1;
+-	ahci_writel_with_flush((1 << num_ports) - 1,
+-				&(host_mmio->pi));
+-
+-	/*
+-	 * Determine which Ports are implemented by the AHCI,
+-	 * by reading the PI register. This bit map value aids the
+-	 * software to determine how many Ports are available and
+-	 * which Port registers need to be initialized.
+-	 */
+-	probe_ent->cap = ahci_readl(&(host_mmio->cap));
+-	probe_ent->port_map = ahci_readl(&(host_mmio->pi));
+-
+-	/* Determine how many command slots the HBA supports */
+-	probe_ent->n_ports =
+-		(probe_ent->cap & SATA_HOST_CAP_NP_MASK) + 1;
+-
+-	debug("cap 0x%x  port_map 0x%x  n_ports %d\n",
+-		probe_ent->cap, probe_ent->port_map, probe_ent->n_ports);
+-
+-	for (i = 0; i < probe_ent->n_ports; i++) {
+-		probe_ent->port[i].port_mmio =
+-			ahci_port_base((u64)host_mmio, i);
+-		port_mmio =
+-			(struct sata_port_regs *)probe_ent->port[i].port_mmio;
+-
+-		/* Ensure that the AHCI is in idle state */
+-		tmp = ahci_readl(&(port_mmio->cmd));
+-
+-		/*
+-		 * When P#CMD.ST, P#CMD.CR, P#CMD.FRE and P#CMD.FR
+-		 * are all cleared, the Port is in an idle state.
+-		 */
+-		if (tmp & (SATA_PORT_CMD_CR | SATA_PORT_CMD_FR |
+-			SATA_PORT_CMD_FRE | SATA_PORT_CMD_ST)) {
+-
+-			/*
+-			 * System software places a Port into the idle state by
+-			 * clearing P#CMD.ST and waiting for P#CMD.CR to return
+-			 * 0 when read.
+-			 */
+-			tmp &= ~SATA_PORT_CMD_ST;
+-			ahci_writel_with_flush(tmp, &(port_mmio->cmd));
+-
+-			/*
+-			 * spec says 500 msecs for each bit, so
+-			 * this is slightly incorrect.
+-			 */
+-			mdelay(500);
+-
+-			timeout = 1000;
+-			while ((readl(&(port_mmio->cmd)) & SATA_PORT_CMD_CR)
+-				&& --timeout)
+-				;
+-
+-			if (timeout <= 0) {
+-				debug("port reset failed (0x%x)\n", tmp);
+-				return -1;
+-			}
+-		}
+-
+-		tmp = ahci_readl(&(port_mmio->cmd));
+-		ahci_writel((tmp | SATA_PORT_CMD_SUD), &(port_mmio->cmd));
+-
+-		/* Wait for spin-up to finish */
+-		timeout = 1000;
+-		while (!(readl(&(port_mmio->cmd)) | SATA_PORT_CMD_SUD)
+-			&& --timeout)
+-			;
+-		if (timeout <= 0) {
+-			debug("Spin-Up can't finish!\n");
+-			return -1;
+-		}
+-
+-		/* Wait for Phy to be detected */
+-		for (j = 0; j < 100; ++j) {
+-			mdelay(10);
+-			tmp = ahci_readl(&(port_mmio->ssts));
+-			if (((tmp & SATA_PORT_SSTS_DET_MASK) == 0x3) ||
+-				((tmp & SATA_PORT_SSTS_DET_MASK) == 0x1))
+-				break;
+-		}
+-
+-		/* Wait for COMINIT bit 26 (DIAG_X) in SERR */
+-		timeout = 1000;
+-		while (!(readl(&(port_mmio->serr)) | SATA_PORT_SERR_DIAG_X)
+-			&& --timeout)
+-			;
+-		if (timeout <= 0) {
+-			debug("Can't find DIAG_X set!\n");
+-			return -1;
+-		}
+-
+-		/*
+-		 * For each implemented Port, clear the P#SERR
+-		 * register, by writing ones to each implemented\
+-		 * bit location. RWC
+-		 */
+-		tmp = ahci_readl(&(port_mmio->serr));
+-		debug("P#SERR 0x%x\n",
+-				tmp);
+-		ahci_writel(tmp, &(port_mmio->serr));
+-
+-		/* Ack any pending irq events for this port */
+-		tmp = ahci_readl(&(host_mmio->is));
+-		debug("IS 0x%x\n", tmp);
+-		if (tmp)
+-			ahci_writel(tmp, &(host_mmio->is));
+-
+-		ahci_writel(1 << i, &(host_mmio->is));
+-
+-		/* set irq mask (enables interrupts) */
+-		ahci_writel(DEF_PORT_IRQ, &(port_mmio->ie));
+-
+-		/* register linkup ports */
+-		tmp = ahci_readl(&(port_mmio->ssts));
+-		debug("Port %d status: 0x%x\n", i, tmp);
+-		if ((tmp & SATA_PORT_SSTS_DET_MASK) == 0x03)
+-			probe_ent->link_port_map |= (0x01 << i);
+-	}
+-
+-	tmp = ahci_readl(&(host_mmio->ghc));
+-	debug("GHC 0x%x\n", tmp);
+-	ahci_writel(tmp | SATA_HOST_GHC_IE, &(host_mmio->ghc));
+-	tmp = ahci_readl(&(host_mmio->ghc));
+-	debug("GHC 0x%x\n", tmp);
+-	return 0;
+-}
+-
+-int reset_sata(int dev)
+-{
+-	struct ahci_probe_ent *probe_ent;
+-	struct sata_host_regs *host_mmio;
+-
+-	probe_ent = (struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-
+-	if (!probe_ent)
+-		return -ENODEV;
+-
+-	host_mmio = (struct sata_host_regs *)probe_ent->mmio_base;
+-
+-	if (!host_mmio)
+-		return -ENODEV;
+-
+-	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1)) {
+-		printf("The sata index %d is out of ranges\n\r", dev);
+-		return -ENODEV;
+-	}
+-	setbits_le32(&host_mmio->ghc, SATA_HOST_GHC_HR);
+-	while (readl(&host_mmio->ghc) & SATA_HOST_GHC_HR)
+-		udelay(100);
+-
+-	return 0;
+-}
+-
+-static void ahci_print_info(struct ahci_probe_ent *probe_ent)
+-{
+-	struct sata_host_regs *host_mmio =
+-		(struct sata_host_regs *)probe_ent->mmio_base;
+-	u32 vers, cap, impl, speed;
+-	const char *speed_s;
+-	const char *scc_s;
+-
+-	vers = ahci_readl(&(host_mmio->vs));
+-	cap = probe_ent->cap;
+-	impl = probe_ent->port_map;
+-
+-	speed = (cap & SATA_HOST_CAP_ISS_MASK)
+-		>> SATA_HOST_CAP_ISS_OFFSET;
+-	if (speed == 1)
+-		speed_s = "1.5";
+-	else if (speed == 2)
+-		speed_s = "3";
+-	else if (speed == 3)
+-		speed_s = "6";
+-	else
+-		speed_s = "?";
+-
+-	scc_s = "SATA";
+-
+-	printf("AHCI %02x%02x.%02x%02x "
+-		"%u slots %u ports %s Gbps 0x%x impl %s mode\n",
+-		(vers >> 24) & 0xff,
+-		(vers >> 16) & 0xff,
+-		(vers >> 8) & 0xff,
+-		vers & 0xff,
+-		((cap >> 8) & 0x1f) + 1,
+-		(cap & 0x1f) + 1,
+-		speed_s,
+-		impl,
+-		scc_s);
+-
+-	printf("flags: "
+-		"%s%s%s%s%s%s"
+-		"%s%s%s%s%s%s%s\n",
+-		cap & (1 << 31) ? "64bit " : "",
+-		cap & (1 << 30) ? "ncq " : "",
+-		cap & (1 << 28) ? "ilck " : "",
+-		cap & (1 << 27) ? "stag " : "",
+-		cap & (1 << 26) ? "pm " : "",
+-		cap & (1 << 25) ? "led " : "",
+-		cap & (1 << 24) ? "clo " : "",
+-		cap & (1 << 19) ? "nz " : "",
+-		cap & (1 << 18) ? "only " : "",
+-		cap & (1 << 17) ? "pmp " : "",
+-		cap & (1 << 15) ? "pio " : "",
+-		cap & (1 << 14) ? "slum " : "",
+-		cap & (1 << 13) ? "part " : "");
+-}
+-
+-static int ahci_init_one(int dev)
+-{
+-	int rc;
+-	struct udevice *pdev;
+-	struct ahci_probe_ent *probe_ent = NULL;
+-	probe_ent = malloc(sizeof(struct ahci_probe_ent));
+-	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
+-	probe_ent->dev = dev;
+-
+-	probe_ent->host_flags = ATA_FLAG_SATA
+-				| ATA_FLAG_NO_LEGACY
+-				| ATA_FLAG_MMIO
+-				| ATA_FLAG_PIO_DMA
+-				| ATA_FLAG_NO_ATAPI;
+-
+-	rc = dm_pci_find_class(PCI_CLASS_STORAGE_SATA_AHCI, dev, &pdev);
+-
+-	if (rc)
+-		goto err_out;
+-
+-	probe_ent->mmio_base = 	dm_pci_map_bar(pdev, PCI_BASE_ADDRESS_0,
+-					       PCI_REGION_MEM);
+-	debug("Base address for ahci%d is: 0x%llx\n", dev, probe_ent->mmio_base);
+-
+-	if (!probe_ent->mmio_base) {
+-		rc = -1;
+-		goto err_out;
+-	}
+-
+-	/* initialize adapter */
+-	rc = ahci_host_init(probe_ent);
+-	if (rc)
+-		goto err_out;
+-
+-	ahci_print_info(probe_ent);
+-
+-	/* Save the private struct to block device struct */
+-	sata_dev_desc[dev].priv = (void *)probe_ent;
+-
+-	return 0;
+-
+-err_out:
+-	free(probe_ent);
+-	return rc;
+-}
+-
+-static int ahci_fill_sg(struct ahci_probe_ent *probe_ent,
+-			u8 port, unsigned char *buf, int buf_len)
+-{
+-	struct ahci_ioports *pp = &(probe_ent->port[port]);
+-	struct ahci_sg *ahci_sg = pp->cmd_tbl_sg;
+-	u32 sg_count, max_bytes;
+-	int i;
+-
+-	max_bytes = MAX_DATA_BYTES_PER_SG;
+-	sg_count = ((buf_len - 1) / max_bytes) + 1;
+-	if (sg_count > AHCI_MAX_SG) {
+-		printf("Error:Too much sg!\n");
+-		return -1;
+-	}
+-
+-	for (i = 0; i < sg_count; i++) {
+-		ahci_sg->addr =
+-			(u32) cpu_to_le32(LOWER32(buf + (i * max_bytes)));
+-		ahci_sg->addr_hi = 
+-			(u32) cpu_to_le32(UPPER32(buf + (i * max_bytes)));
+-		ahci_sg->flags_size = (u32) cpu_to_le32(0x3fffff &
+-					(buf_len < max_bytes
+-					? (buf_len - 1)
+-					: (max_bytes - 1)));
+-		ahci_sg++;
+-		buf_len -= max_bytes;
+-	}
+-
+-	return sg_count;
+-}
+-
+-static void ahci_fill_cmd_slot(struct ahci_ioports *pp, u32 cmd_slot, u32 opts)
+-{
+-	struct ahci_cmd_hdr *cmd_hdr = (struct ahci_cmd_hdr *)(pp->cmd_slot +
+-					AHCI_CMD_SLOT_SZ * cmd_slot);
+-
+-	memset(cmd_hdr, 0, AHCI_CMD_SLOT_SZ);
+-	cmd_hdr->opts = (u32) cpu_to_le32(opts);
+-	cmd_hdr->status = 0;
+-	cmd_hdr->tbl_addr = (u32) cpu_to_le32(pp->cmd_tbl & 0xffffffff);
+-	cmd_hdr->tbl_addr_hi = (u32) cpu_to_le32(UPPER32(pp->cmd_tbl));
+-}
+-
+-#define AHCI_GET_CMD_SLOT(c) ((c) ? ffs(c) : 0)
+-
+-static int ahci_exec_ata_cmd(struct ahci_probe_ent *probe_ent,
+-		u8 port, struct sata_fis_h2d *cfis,
+-		u8 *buf, u32 buf_len, s32 is_write)
+-{
+-	struct ahci_ioports *pp = &(probe_ent->port[port]);
+-	struct sata_port_regs *port_mmio =
+-			(struct sata_port_regs *)pp->port_mmio;
+-	u32 opts;
+-	int sg_count = 0, cmd_slot = 0;
+-
+-	cmd_slot = AHCI_GET_CMD_SLOT(ahci_readl(&(port_mmio->ci)));
+-	if (32 == cmd_slot) {
+-		printf("Can't find empty command slot!\n");
+-		return 0;
+-	}
+-
+-	/* Check xfer length */
+-	if (buf_len > MAX_BYTES_PER_TRANS) {
+-		printf("Max transfer length is %dB\n\r",
+-			MAX_BYTES_PER_TRANS);
+-		return 0;
+-	}
+-
+-	memcpy((u8 *)(pp->cmd_tbl), cfis, sizeof(struct sata_fis_h2d));
+-
+-	flush_cache((pp->cmd_tbl), sizeof(struct sata_fis_h2d));
+-
+-	if (buf && buf_len)
+-		sg_count = ahci_fill_sg(probe_ent, port, buf, buf_len);
+-
+-	opts = (sizeof(struct sata_fis_h2d) >> 2) | (sg_count << 16);
+-	if (is_write) {
+-		opts |= 0x40;    /* device write */
+-		flush_cache((ulong)buf, buf_len);
+-	}
+-
+-	debug("opts = 0x%x\n", opts);
+-	ahci_fill_cmd_slot(pp, cmd_slot, opts);
+-	sync();
+-
+-	flush_cache((s64)(pp->cmd_slot), AHCI_PORT_PRIV_DMA_SZ);
+-	ahci_writel_with_flush(1 << cmd_slot, &(port_mmio->ci));
+-
+-	if (waiting_for_cmd_completed((u8 *)&(port_mmio->ci),
+-				10000, 0x1 << cmd_slot)) {
+-		printf("timeout exit!\n");
+-		return -1;
+-	}
+-	invalidate_dcache_range((s64)(pp->cmd_slot),
+-				(s64)(pp->cmd_slot)+AHCI_PORT_PRIV_DMA_SZ);
+-	debug("ahci_exec_ata_cmd: %d byte transferred.\n",
+-			pp->cmd_slot->status);
+-	if (!is_write)
+-		invalidate_dcache_range((ulong)buf, (ulong)buf+buf_len);
+-
+-	return buf_len;
+-}
+-
+-static void ahci_set_feature(u8 dev, u8 port)
+-{
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+-	struct sata_fis_h2d *cfis = &h2d;
+-
+-	memset(cfis, 0, sizeof(struct sata_fis_h2d));
+-	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
+-	cfis->pm_port_c = 1 << 7;
+-	cfis->command = ATA_CMD_SET_FEATURES;
+-	cfis->features = SETFEATURES_XFER;
+-	cfis->sector_count = ffs(probe_ent->udma_mask + 1) + 0x3e;
+-
+-	ahci_exec_ata_cmd(probe_ent, port, cfis, NULL, 0, READ_CMD);
+-}
+-
+-static int ahci_port_start(struct ahci_probe_ent *probe_ent,
+-					u8 port)
+-{
+-	struct ahci_ioports *pp = &(probe_ent->port[port]);
+-	struct sata_port_regs *port_mmio =
+-		(struct sata_port_regs *)pp->port_mmio;
+-	u32 port_status;
+-	u64 mem;
+-	int timeout = 10000000;
+-
+-	debug("Enter start port: %d\n", port);
+-	port_status = ahci_readl(&(port_mmio->ssts));
+-	debug("Port %d status: %x\n", port, port_status);
+-	if ((port_status & 0xf) != 0x03) {
+-		printf("No Link on this port!\n");
+-		return -1;
+-	}
+-
+-	mem = (u64)malloc(AHCI_PORT_PRIV_DMA_SZ + 1024);
+-	if (!mem) {
+-		free(pp);
+-		printf("No mem for table!\n");
+-		return -ENOMEM;
+-	}
+-
+-	mem = (mem + 0x400) & (~0x3ff);	/* Aligned to 1024-bytes */
+-	memset((u8 *)mem, 0, AHCI_PORT_PRIV_DMA_SZ);
+-
+-	/*
+-	 * First item in chunk of DMA memory: 32-slot command table,
+-	 * 32 bytes each in size
+-	 */
+-	pp->cmd_slot = (struct ahci_cmd_hdr *)mem;
+-	debug("cmd_slot address = 0x%llx\n", (long long unsigned int)pp->cmd_slot);
+-	mem += (AHCI_CMD_SLOT_SZ * AHCI_MAX_CMD_SLOTS);
+-
+-	/*
+-	 * Second item: Received-FIS area, 256-Byte aligned
+-	 */
+-	pp->rx_fis = mem;
+-	mem += AHCI_RX_FIS_SZ;
+-
+-	/*
+-	 * Third item: data area for storing a single command
+-	 * and its scatter-gather table
+-	 */
+-	pp->cmd_tbl = mem;
+-	debug("cmd_tbl_dma = 0x%llx\n", pp->cmd_tbl);
+-
+-	mem += AHCI_CMD_TBL_HDR;
+-
+-	/* ahci_writel_with_flush(0x00004444, &(port_mmio->dmacr)); */
+-
+-	pp->cmd_tbl_sg = (struct ahci_sg *)mem;
+-	ahci_writel_with_flush(LOWER32(pp->cmd_slot), &(port_mmio->clb));
+-	ahci_writel_with_flush(UPPER32(pp->cmd_slot), &(port_mmio->clbu));
+-
+-	ahci_writel_with_flush(LOWER32(pp->rx_fis), &(port_mmio->fb));
+-	ahci_writel_with_flush(UPPER32(pp->rx_fis), &(port_mmio->fbu));
+-
+-	/* Enable FRE */
+-	ahci_writel_with_flush((SATA_PORT_CMD_FRE | ahci_readl(&(port_mmio->cmd))),
+-			&(port_mmio->cmd));
+-
+-	/* Wait device ready */
+-	while ((readl(&(port_mmio->tfd)) & (SATA_PORT_TFD_STS_ERR |
+-		SATA_PORT_TFD_STS_DRQ | SATA_PORT_TFD_STS_BSY))
+-		&& --timeout)
+-		;
+-	if (timeout <= 0) {
+-		debug("Device not ready for BSY, DRQ and"
+-			"ERR in TFD!\n");
+-		return -1;
+-	}
+-
+-	ahci_writel_with_flush(PORT_CMD_ICC_ACTIVE | PORT_CMD_FIS_RX |
+-			  PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP |
+-			  PORT_CMD_START, &(port_mmio->cmd));
+-
+-	debug("Exit start port %d\n", port);
+-
+-	return 0;
+-}
+-
+-int init_sata(int dev)
+-{
+-	int i;
+-	u32 linkmap;
+-	struct ahci_probe_ent *probe_ent = NULL;
+-
+-	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1)) {
+-		printf("The sata index %d is out of ranges\n\r", dev);
+-		return -1;
+-	}
+-
+-	if (ahci_init_one(dev)) {
+-		return -1;
+-	}
+-
+-	probe_ent = (struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-	linkmap = probe_ent->link_port_map;
+-
+-	if (0 == linkmap) {
+-		printf("No port device detected!\n");
+-		return 1;
+-	}
+-
+-	for (i = 0; i < probe_ent->n_ports; i++) {
+-		if ((linkmap >> i) && ((linkmap >> i) & 0x01)) {
+-			if (ahci_port_start(probe_ent, (u8)i)) {
+-				printf("Can not start port %d\n", i);
+-				return 1;
+-			}
+-			probe_ent->hard_port_no = i;
+-			break;
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+-static void print_sata_device_info(int dev)
+-{
+-	block_dev_desc_t *pdev = &(sata_dev_desc[dev]);
+-
+-	printf("SATA Device Info:\n\r");
+-#ifdef CONFIG_SYS_64BIT_LBA
+-	printf("S/N: %s\n\rProduct model number: %s\n\r"
+-		"Firmware version: %s\n\rCapacity: %lld sectors\n\r",
+-		pdev->product, pdev->vendor, pdev->revision, pdev->lba);
+-#else
+-	printf("S/N: %s\n\rProduct model number: %s\n\r"
+-		"Firmware version: %s\n\rCapacity: %ld sectors\n\r",
+-		pdev->product, pdev->vendor, pdev->revision, pdev->lba);
+-#endif
+-}
+-
+-static int ahci_sata_identify(int dev, u16 *id)
+-{
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+-	struct sata_fis_h2d *cfis = &h2d;
+-	u8 port = probe_ent->hard_port_no;
+-	int ret;
+-
+-	memset(cfis, 0, sizeof(struct sata_fis_h2d));
+-
+-	if (!(probe_ent->link_port_map & (1 << port))) {
+-		return -1;
+-	}
+-
+-	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
+-	cfis->pm_port_c = 0x80; /* is command */
+-	cfis->command = ATA_CMD_ID_ATA;
+-
+-	ret = ahci_exec_ata_cmd(probe_ent, port, cfis,
+-			(u8 *)id, ATA_ID_WORDS * 2, READ_CMD);
+-	ata_swap_buf_le16(id, ATA_ID_WORDS);
+-
+-	return (ret != ATA_ID_WORDS * 2);
+-}
+-
+-static void ahci_sata_xfer_mode(int dev, u16 *id)
+-{
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-
+-	probe_ent->pio_mask = id[ATA_ID_PIO_MODES];
+-	probe_ent->udma_mask = id[ATA_ID_UDMA_MODES];
+-	debug("pio %04x, udma %04x\n\r",
+-		probe_ent->pio_mask, probe_ent->udma_mask);
+-}
+-
+-static u32 ahci_sata_rw_cmd(int dev, u32 start, u32 blkcnt,
+-				u8 *buffer, int is_write)
+-{
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+-	struct sata_fis_h2d *cfis = &h2d;
+-	u8 port = probe_ent->hard_port_no;
+-	u32 block;
+-
+-	block = start;
+-
+-	memset(cfis, 0, sizeof(struct sata_fis_h2d));
+-
+-	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
+-	cfis->pm_port_c = 0x80; /* is command */
+-	cfis->command = (is_write) ? ATA_CMD_WRITE : ATA_CMD_READ;
+-	cfis->device = ATA_LBA;
+-
+-	cfis->device |= (block >> 24) & 0xf;
+-	cfis->lba_high = (block >> 16) & 0xff;
+-	cfis->lba_mid = (block >> 8) & 0xff;
+-	cfis->lba_low = block & 0xff;
+-	cfis->sector_count = (u8)(blkcnt & 0xff);
+-
+-	if (ahci_exec_ata_cmd(probe_ent, port, cfis,
+-			buffer, ATA_SECT_SIZE * blkcnt, is_write) > 0)
+-		return blkcnt;
+-	else
+-		return 0;
+-}
+-
+-void ahci_sata_flush_cache(int dev)
+-{
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+-	struct sata_fis_h2d *cfis = &h2d;
+-	u8 port = probe_ent->hard_port_no;
+-
+-	memset(cfis, 0, sizeof(struct sata_fis_h2d));
+-
+-	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
+-	cfis->pm_port_c = 0x80; /* is command */
+-	cfis->command = ATA_CMD_FLUSH;
+-
+-	ahci_exec_ata_cmd(probe_ent, port, cfis, NULL, 0, 0);
+-}
+-
+-static u32 ahci_sata_rw_cmd_ext(int dev, u32 start, lbaint_t blkcnt,
+-				u8 *buffer, int is_write)
+-{
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+-	struct sata_fis_h2d *cfis = &h2d;
+-	u8 port = probe_ent->hard_port_no;
+-	u64 block;
+-
+-	block = (u64)start;
+-
+-	memset(cfis, 0, sizeof(struct sata_fis_h2d));
+-
+-	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
+-	cfis->pm_port_c = 0x80; /* is command */
+-
+-	cfis->command = (is_write) ? ATA_CMD_WRITE_EXT
+-				 : ATA_CMD_READ_EXT;
+-
+-	cfis->lba_high_exp = (block >> 40) & 0xff;
+-	cfis->lba_mid_exp = (block >> 32) & 0xff;
+-	cfis->lba_low_exp = (block >> 24) & 0xff;
+-	cfis->lba_high = (block >> 16) & 0xff;
+-	cfis->lba_mid = (block >> 8) & 0xff;
+-	cfis->lba_low = block & 0xff;
+-	cfis->device = ATA_LBA;
+-	cfis->sector_count_exp = (blkcnt >> 8) & 0xff;
+-	cfis->sector_count = blkcnt & 0xff;
+-
+-	if (ahci_exec_ata_cmd(probe_ent, port, cfis, buffer,
+-			ATA_SECT_SIZE * blkcnt, is_write) > 0)
+-		return blkcnt;
+-	else
+-		return 0;
+-}
+-
+-void ahci_sata_flush_cache_ext(int dev)
+-{
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+-	struct sata_fis_h2d *cfis = &h2d;
+-	u8 port = probe_ent->hard_port_no;
+-
+-	memset(cfis, 0, sizeof(struct sata_fis_h2d));
+-
+-	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
+-	cfis->pm_port_c = 0x80; /* is command */
+-	cfis->command = ATA_CMD_FLUSH_EXT;
+-
+-	ahci_exec_ata_cmd(probe_ent, port, cfis, NULL, 0, 0);
+-}
+-
+-static void ahci_sata_init_wcache(int dev, u16 *id)
+-{
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-
+-	if (ata_id_has_wcache(id) && ata_id_wcache_enabled(id))
+-		probe_ent->flags |= SATA_FLAG_WCACHE;
+-	if (ata_id_has_flush(id))
+-		probe_ent->flags |= SATA_FLAG_FLUSH;
+-	if (ata_id_has_flush_ext(id))
+-		probe_ent->flags |= SATA_FLAG_FLUSH_EXT;
+-}
+-
+-u32 ata_low_level_rw_lba48(int dev, u32 blknr, lbaint_t blkcnt,
+-				const void *buffer, int is_write)
+-{
+-	u32 start, blks;
+-	u8 *addr;
+-	int max_blks;
+-
+-	start = blknr;
+-	blks = blkcnt;
+-	addr = (u8 *)buffer;
+-
+-	max_blks = ATA_MAX_SECTORS_LBA48;
+-
+-	do {
+-		if (blks > max_blks) {
+-			if (max_blks != ahci_sata_rw_cmd_ext(dev, start,
+-						max_blks, addr, is_write))
+-				return 0;
+-			start += max_blks;
+-			blks -= max_blks;
+-			addr += ATA_SECT_SIZE * max_blks;
+-		} else {
+-			if (blks != ahci_sata_rw_cmd_ext(dev, start,
+-						blks, addr, is_write))
+-				return 0;
+-			start += blks;
+-			blks = 0;
+-			addr += ATA_SECT_SIZE * blks;
+-		}
+-	} while (blks != 0);
+-
+-	return blkcnt;
+-}
+-
+-u32 ata_low_level_rw_lba28(int dev, u32 blknr, lbaint_t blkcnt,
+-				const void *buffer, int is_write)
+-{
+-	u32 start, blks;
+-	u8 *addr;
+-	int max_blks;
+-
+-	start = blknr;
+-	blks = blkcnt;
+-	addr = (u8 *)buffer;
+-
+-	max_blks = ATA_MAX_SECTORS;
+-	do {
+-		if (blks > max_blks) {
+-			if (max_blks != ahci_sata_rw_cmd(dev, start,
+-						max_blks, addr, is_write))
+-				return 0;
+-			start += max_blks;
+-			blks -= max_blks;
+-			addr += ATA_SECT_SIZE * max_blks;
+-		} else {
+-			if (blks != ahci_sata_rw_cmd(dev, start,
+-						blks, addr, is_write))
+-				return 0;
+-			start += blks;
+-			blks = 0;
+-			addr += ATA_SECT_SIZE * blks;
+-		}
+-	} while (blks != 0);
+-
+-	return blkcnt;
+-}
+-
+-/*
+- * SATA interface between low level driver and command layer
+- */
+-ulong sata_read(int dev, lbaint_t blknr, lbaint_t blkcnt, void *buffer)
+-{
+-	u32 rc;
+-
+-	if (sata_dev_desc[dev].lba48)
+-		rc = ata_low_level_rw_lba48(dev, blknr, blkcnt,
+-						buffer, READ_CMD);
+-	else
+-		rc = ata_low_level_rw_lba28(dev, blknr, blkcnt,
+-						buffer, READ_CMD);
+-	return rc;
+-}
+-
+-ulong sata_write(int dev, lbaint_t blknr, lbaint_t blkcnt, const void *buffer)
+-{
+-	u32 rc;
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-	u32 flags = probe_ent->flags;
+-
+-	if (sata_dev_desc[dev].lba48) {
+-		rc = ata_low_level_rw_lba48(dev, blknr, blkcnt,
+-						buffer, WRITE_CMD);
+-		if ((flags & SATA_FLAG_WCACHE) &&
+-			(flags & SATA_FLAG_FLUSH_EXT))
+-			ahci_sata_flush_cache_ext(dev);
+-	} else {
+-		rc = ata_low_level_rw_lba28(dev, blknr, blkcnt,
+-						buffer, WRITE_CMD);
+-		if ((flags & SATA_FLAG_WCACHE) &&
+-			(flags & SATA_FLAG_FLUSH))
+-			ahci_sata_flush_cache(dev);
+-	}
+-	return rc;
+-}
+-
+-int scan_sata(int dev)
+-{
+-	u8 serial[ATA_ID_SERNO_LEN + 1] = { 0 };
+-	u8 firmware[ATA_ID_FW_REV_LEN + 1] = { 0 };
+-	u8 product[ATA_ID_PROD_LEN + 1] = { 0 };
+-	u16 *id;
+-	u64 n_sectors;
+-	int ret;
+-
+-	struct ahci_probe_ent *probe_ent =
+-		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
+-	u8 port = probe_ent->hard_port_no;
+-	block_dev_desc_t *pdev = &(sata_dev_desc[dev]);
+-
+-	id = (u16 *)memalign(ARCH_DMA_MINALIGN,
+-				roundup(ARCH_DMA_MINALIGN,
+-					(ATA_ID_WORDS * 2)));
+-	if (!id) {
+-		printf("id malloc failed\n\r");
+-		return -1;
+-	}
+-
+-	/* Identify device to get information */
+-	ret = ahci_sata_identify(dev, id);
+-
+-	if (ret) {
+-		pdev->type = DEV_TYPE_UNKNOWN;
+-		debug("ahci_sata_identify() returned %d\n", ret);
+-		return ret;
+-	}
+-
+-	/* Serial number */
+-	ata_id_c_string(id, serial, ATA_ID_SERNO, sizeof(serial));
+-	memcpy(pdev->product, serial, sizeof(serial));
+-
+-	/* Firmware version */
+-	ata_id_c_string(id, firmware, ATA_ID_FW_REV, sizeof(firmware));
+-	memcpy(pdev->revision, firmware, sizeof(firmware));
+-
+-	/* Product model */
+-	ata_id_c_string(id, product, ATA_ID_PROD, sizeof(product));
+-	memcpy(pdev->vendor, product, sizeof(product));
+-
+-	/* Totoal sectors */
+-	n_sectors = ata_id_n_sectors(id);
+-	pdev->lba = (lbaint_t)n_sectors;
+-
+-	pdev->type = DEV_TYPE_HARDDISK;
+-	pdev->blksz = ATA_SECT_SIZE;
+-	pdev->lun = 0 ;
+-
+-	/* Check if support LBA48 */
+-	if (ata_id_has_lba48(id)) {
+-		pdev->lba48 = 1;
+-		debug("Device support LBA48\n\r");
+-	}
+-
+-	/* Get the NCQ queue depth from device */
+-	probe_ent->flags &= (~SATA_FLAG_Q_DEP_MASK);
+-	probe_ent->flags |= ata_id_queue_depth(id);
+-
+-	/* Get the xfer mode from device */
+-	ahci_sata_xfer_mode(dev, id);
+-
+-	/* Get the write cache status from device */
+-	ahci_sata_init_wcache(dev, id);
+-
+-	/* Set the xfer mode to highest speed */
+-	ahci_set_feature(dev, port);
+-
+-	free((void *)id);
+-
+-	print_sata_device_info(dev);
+-
+-	is_ready = 1;
+-
+-	return 0;
+-}
+diff --git a/drivers/block/sata_ahci.h b/drivers/block/sata_ahci.h
+deleted file mode 100644
+index 2094184e6a..0000000000
+--- a/drivers/block/sata_ahci.h
++++ /dev/null
+@@ -1,500 +0,0 @@
+-/*
+- * Copyright (C) 2010 Freescale Semiconductor, Inc.
+- * Terry Lv <r65388@freescale.com>
+- *
+- * SPDX-License-Identifier:	GPL-2.0+
+- */
+-
+-#ifndef __SATA_AHCI_H__
+-#define __SATA_AHCI_H__
+-#include <pci.h>
+-
+-#define AHCI_MAX_CMD_SLOTS	32
+-
+-/* Max host controller numbers */
+-#define SATA_HC_MAX_NUM		16
+-/* Max command queue depth per host controller */
+-#define SATA_HC_MAX_CMD		32
+-/* Max port number per host controller */
+-#define SATA_HC_MAX_PORT	16  /* TBD */
+-
+-/* Generic Host Register */
+-#define SATA_HOST_CAP                0x00 /* host capabilities */
+-#define SATA_HOST_CTL                0x04 /* global host control */
+-#define SATA_HOST_IRQ_STAT           0x08 /* interrupt status */
+-#define SATA_HOST_PORTS_IMPL         0x0c /* bitmap of implemented ports */
+-#define SATA_HOST_VERSION            0x10 /* AHCI spec. version compliancy */
+-#define SATA_HOST_CCC_CTL            0x14 
+-#define SATA_HOST_EM_LOC             0x1C /* Enclosure Management location */
+-#define SATA_HOST_EM_CTL             0x20 /* Enclosure Management Control */
+-#define SATA_HOST_CAP2               0x24 /* host capabilities, extended */
+-#define SATA_HOST_OOBR               0xBC
+-
+-/* HBA Capabilities Register */
+-#define SATA_HOST_CAP_S64A		0x80000000
+-#define SATA_HOST_CAP_SNCQ		0x40000000
+-#define SATA_HOST_CAP_SSNTF		0x20000000
+-#define SATA_HOST_CAP_SMPS		0x10000000
+-#define SATA_HOST_CAP_SSS		0x08000000
+-#define SATA_HOST_CAP_SALP		0x04000000
+-#define SATA_HOST_CAP_SAL		0x02000000
+-#define SATA_HOST_CAP_SCLO		0x01000000
+-#define SATA_HOST_CAP_ISS_MASK		0x00f00000	/* interface speed support */
+-#define SATA_HOST_CAP_ISS_OFFSET	20
+-#define SATA_HOST_CAP_SNZO		0x00080000
+-#define SATA_HOST_CAP_SAM		0x00040000
+-#define SATA_HOST_CAP_SPM		0x00020000
+-#define SATA_HOST_CAP_PMD		0x00008000
+-#define SATA_HOST_CAP_SSC		0x00004000
+-#define SATA_HOST_CAP_PSC		0x00002000
+-#define SATA_HOST_CAP_NCS		0x00001f00
+-#define SATA_HOST_CAP_CCCS		0x00000080
+-#define SATA_HOST_CAP_EMS		0x00000040
+-#define SATA_HOST_CAP_SXS		0x00000020
+-#define SATA_HOST_CAP_NP_MASK		0x0000001f
+-
+-/* Global HBA Control Register */
+-#define SATA_HOST_GHC_AE	0x80000000 /* AHCI enable */
+-#define SATA_HOST_GHC_IE	0x00000002 /* Interrupt Enable */
+-#define SATA_HOST_GHC_HR	0x00000001 /* HBA reset; self-clear */
+-
+-/* Interrupt Status Register */
+-
+-/* Ports Implemented Register */
+-
+-/* AHCI Version Register */
+-#define SATA_HOST_VS_MJR_MASK	0xffff0000
+-#define SATA_HOST_VS_MJR_OFFSET	16
+-#define SATA_HOST_VS_MJR_MNR	0x0000ffff
+-
+-/* Command Completion Coalescing Control */
+-#define SATA_HOST_CCC_CTL_TV_MASK	0xffff0000
+-#define SATA_HOST_CCC_CTL_TV_OFFSET		16
+-#define SATA_HOST_CCC_CTL_CC_MASK	0x0000ff00
+-#define SATA_HOST_CCC_CTL_CC_OFFSET		8
+-#define SATA_HOST_CCC_CTL_INT_MASK	0x000000f8
+-#define SATA_HOST_CCC_CTL_INT_OFFSET	3
+-#define SATA_HOST_CCC_CTL_EN	0x00000001
+-
+-/* Command Completion Coalescing Ports */
+-
+-/* HBA Capabilities Extended Register */
+-#define SATA_HOST_CAP2_DESO		0x00000020
+-#define SATA_HOST_CAP2_SADM		0x00000010
+-#define SATA_HOST_CAP2_SDS		0x00000008
+-#define SATA_HOST_CAP2_APST		0x00000004
+-#define SATA_HOST_CAP2_NVMP		0x00000002
+-#define SATA_HOST_CAP2_BOH		0x00000001
+-
+-/* BIST Activate FIS Register */
+-#define SATA_HOST_BISTAFR_NCP_MASK	0x0000ff00
+-#define SATA_HOST_BISTAFR_NCP_OFFSET	8
+-#define SATA_HOST_BISTAFR_PD_MASK	0x000000ff
+-#define SATA_HOST_BISTAFR_PD_OFFSET		0
+-
+-#define SATA_FIS_BISTAFR_PATTERN_LTDP	0xF1	/* low transition density pattern */
+-#define SATA_FIS_BISTAFR_PATTERN_HTDP	0xB5	/* high transition density pattern */
+-#define SATA_FIS_BISTAFR_PATTERN_LFSCP	0xAB	/* low frequency spectral component pattern */
+-#define SATA_FIS_BISTAFR_PATTERN_SSOP	0x7F	/* simultaneous switching outputs pattern */
+-#define SATA_FIS_BISTAFR_PATTERN_MFTP	0x78	/* mid frequency test pattern */
+-#define SATA_FIS_BISTAFR_PATTERN_HFTP	0x4A	/* high frequency test pattern */
+-#define SATA_FIS_BISTAFR_PATTERN_LFTP	0x7E	/* low frequency test pattern */
+-
+-#define SATA_FIS_BISTAFR_PD_FAREND_R	0x10	/* far-end retimed */
+-#define SATA_FIS_BISTAFR_PD_FAREND_T	0xC0	/* far-end transmit only */
+-#define SATA_FIS_BISTAFR_PD_FAREND_TS	0xE0	/* far-end transmit only with scrambler bypassed */
+-
+-
+-/* BIST Control Register */
+-#define SATA_HOST_BISTCR_FERLB		0x00100000
+-#define SATA_HOST_BISTCR_TXO		0x00040000
+-#define SATA_HOST_BISTCR_CNTCLR		0x00020000
+-#define SATA_HOST_BISTCR_NEALB		0x00010000
+-#define SATA_HOST_BISTCR_LLC_MASK	0x00000700
+-#define SATA_HOST_BISTCR_LLC_OFFSET	8
+-#define SATA_HOST_BISTCR_ERREN		0x00000040
+-#define SATA_HOST_BISTCR_FLIP		0x00000020
+-#define SATA_HOST_BISTCR_PV		0x00000010
+-#define SATA_HOST_BISTCR_PATTERN_MASK	0x0000000f
+-#define SATA_HOST_BISTCR_PATTERN_OFFSET	0
+-
+-/* BIST FIS Count Register */
+-
+-/* BIST Status Register */
+-#define SATA_HOST_BISTSR_FRAMERR_MASK	0x0000ffff
+-#define SATA_HOST_BISTSR_FRAMERR_OFFSET	0
+-#define SATA_HOST_BISTSR_BRSTERR_MASK	0x00ff0000
+-#define SATA_HOST_BISTSR_BRSTERR_OFFSET	16
+-
+-/* BIST DWORD Error Count Register */
+-
+-/* OOB Register*/
+-#define SATA_HOST_OOBR_WE		0x80000000
+-#define SATA_HOST_OOBR_cwMin_MASK	0x7f000000
+-#define SATA_HOST_OOBR_cwMAX_MASK	0x00ff0000
+-#define SATA_HOST_OOBR_ciMin_MASK	0x0000ff00
+-#define SATA_HOST_OOBR_ciMax_MASK	0x000000ff
+-
+-/* Timer 1-ms Register */
+-
+-/* Global Parameter 1 Register */
+-#define SATA_HOST_GPARAM1R_ALIGN_M	0x80000000
+-#define SATA_HOST_GPARAM1R_RX_BUFFER	0x40000000
+-#define SATA_HOST_GPARAM1R_PHY_DATA_MASK	0x30000000
+-#define SATA_HOST_GPARAM1R_PHY_RST	0x08000000
+-#define SATA_HOST_GPARAM1R_PHY_CTRL_MASK	0x07e00000
+-#define SATA_HOST_GPARAM1R_PHY_STAT_MASK	0x001f8000
+-#define SATA_HOST_GPARAM1R_LATCH_M	0x00004000
+-#define SATA_HOST_GPARAM1R_BIST_M	0x00002000
+-#define SATA_HOST_GPARAM1R_PHY_TYPE	0x00001000
+-#define SATA_HOST_GPARAM1R_RETURN_ERR	0x00000400
+-#define SATA_HOST_GPARAM1R_AHB_ENDIAN_MASK	0x00000300
+-#define SATA_HOST_GPARAM1R_S_HADDR	0X00000080
+-#define SATA_HOST_GPARAM1R_M_HADDR	0X00000040
+-
+-/* Global Parameter 2 Register */
+-#define SATA_HOST_GPARAM2R_BIST_M	0x00040000
+-#define SATA_HOST_GPARAM2R_DEV_CP	0x00004000
+-#define SATA_HOST_GPARAM2R_DEV_MP	0x00002000
+-#define SATA_HOST_GPARAM2R_DEV_ENCODE_M	0x00001000
+-#define SATA_HOST_GPARAM2R_RXOOB_CLK_M	0x00000800
+-#define SATA_HOST_GPARAM2R_RXOOB_M	0x00000400
+-#define SATA_HOST_GPARAM2R_TX_OOB_M	0x00000200
+-#define SATA_HOST_GPARAM2R_RXOOB_CLK_MASK	0x000001ff
+-
+-/* Port Parameter Register */
+-#define SATA_HOST_PPARAMR_TX_MEM_M	0x00000200
+-#define SATA_HOST_PPARAMR_TX_MEM_S	0x00000100
+-#define SATA_HOST_PPARAMR_RX_MEM_M	0x00000080
+-#define SATA_HOST_PPARAMR_RX_MEM_S	0x00000040
+-#define SATA_HOST_PPARAMR_TXFIFO_DEPTH_MASK	0x00000038
+-#define SATA_HOST_PPARAMR_RXFIFO_DEPTH_MASK	0x00000007
+-
+-/* Test Register */
+-#define SATA_HOST_TESTR_PSEL_MASK	0x00070000
+-#define SATA_HOST_TESTR_TEST_IF		0x00000001
+-
+-/* Port Register Descriptions */
+-/* Port# Command List Base Address Register */
+-#define SATA_PORT_CLB_CLB_MASK		0xfffffc00
+-
+-/* Port# Command List Base Address Upper 32-Bits Register */
+-
+-/* Port# FIS Base Address Register */
+-#define SATA_PORT_FB_FB_MASK		0xfffffff0
+-
+-/* Port# FIS Base Address Upper 32-Bits Register */
+-
+-/* Port# Interrupt Status Register */
+-#define SATA_PORT_IS_CPDS		0x80000000
+-#define SATA_PORT_IS_TFES		0x40000000
+-#define SATA_PORT_IS_HBFS		0x20000000
+-#define SATA_PORT_IS_HBDS		0x10000000
+-#define SATA_PORT_IS_IFS		0x08000000
+-#define SATA_PORT_IS_INFS		0x04000000
+-#define SATA_PORT_IS_OFS		0x01000000
+-#define SATA_PORT_IS_IPMS		0x00800000
+-#define SATA_PORT_IS_PRCS		0x00400000
+-#define SATA_PORT_IS_DMPS		0x00000080
+-#define SATA_PORT_IS_PCS		0x00000040
+-#define SATA_PORT_IS_DPS		0x00000020
+-#define SATA_PORT_IS_UFS		0x00000010
+-#define SATA_PORT_IS_SDBS		0x00000008
+-#define SATA_PORT_IS_DSS		0x00000004
+-#define SATA_PORT_IS_PSS		0x00000002
+-#define SATA_PORT_IS_DHRS		0x00000001
+-
+-/* Port# Interrupt Enable Register */
+-#define SATA_PORT_IE_CPDE		0x80000000
+-#define SATA_PORT_IE_TFEE		0x40000000
+-#define SATA_PORT_IE_HBFE		0x20000000
+-#define SATA_PORT_IE_HBDE		0x10000000
+-#define SATA_PORT_IE_IFE		0x08000000
+-#define SATA_PORT_IE_INFE		0x04000000
+-#define SATA_PORT_IE_OFE		0x01000000
+-#define SATA_PORT_IE_IPME		0x00800000
+-#define SATA_PORT_IE_PRCE		0x00400000
+-#define SATA_PORT_IE_DMPE		0x00000080
+-#define SATA_PORT_IE_PCE		0x00000040
+-#define SATA_PORT_IE_DPE		0x00000020
+-#define SATA_PORT_IE_UFE		0x00000010
+-#define SATA_PORT_IE_SDBE		0x00000008
+-#define SATA_PORT_IE_DSE		0x00000004
+-#define SATA_PORT_IE_PSE		0x00000002
+-#define SATA_PORT_IE_DHRE		0x00000001
+-
+-/* Port# Command Register */
+-#define SATA_PORT_CMD_ICC_MASK		0xf0000000
+-#define SATA_PORT_CMD_ASP		0x08000000
+-#define SATA_PORT_CMD_ALPE		0x04000000
+-#define SATA_PORT_CMD_DLAE		0x02000000
+-#define SATA_PORT_CMD_ATAPI		0x01000000
+-#define SATA_PORT_CMD_APSTE		0x00800000
+-#define SATA_PORT_CMD_ESP		0x00200000
+-#define SATA_PORT_CMD_CPD		0x00100000
+-#define SATA_PORT_CMD_MPSP		0x00080000
+-#define SATA_PORT_CMD_HPCP		0x00040000
+-#define SATA_PORT_CMD_PMA		0x00020000
+-#define SATA_PORT_CMD_CPS		0x00010000
+-#define SATA_PORT_CMD_CR		0x00008000
+-#define SATA_PORT_CMD_FR		0x00004000
+-#define SATA_PORT_CMD_MPSS		0x00002000
+-#define SATA_PORT_CMD_CCS_MASK		0x00001f00
+-#define SATA_PORT_CMD_FRE		0x00000010
+-#define SATA_PORT_CMD_CLO		0x00000008
+-#define SATA_PORT_CMD_POD		0x00000004
+-#define SATA_PORT_CMD_SUD		0x00000002
+-#define SATA_PORT_CMD_ST		0x00000001
+-
+-/* Port# Task File Data Register */
+-#define SATA_PORT_TFD_ERR_MASK		0x0000ff00
+-#define SATA_PORT_TFD_STS_MASK		0x000000ff
+-#define SATA_PORT_TFD_STS_ERR		0x00000001
+-#define SATA_PORT_TFD_STS_DRQ		0x00000008
+-#define SATA_PORT_TFD_STS_BSY		0x00000080
+-
+-/* Port# Signature Register */
+-
+-/* Port# Serial ATA Status {SStatus} Register */
+-#define SATA_PORT_SSTS_IPM_MASK		0x00000f00
+-#define SATA_PORT_SSTS_SPD_MASK		0x000000f0
+-#define SATA_PORT_SSTS_DET_MASK		0x0000000f
+-
+-/* Port# Serial ATA Control {SControl} Register */
+-#define SATA_PORT_SCTL_IPM_MASK		0x00000f00
+-#define SATA_PORT_SCTL_SPD_MASK		0x000000f0
+-#define SATA_PORT_SCTL_DET_MASK		0x0000000f
+-
+-/* Port# Serial ATA Error {SError} Register */
+-#define SATA_PORT_SERR_DIAG_X		0x04000000
+-#define SATA_PORT_SERR_DIAG_F		0x02000000
+-#define SATA_PORT_SERR_DIAG_T		0x01000000
+-#define SATA_PORT_SERR_DIAG_S		0x00800000
+-#define SATA_PORT_SERR_DIAG_H		0x00400000
+-#define SATA_PORT_SERR_DIAG_C		0x00200000
+-#define SATA_PORT_SERR_DIAG_D		0x00100000
+-#define SATA_PORT_SERR_DIAG_B		0x00080000
+-#define SATA_PORT_SERR_DIAG_W		0x00040000
+-#define SATA_PORT_SERR_DIAG_I		0x00020000
+-#define SATA_PORT_SERR_DIAG_N		0x00010000
+-#define SATA_PORT_SERR_ERR_E		0x00000800
+-#define SATA_PORT_SERR_ERR_P		0x00000400
+-#define SATA_PORT_SERR_ERR_C		0x00000200
+-#define SATA_PORT_SERR_ERR_T		0x00000100
+-#define SATA_PORT_SERR_ERR_M		0x00000002
+-#define SATA_PORT_SERR_ERR_I		0x00000001
+-
+-/* Port# Serial ATA Active {SActive} Register */
+-
+-/* Port# Command Issue Register */
+-
+-/* Port# Serial ATA Notification Register */
+-
+-/* Port# DMA Control Register */
+-#define SATA_PORT_DMACR_RXABL_MASK	0x0000f000
+-#define SATA_PORT_DMACR_TXABL_MASK	0x00000f00
+-#define SATA_PORT_DMACR_RXTS_MASK	0x000000f0
+-#define SATA_PORT_DMACR_TXTS_MASK	0x0000000f
+-
+-/* Port# PHY Control Register */
+-
+-/* Port# PHY Status Register */
+-
+-#define SATA_HC_CMD_HDR_ENTRY_SIZE	sizeof(struct cmd_hdr_entry)
+-
+-/* DW0
+-*/
+-#define CMD_HDR_DI_CFL_MASK	0x0000001f
+-#define CMD_HDR_DI_CFL_OFFSET	0
+-#define CMD_HDR_DI_A			0x00000020
+-#define CMD_HDR_DI_W			0x00000040
+-#define CMD_HDR_DI_P			0x00000080
+-#define CMD_HDR_DI_R			0x00000100
+-#define CMD_HDR_DI_B			0x00000200
+-#define CMD_HDR_DI_C			0x00000400
+-#define CMD_HDR_DI_PMP_MASK	0x0000f000
+-#define CMD_HDR_DI_PMP_OFFSET	12
+-#define CMD_HDR_DI_PRDTL		0xffff0000
+-#define CMD_HDR_DI_PRDTL_OFFSET	16
+-
+-/* prde_fis_len
+-*/
+-#define CMD_HDR_PRD_ENTRY_SHIFT	16
+-#define CMD_HDR_PRD_ENTRY_MASK	0x003f0000
+-#define CMD_HDR_FIS_LEN_SHIFT	2
+-
+-/* attribute
+-*/
+-#define CMD_HDR_ATTR_RES	0x00000800 /* Reserved bit, should be 1 */
+-#define CMD_HDR_ATTR_VBIST	0x00000400 /* Vendor BIST */
+-/* Snoop enable for all descriptor */
+-#define CMD_HDR_ATTR_SNOOP	0x00000200
+-#define CMD_HDR_ATTR_FPDMA	0x00000100 /* FPDMA queued command */
+-#define CMD_HDR_ATTR_RESET	0x00000080 /* Reset - a SRST or device reset */
+-/* BIST - require the host to enter BIST mode */
+-#define CMD_HDR_ATTR_BIST	0x00000040
+-#define CMD_HDR_ATTR_ATAPI	0x00000020 /* ATAPI command */
+-#define CMD_HDR_ATTR_TAG	0x0000001f /* TAG mask */
+-
+-#define FLAGS_DMA	0x00000000
+-#define FLAGS_FPDMA	0x00000001
+-
+-#define SATA_FLAG_Q_DEP_MASK	0x0000000f
+-#define SATA_FLAG_WCACHE	0x00000100
+-#define SATA_FLAG_FLUSH		0x00000200
+-#define SATA_FLAG_FLUSH_EXT	0x00000400
+-
+-#define READ_CMD	0
+-#define WRITE_CMD	1
+-
+-#define AHCI_PCI_BAR            0x24
+-#define AHCI_MAX_SG             56 /* hardware max is 64K */
+-#define AHCI_CMD_SLOT_SZ        32
+-#define AHCI_MAX_CMD_SLOT       32
+-#define AHCI_RX_FIS_SZ          256
+-#define AHCI_CMD_TBL_HDR        0x80
+-#define AHCI_CMD_TBL_CDB        0x40
+-#define AHCI_CMD_TBL_SZ         AHCI_CMD_TBL_HDR + (AHCI_MAX_SG * 16)
+-#define AHCI_PORT_PRIV_DMA_SZ   (AHCI_CMD_SLOT_SZ * AHCI_MAX_CMD_SLOT + \
+-                                AHCI_CMD_TBL_SZ + AHCI_RX_FIS_SZ)
+-#define AHCI_CMD_ATAPI          (1 << 5)
+-#define AHCI_CMD_WRITE          (1 << 6)
+-#define AHCI_CMD_PREFETCH       (1 << 7)
+-#define AHCI_CMD_RESET          (1 << 8)
+-#define AHCI_CMD_CLR_BUSY       (1 << 10)
+-
+-#define RX_FIS_D2H_REG          0x40    /* offset of D2H Register FIS data */
+-
+-/* Global controller registers */
+-#define HOST_CAP                0x00 /* host capabilities */
+-#define HOST_CTL                0x04 /* global host control */
+-#define HOST_IRQ_STAT           0x08 /* interrupt status */
+-#define HOST_PORTS_IMPL         0x0c /* bitmap of implemented ports */
+-#define HOST_VERSION            0x10 /* AHCI spec. version compliancy */
+-#define HOST_CAP2               0x24 /* host capabilities, extended */
+-
+-/* HOST_CTL bits */
+-#define HOST_RESET              (1 << 0)  /* reset controller; self-clear */
+-#define HOST_IRQ_EN             (1 << 1)  /* global IRQ enable */
+-#define HOST_AHCI_EN            (1 << 31) /* AHCI enabled */
+-
+-/* Registers for each SATA port */
+-#define PORT_LST_ADDR           0x00 /* command list DMA addr */
+-#define PORT_LST_ADDR_HI        0x04 /* command list DMA addr hi */
+-#define PORT_FIS_ADDR           0x08 /* FIS rx buf addr */
+-#define PORT_FIS_ADDR_HI        0x0c /* FIS rx buf addr hi */
+-#define PORT_IRQ_STAT           0x10 /* interrupt status */
+-#define PORT_IRQ_MASK           0x14 /* interrupt enable/disable mask */
+-#define PORT_CMD                0x18 /* port command */
+-#define PORT_TFDATA             0x20 /* taskfile data */
+-#define PORT_SIG                0x24 /* device TF signature */
+-#define PORT_CMD_ISSUE          0x38 /* command issue */
+-#define PORT_SCR                0x28 /* SATA phy register block */
+-#define PORT_SCR_STAT           0x28 /* SATA phy register: SStatus */
+-#define PORT_SCR_CTL            0x2c /* SATA phy register: SControl */
+-#define PORT_SCR_ERR            0x30 /* SATA phy register: SError */
+-#define PORT_SCR_ACT            0x34 /* SATA phy register: SActive */
+-
+-/* PORT_IRQ_{STAT,MASK} bits */
+-#define PORT_IRQ_COLD_PRES      (1 << 31) /* cold presence detect */
+-#define PORT_IRQ_TF_ERR         (1 << 30) /* task file error */
+-#define PORT_IRQ_HBUS_ERR       (1 << 29) /* host bus fatal error */
+-#define PORT_IRQ_HBUS_DATA_ERR  (1 << 28) /* host bus data error */
+-#define PORT_IRQ_IF_ERR         (1 << 27) /* interface fatal error */
+-#define PORT_IRQ_IF_NONFATAL    (1 << 26) /* interface non-fatal error */
+-#define PORT_IRQ_OVERFLOW       (1 << 24) /* xfer exhausted available S/G */
+-#define PORT_IRQ_BAD_PMP        (1 << 23) /* incorrect port multiplier */
+-
+-#define PORT_IRQ_PHYRDY         (1 << 22) /* PhyRdy changed */
+-#define PORT_IRQ_DEV_ILCK       (1 << 7) /* device interlock */
+-#define PORT_IRQ_CONNECT        (1 << 6) /* port connect change status */
+-#define PORT_IRQ_SG_DONE        (1 << 5) /* descriptor processed */
+-#define PORT_IRQ_UNK_FIS        (1 << 4) /* unknown FIS rx'd */
+-#define PORT_IRQ_SDB_FIS        (1 << 3) /* Set Device Bits FIS rx'd */
+-#define PORT_IRQ_DMAS_FIS       (1 << 2) /* DMA Setup FIS rx'd */
+-#define PORT_IRQ_PIOS_FIS       (1 << 1) /* PIO Setup FIS rx'd */
+-#define PORT_IRQ_D2H_REG_FIS    (1 << 0) /* D2H Register FIS rx'd */
+-
+-#define PORT_IRQ_FATAL          PORT_IRQ_TF_ERR | PORT_IRQ_HBUS_ERR     \
+-                                | PORT_IRQ_HBUS_DATA_ERR | PORT_IRQ_IF_ERR
+-
+-#define DEF_PORT_IRQ            PORT_IRQ_FATAL | PORT_IRQ_PHYRDY        \
+-                                | PORT_IRQ_CONNECT | PORT_IRQ_SG_DONE   \
+-                                | PORT_IRQ_UNK_FIS | PORT_IRQ_SDB_FIS   \
+-                                | PORT_IRQ_DMAS_FIS | PORT_IRQ_PIOS_FIS \
+-                                | PORT_IRQ_D2H_REG_FIS
+-
+-/* PORT_SCR_STAT bits */
+-#define PORT_SCR_STAT_DET_MASK  0x3
+-#define PORT_SCR_STAT_DET_COMINIT 0x1
+-#define PORT_SCR_STAT_DET_PHYRDY 0x3
+-
+-/* PORT_CMD bits */
+-#define PORT_CMD_ATAPI          (1 << 24) /* Device is ATAPI */
+-#define PORT_CMD_LIST_ON        (1 << 15) /* cmd list DMA engine running */
+-#define PORT_CMD_FIS_ON         (1 << 14) /* FIS DMA engine running */
+-#define PORT_CMD_FIS_RX         (1 << 4) /* Enable FIS receive DMA engine */
+-#define PORT_CMD_CLO            (1 << 3) /* Command list override */
+-#define PORT_CMD_POWER_ON       (1 << 2) /* Power up device */
+-#define PORT_CMD_SPIN_UP        (1 << 1) /* Spin up device */
+-#define PORT_CMD_START          (1 << 0) /* Enable port DMA engine */
+-
+-#define PORT_CMD_ICC_ACTIVE     (0x1 << 28) /* Put i/f in active state */
+-#define PORT_CMD_ICC_PARTIAL    (0x2 << 28) /* Put i/f in partial state */
+-#define PORT_CMD_ICC_SLUMBER    (0x6 << 28) /* Put i/f in slumber state */
+-
+-#define AHCI_MAX_PORTS          32
+-
+-#define ATA_FLAG_SATA           (1 << 3)
+-#define ATA_FLAG_NO_LEGACY      (1 << 4) /* no legacy mode check */
+-#define ATA_FLAG_MMIO           (1 << 6) /* use MMIO, not PIO */
+-#define ATA_FLAG_SATA_RESET     (1 << 7) /* (obsolete) use COMRESET */
+-#define ATA_FLAG_PIO_DMA        (1 << 8) /* PIO cmds via DMA */
+-#define ATA_FLAG_NO_ATAPI       (1 << 11) /* No ATAPI support */
+-
+-#define LOWER32(val)	(u32)((u64)(val) & 0xffffffff)
+-#define UPPER32(val)    (u32)(((u64)(val) & 0xffffffff00000000) >> 32) 
+-
+-struct ahci_cmd_hdr {
+-        u32     opts;
+-        u32     status;  	/* PRD byte Count */
+-        u32     tbl_addr;
+-        u32     tbl_addr_hi;
+-        u32     reserved[4];
+-};
+-
+-struct ahci_sg {	/* PRDT: Physical Region Descript or Table */
+-        u32     addr;
+-        u32     addr_hi;
+-        u32     reserved;
+-        u32     flags_size;
+-};
+-
+-struct ahci_ioports {
+-        u64     cmd_addr;
+-        u64     scr_addr;
+-        u64     port_mmio;
+-        struct ahci_cmd_hdr     *cmd_slot;
+-        struct ahci_sg          *cmd_tbl_sg;
+-        u64     cmd_tbl;
+-        u64     rx_fis;
+-};
+-
+-struct ahci_probe_ent {
+-        pci_dev_t       dev;
+-        struct ahci_ioports     port[AHCI_MAX_PORTS];
+-        u32     n_ports;
+-        u32     hard_port_no;
+-        u32     host_flags;
+-        u32     host_set_flags;
+-        u64     mmio_base;
+-        u32     pio_mask;
+-        u32     udma_mask;
+-        u32     flags;
+-        u32     cap;       /* cache of HOST_CAP register */
+-        u32     port_map;  /* cache of HOST_PORTS_IMPL reg */
+-        u32     link_port_map; /*linkup port map*/
+-};
+-
+- 
+-#endif /* __SATA_AHCI_H__ */ 
+diff --git a/drivers/gpio/thunderx_gpio.c b/drivers/gpio/thunderx_gpio.c
+index e429883d9b..ff13ca0574 100644
+--- a/drivers/gpio/thunderx_gpio.c
++++ b/drivers/gpio/thunderx_gpio.c
+@@ -170,8 +170,8 @@ static int octeontx_gpio_probe(struct udevice *dev)
+ 
+ 	gpio_const.u = readq(priv->baseaddr + GPIO_CONST);
+ 
+-	debug("%s(%s): base address: %p, of_offset: %d, pin count: %d\n",
+-	      __func__, dev->name, priv->baseaddr, dev->of_offset,
++	debug("%s(%s): base address: %p, of_offset: %ld, pin count: %d\n",
++	      __func__, dev->name, priv->baseaddr, dev->node.of_offset,
+ 	      gpio_const.s.gpios);
+ 
+ 	uc_priv->gpio_count = gpio_const.s.gpios;
+diff --git a/drivers/net/cavium/thunderx_smi.c b/drivers/net/cavium/thunderx_smi.c
+index 8ca532d731..6ab1ba21dc 100644
+--- a/drivers/net/cavium/thunderx_smi.c
++++ b/drivers/net/cavium/thunderx_smi.c
+@@ -315,7 +315,7 @@ read_error:
+ int thunderx_smi_probe(struct udevice *dev)
+ {
+ 	size_t size;
+-	int ret, subnode, cnt = 0, node = dev->of_offset;
++	int ret, subnode, cnt = 0, node = dev->node.of_offset;
+ 	struct mii_dev *bus;
+ 	struct thunderx_smi_priv *priv;
+ 	pci_dev_t bdf = dm_pci_get_bdf(dev);
+@@ -327,7 +327,7 @@ int thunderx_smi_probe(struct udevice *dev)
+ 		return -1;
+ 	}
+ 
+-	fdt_for_each_subnode(gd->fdt_blob, subnode, node) {
++	fdt_for_each_subnode(subnode, gd->fdt_blob, node) {
+ 		ret = fdt_node_check_compatible(gd->fdt_blob, subnode,
+ 						"cavium,thunder-8890-mdio");
+ 		if (ret)
+diff --git a/drivers/net/e1000.c b/drivers/net/e1000.c
+index a764c91be2..80f4cd592f 100644
+--- a/drivers/net/e1000.c
++++ b/drivers/net/e1000.c
+@@ -5775,8 +5775,6 @@ static int do_e1000(cmd_tbl_t *cmdtp, int flag,
+ #if !defined(CONFIG_DM_ETH) || defined(CONFIG_E1000_SPI)
+ 	struct e1000_hw *hw;
+ #endif
+-	struct e1000_hw *hw;
+-
+ 	int cardnum;
+ 
+ 	if (argc < 3) {
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index 9d00bd5575..6a3e5a3f21 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -159,13 +159,4 @@ config PCI_KEYSTONE
+ 	help
+ 	  Say Y here if you want to enable PCI controller support on AM654 SoC.
+ 
+-config PCI_THUNDERX_ECAM
+-	bool "ThunderX ECAM support"
+-	depends on THUNDERX
+-	help
+-	  Enable support for the Cavium ThunderX SoC family ECAM controllers.
+-	  These controllers provide PCI configuration access to all on-board
+-	  peripherals so it should only be disabled for testing purposes
+-
+ endif
+-endmenu
+diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
+index e7da490fc9..773186715f 100644
+--- a/drivers/pci/Makefile
++++ b/drivers/pci/Makefile
+@@ -39,4 +39,4 @@ obj-$(CONFIG_PCIE_LAYERSCAPE_GEN4) += pcie_layerscape_gen4.o \
+ obj-$(CONFIG_PCI_XILINX) += pcie_xilinx.o
+ obj-$(CONFIG_PCIE_INTEL_FPGA) += pcie_intel_fpga.o
+ obj-$(CONFIG_PCI_KEYSTONE) += pcie_dw_ti.o
+-obj-$(CONFIG_PCI_THUNDERX_ECAM) += pci_thunderx_ecam.o
++obj-$(CONFIG_PCI_OCTEONTX_ECAM) += pci_octeontx_ecam.o
+diff --git a/drivers/pci/pci_thunderx_ecam.c b/drivers/pci/pci_thunderx_ecam.c
+index bd7c52e682..db380e0697 100644
+--- a/drivers/pci/pci_thunderx_ecam.c
++++ b/drivers/pci/pci_thunderx_ecam.c
+@@ -218,7 +218,7 @@ static int pci_thunderx_ecam_probe(struct udevice *dev)
+ 	struct thunderx_pci *pcie = (void *)dev_get_priv(dev);
+ 	int err;
+ 
+-	err = fdt_get_resource(gd->fdt_blob, dev->of_offset, "reg", 0,
++	err = fdt_get_resource(gd->fdt_blob, dev->node.of_offset, "reg", 0,
+ 			       &pcie->cfg);
+ 
+ 	if (err) {
+@@ -226,7 +226,7 @@ static int pci_thunderx_ecam_probe(struct udevice *dev)
+ 		return err;
+ 	}
+ 
+-	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->of_offset,
++	err = fdtdec_get_pci_bus_range(gd->fdt_blob, dev->node.of_offset,
+ 				       &pcie->bus);
+ 
+ 	if (err) {
+diff --git a/drivers/rtc/ds1337.c b/drivers/rtc/ds1337.c
+index 903c78e86b..0e2fd93301 100644
+--- a/drivers/rtc/ds1337.c
++++ b/drivers/rtc/ds1337.c
+@@ -211,7 +211,7 @@ static int ds133x_ofdata_to_platdata(struct udevice *dev)
+ {
+ 	struct thunderx_rtc *platdata = dev->priv;
+ 	const void *blob = gd->fdt_blob;
+-	int node = dev->of_offset;
++	int node = dev->node.of_offset;
+ 
+ 	platdata->regaddr = fdtdec_get_int(blob, node, "reg", -1);
+ 	platdata->rtcmodel = fdtdec_get_int(blob, node, "rtcmodel", 1);
+diff --git a/drivers/spi/cavium_spi.c b/drivers/spi/cavium_spi.c
+index c6dca0ee3e..32aab734a5 100755
+--- a/drivers/spi/cavium_spi.c
++++ b/drivers/spi/cavium_spi.c
+@@ -218,8 +218,8 @@ static union mpi_cfg thunderx_spi_set_mpicfg(struct udevice *dev)
+ 	if (max_speed > THUNDERX_SPI_MAX_CLOCK_HZ)
+ 		max_speed = THUNDERX_SPI_MAX_CLOCK_HZ;
+ 
+-	debug ("\n slave params %d %d %d %d \n", slave->cs,
+-		slave->max_hz, slave->mode, slave->mode_rx);
++	debug ("\n slave params %d %d %d \n", slave->cs,
++		slave->max_hz, slave->mode);
+ 	cpha = !!(slave->mode & SPI_CPHA);
+ 	cpol = !!(slave->mode & SPI_CPOL);
+ 
+diff --git a/drivers/usb/host/Makefile b/drivers/usb/host/Makefile
+index e6f60c9581..dd13528475 100644
+--- a/drivers/usb/host/Makefile
++++ b/drivers/usb/host/Makefile
+@@ -56,7 +56,6 @@ obj-$(CONFIG_USB_XHCI_OMAP) += xhci-omap.o
+ obj-$(CONFIG_USB_XHCI_PCI) += xhci-pci.o
+ obj-$(CONFIG_USB_XHCI_RCAR) += xhci-rcar.o
+ obj-$(CONFIG_USB_XHCI_STI) += dwc3-sti-glue.o
+-obj-$(CONFIG_USB_XHCI_THUNDERX) += xhci-thunderx.o
+ 
+ # designware
+ obj-$(CONFIG_USB_DWC2) += dwc2.o
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index b995aef997..9bfff94f3b 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -17,9 +17,10 @@ static void xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
+ 	struct xhci_hccr *hccr;
+ 	struct xhci_hcor *hcor;
+ 	u32 cmd;
++	size_t size;
+ 
+ 	hccr = (struct xhci_hccr *)dm_pci_map_bar(dev,
+-			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
++			PCI_BASE_ADDRESS_0, &size, PCI_REGION_MEM);
+ 	hcor = (struct xhci_hcor *)((uintptr_t) hccr +
+ 			HC_LENGTH(xhci_readl(&hccr->cr_capbase)));
+ 
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index f686bc97b3..9160dbfe1a 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -110,13 +110,6 @@
+ #define CONFIG_SYS_CBSIZE		1024	/** Console I/O Buffer Size */
+ #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
+ 
+-/** Enable long help support */
+-#define CONFIG_SYS_LONGHELP
+-/** Enable editing of the command line */
+-#define CONFIG_CMDLINE_EDITING
+-
+-/** Enable tab autocomplete on command line */
+-#define CONFIG_AUTO_COMPLETE
+ #define CONFIG_SYS_MAXARGS		64	/** max command args */
+ 
+ #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
+diff --git a/include/mmc.h b/include/mmc.h
+index 31aba7496b..d6608737d6 100644
+--- a/include/mmc.h
++++ b/include/mmc.h
+@@ -266,8 +266,6 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
+ #define EXT_CSD_CARD_TYPE_52	(1 << 1)	/* Card can run at 52MHz */
+ #define EXT_CSD_CARD_TYPE_DDR_1_8V	(1 << 2)
+ #define EXT_CSD_CARD_TYPE_DDR_1_2V	(1 << 3)
+-#define EXT_CSD_CARD_TYPE_HS200_1_8V	(1 << 4)	/* HS200 SDR, 1.8v */
+-#define EXT_CSD_CARD_TYPE_HS200_1_2V	(1 << 5)	/* HS200 SDR, 1.2V */
+ #define EXT_CSD_CARD_TYPE_HS400_1_8V	(1 << 6)	/* HS400 DDR, 1.8V */
+ #define EXT_CSD_CARD_TYPE_HS400_1_2V	(1 << 7)	/* HS400 DDR, 1.2V */
+ #define EXT_CSD_CARD_TYPE_DDR_52	(EXT_CSD_CARD_TYPE_DDR_1_8V \
+@@ -755,11 +753,15 @@ int mmc_voltage_to_mv(enum mmc_voltage voltage);
+  * @disable:	flag indicating if the clock must on or off
+  * @return 0 if OK, -ve on error
+  */
++#if !CONFIG_IS_ENABLED(MMC_CAVIUM)
+ int mmc_set_clock(struct mmc *mmc, uint clock, bool disable);
+ 
+ #define MMC_CLK_ENABLE		false
+ #define MMC_CLK_DISABLE		true
+ 
++#else
++void mmc_set_clock(struct mmc *mmc, uint clock);
++#endif
+ struct mmc *find_mmc_device(int dev_num);
+ int mmc_set_dev(int dev_num);
+ void print_mmc_devices(char separator);
+-- 
+2.29.0
+

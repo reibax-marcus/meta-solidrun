@@ -1,0 +1,24 @@
+From 42caa289d644b3a1a2af7e8ab15aa5ef9b8fcf60 Mon Sep 17 00:00:00 2001
+From: Nadav Haklai <nadavh@marvell.com>
+Date: Thu, 23 Jan 2020 17:23:06 +0200
+Subject: [PATCH 1070/1239] Bump u-boot-2019.10-devel to release 3.0.0
+
+Change-Id: Ia7ad2003cfc55449ce767c59529c2452e520edeb
+Signed-off-by: Nadav Haklai <nadavh@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/22205
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ localversion | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/localversion b/localversion
+index d04b1df3b7..0ff253c38b 100644
+--- a/localversion
++++ b/localversion
+@@ -1 +1 @@
+--2.0.0
++-3.0.0
+-- 
+2.29.0
+

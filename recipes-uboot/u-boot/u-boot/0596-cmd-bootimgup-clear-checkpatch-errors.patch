@@ -1,0 +1,30 @@
+From 9914543ad5a0b71bde9f4d5053b8c2d943e50155 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Wed, 11 Jan 2017 17:59:06 -0800
+Subject: [PATCH 0596/1239] cmd: bootimgup: clear checkpatch errors
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ cmd/bootimgup.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/cmd/bootimgup.c b/cmd/bootimgup.c
+index f120a907b5..bc9e712b2f 100644
+--- a/cmd/bootimgup.c
++++ b/cmd/bootimgup.c
+@@ -29,9 +29,9 @@ static int validate_bootimg_header(unsigned long addr)
+ 	char *buf2 = (char *)(addr + 0x20008); /* bdk magic offset */
+ 	char *buf3 = (char *)(addr + 0x50008); /* sec bdk magic offset */
+ 
+-	if ( strncmp(buf1, flash_hdr, 8) == 0 )
+-		if ( strncmp(buf2, bdk_magic, 8) == 0 )
+-			if (strncmp (buf3, bdk_magic, 8) == 0 )
++	if (strncmp(buf1, flash_hdr, 8) == 0)
++		if (strncmp(buf2, bdk_magic, 8) == 0)
++			if (strncmp (buf3, bdk_magic, 8) == 0)
+ 				return 0;
+ 	return 1;
+ }
+-- 
+2.29.0
+

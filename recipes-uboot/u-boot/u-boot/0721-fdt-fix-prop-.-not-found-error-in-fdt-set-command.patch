@@ -1,0 +1,49 @@
+From ec9f999b1e9539b5e70b50704f617ef98201adb6 Mon Sep 17 00:00:00 2001
+From: Hannes Schmelzer <oe5hpm@oevsv.at>
+Date: Fri, 18 Aug 2017 14:41:14 +0200
+Subject: [PATCH 0721/1239] fdt: fix 'prop (...) not found!' error in 'fdt set'
+ command
+
+This commit brings things back to the well known working state of the
+command.
+-
+With commit 9620d87259572ef21f0df60988d9a932ca673779
+(cmd/fdt: support single value replacement within an array)
+
+there was an error introduced modifying (inserting) a property to a
+device-tree node.
+fdt_getprop(...) returnes a len with -1 for a non-existing property, but
+a memcpy with len -1 isn't a good idea and things went wrong (crash).
+-
+Some times later Tom did repair this
+with commit 99bb38e2cce9d99238458e0f6d1880c6d2e80a4d
+(fdt: Check for NULL return from fdt_getprop in 'fdt set')
+
+This repairs the crash but the behaviour of the command isn't like
+before, it makes it impossible to insert a property.
+-
+
+Signed-off-by: Hannes Schmelzer <oe5hpm@oevsv.at>
+Acked-by: Simon Glass <sjg@chromium.org>
+---
+ cmd/fdt.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/cmd/fdt.c b/cmd/fdt.c
+index 788e0868b6..bf6c670234 100644
+--- a/cmd/fdt.c
++++ b/cmd/fdt.c
+@@ -318,10 +318,6 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 			len = 0;
+ 		} else {
+ 			ptmp = fdt_getprop(working_fdt, nodeoffset, prop, &len);
+-			if (!ptmp) {
+-				printf("prop (%s) not found!\n", prop);
+-				return 1;
+-			}
+ 			if (len > SCRATCHPAD) {
+ 				printf("prop (%d) doesn't fit in scratchpad!\n",
+ 				       len);
+-- 
+2.29.0
+

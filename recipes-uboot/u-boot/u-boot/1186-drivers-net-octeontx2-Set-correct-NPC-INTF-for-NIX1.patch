@@ -1,0 +1,107 @@
+From b630d840f044ca64bd7ce719d14f1322d03225c5 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 26 Jun 2020 12:35:50 -0700
+Subject: [PATCH 1186/1239] drivers: net: octeontx2: Set correct NPC INTF for
+ NIX1
+
+Program correct NPC_INTF_E for NIX1. Use Block address
+enumeration to identify the correct NIX Block.
+
+Change-Id: I271a711562c2d4fadbb50e22f78323a31bb5aa8a
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/30951
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/net/octeontx2/nix_af.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/octeontx2/nix_af.c b/drivers/net/octeontx2/nix_af.c
+index f84d1613fe..f891d36571 100644
+--- a/drivers/net/octeontx2/nix_af.c
++++ b/drivers/net/octeontx2/nix_af.c
+@@ -855,12 +855,24 @@ int npc_lf_admin_setup(struct nix *nix)
+ 	union nix_rx_action_s rx_action;
+ 	union nix_tx_action_s tx_action;
+ 
++	union rvu_af_addr_s af_addr;
+ 	struct nix_af *nix_af = nix->nix_af;
+ 	u32 kpus;
+ 	int pkind = nix->lmac->link_num;
+ 	int index;
+ 	u64 offset;
+-
++	int nix_id;
++
++	af_addr.u = (u64)nix_af->nix_af_base;
++	switch (af_addr.s.block) {
++	case RVU_BLOCK_ADDR_E_NIXX(1):
++		nix_id = 1;
++		break;
++	case RVU_BLOCK_ADDR_E_NIXX(0):
++	default:
++		nix_id = 0;
++		break;
++	}
+ 	debug("%s(%p, pkind 0x%x)\n", __func__, nix_af, pkind);
+ 	af_const.u = npc_af_reg_read(nix_af, NPC_AF_CONST());
+ 	kpus = af_const.s.kpus;
+@@ -876,24 +888,24 @@ int npc_lf_admin_setup(struct nix *nix)
+ 	kex_cfg.s.keyw = NPC_MCAMKEYW_E_X1;
+ 	kex_cfg.s.parse_nibble_ena = 0x7;
+ 	npc_af_reg_write(nix_af,
+-			 NPC_AF_INTFX_KEX_CFG(NPC_INTF_E_NIXX_RX(0)),
++			 NPC_AF_INTFX_KEX_CFG(NPC_INTF_E_NIXX_RX(nix_id)),
+ 			 kex_cfg.u);
+ 
+ 	/* HW Issue */
+ 	kex_cfg.u = 0;
+ 	kex_cfg.s.parse_nibble_ena = 0x7;
+ 	npc_af_reg_write(nix_af,
+-			 NPC_AF_INTFX_KEX_CFG(NPC_INTF_E_NIXX_TX(0)),
++			 NPC_AF_INTFX_KEX_CFG(NPC_INTF_E_NIXX_TX(nix_id)),
+ 			 kex_cfg.u);
+ 
+ 	camx_intf.u = 0;
+-	camx_intf.s.intf = ~NPC_INTF_E_NIXX_RX(0);
++	camx_intf.s.intf = ~NPC_INTF_E_NIXX_RX(nix_id);
+ 	npc_af_reg_write(nix_af,
+ 			 NPC_AF_MCAMEX_BANKX_CAMX_INTF(pkind, 0, 0),
+ 			 camx_intf.u);
+ 
+ 	camx_intf.u = 0;
+-	camx_intf.s.intf = NPC_INTF_E_NIXX_RX(0);
++	camx_intf.s.intf = NPC_INTF_E_NIXX_RX(nix_id);
+ 	npc_af_reg_write(nix_af,
+ 			 NPC_AF_MCAMEX_BANKX_CAMX_INTF(pkind, 0, 1),
+ 			 camx_intf.u);
+@@ -927,7 +939,7 @@ int npc_lf_admin_setup(struct nix *nix)
+ 	intfx_stat_act.u = 0;
+ 	intfx_stat_act.s.ena = 1;
+ 	intfx_stat_act.s.stat_sel = 16;
+-	offset = NPC_AF_INTFX_MISS_STAT_ACT(NPC_INTF_E_NIXX_RX(0));
++	offset = NPC_AF_INTFX_MISS_STAT_ACT(NPC_INTF_E_NIXX_RX(nix_id));
+ 	npc_af_reg_write(nix_af, offset, intfx_stat_act.u);
+ 	rx_action.u = 0;
+ 	rx_action.s.pf_func = nix->pf_func;
+@@ -942,7 +954,7 @@ int npc_lf_admin_setup(struct nix *nix)
+ 	rx_action.s.pf_func = nix->pf_func;
+ 	rx_action.s.op = NIX_RX_ACTIONOP_E_DROP;
+ 	npc_af_reg_write(nix_af,
+-			 NPC_AF_INTFX_MISS_ACT(NPC_INTF_E_NIXX_RX(0)),
++			 NPC_AF_INTFX_MISS_ACT(NPC_INTF_E_NIXX_RX(nix_id)),
+ 			 rx_action.u);
+ 	bankx_cfg.u = 0;
+ 	bankx_cfg.s.ena = 1;
+@@ -952,7 +964,7 @@ int npc_lf_admin_setup(struct nix *nix)
+ 	tx_action.u = 0;
+ 	tx_action.s.op = NIX_TX_ACTIONOP_E_UCAST_DEFAULT;
+ 	npc_af_reg_write(nix_af,
+-			 NPC_AF_INTFX_MISS_ACT(NPC_INTF_E_NIXX_TX(0)),
++			 NPC_AF_INTFX_MISS_ACT(NPC_INTF_E_NIXX_TX(nix_id)),
+ 			 tx_action.u);
+ 
+ #ifdef DEBUG
+-- 
+2.29.0
+

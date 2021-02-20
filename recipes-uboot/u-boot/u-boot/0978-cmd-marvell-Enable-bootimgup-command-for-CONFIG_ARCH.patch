@@ -1,0 +1,61 @@
+From f4fe2e96b8a26ccb4eb85d1824524d64034dfcf7 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Tue, 29 Oct 2019 13:50:17 -0700
+Subject: [PATCH 0978/1239] cmd: marvell: Enable bootimgup command for
+ CONFIG_ARCH_OCTEONTX
+
+Change-Id: Ibd3b182d4cc135fdca5f01dff2f03830ec4211fb
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/17996
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ cmd/Makefile        | 1 +
+ cmd/marvell/Kconfig | 4 +++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/cmd/Makefile b/cmd/Makefile
+index e17a9ded6b..554022272a 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -180,6 +180,7 @@ obj-$(CONFIG_X86) += x86/
+ obj-$(CONFIG_ARCH_MVEBU) += mvebu/
+ 
+ obj-$(CONFIG_ARCH_OCTEONTX2) += marvell/
++obj-$(CONFIG_ARCH_OCTEONTX) += marvell/
+ 
+ endif # !CONFIG_SPL_BUILD
+ 
+diff --git a/cmd/marvell/Kconfig b/cmd/marvell/Kconfig
+index 9ce9a0a469..27d1293d6c 100644
+--- a/cmd/marvell/Kconfig
++++ b/cmd/marvell/Kconfig
+@@ -1,7 +1,7 @@
+ menu "Marvell specific command line interface"
+-depends on ARCH_OCTEONTX2
+ 
+ config CMD_FAILSAFE
++	depends on ARCH_OCTEONTX2
+ 	bool "Command for supporting fail safe boot"
+ 	help
+ 	   Support for fail safe boot on Marvell's OcteonTX2 platforms.
+@@ -17,6 +17,7 @@ config CMD_ETH
+ 	   OcteonTX2 platforms.
+ 
+ config CMD_MDIO_DBG
++	depends on ARCH_OCTEONTX2
+ 	bool "PHY registers read/write support on mdio bus"
+ 	help
+ 	   Support to debug phy registers over MDIO bus using SMC interface
+@@ -24,6 +25,7 @@ config CMD_MDIO_DBG
+ 	   platforms.
+ 
+ config CMD_ATTEST
++	depends on ARCH_OCTEONTX2
+ 	bool "Command for supporting Software Attestation"
+ 	help
+ 	   Support for Software Attestation on Marvell's OcteonTX2 platforms.
+-- 
+2.29.0
+

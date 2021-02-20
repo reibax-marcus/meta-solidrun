@@ -1,0 +1,196 @@
+From bf698c50d6d01b5097d85f74da4e81ef7cf40f0e Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Sun, 26 Jul 2020 14:32:41 +0300
+Subject: [PATCH 1200/1239] arch/arm/mach-mvebu: enable TF-A boot and secure FW
+
+Enable Secure Firmware support and TF-A boot for all
+Marvell Armada Armv8 SoC familires.
+
+Change-Id: Ic2b004f094bc6c1ebcb5be71bc0d6ea4efc53de1
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32678
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/mach-mvebu/Kconfig                 | 4 ++++
+ configs/mvebu_comexpress-88f7020_defconfig  | 1 +
+ configs/mvebu_crb_cn9130_defconfig          | 1 +
+ configs/mvebu_crb_ep_cn9130_defconfig       | 1 +
+ configs/mvebu_db-88f3720_defconfig          | 1 +
+ configs/mvebu_db_armada8k_defconfig         | 1 +
+ configs/mvebu_db_cn91xx_defconfig           | 1 +
+ configs/mvebu_db_ep_cn91xx_defconfig        | 1 +
+ configs/mvebu_espressobin-88f3720_defconfig | 1 +
+ configs/mvebu_mcbin-88f8040_defconfig       | 3 ++-
+ configs/mvebu_ocp-88f8040_defconfig         | 1 +
+ configs/mvebu_ucpe-88f8040_defconfig        | 1 +
+ include/configs/mvebu_armada-common.h       | 2 ++
+ 13 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-mvebu/Kconfig b/arch/arm/mach-mvebu/Kconfig
+index 09d871ee27..25a2ac2dbf 100644
+--- a/arch/arm/mach-mvebu/Kconfig
++++ b/arch/arm/mach-mvebu/Kconfig
+@@ -34,12 +34,16 @@ config ARMADA_XP
+ config ARMADA_3700
+ 	bool
+ 	select ARM64
++	select ARCH_SUPPORT_TFABOOT
++	select ARMV8_SEC_FIRMWARE_SUPPORT
+ 
+ # Armada 7K and 8K are very similar - use only one Kconfig symbol for both
+ config ARMADA_8K
+ 	bool
+ 	select ARM64
+ 	select HAVE_MVEBU_EFUSE
++	select ARCH_SUPPORT_TFABOOT
++	select ARMV8_SEC_FIRMWARE_SUPPORT
+ 
+ # Armada PLL frequency (used for NAND clock generation)
+ config SYS_MVEBU_PLL_CLOCK
+diff --git a/configs/mvebu_comexpress-88f7020_defconfig b/configs/mvebu_comexpress-88f7020_defconfig
+index 61099a11c2..2366e379d3 100644
+--- a/configs/mvebu_comexpress-88f7020_defconfig
++++ b/configs/mvebu_comexpress-88f7020_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_MVEBU_ARMADA_8K=y
+diff --git a/configs/mvebu_crb_cn9130_defconfig b/configs/mvebu_crb_cn9130_defconfig
+index f111ca07e8..2033e24609 100644
+--- a/configs/mvebu_crb_cn9130_defconfig
++++ b/configs/mvebu_crb_cn9130_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_OCTEONTX2_CN913x=y
+diff --git a/configs/mvebu_crb_ep_cn9130_defconfig b/configs/mvebu_crb_ep_cn9130_defconfig
+index 08fd4cdd87..060642d896 100644
+--- a/configs/mvebu_crb_ep_cn9130_defconfig
++++ b/configs/mvebu_crb_ep_cn9130_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_OCTEONTX2_CN913x=y
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index 1596b1b518..57fa9837c4 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -1,6 +1,7 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_CPU_INIT=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_MVEBU_ARMADA_37XX=y
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index 0b4ef2061f..1a4d9675af 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -4,6 +4,7 @@ CONFIG_ARCH_MVEBU=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_MVEBU_ARMADA_8K=y
++CONFIG_TFABOOT=y
+ CONFIG_NR_DRAM_BANKS=2
+ CONFIG_DEBUG_UART_BASE=0xf0512000
+ CONFIG_DEBUG_UART_CLOCK=200000000
+diff --git a/configs/mvebu_db_cn91xx_defconfig b/configs/mvebu_db_cn91xx_defconfig
+index 1532d1b500..65810a2535 100644
+--- a/configs/mvebu_db_cn91xx_defconfig
++++ b/configs/mvebu_db_cn91xx_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_OCTEONTX2_CN913x=y
+diff --git a/configs/mvebu_db_ep_cn91xx_defconfig b/configs/mvebu_db_ep_cn91xx_defconfig
+index 1a0d632545..390f48309f 100644
+--- a/configs/mvebu_db_ep_cn91xx_defconfig
++++ b/configs/mvebu_db_ep_cn91xx_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_OCTEONTX2_CN913x=y
+diff --git a/configs/mvebu_espressobin-88f3720_defconfig b/configs/mvebu_espressobin-88f3720_defconfig
+index 5c9206387d..3d5970affe 100644
+--- a/configs/mvebu_espressobin-88f3720_defconfig
++++ b/configs/mvebu_espressobin-88f3720_defconfig
+@@ -1,6 +1,7 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_CPU_INIT=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_MVEBU_ARMADA_37XX=y
+diff --git a/configs/mvebu_mcbin-88f8040_defconfig b/configs/mvebu_mcbin-88f8040_defconfig
+index 04c7820b4d..0799c0d5a0 100644
+--- a/configs/mvebu_mcbin-88f8040_defconfig
++++ b/configs/mvebu_mcbin-88f8040_defconfig
+@@ -1,6 +1,7 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_CPU_INIT=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_MVEBU_ARMADA_8K=y
+@@ -100,4 +101,4 @@ CONFIG_USB_ETHER_SMSC95XX=y
+ CONFIG_FIT=y
+ CONFIG_FIT_VERBOSE=y
+ CONFIG_OF_LIBFDT=y
+-CONFIG_UPDATE_TFTP=y
+\ No newline at end of file
++CONFIG_UPDATE_TFTP=y
+diff --git a/configs/mvebu_ocp-88f8040_defconfig b/configs/mvebu_ocp-88f8040_defconfig
+index 824c06aa26..6ac4fb002c 100644
+--- a/configs/mvebu_ocp-88f8040_defconfig
++++ b/configs/mvebu_ocp-88f8040_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x0
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_MVEBU_ARMADA_8K=y
+diff --git a/configs/mvebu_ucpe-88f8040_defconfig b/configs/mvebu_ucpe-88f8040_defconfig
+index 8fba4c8ab9..ed15f5129a 100644
+--- a/configs/mvebu_ucpe-88f8040_defconfig
++++ b/configs/mvebu_ucpe-88f8040_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_MVEBU=y
++CONFIG_TFABOOT=y
+ CONFIG_SYS_TEXT_BASE=0x00000000
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_TARGET_MVEBU_ARMADA_8K=y
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index d3669ff022..f778c39fda 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -172,4 +172,6 @@ defined(CONFIG_TARGET_OCTEONTX2_CN913x) && (CONFIG_MVEBU_BOOT_PART != 0))
+  */
+ #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
+ 
++#define CONFIG_SYS_MEM_RESERVE_SECURE	0x200000
++
+ #endif /* _CONFIG_MVEBU_ARMADA_H */
+-- 
+2.29.0
+

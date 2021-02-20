@@ -1,0 +1,107 @@
+From e84921a4fe9efe48e42f2a7d8af22f00c73ccdbc Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 25 Sep 2018 13:20:08 -0700
+Subject: [PATCH 0851/1239] drivers: net: octeontx2: disable NET_OCTEONTX2 and
+ decouple cgx_intf.c
+
+cgx_intf_shutdown is needed before handoff to Linux. So decouple the
+compilation of cgx_intf.c.
+
+Change-Id: Id34be7c8dfc9719781b7bb987f84ebf60facb69e
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1464
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ board/Marvell/octeontx2/octeontx2.c | 2 ++
+ configs/octeontx2_96xx_defconfig    | 2 ++
+ drivers/net/Kconfig                 | 8 ++++++++
+ drivers/net/Makefile                | 1 +
+ drivers/net/octeontx2/Makefile      | 2 +-
+ 5 files changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/board/Marvell/octeontx2/octeontx2.c b/board/Marvell/octeontx2/octeontx2.c
+index 819333a5d5..c565e0e055 100644
+--- a/board/Marvell/octeontx2/octeontx2.c
++++ b/board/Marvell/octeontx2/octeontx2.c
+@@ -80,8 +80,10 @@ void board_quiesce_devices(void)
+ 	if (ret)
+ 		printf("couldn't remove rvu pf devices\n");
+ 
++#ifdef CONFIG_OCTEONTX2_CGX_INTF
+ 	/* Bring down all cgx lmac links */
+ 	cgx_intf_shutdown();
++#endif
+ 
+ 	/* Removes all CGX and RVU AF devices */
+ 	ret = uclass_get(UCLASS_MISC, &uc_dev);
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 11b5ad411b..663ff90c0a 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -5,6 +5,7 @@ CONFIG_SYS_TEXT_BASE=0x04000000
+ CONFIG_TARGET_OCTEONTX2_96XX=y
+ CONFIG_DEBUG_UART=y
+ CONFIG_AHCI=y
++# CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
+ CONFIG_FIT=y
+ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
+@@ -68,6 +69,7 @@ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_DM_ETH=y
+ CONFIG_NET_OCTEONTX2=y
++CONFIG_OCTEONTX2_CGX_INTF=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 184a6aaa13..25286696b8 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -336,10 +336,18 @@ config NET_OCTEONTX
+ config NET_OCTEONTX2
+ 	bool "OcteonTX2 Ethernet support"
+ 	depends on ARCH_OCTEONTX2
++	select OCTEONTX2_CGX_INTF
+ 	help
+ 	  You must select Y to enable network device support for
+ 	  OcteonTX2 SoCs. If unsure, say n
+ 
++config OCTEONTX2_CGX_INTF
++	bool "OcteonTX2 CGX ATF interface support"
++	depends on ARCH_OCTEONTX2
++	help
++	  You must select Y to enable CGX ATF interface support for
++	  OcteonTX2 SoCs. If unsure, say n
++
+ config PCH_GBE
+ 	bool "Intel Platform Controller Hub EG20T GMAC driver"
+ 	depends on DM_ETH && DM_PCI
+diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+index 3d81b114b2..8e5ae9d4de 100644
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -64,6 +64,7 @@ obj-$(CONFIG_SMC911X) += smc911x.o
+ obj-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
+ obj-$(CONFIG_NET_OCTEONTX) += octeontx/
+ obj-$(CONFIG_NET_OCTEONTX2) += octeontx2/
++obj-$(CONFIG_OCTEONTX2_CGX_INTF) += octeontx2/cgx_intf.o
+ obj-$(CONFIG_FMAN_ENET) += fsl_mdio.o
+ obj-$(CONFIG_ULI526X) += uli526x.o
+ obj-$(CONFIG_VSC7385_ENET) += vsc7385.o
+diff --git a/drivers/net/octeontx2/Makefile b/drivers/net/octeontx2/Makefile
+index beee8f28d5..bfe4a0c328 100644
+--- a/drivers/net/octeontx2/Makefile
++++ b/drivers/net/octeontx2/Makefile
+@@ -6,5 +6,5 @@
+ # */
+ 
+ 
+-obj-$(CONFIG_NET_OCTEONTX2) += cgx_intf.o cgx.o nix_af.o nix.o rvu_pf.o \
++obj-$(CONFIG_NET_OCTEONTX2) += cgx.o nix_af.o nix.o rvu_pf.o \
+ 				rvu_af.o rvu_common.o
+-- 
+2.29.0
+

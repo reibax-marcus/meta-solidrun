@@ -1,0 +1,30 @@
+From 793d83f185a5e7e99577a1c3c4c98054ef4ceab3 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Sat, 14 May 2016 17:30:14 -0400
+Subject: [PATCH 0435/1239] pci: Do device probing right after its discovery
+
+Current DM PCI driver doesn't perform device probing which
+is confusing since it leaves some devices uninitialized.
+Change this behavior to get the probe() method called for
+each discovered device
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ drivers/pci/pci_auto.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/pci/pci_auto.c b/drivers/pci/pci_auto.c
+index 48ffa4f949..43c3c6357d 100644
+--- a/drivers/pci/pci_auto.c
++++ b/drivers/pci/pci_auto.c
+@@ -383,6 +383,7 @@ int dm_pciauto_config_device(struct udevice *dev)
+ 	default:
+ 		dm_pciauto_setup_device(dev, 6, pci_mem, pci_prefetch, pci_io,
+ 					enum_only);
++		device_probe(dev);
+ 		break;
+ 	}
+ 
+-- 
+2.29.0
+

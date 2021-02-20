@@ -1,0 +1,69 @@
+From 179dbd64ebc40c43489a56e6fe55d320799cc9a3 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Thu, 6 Aug 2020 23:12:52 -0700
+Subject: [PATCH 1208/1239] otx2: Added smc call to enable WFE per core
+
+Pass value passed to enable_wfe to enable WFE via smc call
+
+Change-Id: I3232de0f7b10cf3ac55442cdcab56765733530b9
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/33569
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/smc-id.h |  1 +
+ board/Marvell/octeontx2/board.c              |  3 +++
+ board/Marvell/octeontx2/smc.c                | 11 +++++++++++
+ 3 files changed, 15 insertions(+)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/smc-id.h b/arch/arm/include/asm/arch-octeontx2/smc-id.h
+index e4b86fb7bd..cf8cee970d 100644
+--- a/arch/arm/include/asm/arch-octeontx2/smc-id.h
++++ b/arch/arm/include/asm/arch-octeontx2/smc-id.h
+@@ -25,6 +25,7 @@
+ #define OCTEONTX2_DISABLE_RVU_LFS	0xc2000b01
+ 
+ #define OCTEONTX2_CONFIG_OOO		0xc2000b04
++#define OCTEONTX2_CONFIG_WFE		0xc2000b06
+ 
+ /* fail safe */
+ #define OCTEONTX2_FSAFE_PR_BOOT_SUCCESS	0xc2000b02
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 66682aa973..281d9067ac 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -371,6 +371,9 @@ int board_late_init(void)
+ 	val = env_get_hex("disable_ooo", 0);
+ 	smc_configure_ooo(val);
+ 
++	val = env_get_hex("enable_wfe", 0);
++	smc_configure_wfe(val);
++
+ #ifdef CONFIG_NET_OCTEONTX2
+ 	board_late_probe_devices();
+ #endif
+diff --git a/board/Marvell/octeontx2/smc.c b/board/Marvell/octeontx2/smc.c
+index 3ae428d726..129ee28ee8 100644
+--- a/board/Marvell/octeontx2/smc.c
++++ b/board/Marvell/octeontx2/smc.c
+@@ -50,6 +50,17 @@ ssize_t smc_configure_ooo(unsigned int val)
+ 	return regs.regs[0];
+ }
+ 
++ssize_t smc_configure_wfe(unsigned int val)
++{
++	struct pt_regs regs;
++
++	regs.regs[0] = OCTEONTX2_CONFIG_WFE;
++	regs.regs[1] = val;
++	smc_call(&regs);
++
++	return regs.regs[0];
++}
++
+ ssize_t smc_flsf_fw_booted(void)
+ {
+ 	struct pt_regs regs;
+-- 
+2.29.0
+

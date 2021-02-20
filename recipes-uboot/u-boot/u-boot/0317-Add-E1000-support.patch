@@ -1,0 +1,36 @@
+From 11c9328530eca16c32b364a101bff7ee73747ae9 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
+Date: Tue, 31 Mar 2015 19:27:31 +0300
+Subject: [PATCH 0317/1239] Add E1000 support
+
+---
+ include/configs/thunderx_88xx.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index 9d81c19ca9..cc54afbbf8 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -172,6 +172,19 @@
+ #define PHYS_SDRAM_1_SIZE		(0x80000000-MEM_BASE)	/* 2048 MB */
+ #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+ 
++#define CONFIG_USB_XHCI
++#define CONFIG_USB_XHCI_THUNDERX
++#define CONFIG_USB_STORAGE
++#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS 2
++#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
++
++
++/* PCIe network controller drivers */
++#define CONFIG_E1000
++#define CONFIG_E1000_SPI
++#define CONFIG_CMD_E1000
++//#define CONFIG_RTL8169
++
+ /* Initial environment variables */
+ #define UBOOT_IMG_HEAD_SIZE		0x40
+ /* C80000 - 0x40 */
+-- 
+2.29.0
+

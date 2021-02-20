@@ -1,0 +1,33 @@
+From 635dc38914744201931ece662f0681a9ca0aaee9 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Tue, 20 Dec 2016 17:34:26 -0800
+Subject: [PATCH 0586/1239] configs: thunderx_81xx: remove RTC config items
+
+added support for driver model in RTC driver and these
+values will be fetched from device tree.
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index dcecd15888..0380f7a122 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -285,12 +285,6 @@
+ /** I2C slave address */
+ #define CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR	0x77
+ 
+-/** I2C bus real-time clock resides on */
+-#define CONFIG_SYS_RTC_BUS_NUM 0
+-
+-/** I2C address of real-time clcok */
+-#define CONFIG_SYS_I2C_RTC_ADDR 0x68
+-
+ /** Enable Dallas or compabile DS1337 driver */
+ #define CONFIG_RTC_DS1337
+ 
+-- 
+2.29.0
+

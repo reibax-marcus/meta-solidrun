@@ -1,0 +1,30 @@
+From 817b436271160421e9f443cb42f7b951c0acc1bf Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Sun, 19 Jul 2020 21:53:24 -0700
+Subject: [PATCH 1194/1239] cmd: marvell: Fix SMC call for serdes settings
+
+Change-Id: Ifbecfb5ac83b5de304ab701eae3d802b23231a6c
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32256
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ cmd/marvell/octeontx2_qlm_cmds.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/marvell/octeontx2_qlm_cmds.c b/cmd/marvell/octeontx2_qlm_cmds.c
+index 3d29a20b76..9da5d20be6 100644
+--- a/cmd/marvell/octeontx2_qlm_cmds.c
++++ b/cmd/marvell/octeontx2_qlm_cmds.c
+@@ -129,7 +129,7 @@ static int do_serdes(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	qlm = simple_strtoul(argv[1], NULL, 10);
+ 	lane = simple_strtoul(argv[2], NULL, 10);
+ 
+-	arm_smccc_smc(OCTEONTX_SERDES_DBG_GET_EYE, qlm, lane, 1, 0, 0, 0, 0, &res);
++	arm_smccc_smc(OCTEONTX_SERDES_DBG_GET_CONF, qlm, lane, 1, 0, 0, 0, 0, &res);
+ 	waitforresult(&res);
+ 
+         if (res.a0 != SMCCC_RET_SUCCESS) {
+-- 
+2.29.0
+

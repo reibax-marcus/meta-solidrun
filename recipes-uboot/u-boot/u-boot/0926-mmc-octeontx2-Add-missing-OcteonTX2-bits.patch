@@ -1,0 +1,65 @@
+From 476d8a375dfd602e8c58c0872a38d65c17097a25 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Wed, 5 Jun 2019 19:38:03 -0700
+Subject: [PATCH 0926/1239] mmc: octeontx2: Add missing OcteonTX2 bits
+
+This adds some bits that are in some registers for OcteonTX2
+in the register dump function.
+
+Change-Id: I5d201a869a7dbe89f0d01cbdb22783974bf88157
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/10556
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index 8986521da6..9126044e1e 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -244,7 +244,7 @@ static void mmc_print_status(u32 status)
+  * Print out all of the register values where mmc is optional
+  *
+  * @param mmc	MMC device (can be NULL)
+- * @param host	Pointer to host data structure
++ * @param host	Pointer to host data structure (can be NULL if mmc is !NULL)
+  */
+ static void octeontx_mmc_print_registers2(struct mmc *mmc,
+ 					  struct octeontx_mmc_host *host)
+@@ -313,6 +313,9 @@ static void octeontx_mmc_print_registers2(struct mmc *mmc,
+ 		"Reserved 7"
+ 	};
+ 
++	if (!host && mmc)
++		host = mmc_to_host(mmc);
++
+ 	if (mmc)
+ 		printf("%s: bus id: %u\n", __func__, slot->bus_id);
+ 	emm_dma_cfg.u = readq(host->base_addr + CAVM_MIO_EMM_DMA_CFG());
+@@ -363,6 +366,12 @@ static void octeontx_mmc_print_registers2(struct mmc *mmc,
+ 		emm_mode.u = readq(host->base_addr + CAVM_MIO_EMM_MODEX(bus));
+ 		printf("\nMIO_EMM_MODE%u:               0x%016llx\n",
+ 		       bus, emm_mode.u);
++#ifndef CONFIG_ARCH_OCTEONTX
++		printf("    50:    hs400_timing:        %s\n",
++		       emm_mode.s.hs400_timing ? "yes" : "no");
++		printf("    49:    hs200_timing:        %s\n",
++		       emm_mode.s.hs200_timing ? "yes" : "no");
++#endif
+ 		printf("    48:    hs_timing:           %s\n",
+ 		       emm_mode.s.hs_timing ? "yes" : "no");
+ 		printf("    40-42: bus_width:           %s\n",
+@@ -419,6 +428,8 @@ static void octeontx_mmc_print_registers2(struct mmc *mmc,
+ 
+ 	emm_cmd.u = readq(host->base_addr + CAVM_MIO_EMM_CMD());
+ 	printf("\nMIO_EMM_CMD:                  0x%016llx\n", emm_cmd.u);
++	printf("\n  62:    skip_busy:           %s\n",
++	       emm_cmd.s.skip_busy ? "yes" : "no");
+ 	printf("    60-61: bus_id:              %u\n", emm_cmd.s.bus_id);
+ 	printf("    59:    cmd_val:             %s\n",
+ 	       emm_cmd.s.cmd_val ? "yes" : "no");
+-- 
+2.29.0
+

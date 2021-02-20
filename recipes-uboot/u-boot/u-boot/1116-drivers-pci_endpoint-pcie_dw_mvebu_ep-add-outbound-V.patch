@@ -1,0 +1,128 @@
+From 0d5ba54f152c26ed44a0a3569d99de04eb175520 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Wed, 11 Mar 2020 14:19:35 +0200
+Subject: [PATCH 1116/1239] drivers/pci_endpoint/pcie_dw_mvebu_ep: add outbound
+ VF mapping
+
+Extend the pcie_dw_mvebu_ep_remap_host() function with additional
+VF maps inserted into outbound ATU regions.
+This patch decrease the PCI0 host mapping from 32GB to 16GB for
+saving additional 4GB for PCI virtual functions
+
+Change-Id: I03ee8e380fd475b08d3d157510d7cdb8c622c4b9
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/24831
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/armada-cp110.dtsi          |  2 +-
+ drivers/pci_endpoint/pcie_dw_mvebu_ep.c | 44 +++++++++++++++++++++++--
+ drivers/pci_endpoint/pcie_dw_mvebu_ep.h |  3 ++
+ 3 files changed, 46 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index 4dd5beb642..2819bffb2e 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -277,7 +277,7 @@
+ 			reg = <0x00 0x00000000 0x0 0x00100000>,
+ 			      <0x00 0x3f000000 0x0 0x01000000>,
+ 			      <0x00 0xf0000000 0x0 0x01000000>,
+-			      <0x80 0x00000000 0x8 0x00000000>;
++			      <0x80 0x00000000 0x4 0x00000000>;
+ 			reg-names = "bar0", "bar2", "bar4", "host-map";
+ 			device-id = <0x7080>;
+ 			vf-device-id = <0x7081>;
+diff --git a/drivers/pci_endpoint/pcie_dw_mvebu_ep.c b/drivers/pci_endpoint/pcie_dw_mvebu_ep.c
+index fe3c40b4e0..46c4938d08 100644
+--- a/drivers/pci_endpoint/pcie_dw_mvebu_ep.c
++++ b/drivers/pci_endpoint/pcie_dw_mvebu_ep.c
+@@ -24,6 +24,8 @@
+ #include <asm/io.h>
+ #include "pcie_dw_mvebu_ep.h"
+ 
++#define ATU_NUM_OF_VFS_TO_MAP		4
++
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+ static int pcie_dw_mvebu_ep_setup_bar(struct udevice *dev, uint func_id,
+@@ -131,14 +133,16 @@ static int pcie_dw_mvebu_ep_remap_host(struct udevice *dev, uint func_id,
+ 	void *pl_regs = ep->pl_regs;
+ 	u32  v, region = 0;
+ 	u64  remain_size = size;
++	u32  vf_num;
+ 
+ 	/* ATU window size must be power of 2 */
+ 	if (!is_power_of_2(size))
+ 		return -EINVAL;
+ 
++	/* Setup outbound regions for PF */
+ 	while (remain_size > 0) {
+-		if (region > MAX_ATU_REGIONS) {
+-			printf("Insufficient ATU regions to map hosts\n");
++		if (region > (MAX_ATU_REGIONS - ATU_NUM_OF_VFS_TO_MAP)) {
++			printf("Insufficient ATU regions to map host\n");
+ 			return -1;
+ 		}
+ 
+@@ -169,6 +173,42 @@ static int pcie_dw_mvebu_ep_remap_host(struct udevice *dev, uint func_id,
+ 		remain_size -= MAX_ATU_SIZE;
+ 	}
+ 
++	/* Setup outbound regions for VFs */
++	/* Continue with the next available region and address.
++	 * They have already advanced by the PF loop.
++	 */
++	for (vf_num = 0; vf_num < ATU_NUM_OF_VFS_TO_MAP;
++	     vf_num++, addr += MAX_ATU_SIZE, region++) {
++		v = PCIE_ATU_REGION_OUTBOUND;
++		v |= get_out_region_idx(func_id, region);
++		writel(v, pl_regs + PCIE_ATU_VIEWPORT);
++
++		writel(addr & U32_MAX, pl_regs + PCIE_ATU_LOWER_BASE);
++		writel(addr >> 32, pl_regs + PCIE_ATU_UPPER_BASE);
++
++		/* We always point to lower 4GB on host side for all VFs */
++		v = 0;
++		writel(v, pl_regs + PCIE_ATU_LOWER_TARGET);
++		writel(v, pl_regs + PCIE_ATU_UPPER_TARGET);
++
++		/* Single region per VF. Region size is set to maximum */
++		v = MAX_ATU_SIZE - 1;
++		writel(v, pl_regs + PCIE_ATU_LIMIT);
++
++		/* Same PF for all VFs */
++		v = (func_id & PCIE_ATU_CR1_FUNC_MASK)
++				<< PCIE_ATU_CR1_FUNC_OFF;
++		writel(v, pl_regs + PCIE_ATU_CR1);
++
++		/* bind this region to VF number */
++		v = (vf_num & PCIE_ATU_CR3_VF_NUM_MASK)
++				| PCIE_ATU_CR3_VF_ACTIVE;
++		writel(v, pl_regs + PCIE_ATU_CR3);
++
++		v = PCIE_ATU_CR2_REGION_EN;
++		writel(v, pl_regs + PCIE_ATU_CR2);
++	}
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/pci_endpoint/pcie_dw_mvebu_ep.h b/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
+index 33ea9b023b..5d191344e6 100644
+--- a/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
++++ b/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
+@@ -47,6 +47,9 @@
+ #define PCIE_ATU_DEV(x)			(((x) & 0x1f) << 19)
+ #define PCIE_ATU_FUNC(x)		(((x) & 0x7) << 16)
+ #define PCIE_ATU_UPPER_TARGET		0x91C
++#define PCIE_ATU_CR3			0x920
++#define PCIE_ATU_CR3_VF_ACTIVE		(0x1 << 31)
++#define PCIE_ATU_CR3_VF_NUM_MASK	(0x7)
+ 
+ #define PCIE_SRIOV_DEVID_OFFSET		0x192
+ 
+-- 
+2.29.0
+

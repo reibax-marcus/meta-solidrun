@@ -1,0 +1,27 @@
+From 88fc1b598c8455e9c9ade079f2c566a99e53e1c2 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Sat, 26 Nov 2016 23:05:36 -0800
+Subject: [PATCH 0574/1239] Remove debug print, was left out from previous
+ commit.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 37e7d928c8..4f525037c0 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -1176,8 +1176,6 @@ int thunderx_bgx_probe(struct udevice *dev)
+ 	else if (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx_idx == 2))
+ 		inc = 2;
+ 
+-printf("probe: bgx_id = %d, bgx_idx = %d, max_lmac = %d\n", bgx->bgx_id, bgx_idx, bgx->max_lmac);
+-
+ 	for (lmac = 0; lmac < MAX_LMAC_PER_BGX; lmac += inc) {
+ 		/* BGX3 (DLM4), has only 2 lanes */
+ 		if (CAVIUM_IS_MODEL(CAVIUM_CN83XX) && (bgx_idx == 3) && lmac >= 2)
+-- 
+2.29.0
+

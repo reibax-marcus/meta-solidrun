@@ -1,0 +1,70 @@
+From 409e22c1a53bf09b1eb1224bef92d899049d8371 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Wed, 16 May 2018 14:38:21 -0700
+Subject: [PATCH 0777/1239] octeontx2: Add SMC call to disable RVU LF and PF
+
+Add atf_disable_rvu_lf() that calls OCTEONTX2_DISABLE_RVU_LFS SMC call to disables
+LFs and PFs configured for NPA and NIX blocks.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h |  3 ++-
+ board/cavium/octeontx2/atf.c                        | 10 ++++++++++
+ board/cavium/octeontx2/octeontx2.c                  |  5 +++++
+ 3 files changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+index 49b2538dfb..4f765464bd 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h
+@@ -16,11 +16,12 @@
+ 
+ /* OcteonTX Service Calls version numbers */
+ #define OCTEONTX2_VERSION_MAJOR	0x0
+-#define OCTEONTX2_VERSION_MINOR	0x2
++#define OCTEONTX2_VERSION_MINOR	0x3
+ 
+ /* x1 - node number
+  */
+ #define OCTEONTX2_DRAM_SIZE		0x43000301
+ #define OCTEONTX2_NODE_COUNT		0x43000601
++#define OCTEONTX2_DISABLE_RVU_LFS	0x43000b01
+ 
+ #endif /* __OCTEONTX2_SVC_H__ */
+diff --git a/board/cavium/octeontx2/atf.c b/board/cavium/octeontx2/atf.c
+index 7ce8bc034d..388975ffee 100644
+--- a/board/cavium/octeontx2/atf.c
++++ b/board/cavium/octeontx2/atf.c
+@@ -38,3 +38,13 @@ ssize_t atf_node_count(void)
+ 	return regs.regs[0];
+ }
+ 
++ssize_t atf_disable_rvu_lfs(unsigned int node)
++{
++	struct pt_regs regs;
++	regs.regs[0] = OCTEONTX2_DISABLE_RVU_LFS;
++	regs.regs[1] = node;
++
++	smc_call(&regs);
++
++	return regs.regs[0];
++}
+diff --git a/board/cavium/octeontx2/octeontx2.c b/board/cavium/octeontx2/octeontx2.c
+index 593d453784..150b99b7a1 100644
+--- a/board/cavium/octeontx2/octeontx2.c
++++ b/board/cavium/octeontx2/octeontx2.c
+@@ -23,6 +23,11 @@ extern void cgx_intf_shutdown(void);
+ 
+ void board_quiesce_devices(void)
+ {
++	ssize_t node_count = atf_node_count();
++	int node;
++	for (node = 0; node < node_count; node++) {
++		atf_disable_rvu_lfs(node);
++	}
+ 	cgx_intf_shutdown();
+ }
+ 
+-- 
+2.29.0
+

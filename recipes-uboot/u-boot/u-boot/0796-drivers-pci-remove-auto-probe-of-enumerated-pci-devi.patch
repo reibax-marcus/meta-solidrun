@@ -1,0 +1,26 @@
+From 6f3c5a58c352f06d492ea1407a5763f7eda06f22 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 7 Sep 2018 16:22:54 -0700
+Subject: [PATCH 0796/1239] drivers: pci: remove auto probe of enumerated pci
+ devices
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/pci/pci_auto.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/pci/pci_auto.c b/drivers/pci/pci_auto.c
+index 0adae0ec17..167883a29c 100644
+--- a/drivers/pci/pci_auto.c
++++ b/drivers/pci/pci_auto.c
+@@ -384,7 +384,6 @@ int dm_pciauto_config_device(struct udevice *dev)
+ 	default:
+ 		dm_pciauto_setup_device(dev, 6, pci_mem, pci_prefetch, pci_io,
+ 					enum_only);
+-		device_probe(dev);
+ 		break;
+ 	}
+ 
+-- 
+2.29.0
+

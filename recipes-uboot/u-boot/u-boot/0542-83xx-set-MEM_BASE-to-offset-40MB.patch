@@ -1,0 +1,47 @@
+From f4a84cbfbe94298fd9a0ddc769916fe95aea35a4 Mon Sep 17 00:00:00 2001
+From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+Date: Sat, 12 Nov 2016 04:30:33 +0530
+Subject: [PATCH 0542/1239] 83xx: set MEM_BASE to offset 40MB
+
+changed to start u-boot from offset 40MB
+also increased MAX_PCI_REGIONS to 10
+
+Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+---
+ include/configs/thunderx_83xx.h | 5 ++++-
+ include/pci.h                   | 2 +-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index e6e12d3299..a296ebcc62 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -22,8 +22,11 @@
+ #define CONFIG_SYS_VSNPRINTF
+ 
+ #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
++/* starting uboot and linux kernel from offset 40MB
++ * below 40MB will be used for mailboxes of pko/pki
++ * */
+ 
+-#define MEM_BASE			0x00500000
++#define MEM_BASE			0x2800000
+ 
+ #define CONFIG_COREID_MASK             0xffffff
+ 
+diff --git a/include/pci.h b/include/pci.h
+index 40650d25ff..7a10bf3bd6 100644
+--- a/include/pci.h
++++ b/include/pci.h
+@@ -819,7 +819,7 @@ extern void pci_cfgfunc_do_nothing(struct pci_controller* hose, pci_dev_t dev,
+ extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev,
+ 				      struct pci_config_table *);
+ 
+-#define MAX_PCI_REGIONS		8
++#define MAX_PCI_REGIONS		10
+ 
+ #define INDIRECT_TYPE_NO_PCIE_LINK	1
+ 
+-- 
+2.29.0
+

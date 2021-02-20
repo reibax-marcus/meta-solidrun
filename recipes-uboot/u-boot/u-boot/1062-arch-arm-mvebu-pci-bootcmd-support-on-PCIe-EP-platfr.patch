@@ -1,0 +1,311 @@
+From 7eab586d5247afa8605729438cee7031511d020e Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Wed, 15 Jan 2020 19:35:55 +0200
+Subject: [PATCH 1062/1239] arch/arm: mvebu: pci-bootcmd support on PCIe EP
+ platfrorms
+
+Enable pci-bootcmd memory buffer and IOMUX support on
+PCIe EP platforms.
+
+Change-Id: I02c85c70bf218d5497c459f56d12ee2936be9641
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/21666
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+---
+ arch/arm/dts/armada-8040-ocp.dts       |  4 ++
+ arch/arm/dts/armada-cp110.dtsi         |  8 ++++
+ arch/arm/dts/cn9130-crb-C.dts          |  4 ++
+ arch/arm/dts/cn9130-db-C.dts           |  4 ++
+ board/Marvell/mvebu_armada-8k/board.c  | 54 ++++++++++++++++++++++++++
+ board/Marvell/octeontx2_cn913x/board.c | 54 ++++++++++++++++++++++++++
+ configs/mvebu_crb_ep_cn9130_defconfig  |  1 +
+ configs/mvebu_db_ep_cn91xx_defconfig   |  1 +
+ configs/mvebu_ocp-88f8040_defconfig    |  4 ++
+ drivers/serial/Kconfig                 |  2 +-
+ 10 files changed, 135 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/armada-8040-ocp.dts b/arch/arm/dts/armada-8040-ocp.dts
+index 0d0fdd8738..60796b0d6d 100644
+--- a/arch/arm/dts/armada-8040-ocp.dts
++++ b/arch/arm/dts/armada-8040-ocp.dts
+@@ -118,6 +118,10 @@
+ 	status = "okay";
+ };
+ 
++&cp0_bootcmd {
++	status = "okay";
++};
++
+ &cp0_pinctl {
+ /*
+  * [0-32] = 0xff: Keep default CP1_shared_pins
+diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
+index ff1f1e284d..4dd5beb642 100644
+--- a/arch/arm/dts/armada-cp110.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -286,6 +286,14 @@
+ 			status = "disabled";
+ 		};
+ 
++		CP110_LABEL(bootcmd): pci-bootcmd@3ffff000 {
++			/* remote bootcmd buffer location */
++			compatible = "marvell,pci-bootcmd";
++			reg = <0 0x3ffff000 0 0x1000>;
++			skip-init;
++			status = "disabled";
++		};
++
+ 		CP110_LABEL(pcie0): pcie0@600000 {
+ 			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
+ 			reg =
+diff --git a/arch/arm/dts/cn9130-crb-C.dts b/arch/arm/dts/cn9130-crb-C.dts
+index 3acbf9bae2..4b2f80529a 100644
+--- a/arch/arm/dts/cn9130-crb-C.dts
++++ b/arch/arm/dts/cn9130-crb-C.dts
+@@ -62,6 +62,10 @@
+ 	status = "okay";
+ };
+ 
++&cp0_bootcmd {
++	status = "okay";
++};
++
+ &cp0_usb3_0 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/cn9130-db-C.dts b/arch/arm/dts/cn9130-db-C.dts
+index 2a754c58fd..476a97c589 100644
+--- a/arch/arm/dts/cn9130-db-C.dts
++++ b/arch/arm/dts/cn9130-db-C.dts
+@@ -108,6 +108,10 @@
+ 	status = "okay";
+ };
+ 
++&cp0_bootcmd {
++	status = "okay";
++};
++
+ &cp0_i2c0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&cp0_i2c0_pins>;
+diff --git a/board/Marvell/mvebu_armada-8k/board.c b/board/Marvell/mvebu_armada-8k/board.c
+index 3fd8936203..c348b8c630 100644
+--- a/board/Marvell/mvebu_armada-8k/board.c
++++ b/board/Marvell/mvebu_armada-8k/board.c
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include <common.h>
++#include <console.h>
+ #include <dm.h>
+ #include <i2c.h>
+ #include <asm/io.h>
+@@ -22,6 +23,8 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
++#define BOOTCMD_NAME	"pci-bootcmd"
++
+ int __soc_early_init_f(void)
+ {
+ 	return 0;
+@@ -58,6 +61,53 @@ int board_init(void)
+ 	return 0;
+ }
+ 
++#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
++	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
++	!CONFIG_IS_ENABLED(CONSOLE_MUX)
++# error CONFIG_CONSOLE_MUX must be enabled!
++#endif
++
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
++static int init_bootcmd_console(void)
++{
++	int ret = 0;
++	char *stdinname = env_get("stdin");
++	struct udevice *bootcmd_dev = NULL;
++	bool stdin_set;
++	char iomux_name[128];
++
++	debug("%s: stdin before: %s\n", __func__,
++	      stdinname ? stdinname : "NONE");
++	if (!stdinname) {
++		env_set("stdin", "serial");
++		stdinname = env_get("stdin");
++	}
++	stdin_set = !!strstr(stdinname, BOOTCMD_NAME);
++	ret = uclass_get_device_by_driver(UCLASS_SERIAL,
++					  DM_GET_DRIVER(octeontx_bootcmd),
++					  &bootcmd_dev);
++	if (ret) {
++		pr_err("%s: Error getting %s serial class\n", __func__,
++		       BOOTCMD_NAME);
++	} else if (bootcmd_dev) {
++		if (stdin_set)
++			strncpy(iomux_name, stdinname, sizeof(iomux_name));
++		else
++			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
++				 stdinname, bootcmd_dev->name);
++		ret = iomux_doenv(stdin, iomux_name);
++		if (ret)
++			pr_err("%s: Error %d enabling the PCI bootcmd input console \"%s\"\n",
++			       __func__, ret, iomux_name);
++		if (!stdin_set)
++			env_set("stdin", iomux_name);
++	}
++	debug("%s: Set iomux and stdin to %s (ret: %d)\n",
++	      __func__, iomux_name, ret);
++	return ret;
++}
++#endif
++
+ int board_late_init(void)
+ {
+ 	/* Pre-configure the USB ports (overcurrent, VBus) */
+@@ -74,5 +124,9 @@ int board_late_init(void)
+ 					CP_USB20_TX_OUT_AMPL_VALUE);
+ 	}
+ 
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
++	if (init_bootcmd_console())
++		printf("Failed to init bootcmd input\n");
++#endif
+ 	return 0;
+ }
+diff --git a/board/Marvell/octeontx2_cn913x/board.c b/board/Marvell/octeontx2_cn913x/board.c
+index dced21a2ec..00b475769b 100644
+--- a/board/Marvell/octeontx2_cn913x/board.c
++++ b/board/Marvell/octeontx2_cn913x/board.c
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <common.h>
++#include <console.h>
+ #include <dm.h>
+ #include <i2c.h>
+ #include <asm/io.h>
+@@ -24,6 +25,8 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
++#define BOOTCMD_NAME	"pci-bootcmd"
++
+ int __soc_early_init_f(void)
+ {
+ 	return 0;
+@@ -61,7 +64,58 @@ int board_init(void)
+ 	return 0;
+ }
+ 
++#if (CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD) ||	\
++	CONFIG_IS_ENABLED(OCTEONTX_SERIAL_PCIE_CONSOLE)) &&	\
++	!CONFIG_IS_ENABLED(CONSOLE_MUX)
++# error CONFIG_CONSOLE_MUX must be enabled!
++#endif
++
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
++static int init_bootcmd_console(void)
++{
++	int ret = 0;
++	char *stdinname = env_get("stdin");
++	struct udevice *bootcmd_dev = NULL;
++	bool stdin_set;
++	char iomux_name[128];
++
++	debug("%s: stdin before: %s\n", __func__,
++	      stdinname ? stdinname : "NONE");
++	if (!stdinname) {
++		env_set("stdin", "serial");
++		stdinname = env_get("stdin");
++	}
++	stdin_set = !!strstr(stdinname, BOOTCMD_NAME);
++	ret = uclass_get_device_by_driver(UCLASS_SERIAL,
++					  DM_GET_DRIVER(octeontx_bootcmd),
++					  &bootcmd_dev);
++	if (ret) {
++		pr_err("%s: Error getting %s serial class\n", __func__,
++		       BOOTCMD_NAME);
++	} else if (bootcmd_dev) {
++		if (stdin_set)
++			strncpy(iomux_name, stdinname, sizeof(iomux_name));
++		else
++			snprintf(iomux_name, sizeof(iomux_name), "%s,%s",
++				 stdinname, bootcmd_dev->name);
++		ret = iomux_doenv(stdin, iomux_name);
++		if (ret)
++			pr_err("%s: Error %d enabling the PCI bootcmd input console \"%s\"\n",
++			       __func__, ret, iomux_name);
++		if (!stdin_set)
++			env_set("stdin", iomux_name);
++	}
++	debug("%s: Set iomux and stdin to %s (ret: %d)\n",
++	      __func__, iomux_name, ret);
++	return ret;
++}
++#endif
++
+ int board_late_init(void)
+ {
++#if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
++	if (init_bootcmd_console())
++		printf("Failed to init bootcmd input\n");
++#endif
+ 	return 0;
+ }
+diff --git a/configs/mvebu_crb_ep_cn9130_defconfig b/configs/mvebu_crb_ep_cn9130_defconfig
+index 8aced0638a..83de596499 100644
+--- a/configs/mvebu_crb_ep_cn9130_defconfig
++++ b/configs/mvebu_crb_ep_cn9130_defconfig
+@@ -17,6 +17,7 @@ CONFIG_SYS_CONSOLE_INFO_QUIET=y
+ CONFIG_PL011_SERIAL=y
+ CONFIG_CONSOLE_MUX=y
+ CONFIG_OCTEONTX_SERIAL_PCIE_CONSOLE=y
++CONFIG_OCTEONTX_SERIAL_BOOTCMD=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_ARCH_EARLY_INIT_R=y
+ CONFIG_ARCH_MISC_INIT=y
+diff --git a/configs/mvebu_db_ep_cn91xx_defconfig b/configs/mvebu_db_ep_cn91xx_defconfig
+index 7c58275d75..2afa8382e3 100644
+--- a/configs/mvebu_db_ep_cn91xx_defconfig
++++ b/configs/mvebu_db_ep_cn91xx_defconfig
+@@ -17,6 +17,7 @@ CONFIG_SYS_CONSOLE_INFO_QUIET=y
+ CONFIG_PL011_SERIAL=y
+ CONFIG_CONSOLE_MUX=y
+ CONFIG_OCTEONTX_SERIAL_PCIE_CONSOLE=y
++CONFIG_OCTEONTX_SERIAL_BOOTCMD=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_ARCH_EARLY_INIT_R=y
+ CONFIG_ARCH_MISC_INIT=y
+diff --git a/configs/mvebu_ocp-88f8040_defconfig b/configs/mvebu_ocp-88f8040_defconfig
+index 13455b13cc..cfc484316c 100644
+--- a/configs/mvebu_ocp-88f8040_defconfig
++++ b/configs/mvebu_ocp-88f8040_defconfig
+@@ -14,6 +14,10 @@ CONFIG_DISTRO_DEFAULTS=y
+ CONFIG_BOOTCOMMAND="run get_images; run set_bootargs; booti $kernel_addr $ramfs_addr $fdt_addr"
+ CONFIG_SYS_CONSOLE_ENV_OVERWRITE=y
+ CONFIG_SYS_CONSOLE_INFO_QUIET=y
++CONFIG_PL011_SERIAL=y
++CONFIG_CONSOLE_MUX=y
++CONFIG_OCTEONTX_SERIAL_PCIE_CONSOLE=y
++CONFIG_OCTEONTX_SERIAL_BOOTCMD=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_ARCH_EARLY_INIT_R=y
+ CONFIG_ARCH_MISC_INIT=y
+diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
+index 62f9be785b..56e8553675 100644
+--- a/drivers/serial/Kconfig
++++ b/drivers/serial/Kconfig
+@@ -712,7 +712,7 @@ config OWL_SERIAL
+ 
+ config OCTEONTX_SERIAL_BOOTCMD
+ 	bool "OcteonTX/OcteonTX2 PCI remote bootcmd input"
+-	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2)
++	depends on (ARCH_OCTEONTX || ARCH_OCTEONTX2 || ARCH_MVEBU)
+ 	depends on DM_SERIAL
+ 	select SYS_IS_IN_ENV
+ 	select CONSOLE_MUX
+-- 
+2.29.0
+

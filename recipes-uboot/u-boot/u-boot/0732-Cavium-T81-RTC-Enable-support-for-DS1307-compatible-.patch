@@ -1,0 +1,35 @@
+From 976087ea156b766afbd1e44328772651e45db9c7 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 9 Jan 2018 18:30:08 -0800
+Subject: [PATCH 0732/1239] Cavium T81: RTC: Enable support for DS1307
+ compatible RTC
+
+This also fixes a comment typo.  This is needed for the
+Interface Masters Sierra board.
+
+Signed-off-by: Aaron Williams <Aaron.Williams@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 03332ad1de..ff2e298aba 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -209,9 +209,12 @@
+ /** I2C slave address */
+ #define CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR	0x77
+ 
+-/** Enable Dallas or compabile DS1337 driver */
++/** Enable Dallas or compatible DS1337 driver */
+ #define CONFIG_RTC_DS1337
+ 
++/** Enable Dallas or compatible DS1307 driver */
++#define CONFIG_RTC_DS1307
++
+ #define CONFIG_DDR_SPD
+ #define CONFIG_SYS_SPD_ADDR_LIST 	\
+ 	{ 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57 }
+-- 
+2.29.0
+

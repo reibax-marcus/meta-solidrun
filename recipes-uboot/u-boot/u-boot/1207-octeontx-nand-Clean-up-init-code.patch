@@ -1,0 +1,61 @@
+From 4dabe70801b9553dcaf18bcb54fd1743b7adf9e7 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Wed, 26 Aug 2020 04:01:39 -0700
+Subject: [PATCH 1207/1239] octeontx: nand: Clean up init code
+
+While the old code works, it looks broken and generates warnings.  This
+fixes it and cleans it up.
+
+Change-Id: Ie9593c5c17a74f1eec1d461dc3af2ce83b7203d1
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/34602
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mtd/nand/raw/octeontx_bch.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/mtd/nand/raw/octeontx_bch.c b/drivers/mtd/nand/raw/octeontx_bch.c
+index db6c948320..c1c6792a76 100644
+--- a/drivers/mtd/nand/raw/octeontx_bch.c
++++ b/drivers/mtd/nand/raw/octeontx_bch.c
+@@ -311,7 +311,7 @@ static int octeontx_cmd_queue_initialize(struct udevice *dev, int queue_id,
+ 	/* some params are for later merge with CPT or cn83xx */
+ 	struct bch_q *q = &octeontx_bch_q[queue_id];
+ 	unsigned long paddr;
+-	union bch_cmd *qb;
++	u64 *chunk_buffer;
+ 	int chunk = max_depth + 1;
+ 	int i, size;
+ 
+@@ -321,15 +321,15 @@ static int octeontx_cmd_queue_initialize(struct udevice *dev, int queue_id,
+ 		return -EINVAL;
+ 
+ 	size = NQS * chunk * sizeof(u64);
+-	qb = dma_alloc_coherent(size, &paddr);
+-	if (!qb)
++	chunk_buffer = dma_alloc_coherent(size, &paddr);
++	if (!chunk_buffer)
+ 		return -ENOMEM;
+ 	q->base_paddr = paddr;
+ 	q->dev = dev;
+ 	q->index = 0;
+ 	q->max_depth = max_depth;
+ 	q->pool_size_m1 = pool_size;
+-	q->base_vaddr = (u64 *)qb;
++	q->base_vaddr = chunk_buffer;
+ 
+ 	for (i = 0; i < NQS; i++) {
+ 		u64 *ixp;
+@@ -338,7 +338,7 @@ static int octeontx_cmd_queue_initialize(struct udevice *dev, int queue_id,
+ 		int jnext = j * chunk;
+ 		dma_addr_t jbase = q->base_paddr + jnext * sizeof(u64);
+ 
+-		ixp = &qb->u[inext];
++		ixp = &chunk_buffer[inext];
+ 		*ixp = jbase;
+ 	}
+ 
+-- 
+2.29.0
+

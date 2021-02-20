@@ -1,0 +1,29 @@
+From 0471d14f3dcf8602786ba61c7b7faaf0a9c78ad2 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Wed, 17 Jan 2018 17:58:26 -0800
+Subject: [PATCH 0753/1239] Cavium T81: RTC: Enable support for DS1307
+ compatible RTC
+
+This is needed for the Interface Masters Sierra board.
+
+Signed-off-by: Aaron Williams <Aaron.Williams@cavium.com>
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ configs/t81_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/t81_defconfig b/configs/t81_defconfig
+index 8ffd7f6fef..81cfc74c94 100644
+--- a/configs/t81_defconfig
++++ b/configs/t81_defconfig
+@@ -94,6 +94,7 @@ CONFIG_DM_PCI=y
+ CONFIG_DM_PCI_COMPAT=y
+ CONFIG_PCI_THUNDERX_ECAM=y
+ CONFIG_DM_RTC=y
++CONFIG_RTC_DS1307=y
+ CONFIG_RTC_DS1337=y
+ CONFIG_SCSI=y
+ CONFIG_DM_SCSI=y
+-- 
+2.29.0
+

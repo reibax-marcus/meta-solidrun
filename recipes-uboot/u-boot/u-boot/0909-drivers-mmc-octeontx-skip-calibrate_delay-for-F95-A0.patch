@@ -1,0 +1,34 @@
+From 952e384c0d485d6e94aa1cb2f3c54c2e97b808e3 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 22 May 2019 10:26:13 -0700
+Subject: [PATCH 0909/1239] drivers: mmc: octeontx: skip calibrate_delay for
+ F95 A0 also
+
+Calibrate delay is not fixed yet.
+
+Change-Id: I5d0dd44396bdb48c6a90ccaeea0f4e909762173c
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/9781
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index c2d9052f84..73974d8807 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -2367,7 +2367,7 @@ static int octeontx_mmc_host_calibrate_delay(struct octeontx_mmc_host *host)
+ 	emm_tap.u = 0;
+ 	dm_pci_read_config8(host->dev, PCI_REVISION_ID, &rev);
+ 	/* MIO_EMM errata for T96 pass A0 */
+-	if (is_board_model(CN96XX) && !rev) {
++	if ((is_board_model(CN95XX) || is_board_model(CN96XX)) && !rev) {
+ 		emm_tap.s.delay = 4;
+ 	} else {
+ 		emm_calb.u = 0;
+-- 
+2.29.0
+

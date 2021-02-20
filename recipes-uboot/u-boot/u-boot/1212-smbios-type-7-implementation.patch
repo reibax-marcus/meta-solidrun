@@ -1,0 +1,153 @@
+From 7b2264609c4787cf79c3fb3ccd7ad2d3b1b085a0 Mon Sep 17 00:00:00 2001
+From: Sujeet Baranwal <sbaranwal@marvell.com>
+Date: Fri, 24 Jul 2020 15:00:41 -0700
+Subject: [PATCH 1212/1239] smbios: type 7 implementation
+
+SMBIOS type 7 is implemented. Type 7 details the cache
+information in armada CN9130.
+
+Signed-off-by: Sujeet Baranwal <sbaranwal@marvell.com>
+Change-Id: Ib0279b48d78376a864a304054785082cea6bcfb9
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35164
+Reviewed-by: Jia Ma <jiam@marvell.com>
+Tested-by: Jia Ma <jiam@marvell.com>
+---
+ include/smbios.h | 49 ++++++++++++++++++++++++++++++++++++++++++++++++
+ lib/smbios.c     | 47 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 96 insertions(+)
+
+diff --git a/include/smbios.h b/include/smbios.h
+index 3b81b1c8a4..4cbeb48300 100644
+--- a/include/smbios.h
++++ b/include/smbios.h
+@@ -188,6 +188,55 @@ struct __packed smbios_type4 {
+ 	char eos[SMBIOS_STRUCT_EOS_BYTES];
+ };
+ 
++/* Type 7 */
++#define DMTF_TYPE7_SOCKETED					BIT(3)
++#define DMTF_TYPE7_CACHE_ENABLED			BIT(7)
++#define DMTF_TYPE7_CACHE_L1					(0)
++#define DMTF_TYPE7_CACHE_L2					(1)
++#define DMTF_TYPE7_OP_MODE					BIT(8)
++#define DMTF_TYPE7_1K_GRANULARITY			BIT(15)
++#define DMTF_TYPE7_32K						(32)
++#define DMTF_TYPE7_48K						(48)
++#define DMTF_TYPE7_512K						(512)
++#define DMTF_TYPE7_SRAM_TYPE_UNKNOWN		BIT(1)
++#define DMTF_TYPE7_PARITY					(0x04)
++#define DMTF_TYPE7_SINGLE_BIT_ECC			(0x05)
++#define DMTF_TYPE7_MULTI_BIT_ECC			(0x06)
++#define DMTF_TYPE7_INST_CACHE				(0x03)
++#define DMTF_TYPE7_INSTRUCTION_CACHE		(0x03)
++#define DMTF_TYPE7_DATA_CACHE				(0x04)
++#define DMTF_TYPE7_DATA_UNIFIED				(0x05)
++#define DMTF_TYPE7_2_WAY_SET_ASSOCIATIVE	(0x04)
++#define DMTF_TYPE7_16_WAY_SET_ASSOCIATIVE	(0x08)
++
++struct cache_details {
++	char name[16];
++	u8 level;
++	u8 error_control;
++	u8 associativity;
++	u8 type;
++	u32 size;
++};
++
++struct __packed smbios_type7 {
++	u8 type;
++	u8 length;
++	u16 handle;
++	u8 socket_designation;
++	u16 cache_configuration;
++	u16 maximum_cache_size;
++	u16 installed_size;
++	u16 supported_sram_type;
++	u16 current_sram_type;
++	u8 cache_speed;
++	u8 error_correction_type;
++	u8 system_cache_type;
++	u8 associativity;
++	u32 maximum_cache_size2;
++	u32 installed_cache_size2;
++	char eos[SMBIOS_STRUCT_EOS_BYTES];
++};
++
+ struct __packed smbios_type32 {
+ 	u8 type;
+ 	u8 length;
+diff --git a/lib/smbios.c b/lib/smbios.c
+index cffd75cb0a..ed24852dec 100644
+--- a/lib/smbios.c
++++ b/lib/smbios.c
+@@ -16,6 +16,14 @@
+ #include <dm.h>
+ #include <dm/uclass-internal.h>
+ #endif
++#include <linux/bitops.h>
++
++/* cache details in needed in type 7 */
++struct cache_details cache_data[NO_OF_CACHE] = {
++	{"CACHE-D-L1", DMTF_TYPE7_CACHE_L1, DMTF_TYPE7_SINGLE_BIT_ECC, DMTF_TYPE7_2_WAY_SET_ASSOCIATIVE, DMTF_TYPE7_DATA_CACHE, DMTF_TYPE7_32K},
++	{"CACHE-I-L1", DMTF_TYPE7_CACHE_L1,  DMTF_TYPE7_PARITY, DMTF_TYPE7_2_WAY_SET_ASSOCIATIVE, DMTF_TYPE7_INSTRUCTION_CACHE, DMTF_TYPE7_48K},
++	{"CACHE-L2", DMTF_TYPE7_CACHE_L2, DMTF_TYPE7_SINGLE_BIT_ECC, DMTF_TYPE7_16_WAY_SET_ASSOCIATIVE, DMTF_TYPE7_DATA_UNIFIED, DMTF_TYPE7_512K},
++};
+ 
+ /**
+  * smbios_add_string() - add a string to the string area
+@@ -273,6 +281,44 @@ static int smbios_write_type4(ulong *current, int handle)
+ 	return len;
+ }
+ 
++static int smbios_write_type7_dm(ulong *current, int handle, int index)
++{
++	struct smbios_type7 *t;
++	int len = sizeof(struct smbios_type7);
++
++	t = map_sysmem(*current, len);
++	memset(t, 0, sizeof(struct smbios_type7));
++	fill_smbios_header(t, SMBIOS_CACHE_INFORMATION, len, handle + index);
++
++	t->socket_designation = smbios_add_string(t->eos, cache_data[index].name);
++	t->error_correction_type = cache_data[index].error_control;
++	t->system_cache_type = cache_data[index].type;
++	t->associativity = cache_data[index].associativity;
++	t->maximum_cache_size2 = cache_data[index].size;
++	t->installed_cache_size2 = cache_data[index].size;
++	t->cache_configuration = DMTF_TYPE7_CACHE_ENABLED |
++							cache_data[index].level | DMTF_TYPE7_OP_MODE;
++
++	t->supported_sram_type = DMTF_TYPE7_SRAM_TYPE_UNKNOWN;
++	t->current_sram_type = DMTF_TYPE7_SRAM_TYPE_UNKNOWN;
++
++	len = t->length + smbios_string_table_len(t->eos);
++	*current += len;
++	unmap_sysmem(t);
++
++	return len;
++}
++
++static int smbios_write_type7(ulong *current, int handle)
++{
++	u32 i = 0, len = 0;
++
++	for (; i < NO_OF_CACHE; i++)
++		len += smbios_write_type7_dm(current, handle, i);
++
++	return len;
++}
++
+ static int smbios_write_type32(ulong *current, int handle)
+ {
+ 	struct smbios_type32 *t;
+@@ -309,6 +355,7 @@ static smbios_write_type smbios_write_funcs[] = {
+ 	smbios_write_type2,
+ 	smbios_write_type3,
+ 	smbios_write_type4,
++	smbios_write_type7,
+ 	smbios_write_type32,
+ 	smbios_write_type127
+ };
+-- 
+2.29.0
+

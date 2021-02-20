@@ -1,0 +1,26 @@
+From 6d9459f8ea9e3cff878a11fe1aabd197edd073c3 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 22 Jun 2017 10:37:52 -0700
+Subject: [PATCH 0640/1239] drivers: i2c: send nack at end of read op
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/i2c/thunderx_i2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/thunderx_i2c.c b/drivers/i2c/thunderx_i2c.c
+index a5bb30d9a0..310680f6eb 100644
+--- a/drivers/i2c/thunderx_i2c.c
++++ b/drivers/i2c/thunderx_i2c.c
+@@ -764,7 +764,7 @@ static int twsi_read_data(void *baseaddr, u8 slave_addr,
+ 
+ 	while (curr < length) {
+ 		twsi_write_ctl(baseaddr, TWSI_CTL_ENAB |
+-				(curr < length - 1) ? TWSI_CTL_AAK : 0);
++				((curr < length - 1) ? TWSI_CTL_AAK : 0));
+ 
+ 		result = twsi_wait(baseaddr);
+ 		if (result) {
+-- 
+2.29.0
+

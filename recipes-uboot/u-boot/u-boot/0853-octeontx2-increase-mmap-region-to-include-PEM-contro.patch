@@ -1,0 +1,48 @@
+From 13ee782310b6d021159c3c4f0a58d5e4a0505567 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 20 Dec 2018 14:13:53 -0800
+Subject: [PATCH 0853/1239] octeontx2: increase mmap region to include PEM
+ controllers
+
+This inclusion helps in debug of PEM controller registers
+from u-boot command line interface.
+
+Change-Id: Iace6fec558a6fc2956d867bd8af7bd3dd5ba7678
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1468
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ arch/arm/mach-octeontx2/cpu.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-octeontx2/cpu.c b/arch/arm/mach-octeontx2/cpu.c
+index 577c3c4b0a..12d1daab44 100644
+--- a/arch/arm/mach-octeontx2/cpu.c
++++ b/arch/arm/mach-octeontx2/cpu.c
+@@ -36,6 +36,12 @@ static struct mm_region octeontx2_mem_map[] = {
+ 		.size = 0x40000000000UL,
+ 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+ 			 PTE_BLOCK_NON_SHARE
++	}, {
++		.virt = 0x8c0000000000UL,
++		.phys = 0x8c0000000000UL,
++		.size = 0x40000000000UL,
++		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
++			 PTE_BLOCK_NON_SHARE
+ 	}, {
+ 		/* List terminator */
+ 		0,
+@@ -45,7 +51,7 @@ struct mm_region *mem_map = octeontx2_mem_map;
+ 
+ u64 get_page_table_size(void)
+ {
+-	return 0x4c000;
++	return 0x6c000;
+ }
+ 
+ void reset_cpu(ulong addr)
+-- 
+2.29.0
+

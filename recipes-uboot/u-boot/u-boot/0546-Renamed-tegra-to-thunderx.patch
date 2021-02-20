@@ -1,0 +1,26 @@
+From c61564a305779816c36a9de7740847b63a17f86d Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Tue, 25 Oct 2016 18:28:33 -0700
+Subject: [PATCH 0546/1239] Renamed tegra to thunderx
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ drivers/gpio/thunderx_gpio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/thunderx_gpio.c b/drivers/gpio/thunderx_gpio.c
+index 0ec6b9335a..67a4d055ae 100644
+--- a/drivers/gpio/thunderx_gpio.c
++++ b/drivers/gpio/thunderx_gpio.c
+@@ -159,7 +159,7 @@ static const struct udevice_id thunderx_gpio_ids[] = {
+ 	{ }
+ };
+ 
+-U_BOOT_DRIVER(gpio_tegra) = {
++U_BOOT_DRIVER(gpio_thunderx) = {
+ 	.name	= "gpio_thunderx",
+ 	.id	= UCLASS_GPIO,
+ 	.of_match = thunderx_gpio_ids,
+-- 
+2.29.0
+

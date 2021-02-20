@@ -1,0 +1,32 @@
+From f19fb4fa2e008864e014f1e821c592ea110b41e4 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 20 Dec 2018 14:43:03 -0800
+Subject: [PATCH 0855/1239] 96xx: configs: add i2c multiplexer support
+
+Change-Id: I76e5ff9877215d7ec59772cbe80765887ec9abc2
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1470
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ configs/octeontx2_96xx_defconfig | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 663ff90c0a..625c5c00d4 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -55,6 +55,9 @@ CONFIG_AHCI_PCI=y
+ CONFIG_BLOCK_CACHE=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DM_I2C=y
++CONFIG_I2C_SET_DEFAULT_BUS_NUM=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_MUX_PCA954x=y
+ CONFIG_MISC=y
+ # CONFIG_MMC is not set
+ CONFIG_DM_MMC=y
+-- 
+2.29.0
+

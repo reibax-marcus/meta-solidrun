@@ -1,0 +1,92 @@
+From f6dd0a837a2127d0c1a583f529808952f60cf261 Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Thu, 14 Mar 2019 13:00:53 +0100
+Subject: [PATCH 0246/1239] phy: marvell: utmi: update utmi config which fixes
+ usb2.0 instability
+
+- Add additional step which enables the Impedance and PLL calibration.
+- Enable old squelch detector instead of the new analog squelch detector
+circuit and update host disconnect threshold value.
+- Update LS TX driver strength coarse and fine adjustment values.
+
+Change-Id: Ifa0a585bfb5ecab0bfa033eed6874ff98b16a7df
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ drivers/phy/marvell/comphy_cp110.c | 23 ++++++++++++++++++-----
+ drivers/phy/marvell/utmi_phy.h     |  9 +++++++++
+ 2 files changed, 27 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/phy/marvell/comphy_cp110.c b/drivers/phy/marvell/comphy_cp110.c
+index e55b011b15..805636fb3f 100644
+--- a/drivers/phy/marvell/comphy_cp110.c
++++ b/drivers/phy/marvell/comphy_cp110.c
+@@ -284,21 +284,34 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_pll_addr,
+ 	reg_set(utmi_pll_addr + UTMI_PLL_CTRL_REG, data, mask);
+ 
+ 	/* Impedance Calibration Threshold Setting */
+-	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG,
+-		0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET,
+-		UTMI_CALIB_CTRL_IMPCAL_VTH_MASK);
++	mask = UTMI_CALIB_CTRL_IMPCAL_VTH_MASK;
++	data = 0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET;
++	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG, data, mask);
++
++	/* Start Impedance and PLL Calibration */
++	mask = UTMI_CALIB_CTRL_PLLCAL_START_MASK;
++	data = (0x1 << UTMI_CALIB_CTRL_PLLCAL_START_OFFSET);
++	mask |= UTMI_CALIB_CTRL_IMPCAL_START_MASK;
++	data |= (0x1 << UTMI_CALIB_CTRL_IMPCAL_START_OFFSET);
++	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG, data, mask);
+ 
+ 	/* Set LS TX driver strength coarse control */
+ 	mask = UTMI_TX_CH_CTRL_AMP_MASK;
+ 	data = 0x4 << UTMI_TX_CH_CTRL_AMP_OFFSET;
++	mask |= UTMI_TX_CH_CTRL_IMP_SEL_LS_MASK;
++	data |= 0x3 << UTMI_TX_CH_CTRL_IMP_SEL_LS_OFFSET;
++	mask |= UTMI_TX_CH_CTRL_DRV_EN_LS_MASK;
++	data |= 0x3 << UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET;
+ 	reg_set(utmi_base_addr + UTMI_TX_CH_CTRL_REG, data, mask);
+ 
+ 	/* Enable SQ */
+ 	mask = UTMI_RX_CH_CTRL0_SQ_DET_MASK;
+-	data = 0x0 << UTMI_RX_CH_CTRL0_SQ_DET_OFFSET;
++	data = 0x1 << UTMI_RX_CH_CTRL0_SQ_DET_OFFSET;
+ 	/* Enable analog squelch detect */
+ 	mask |= UTMI_RX_CH_CTRL0_SQ_ANA_DTC_MASK;
+-	data |= 0x1 << UTMI_RX_CH_CTRL0_SQ_ANA_DTC_OFFSET;
++	data |= 0x0 << UTMI_RX_CH_CTRL0_SQ_ANA_DTC_OFFSET;
++	mask |= UTMI_RX_CH_CTRL0_DISCON_THRESH_MASK;
++	data |= 0x0 << UTMI_RX_CH_CTRL0_DISCON_THRESH_OFFSET;
+ 	reg_set(utmi_base_addr + UTMI_RX_CH_CTRL0_REG, data, mask);
+ 
+ 	/* Set External squelch calibration number */
+diff --git a/drivers/phy/marvell/utmi_phy.h b/drivers/phy/marvell/utmi_phy.h
+index e64087a406..2ca406f1e6 100644
+--- a/drivers/phy/marvell/utmi_phy.h
++++ b/drivers/phy/marvell/utmi_phy.h
+@@ -39,6 +39,12 @@
+ #define UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET	8
+ #define UTMI_CALIB_CTRL_IMPCAL_VTH_MASK		\
+ 	(0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET)
++#define UTMI_CALIB_CTRL_IMPCAL_START_OFFSET	13
++#define UTMI_CALIB_CTRL_IMPCAL_START_MASK	\
++	(0x1 << UTMI_CALIB_CTRL_IMPCAL_START_OFFSET)
++#define UTMI_CALIB_CTRL_PLLCAL_START_OFFSET	22
++#define UTMI_CALIB_CTRL_PLLCAL_START_MASK	\
++	(0x1 << UTMI_CALIB_CTRL_PLLCAL_START_OFFSET)
+ #define UTMI_CALIB_CTRL_IMPCAL_DONE_OFFSET	23
+ #define UTMI_CALIB_CTRL_IMPCAL_DONE_MASK	\
+ 	(0x1 << UTMI_CALIB_CTRL_IMPCAL_DONE_OFFSET)
+@@ -62,6 +68,9 @@
+ 	(0x7 << UTMI_TX_CH_CTRL_AMP_OFFSET)
+ 
+ #define UTMI_RX_CH_CTRL0_REG			0x8
++#define UTMI_RX_CH_CTRL0_DISCON_THRESH_OFFSET	8
++#define UTMI_RX_CH_CTRL0_DISCON_THRESH_MASK	\
++	(0x3 << UTMI_RX_CH_CTRL0_DISCON_THRESH_OFFSET)
+ #define UTMI_RX_CH_CTRL0_SQ_DET_OFFSET		15
+ #define UTMI_RX_CH_CTRL0_SQ_DET_MASK		\
+ 	(0x1 << UTMI_RX_CH_CTRL0_SQ_DET_OFFSET)
+-- 
+2.29.0
+

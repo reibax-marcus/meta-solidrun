@@ -1,0 +1,36 @@
+From b141873d9b541c343aa193df57e299afe3482a7d Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 22 May 2020 13:50:17 -0700
+Subject: [PATCH 1162/1239] board: octeontx3: check for chip type in fuse
+ register
+
+Change-Id: I3609b20b4236f7ad51b71104f5b826d041368beb
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29490
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ board/Marvell/octeontx3/soc-utils.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/board/Marvell/octeontx3/soc-utils.c b/board/Marvell/octeontx3/soc-utils.c
+index abf355bd6f..6b81cae07c 100644
+--- a/board/Marvell/octeontx3/soc-utils.c
++++ b/board/Marvell/octeontx3/soc-utils.c
+@@ -42,9 +42,12 @@ u8 read_partvar(void)
+ 	return ((read_midr() >> 20) & 0xF);
+ }
+ 
++#define FUS_CACHE0_REG 0x87e003001000
+ u8 read_partnum(void)
+ {
+-	return ((read_midr() >> 4) & 0xFF);
++	u64 fus_cache0 = readq(FUS_CACHE0_REG);
++
++	return (u8)(fus_cache0 & 0xff);
+ }
+ 
+ const char *read_board_name(void)
+-- 
+2.29.0
+

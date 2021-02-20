@@ -1,0 +1,29 @@
+From 2ae42a2e78cd342bf4c23a6fd947d7a57551eae1 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Tue, 22 Jan 2019 14:33:52 -0800
+Subject: [PATCH 0869/1239] configs: t96: Enable USB-to-ethernet dongles.
+
+Change-Id: I4df9b2962a7cc201af19c098e8c266c07cc054ca
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/2542
+---
+ configs/octeontx2_96xx_defconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index 590ed4eef0..58558eeb7b 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -98,5 +98,9 @@ CONFIG_DM_USB=y
+ CONFIG_USB_XHCI_HCD=y
+ CONFIG_USB_XHCI_PCI=y
+ CONFIG_USB_STORAGE=y
++CONFIG_USB_HOST_ETHER=y
++CONFIG_USB_ETHER_ASIX=y
++CONFIG_USB_ETHER_ASIX88179=y
++CONFIG_USB_ETHER_RTL8152=y
+ CONFIG_FAT_WRITE=y
+ CONFIG_ERRNO_STR=y
+-- 
+2.29.0
+

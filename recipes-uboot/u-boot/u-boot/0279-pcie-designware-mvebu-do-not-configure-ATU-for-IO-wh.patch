@@ -1,0 +1,95 @@
+From 0cf2156cd169f16a020f3e7b8c43fdd49709e3f9 Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Sun, 3 Nov 2019 03:41:52 +0100
+Subject: [PATCH 0279/1239] pcie: designware: mvebu: do not configure ATU for
+ IO when not used
+
+The pcie_dw_mvebu configure ATU regions for memory, configuration
+and IO space types. However the latter is not obligatory
+and when not specified in the device tree, causes wrong
+ATU configuration. Fix that by adding a dependency on the
+detected PCIE regions count.
+
+Change-Id: I1f42f3507199b9ff134a140470b62c020ffb4df8
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/18136
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ drivers/pci/pcie_dw_mvebu.c | 37 +++++++++++++++++++++++++------------
+ 1 file changed, 25 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/pci/pcie_dw_mvebu.c b/drivers/pci/pcie_dw_mvebu.c
+index 95fb41966f..2e74833add 100644
+--- a/drivers/pci/pcie_dw_mvebu.c
++++ b/drivers/pci/pcie_dw_mvebu.c
+@@ -112,6 +112,7 @@ struct pcie_dw_mvebu {
+ 	int first_busno;
+ 
+ 	/* IO and MEM PCI regions */
++	int region_count;
+ 	struct pci_region io;
+ 	struct pci_region mem;
+ };
+@@ -264,9 +265,10 @@ static int pcie_dw_mvebu_read_config(struct udevice *bus, pci_dev_t bdf,
+ 	debug("(addr,val)=(0x%04x, 0x%08lx)\n", offset, value);
+ 	*valuep = pci_conv_32_to_size(value, offset, size);
+ 
+-	pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX0,
+-				  PCIE_ATU_TYPE_IO, pcie->io.phys_start,
+-				  pcie->io.bus_start, pcie->io.size);
++	if (pcie->region_count > 1)
++		pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX0,
++					  PCIE_ATU_TYPE_IO, pcie->io.phys_start,
++					  pcie->io.bus_start, pcie->io.size);
+ 
+ 	return 0;
+ }
+@@ -309,9 +311,10 @@ static int pcie_dw_mvebu_write_config(struct udevice *bus, pci_dev_t bdf,
+ 	value = pci_conv_size_to_32(old, value, offset, size);
+ 	writel(value, va_address);
+ 
+-	pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX0,
+-				  PCIE_ATU_TYPE_IO, pcie->io.phys_start,
+-				  pcie->io.bus_start, pcie->io.size);
++	if (pcie->region_count > 1)
++		pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX0,
++					  PCIE_ATU_TYPE_IO, pcie->io.phys_start,
++					  pcie->io.bus_start, pcie->io.size);
+ 
+ 	return 0;
+ }
+@@ -510,14 +513,24 @@ static int pcie_dw_mvebu_probe(struct udevice *dev)
+ 		       hose->first_busno);
+ 	}
+ 
++	pcie->region_count = hose->region_count - CONFIG_NR_DRAM_BANKS;
++
+ 	/* Store the IO and MEM windows settings for future use by the ATU */
+-	pcie->io.phys_start = hose->regions[0].phys_start; /* IO base */
+-	pcie->io.bus_start  = hose->regions[0].bus_start;  /* IO_bus_addr */
+-	pcie->io.size	    = hose->regions[0].size;	   /* IO size */
++	if (pcie->region_count > 1) {
++		/* IO base */
++		pcie->io.phys_start = hose->regions[0].phys_start;
++		/* IO_bus_addr */
++		pcie->io.bus_start  = hose->regions[0].bus_start;
++		/* IO size */
++		pcie->io.size       = hose->regions[0].size;
++	}
+ 
+-	pcie->mem.phys_start = hose->regions[1].phys_start; /* MEM base */
+-	pcie->mem.bus_start  = hose->regions[1].bus_start;  /* MEM_bus_addr */
+-	pcie->mem.size	     = hose->regions[1].size;	    /* MEM size */
++	/* MEM base */
++	pcie->mem.phys_start = hose->regions[pcie->region_count - 1].phys_start;
++	/* MEM_bus_addr */
++	pcie->mem.bus_start  = hose->regions[pcie->region_count - 1].bus_start;
++	/* MEM size */
++	pcie->mem.size       = hose->regions[pcie->region_count - 1].size;
+ 
+ 	pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX1,
+ 				  PCIE_ATU_TYPE_MEM, pcie->mem.phys_start,
+-- 
+2.29.0
+

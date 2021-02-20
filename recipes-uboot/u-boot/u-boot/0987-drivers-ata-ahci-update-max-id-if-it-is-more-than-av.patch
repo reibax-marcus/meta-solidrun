@@ -1,0 +1,32 @@
+From 58bce1066ba108b63df8a2c4b10511e57873f956 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Wed, 23 Oct 2019 18:34:52 -0700
+Subject: [PATCH 0987/1239] drivers: ata: ahci: update max id if it is more
+ than available ports
+
+After check for maximum between max id and available ports, also check
+if available port count is less than max id and update.
+
+Change-Id: Ic6d2b8dd08e7c6eced0b08171e36fa5ed8297757
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+---
+ drivers/ata/ahci.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 7affdffd1c..90c394022d 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -1225,6 +1225,9 @@ int ahci_probe_scsi(struct udevice *ahci_dev, ulong base)
+ 	 */
+ 	uc_plat->max_id = max_t(unsigned long, uc_priv->n_ports,
+ 				uc_plat->max_id);
++	/* If port count is less than max_id, update max_id */
++	if (uc_priv->n_ports < uc_plat->max_id)
++		uc_plat->max_id = uc_priv->n_ports;
+ 
+ 	return 0;
+ }
+-- 
+2.29.0
+

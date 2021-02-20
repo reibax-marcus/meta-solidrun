@@ -1,0 +1,146 @@
+From 0bccf1d7810c12d40d5174889c17d235399ec156 Mon Sep 17 00:00:00 2001
+From: Alex Leibovich <alexl@marvell.com>
+Date: Tue, 24 Dec 2019 08:50:55 +0200
+Subject: [PATCH 1051/1239] ddr_phy: cn9130: Add new u-boot command for ddr_phy
+ access
+
+Added new u-boot commands allowing access to ddr_phy
+registers: ddr_phy_write + ddr_phy_read.
+The command will be avilable if chosen in
+make menuconfig - CMD_MVEBU_DDR_PHY.
+
+Change-Id: I625fcefca05b4accbff08afcece057c2a3a8c45b
+Signed-off-by: Alex Leibovich <alexl@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20755
+Tested-by: Kostya Porotchkin <kostap@marvell.com>
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/mach-mvebu/include/mach/soc.h |  3 ++
+ cmd/mvebu/Kconfig                      |  7 +++
+ cmd/mvebu/Makefile                     |  1 +
+ cmd/mvebu/ddr_phy.c                    | 70 ++++++++++++++++++++++++++
+ 4 files changed, 81 insertions(+)
+ create mode 100644 cmd/mvebu/ddr_phy.c
+
+diff --git a/arch/arm/mach-mvebu/include/mach/soc.h b/arch/arm/mach-mvebu/include/mach/soc.h
+index 91c0c2e790..a6cebeff54 100644
+--- a/arch/arm/mach-mvebu/include/mach/soc.h
++++ b/arch/arm/mach-mvebu/include/mach/soc.h
+@@ -232,6 +232,9 @@
+ 
+ /* FW related definitions */
+ #define MV_SIP_DFX			0x82000014
++#define MV_SIP_DDR_PHY_WRITE		0x82000015
++#define MV_SIP_DDR_PHY_READ		0x82000016
++
+ #define MV_SIP_DFX_THERMAL_INIT		1
+ #define MV_SIP_DFX_THERMAL_READ		2
+ #define MV_SIP_DFX_THERMAL_IS_VALID	3
+diff --git a/cmd/mvebu/Kconfig b/cmd/mvebu/Kconfig
+index 8db3c29857..23c16e5bc4 100644
+--- a/cmd/mvebu/Kconfig
++++ b/cmd/mvebu/Kconfig
+@@ -111,6 +111,13 @@ config CMD_MVEBU_EFUSE
+ 	  For details about eFuse command please see help of eFuse
+ 	  in uboot
+ 
++config CMD_MVEBU_DDR_PHY
++	bool "enable ddr_phy register access"
++	depends on TARGET_OCTEONTX2_CN913x
++	default y
++	help
++	  Write/Read Phy registers
++
+ config CMD_MVEBU_RX_TRAINING
+ 	bool "rx_training"
+ 	depends on TARGET_MVEBU_ARMADA_8K || TARGET_OCTEONTX2_CN913x
+diff --git a/cmd/mvebu/Makefile b/cmd/mvebu/Makefile
+index cd15872223..2912c1f5d3 100644
+--- a/cmd/mvebu/Makefile
++++ b/cmd/mvebu/Makefile
+@@ -17,3 +17,4 @@ obj-$(CONFIG_CMD_MVEBU_HW_INFO) += hw_info.o
+ obj-$(CONFIG_CMD_MVEBU_SAR) += sar.o
+ obj-$(CONFIG_CMD_MVEBU_MV_FW_INFO) += mv_fw_info.o
+ obj-$(CONFIG_CMD_MVEBU_MV_GET_COUNTERS) += mv_get_counters.o
++obj-$(CONFIG_CMD_MVEBU_DDR_PHY) += ddr_phy.o
+\ No newline at end of file
+diff --git a/cmd/mvebu/ddr_phy.c b/cmd/mvebu/ddr_phy.c
+new file mode 100644
+index 0000000000..2d58bc9857
+--- /dev/null
++++ b/cmd/mvebu/ddr_phy.c
+@@ -0,0 +1,70 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * https://spdx.org/licenses
++ *
++ * Copyright (C) 2019 Marvell International Ltd.
++ */
++
++#include <common.h>
++#include <command.h>
++#include <asm/arch/soc.h>
++
++/*
++ *	Usage example:
++ *	The PHY register data width is 16 bits.
++ *
++ *	In order to write some value to the phy register need to do first:
++ *	ddr_phy write D0000 0 //take ownership on the PHY CSR
++ *	ddr_phy write C0080 3 //enable phy init engine clk
++ *
++ *	Then:
++ *	ddr_phy write 100c0 5 //for example: writing 5 taps of LCDL
++ *	to the centralization TX byte0 bit 0
++ */
++
++/* this routine reads/writes 'data' from/to specified 'address' offset */
++int ddr_phy_access_smc(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
++{
++	if (argc != 3 && argc != 4)
++		goto EXIT;
++
++	if (strcmp(argv[1], "read") == 0) {
++		struct pt_regs pregs = {0};
++
++		u32 offset = simple_strtoul(argv[2], NULL, 16);
++
++		pregs.regs[0] = MV_SIP_DDR_PHY_READ;
++		pregs.regs[1] = offset;
++
++		smc_call(&pregs);
++
++		printf("\nread val = 0x%x\n", (unsigned int)pregs.regs[1]);
++		return CMD_RET_SUCCESS;
++	} else if (strcmp(argv[1], "write") == 0) {
++		struct pt_regs pregs = {0};
++
++		u32 offset = simple_strtoul(argv[2], NULL, 16);
++		u32 data = simple_strtoul(argv[3], NULL, 16);
++
++		pregs.regs[0] = MV_SIP_DDR_PHY_WRITE;
++		pregs.regs[1] = offset;
++		pregs.regs[2] = data;
++
++		smc_call(&pregs);
++		printf("\nsnps_fw_write: data written\n");
++
++		return CMD_RET_SUCCESS;
++	}
++EXIT:
++	printf("usage: ddr_phy <read | write> <offset> [data]\n");
++	return CMD_RET_FAILURE;
++}
++
++U_BOOT_CMD(ddr_phy, 4, 0, ddr_phy_access_smc,
++	   "Access ddr_phy registers",
++	   "command <read | write> <offset> [data]\n"
++	   "\t-offset- hex value of the address offset"
++	   "\t-datd-hex value of the data to write"
++	   "Usage Example:\n"
++	   "\t-ddr_phy write D0000 3"
++	   "\t-ddr_phy read 100c0");
+-- 
+2.29.0
+

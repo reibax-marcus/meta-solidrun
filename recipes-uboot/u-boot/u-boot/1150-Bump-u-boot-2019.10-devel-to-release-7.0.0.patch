@@ -1,0 +1,24 @@
+From 46d825080d25f8b3a882d7e9fc0016e3c56debbb Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Thu, 14 May 2020 18:18:16 +0300
+Subject: [PATCH 1150/1239] Bump u-boot-2019.10-devel to release 7.0.0
+
+Change-Id: I7e72f53bcc8468eb197de3309150decc09f814cb
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28490
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ localversion | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/localversion b/localversion
+index 4257ecf852..98a1d9ebe7 100644
+--- a/localversion
++++ b/localversion
+@@ -1 +1 @@
+--6.0.0
++-7.0.0
+-- 
+2.29.0
+

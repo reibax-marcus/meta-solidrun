@@ -1,0 +1,27 @@
+From c8178ab645528135938b1cf9f2ada71b68bbf3e8 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Tue, 20 Dec 2016 17:26:02 -0800
+Subject: [PATCH 0591/1239] configs: thunderx_81xx: add bootimgup config item
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index c0442caad0..9566630252 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -238,6 +238,9 @@
+ /** Enable grepenv command */
+ #define CONFIG_CMD_GREPENV
+ 
++/** Enable bootimgup command */
++#define CONFIG_CMD_BOOTIMGUP
++
+ /**
+  * Enable callback support when environment variables are set, or
+  * changed
+-- 
+2.29.0
+

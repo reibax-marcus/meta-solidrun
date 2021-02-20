@@ -1,0 +1,26 @@
+From 013f1ed55dd15a5c61a3c1e9ef76de36ec75f520 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Wed, 8 Feb 2017 17:54:58 -0800
+Subject: [PATCH 0608/1239] drivers: rtc: fix devicetree compiler warning
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ drivers/rtc/ds1337.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/ds1337.c b/drivers/rtc/ds1337.c
+index 35342a6953..8e220dfc54 100644
+--- a/drivers/rtc/ds1337.c
++++ b/drivers/rtc/ds1337.c
+@@ -210,7 +210,7 @@ static int ds133x_ofdata_to_platdata(struct udevice *dev)
+ 	int node = dev->of_offset;
+ 
+ 	platdata->regaddr = fdtdec_get_int(blob, node, "reg", -1);
+-	platdata->rtcmodel = fdtdec_get_int(blob, node, "model", 1);
++	platdata->rtcmodel = fdtdec_get_int(blob, node, "rtcmodel", 1);
+ 
+ 	debug("RTC addr 0x%08x model %d\n", platdata->regaddr, platdata->rtcmodel);
+ 	return 0;
+-- 
+2.29.0
+

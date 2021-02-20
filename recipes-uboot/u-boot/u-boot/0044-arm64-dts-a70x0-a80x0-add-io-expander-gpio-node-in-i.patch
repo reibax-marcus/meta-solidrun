@@ -1,0 +1,68 @@
+From 84fbd2d60ff99be6392ddf54840fd45a9c5cf985 Mon Sep 17 00:00:00 2001
+From: David Sniatkiwicz <davidsn@marvell.com>
+Date: Sun, 7 May 2017 10:29:48 +0300
+Subject: [PATCH 0044/1239] arm64: dts: a70x0: a80x0: add io expander gpio node
+ in i2c node
+
+Change-Id: I6fc50d74b9ef96cf86f8be9e3df5607bb4efe012
+Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-70x0-db.dtsi | 13 +++++++++++++
+ arch/arm/dts/armada-80x0-db.dtsi | 20 ++++++++++++++++++++
+ 2 files changed, 33 insertions(+)
+
+diff --git a/arch/arm/dts/armada-70x0-db.dtsi b/arch/arm/dts/armada-70x0-db.dtsi
+index 0f4f0c9298..0cb72424d0 100644
+--- a/arch/arm/dts/armada-70x0-db.dtsi
++++ b/arch/arm/dts/armada-70x0-db.dtsi
+@@ -8,4 +8,17 @@
+ / {
+ 	model = "DB-ARMADA-70x0";
+ 	compatible = "marvell,armada-70x0-db", "marvell,armada-70x0";
++
++	cp110-master {
++		config-space {
++			i2c@701000 {
++				expander0: pca953x@21 {
++					compatible = "nxp,pca9555";
++					#gpio-cells = <2>;
++					reg = <0x21>;
++					status = "okay";
++				};
++			};
++		};
++	};
+ };
+diff --git a/arch/arm/dts/armada-80x0-db.dtsi b/arch/arm/dts/armada-80x0-db.dtsi
+index 00027e10d0..da2925c565 100644
+--- a/arch/arm/dts/armada-80x0-db.dtsi
++++ b/arch/arm/dts/armada-80x0-db.dtsi
+@@ -8,4 +8,24 @@
+ / {
+ 	compatible = "marvell,armada-80x0-db", "marvell,armada-8040";
+ 	model = "DB-ARMADA-80x0";
++
++	cp110-master {
++		config-space {
++			i2c@701000 {
++				expander0: pca953x@21 {
++					compatible = "nxp,pca9555";
++					#gpio-cells = <2>;
++					reg = <0x21>;
++					status = "okay";
++				};
++				expander1: pca953x@25 {
++					compatible = "nxp,pca9555";
++					#gpio-cells = <2>;
++					reg = <0x25>;
++					status = "okay";
++				};
++			};
++		};
++	};
++
+ };
+-- 
+2.29.0
+

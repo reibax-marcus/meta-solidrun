@@ -1,0 +1,1896 @@
+From 91030bf53ccfb9f0434fe78ff95c10d32e408ca7 Mon Sep 17 00:00:00 2001
+From: Hanna Hawa <hannah@marvell.com>
+Date: Tue, 7 Nov 2017 10:24:36 +0200
+Subject: [PATCH 0051/1239] arm64: dts: cp110: unite cp110 master/slave dtsi
+ files into single file
+
+This patch does following updates:
+- Change the name of CP110 from master/slave to 0/1 to prepare adding
+  more support for more CPs (for Octeon CN913x family);
+- Unite armada-cp110-master.dtsi & armada-cp110-slave.dtsi into single
+  file armada-cp110.dtsi which can be included twice for A8k with
+  different CPP macros. The macros expanded differently when
+  instantiated for the master CP and the slave CP.
+
+Change-Id: If30728fedc7b1225040e5e0671c3751c0ef5542f
+Signed-off-by: Hanna Hawa <hannah@marvell.com>
+Reviewed-by: Igal Liberman <igall@marvell.com>
+---
+ arch/arm/dts/armada-7040-db-nand.dts          |  33 ++-
+ arch/arm/dts/armada-7040-db.dts               |  40 +--
+ arch/arm/dts/armada-70x0-db.dtsi              |   2 +-
+ arch/arm/dts/armada-70x0.dtsi                 |  47 ++-
+ arch/arm/dts/armada-8020.dtsi                 |  78 ++++-
+ arch/arm/dts/armada-8040-clearfog-gt-8k.dts   |  72 ++---
+ arch/arm/dts/armada-8040-db.dts               |  70 ++---
+ arch/arm/dts/armada-8040-mcbin.dts            |  62 ++--
+ arch/arm/dts/armada-8040.dtsi                 |  71 ++++-
+ arch/arm/dts/armada-80x0-db.dtsi              |   4 +-
+ arch/arm/dts/armada-8k.dtsi                   |  25 ++
+ arch/arm/dts/armada-common.dtsi               |  30 ++
+ arch/arm/dts/armada-cp110-slave.dtsi          | 268 ------------------
+ ...da-cp110-master.dtsi => armada-cp110.dtsi} | 227 ++++++---------
+ 14 files changed, 477 insertions(+), 552 deletions(-)
+ create mode 100644 arch/arm/dts/armada-8k.dtsi
+ create mode 100644 arch/arm/dts/armada-common.dtsi
+ delete mode 100644 arch/arm/dts/armada-cp110-slave.dtsi
+ rename arch/arm/dts/{armada-cp110-master.dtsi => armada-cp110.dtsi} (50%)
+
+diff --git a/arch/arm/dts/armada-7040-db-nand.dts b/arch/arm/dts/armada-7040-db-nand.dts
+index af4ae911b7..61e7175868 100644
+--- a/arch/arm/dts/armada-7040-db-nand.dts
++++ b/arch/arm/dts/armada-7040-db-nand.dts
+@@ -58,8 +58,8 @@
+ 	};
+ 
+ 	aliases {
+-		i2c0 = &cpm_i2c0;
+-		spi0 = &cpm_spi1;
++		i2c0 = &cp0_i2c0;
++		spi0 = &cp0_spi1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -82,19 +82,18 @@
+ 	status = "okay";
+ };
+ 
+-
+-&cpm_pcie2 {
++&cp0_pcie2 {
+ 	status = "okay";
+ };
+ 
+-&cpm_i2c0 {
++&cp0_i2c0 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_i2c0_pins>;
++	pinctrl-0 = <&cp0_i2c0_pins>;
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+ };
+ 
+-&cpm_pinctl {
++&cp0_pinctl {
+ 		/* MPP Bus:
+ 		 * AUDIO   [0-5]
+                  * GBE     [6-11]
+@@ -122,9 +121,9 @@
+ 		      0xe 0xe 0x0>;
+ };
+ 
+-&cpm_spi1 {
++&cp0_spi1 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_spi0_pins>;
++	pinctrl-0 = <&cp0_spi0_pins>;
+ 	status = "disabled";
+ 
+ 	spi-flash@0 {
+@@ -152,19 +151,19 @@
+ 	};
+ };
+ 
+-&cpm_sata0 {
++&cp0_sata0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_usb3_0 {
++&cp0_usb3_0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_usb3_1 {
++&cp0_usb3_1 {
+ 	status = "okay";
+ };
+ 
+-&cpm_comphy {
++&cp0_comphy {
+ 	phy0 {
+ 		phy-type = <COMPHY_TYPE_SGMII2>;
+ 		phy-speed = <COMPHY_SPEED_3_125G>;
+@@ -196,15 +195,15 @@
+ 	};
+ };
+ 
+-&cpm_nand {
++&cp0_nand {
+ 	status = "okay";
+ };
+ 
+-&cpm_utmi0 {
++&cp0_utmi0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_utmi1 {
++&cp0_utmi1 {
+ 	status = "okay";
+ };
+ 
+@@ -215,7 +214,7 @@
+ 	non-removable;
+ };
+ 
+-&cpm_sdhci0 {
++&cp0_sdhci0 {
+ 	status = "okay";
+ 	bus-width = <4>;
+ 	no-1-8-v;
+diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
+index 79c70e358a..e134300238 100644
+--- a/arch/arm/dts/armada-7040-db.dts
++++ b/arch/arm/dts/armada-7040-db.dts
+@@ -57,8 +57,8 @@
+ 	};
+ 
+ 	aliases {
+-		i2c0 = &cpm_i2c0;
+-		spi0 = &cpm_spi1;
++		i2c0 = &cp0_i2c0;
++		spi0 = &cp0_spi1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -82,18 +82,18 @@
+ };
+ 
+ 
+-&cpm_pcie2 {
++&cp0_pcie2 {
+ 	status = "okay";
+ };
+ 
+-&cpm_i2c0 {
++&cp0_i2c0 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_i2c0_pins>;
++	pinctrl-0 = <&cp0_i2c0_pins>;
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+ };
+ 
+-&cpm_pinctl {
++&cp0_pinctl {
+ 		/* MPP Bus:
+ 		 * SPI   [13-16]
+ 		 * SATA1 [28]
+@@ -115,9 +115,9 @@
+ 		     0xE 0xE 0>;
+ };
+ 
+-&cpm_spi1 {
++&cp0_spi1 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_spi0_pins>;
++	pinctrl-0 = <&cp0_spi0_pins>;
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+@@ -145,19 +145,19 @@
+ 	};
+ };
+ 
+-&cpm_sata0 {
++&cp0_sata0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_usb3_0 {
++&cp0_usb3_0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_usb3_1 {
++&cp0_usb3_1 {
+ 	status = "okay";
+ };
+ 
+-&cpm_comphy {
++&cp0_comphy {
+ 	phy0 {
+ 		phy-type = <COMPHY_TYPE_SGMII1>;
+ 		phy-speed = <COMPHY_SPEED_1_25G>;
+@@ -189,11 +189,11 @@
+ 	};
+ };
+ 
+-&cpm_utmi0 {
++&cp0_utmi0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_utmi1 {
++&cp0_utmi1 {
+ 	status = "okay";
+ };
+ 
+@@ -204,14 +204,14 @@
+ 	non-removable;
+ };
+ 
+-&cpm_sdhci0 {
++&cp0_sdhci0 {
+ 	status = "okay";
+ 	bus-width = <4>;
+ 	no-1-8-v;
+ 	non-removable;
+ };
+ 
+-&cpm_mdio {
++&cp0_mdio {
+ 	phy0: ethernet-phy@0 {
+ 		reg = <0>;
+ 	};
+@@ -220,22 +220,22 @@
+ 	};
+ };
+ 
+-&cpm_ethernet {
++&cp0_ethernet {
+ 	status = "okay";
+ };
+ 
+-&cpm_eth0 {
++&cp0_eth0 {
+ 	status = "okay";
+ 	phy-mode = "sfi"; /* lane-2 */
+ };
+ 
+-&cpm_eth1 {
++&cp0_eth1 {
+ 	status = "okay";
+ 	phy = <&phy0>;
+ 	phy-mode = "sgmii";
+ };
+ 
+-&cpm_eth2 {
++&cp0_eth2 {
+ 	status = "okay";
+ 	phy = <&phy1>;
+ 	phy-mode = "rgmii-id";
+diff --git a/arch/arm/dts/armada-70x0-db.dtsi b/arch/arm/dts/armada-70x0-db.dtsi
+index 7788f130f3..dce8ff1423 100644
+--- a/arch/arm/dts/armada-70x0-db.dtsi
++++ b/arch/arm/dts/armada-70x0-db.dtsi
+@@ -9,7 +9,7 @@
+ 	model = "DB-ARMADA-70x0";
+ 	compatible = "marvell,armada-70x0-db", "marvell,armada-70x0";
+ 
+-	cp110-master {
++	cp0 {
+ 		config-space {
+ 			i2c@701000 {
+ 				expander0: pca953x@21 {
+diff --git a/arch/arm/dts/armada-70x0.dtsi b/arch/arm/dts/armada-70x0.dtsi
+index e70328d425..69bd82f0bd 100644
+--- a/arch/arm/dts/armada-70x0.dtsi
++++ b/arch/arm/dts/armada-70x0.dtsi
+@@ -9,11 +9,56 @@
+  */
+ 
+ #include <dt-bindings/gpio/gpio.h>
++#include "armada-common.dtsi"
++#include "armada-8k.dtsi"
+ #include "armada-ap806-quad.dtsi"
+-#include "armada-cp110-master.dtsi"
++
++/* CP110-0 Settings */
++#define CP110_NAME				cp0
++#define CP110_NUM				0
++
++#include "armada-cp110.dtsi"
++
++#undef CP110_NAME
++#undef CP110_NUM
+ 
+ / {
+ 	model = "Marvell Armada 7040";
+ 	compatible = "marvell,armada7040", "marvell,armada-ap806-quad",
+ 		     "marvell,armada-ap806";
+ };
++
++&cp0_pinctl {
++	compatible = "marvell,mvebu-pinctrl", "marvell,a80x0-cp0-pinctrl";
++	bank-name ="cp0-110";
++
++	cp0_i2c0_pins: cp0-i2c-pins-0 {
++		marvell,pins = < 37 38 >;
++		marvell,function = <2>;
++	};
++	cp0_i2c1_pins: cp0-i2c-pins-1 {
++		marvell,pins = < 35 36 >;
++		marvell,function = <2>;
++	};
++	cp0_ge1_rgmii_pins: cp0-ge-rgmii-pins-0 {
++		marvell,pins = < 0 1 2 3 4 5 6 7 8 9 10 11>;
++		marvell,function = <3>;
++	};
++	cp0_ge2_rgmii_pins: cp0-ge-rgmii-pins-1 {
++		marvell,pins = < 44 45 46 47 48 49 50 51
++				52 53 54 55 >;
++		marvell,function = <1>;
++	};
++	cp0_pca0_pins: cp0-pca0_pins {
++		marvell,pins = <62>;
++		marvell,function = <0>;
++	};
++	cp0_sdhci_pins: cp0-sdhi-pins-0 {
++		marvell,pins = < 56 57 58 59 60 61 >;
++		marvell,function = <14>;
++	};
++	cp0_spi0_pins: cp0-spi-pins-0 {
++		marvell,pins = < 13 14 15 16 >;
++		marvell,function = <3>;
++	};
++};
+diff --git a/arch/arm/dts/armada-8020.dtsi b/arch/arm/dts/armada-8020.dtsi
+index 048e5cf516..4c7e2ad77a 100644
+--- a/arch/arm/dts/armada-8020.dtsi
++++ b/arch/arm/dts/armada-8020.dtsi
+@@ -45,12 +45,86 @@
+  * two CP110.
+  */
+ 
++#include <dt-bindings/gpio/gpio.h>
++#include "armada-common.dtsi"
+ #include "armada-ap806-dual.dtsi"
+-#include "armada-cp110-master.dtsi"
+-#include "armada-cp110-slave.dtsi"
++
++#define CP110_NAME		cp0
++#define CP110_BASE              0xf2000000
++#define CP110_PCIE_MEM_BASE     0xf6000000
++#define CP110_PCIE_MEM_OFFSET	0x1000000
++#define CP110_PCIE_IO_BASE      0xf9000000
++
++#include "armada-cp110.dtsi"
++
++#undef CP110_NAME
++#undef CP110_BASE
++#undef CP110_PCIE_IO_BASE
++#undef CP110_PCIE_MEM_BASE
++
++#define CP110_NAME		cp1
++#define CP110_BASE              0xf4000000
++#define CP110_PCIE_MEM_BASE     0xfa000000
++#define CP110_PCIE_IO_BASE      0xfd000000
++
++#include "armada-cp110.dtsi"
++
++#undef CP110_NAME
++#undef CP110_BASE
++#undef CP110_PCIE_IO_BASE
++#undef CP110_PCIE_MEM_BASE
+ 
+ / {
+ 	model = "Marvell Armada 8020";
+ 	compatible = "marvell,armada8020", "marvell,armada-ap806-dual",
+ 		     "marvell,armada-ap806";
+ };
++
++&cp0_pinctl {
++	compatible = "marvell,mvebu-pinctrl", "marvell,a80x0-cp0-pinctrl";
++	bank-name ="cp0-110";
++
++	cp0_i2c0_pins: cp0-i2c-pins-0 {
++		marvell,pins = < 37 38 >;
++		marvell,function = <2>;
++	};
++	cp0_i2c1_pins: cp0-i2c-pins-1 {
++		marvell,pins = < 35 36 >;
++		marvell,function = <2>;
++	};
++	cp0_ge1_rgmii_pins: cp0-ge-rgmii-pins-0 {
++		marvell,pins = < 0 1 2 3 4 5 6 7 8 9 10 11>;
++		marvell,function = <3>;
++	};
++	cp0_ge2_rgmii_pins: cp0-ge-rgmii-pins-1 {
++		marvell,pins = < 44 45 46 47 48 49 50 51
++				52 53 54 55 >;
++		marvell,function = <1>;
++	};
++	cp0_pca0_pins: cp0-pca0_pins {
++		marvell,pins = <62>;
++		marvell,function = <0>;
++	};
++	cp0_sdhci_pins: cp0-sdhi-pins-0 {
++		marvell,pins = < 56 57 58 59 60 61 >;
++		marvell,function = <14>;
++	};
++	cp0_spi0_pins: cp0-spi-pins-0 {
++		marvell,pins = < 13 14 15 16 >;
++		marvell,function = <3>;
++	};
++};
++
++&cp1_pinctl {
++	compatible = "marvell,mvebu-pinctrl", "marvell,a80x0-cp1-pinctrl";
++	bank-name ="cp1-110";
++
++	cp1_ge1_rgmii_pins: cp1-ge-rgmii-pins-0 {
++		marvell,pins = < 0 1 2 3 4 5 6 7 8 9 10 11 >;
++		marvell,function = <3>;
++	};
++	cp1_spi1_pins: cp1-spi-pins-1 {
++		marvell,pins = < 13 14 15 16 >;
++		marvell,function = <3>;
++	};
++};
+diff --git a/arch/arm/dts/armada-8040-clearfog-gt-8k.dts b/arch/arm/dts/armada-8040-clearfog-gt-8k.dts
+index 8d9733f60e..ce5832c2fb 100644
+--- a/arch/arm/dts/armada-8040-clearfog-gt-8k.dts
++++ b/arch/arm/dts/armada-8040-clearfog-gt-8k.dts
+@@ -15,9 +15,9 @@
+ 	};
+ 
+ 	aliases {
+-		i2c0 = &cpm_i2c0;
+-		i2c1 = &cpm_i2c1;
+-		spi0 = &cps_spi1;
++		i2c0 = &cp0_i2c0;
++		i2c1 = &cp0_i2c1;
++		spi0 = &cp1_spi1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -31,14 +31,14 @@
+ 		reg_usb3h0_vbus: usb3-vbus0 {
+ 			compatible = "regulator-fixed";
+ 			pinctrl-names = "default";
+-			pinctrl-0 = <&cpm_xhci_vbus_pins>;
++			pinctrl-0 = <&cp0_xhci_vbus_pins>;
+ 			regulator-name = "reg-usb3h0-vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+ 			startup-delay-us = <300000>;
+ 			shutdown-delay-us = <500000>;
+ 			regulator-force-boot-off;
+-			gpio = <&cpm_gpio1 15 GPIO_ACTIVE_LOW>; /* GPIO[47] */
++			gpio = <&cp0_gpio1 15 GPIO_ACTIVE_LOW>; /* GPIO[47] */
+ 		};
+ 	};
+ };
+@@ -66,7 +66,7 @@
+ 	status = "okay";
+ };
+ 
+-&cpm_pinctl {
++&cp0_pinctl {
+ 	/*
+ 	 * MPP Bus:
+ 	 * [0-31] = 0xff: Keep default CP0_shared_pins:
+@@ -99,57 +99,57 @@
+ 		     0    0    0    0    0    0    0xe  0xe  0xe  0xe
+ 		     0xe  0xe  0 >;
+ 
+-	cpm_pcie_reset_pins: cpm-pcie-reset-pins {
++	cp0_pcie_reset_pins: cp0-pcie-reset-pins {
+ 		marvell,pins = < 32 >;
+ 		marvell,function = <0>;
+ 	};
+ 
+-	cpm_xhci_vbus_pins: cpm-xhci-vbus-pins {
++	cp0_xhci_vbus_pins: cp0-xhci-vbus-pins {
+ 		marvell,pins = < 47 >;
+ 		marvell,function = <0>;
+ 	};
+ 
+-	cps_1g_phy_reset: cps-1g-phy-reset {
++	cp1_1g_phy_reset: cp1-1g-phy-reset {
+ 		marvell,pins = < 43 >;
+ 		marvell,function = <0>;
+ 	};
+ };
+ 
+ /* uSD slot */
+-&cpm_sdhci0 {
++&cp0_sdhci0 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_sdhci_pins>;
++	pinctrl-0 = <&cp0_sdhci_pins>;
+ 	bus-width = <4>;
+ 	status = "okay";
+ };
+ 
+-&cpm_pcie0 {
++&cp0_pcie0 {
+ 	num-lanes = <1>;
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_pcie_reset_pins>;
+-	marvell,reset-gpio = <&cpm_gpio1 0 GPIO_ACTIVE_LOW>;
++	pinctrl-0 = <&cp0_pcie_reset_pins>;
++	marvell,reset-gpio = <&cp0_gpio1 0 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ };
+ 
+-&cpm_i2c0 {
++&cp0_i2c0 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_i2c0_pins>;
++	pinctrl-0 = <&cp0_i2c0_pins>;
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+ };
+ 
+-&cpm_i2c1 {
++&cp0_i2c1 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_i2c1_pins>;
++	pinctrl-0 = <&cp0_i2c1_pins>;
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+ };
+ 
+-&cpm_sata0 {
++&cp0_sata0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_comphy {
++&cp0_comphy {
+ 	/*
+ 	 * CP0 Serdes Configuration:
+ 	 * Lane 0: PCIe0 (x1)
+@@ -179,31 +179,31 @@
+ 	};
+ };
+ 
+-&cpm_ethernet {
++&cp0_ethernet {
+         pinctrl-names = "default";
+         status = "okay";
+ };
+ 
+ /* 10G SFI SFP */
+-&cpm_eth0 {
++&cp0_eth0 {
+         status = "okay";
+         phy-mode = "sfi";
+ };
+ 
+-&cps_sata0 {
++&cp1_sata0 {
+ 	status = "okay";
+ };
+ 
+-&cps_usb3_0 {
++&cp1_usb3_0 {
+ 	vbus-supply = <&reg_usb3h0_vbus>;
+ 	status = "okay";
+ };
+ 
+-&cps_utmi0 {
++&cp1_utmi0 {
+ 	status = "okay";
+ };
+ 
+-&cps_pinctl {
++&cp1_pinctl {
+ 	/*
+ 	 * MPP Bus:
+ 	 * [0-5] TDM
+@@ -234,9 +234,9 @@
+ 		     0xff 0xff 0xff>;
+ };
+ 
+-&cps_spi1 {
++&cp1_spi1 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cps_spi1_pins>;
++	pinctrl-0 = <&cp1_spi1_pins>;
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+@@ -261,7 +261,7 @@
+ 	};
+ };
+ 
+-&cps_comphy {
++&cp1_comphy {
+ 	/*
+ 	 * CP1 Serdes Configuration:
+ 	 * Lane 0: SATA 1 (RX swapped). Can be PCIe0
+@@ -294,30 +294,30 @@
+ 	};
+ };
+ 
+-&cps_mdio {
++&cp1_mdio {
+ 	phy0: ethernet-phy@0 {
+ 		reg = <0>;
+ 	};
+ };
+ 
+-&cps_ethernet {
++&cp1_ethernet {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cps_1g_phy_reset>;
++	pinctrl-0 = <&cp1_1g_phy_reset>;
+ 	status = "okay";
+ };
+ 
+ /* 1G SGMII */
+-&cps_eth1 {
++&cp1_eth1 {
+ 	status = "okay";
+ 	phy-mode = "sgmii";
+ 	phy = <&phy0>;
+-	phy-reset-gpios = <&cpm_gpio1 11 GPIO_ACTIVE_LOW>;
++	phy-reset-gpios = <&cp0_gpio1 11 GPIO_ACTIVE_LOW>;
+ };
+ 
+ /* 2.5G to Topaz switch */
+-&cps_eth2 {
++&cp1_eth2 {
+ 	status = "okay";
+ 	phy-mode = "sgmii";
+ 	phy-speed = <2500>;
+-	phy-reset-gpios = <&cps_gpio0 24 GPIO_ACTIVE_LOW>;
++	phy-reset-gpios = <&cp1_gpio0 24 GPIO_ACTIVE_LOW>;
+ };
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index e334ace566..2ea4aa64e0 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -56,8 +56,8 @@
+ 	};
+ 
+ 	aliases {
+-		i2c0 = &cpm_i2c0;
+-		spi0 = &cps_spi1;
++		i2c0 = &cp0_i2c0;
++		spi0 = &cp1_spi1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -88,7 +88,7 @@
+ 	status = "okay";
+ };
+ 
+-&cpm_pinctl {
++&cp0_pinctl {
+ 	/* MPP Bus:
+ 	 *	[0-31]	= 0xff: Keep default CP0_shared_pins
+ 	 *	[11]	CLKOUT_MPP_11 (out)
+@@ -116,7 +116,7 @@
+ 		     0xe  0xe  0xe>;
+ };
+ 
+-&cpm_comphy {
++&cp0_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+ 	 *	Lane 1: SATA0
+@@ -146,57 +146,57 @@
+ };
+ 
+ /* CON6 on CP0 expansion */
+-&cpm_pcie0 {
++&cp0_pcie0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_pcie1 {
++&cp0_pcie1 {
+ 	status = "disabled";
+ };
+ 
+ /* CON5 on CP0 expansion */
+-&cpm_pcie2 {
++&cp0_pcie2 {
+ 	status = "okay";
+ };
+ 
+-&cpm_i2c0 {
++&cp0_i2c0 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_i2c0_pins>;
++	pinctrl-0 = <&cp0_i2c0_pins>;
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+ };
+ 
+ /* CON4 on CP0 expansion */
+-&cpm_sata0 {
++&cp0_sata0 {
+ 	status = "okay";
+ };
+ 
+ /* CON9 on CP0 expansion */
+-&cpm_usb3_0 {
++&cp0_usb3_0 {
+ 	status = "okay";
+ };
+ 
+ /* CON10 on CP0 expansion */
+-&cpm_usb3_1 {
++&cp0_usb3_1 {
+ 	status = "okay";
+ };
+ 
+-&cpm_utmi0 {
++&cp0_utmi0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_utmi1 {
++&cp0_utmi1 {
+ 	status = "okay";
+ };
+ 
+-&cpm_sdhci0 {
++&cp0_sdhci0 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_sdhci_pins>;
++	pinctrl-0 = <&cp0_sdhci_pins>;
+ 	bus-width = <4>;
+ 	status = "okay";
+ };
+ 
+-&cps_pinctl {
++&cp1_pinctl {
+ 	/* MPP Bus:
+ 	 *	[0-11]	RGMII0
+ 	 *	[13-16]	SPI1
+@@ -215,7 +215,7 @@
+ 		     0xff 0xff 0xff>;
+ };
+ 
+-&cps_comphy {
++&cp1_comphy {
+ 	/* Serdes Configuration:
+ 	 *	Lane 0: PCIe0 (x1)
+ 	 *	Lane 1: SATA0
+@@ -245,22 +245,22 @@
+ };
+ 
+ /* CON6 on CP1 expansion */
+-&cps_pcie0 {
++&cp1_pcie0 {
+ 	status = "okay";
+ };
+ 
+-&cps_pcie1 {
++&cp1_pcie1 {
+ 	status = "okay";
+ };
+ 
+ /* CON5 on CP1 expansion */
+-&cps_pcie2 {
++&cp1_pcie2 {
+ 	status = "okay";
+ };
+ 
+-&cps_spi1 {
++&cp1_spi1 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cps_spi1_pins>;
++	pinctrl-0 = <&cp1_spi1_pins>;
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+@@ -288,61 +288,61 @@
+ };
+ 
+ /* CON4 on CP1 expansion */
+-&cps_sata0 {
++&cp1_sata0 {
+ 	status = "okay";
+ };
+ 
+ /* CON9 on CP1 expansion */
+-&cps_usb3_0 {
++&cp1_usb3_0 {
+ 	status = "okay";
+ };
+ 
+ /* CON10 on CP1 expansion */
+-&cps_usb3_1 {
++&cp1_usb3_1 {
+ 	status = "okay";
+ };
+ 
+-&cps_utmi0 {
++&cp1_utmi0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_mdio {
++&cp0_mdio {
+ 	phy1: ethernet-phy@1 {
+ 		reg = <1>;
+ 	};
+ };
+ 
+-&cps_mdio {
++&cp1_mdio {
+ 	phy0: ethernet-phy@0 {
+ 		reg = <0>;
+ 	};
+ };
+ 
+-&cpm_ethernet {
++&cp0_ethernet {
+ 	status = "okay";
+ };
+ 
+-&cps_ethernet {
++&cp1_ethernet {
+ 	status = "okay";
+ };
+ 
+-&cpm_eth0 {
++&cp0_eth0 {
+ 	status = "okay";
+ 	phy-mode = "sfi"; /* lane-2 */
+ };
+ 
+-&cpm_eth2 {
++&cp0_eth2 {
+ 	status = "okay";
+ 	phy = <&phy1>;
+ 	phy-mode = "rgmii-id";
+ };
+ 
+-&cps_eth0 {
++&cp1_eth0 {
+ 	status = "okay";
+ 	phy-mode = "sfi"; /* lane-2 */
+ };
+ 
+-&cps_eth1 {
++&cp1_eth1 {
+ 	status = "okay";
+ 	phy = <&phy0>;
+ 	phy-mode = "rgmii-id";
+diff --git a/arch/arm/dts/armada-8040-mcbin.dts b/arch/arm/dts/armada-8040-mcbin.dts
+index e6a8ca8149..23df369747 100644
+--- a/arch/arm/dts/armada-8040-mcbin.dts
++++ b/arch/arm/dts/armada-8040-mcbin.dts
+@@ -15,12 +15,12 @@
+ 	};
+ 
+ 	aliases {
+-		i2c0 = &cpm_i2c0;
+-		i2c1 = &cpm_i2c1;
+-		spi0 = &cps_spi1;
++		i2c0 = &cp0_i2c0;
++		i2c1 = &cp0_i2c1;
++		spi0 = &cp1_spi1;
+ 		gpio0 = &ap_gpio0;
+-		gpio1 = &cpm_gpio0;
+-		gpio2 = &cpm_gpio1;
++		gpio1 = &cp0_gpio0;
++		gpio2 = &cp0_gpio1;
+ 	};
+ 
+ 	memory@00000000 {
+@@ -36,13 +36,13 @@
+ 		reg_usb3h0_vbus: usb3-vbus0 {
+ 			compatible = "regulator-fixed";
+ 			pinctrl-names = "default";
+-			pinctrl-0 = <&cpm_xhci_vbus_pins>;
++			pinctrl-0 = <&cp0_xhci_vbus_pins>;
+ 			regulator-name = "reg-usb3h0-vbus";
+ 			regulator-min-microvolt = <5000000>;
+ 			regulator-max-microvolt = <5000000>;
+ 			startup-delay-us = <300000>;
+ 			regulator-force-boot-off;
+-			gpio = <&cpm_gpio1 15 GPIO_ACTIVE_HIGH>; /* GPIO[47] */
++			gpio = <&cp0_gpio1 15 GPIO_ACTIVE_HIGH>; /* GPIO[47] */
+ 		};
+ 	};
+ };
+@@ -71,7 +71,7 @@
+ 	status = "okay";
+ };
+ 
+-&cpm_pinctl {
++&cp0_pinctl {
+ 	/*
+ 	 * MPP Bus:
+ 	 * [0-31] = 0xff: Keep default CP0_shared_pins:
+@@ -106,59 +106,59 @@
+ 		     0    0    0    0    0    0    0xe  0xe  0xe  0xe
+ 		     0xe  0xe  0 >;
+ 
+-	cpm_xhci_vbus_pins: cpm-xhci-vbus-pins {
++	cp0_xhci_vbus_pins: cp0-xhci-vbus-pins {
+ 		marvell,pins = < 47 >;
+ 		marvell,function = <0>;
+ 	};
+ 
+-	cpm_pcie_reset_pins: cpm-pcie-reset-pins {
++	cp0_pcie_reset_pins: cp0-pcie-reset-pins {
+ 		marvell,pins = < 52 >;
+ 		marvell,function = <0>;
+ 	};
+ };
+ 
+ /* uSD slot */
+-&cpm_sdhci0 {
++&cp0_sdhci0 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_sdhci_pins>;
++	pinctrl-0 = <&cp0_sdhci_pins>;
+ 	bus-width= <4>;
+ 	status = "okay";
+ };
+ 
+ /* PCIe x4 */
+-&cpm_pcie0 {
++&cp0_pcie0 {
+ 	num-lanes = <4>;
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_pcie_reset_pins>;
+-	marvell,reset-gpio = <&cpm_gpio1 20 GPIO_ACTIVE_LOW>; /* GPIO[52] */
++	pinctrl-0 = <&cp0_pcie_reset_pins>;
++	marvell,reset-gpio = <&cp0_gpio1 20 GPIO_ACTIVE_HIGH>; /* GPIO[52] */
+ 	status = "okay";
+ };
+ 
+-&cpm_i2c0 {
++&cp0_i2c0 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_i2c0_pins>;
++	pinctrl-0 = <&cp0_i2c0_pins>;
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+ };
+ 
+-&cpm_i2c1 {
++&cp0_i2c1 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_i2c1_pins>;
++	pinctrl-0 = <&cp0_i2c1_pins>;
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+ };
+ 
+-&cpm_sata0 {
++&cp0_sata0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_mdio {
++&cp0_mdio {
+ 	ge_phy: ethernet-phy@0 {
+ 		reg = <0>;
+ 	};
+ };
+ 
+-&cpm_comphy {
++&cp0_comphy {
+ 	/*
+ 	 * CP0 Serdes Configuration:
+ 	 * Lane 0: PCIe0 (x4)
+@@ -188,30 +188,30 @@
+ 	};
+ };
+ 
+-&cps_sata0 {
++&cp1_sata0 {
+ 	status = "okay";
+ };
+ 
+-&cps_usb3_0 {
++&cp1_usb3_0 {
+ 	vbus-supply = <&reg_usb3h0_vbus>;
+ 	status = "okay";
+ };
+ 
+-&cps_utmi0 {
++&cp1_utmi0 {
+ 	status = "okay";
+ };
+ 
+-&cps_ethernet {
++&cp1_ethernet {
+ 	status = "okay";
+ };
+ 
+-&cps_eth1 {
++&cp1_eth1 {
+ 	status = "okay";
+ 	phy = <&ge_phy>;
+ 	phy-mode = "sgmii";
+ };
+ 
+-&cps_pinctl {
++&cp1_pinctl {
+ 	/*
+ 	 * MPP Bus:
+ 	 * [0-5] TDM
+@@ -244,9 +244,9 @@
+ 		     0xff 0xff 0xff>;
+ };
+ 
+-&cps_spi1 {
++&cp1_spi1 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cps_spi1_pins>;
++	pinctrl-0 = <&cp1_spi1_pins>;
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+@@ -273,7 +273,7 @@
+ 	};
+ };
+ 
+-&cps_comphy {
++&cp1_comphy {
+ 	/*
+ 	 * CP1 Serdes Configuration:
+ 	 * Lane 0: SGMII1
+diff --git a/arch/arm/dts/armada-8040.dtsi b/arch/arm/dts/armada-8040.dtsi
+index 96cc112ac9..ee04a78e16 100644
+--- a/arch/arm/dts/armada-8040.dtsi
++++ b/arch/arm/dts/armada-8040.dtsi
+@@ -46,12 +46,79 @@
+  */
+ 
+ #include <dt-bindings/gpio/gpio.h>
++#include "armada-common.dtsi"
++#include "armada-8k.dtsi"
+ #include "armada-ap806-quad.dtsi"
+-#include "armada-cp110-master.dtsi"
+-#include "armada-cp110-slave.dtsi"
++
++/* CP110-0 Settings */
++#define CP110_NAME				cp0
++#define CP110_NUM				0
++
++#include "armada-cp110.dtsi"
++
++#undef CP110_NAME
++#undef CP110_NUM
++
++/* CP110-1 Settings */
++#define CP110_NAME				cp1
++#define CP110_NUM				1
++
++#include "armada-cp110.dtsi"
++
++#undef CP110_NAME
++#undef CP110_NUM
+ 
+ / {
+ 	model = "Marvell Armada 8040";
+ 	compatible = "marvell,armada8040", "marvell,armada-ap806-quad",
+ 		     "marvell,armada-ap806";
+ };
++
++&cp0_pinctl {
++	compatible = "marvell,mvebu-pinctrl", "marvell,a80x0-cp0-pinctrl";
++	bank-name ="cp0-110";
++
++	cp0_i2c0_pins: cp0-i2c-pins-0 {
++		marvell,pins = < 37 38 >;
++		marvell,function = <2>;
++	};
++	cp0_i2c1_pins: cp0-i2c-pins-1 {
++		marvell,pins = < 35 36 >;
++		marvell,function = <2>;
++	};
++	cp0_ge1_rgmii_pins: cp0-ge-rgmii-pins-0 {
++		marvell,pins = < 0 1 2 3 4 5 6 7 8 9 10 11>;
++		marvell,function = <3>;
++	};
++	cp0_ge2_rgmii_pins: cp0-ge-rgmii-pins-1 {
++		marvell,pins = < 44 45 46 47 48 49 50 51
++				52 53 54 55 >;
++		marvell,function = <1>;
++	};
++	cp0_pca0_pins: cp0-pca0_pins {
++		marvell,pins = <62>;
++		marvell,function = <0>;
++	};
++	cp0_sdhci_pins: cp0-sdhi-pins-0 {
++		marvell,pins = < 56 57 58 59 60 61 >;
++		marvell,function = <14>;
++	};
++	cp0_spi0_pins: cp0-spi-pins-0 {
++		marvell,pins = < 13 14 15 16 >;
++		marvell,function = <3>;
++	};
++};
++
++&cp1_pinctl {
++	compatible = "marvell,mvebu-pinctrl", "marvell,a80x0-cp1-pinctrl";
++	bank-name ="cp1-110";
++
++	cp1_ge1_rgmii_pins: cp1-ge-rgmii-pins-0 {
++		marvell,pins = < 0 1 2 3 4 5 6 7 8 9 10 11 >;
++		marvell,function = <3>;
++	};
++	cp1_spi1_pins: cp1-spi-pins-1 {
++		marvell,pins = < 13 14 15 16 >;
++		marvell,function = <3>;
++	};
++};
+diff --git a/arch/arm/dts/armada-80x0-db.dtsi b/arch/arm/dts/armada-80x0-db.dtsi
+index f6b03508cc..bd505b1a0b 100644
+--- a/arch/arm/dts/armada-80x0-db.dtsi
++++ b/arch/arm/dts/armada-80x0-db.dtsi
+@@ -9,7 +9,7 @@
+ 	compatible = "marvell,armada-80x0-db", "marvell,armada-8040";
+ 	model = "DB-ARMADA-80x0";
+ 
+-	cp110-master {
++	cp0 {
+ 		config-space {
+ 			i2c@701000 {
+ 				expander0: pca953x@21 {
+@@ -69,7 +69,7 @@
+ 		};
+ 	};
+ 
+-	cp110-slave {
++	cp1 {
+ 		config-space {
+ 
+ 			cps_usb3_0: usb3@500000 {
+diff --git a/arch/arm/dts/armada-8k.dtsi b/arch/arm/dts/armada-8k.dtsi
+new file mode 100644
+index 0000000000..a708ec83a2
+--- /dev/null
++++ b/arch/arm/dts/armada-8k.dtsi
+@@ -0,0 +1,25 @@
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ *
++ * SPDX-License-Identifier:    GPL-2.0
++ * https://spdx.org/licenses
++ */
++/* Common definitions used by Armada 8K DTs */
++
++/* This defines used to calculate the base address of each CP */
++#define CP110_BASE_OFFSET			(0xf2000000)
++#define CP110_SPACE_SIZE			(0x02000000)
++#define CP110_BASE				(CP110_BASE_OFFSET + \
++	((CP110_NUM % 2) * CP110_SPACE_SIZE))
++
++#define CP110_PCIE_MEM_SIZE			(0xf00000)
++#define CP110_PCIEx_CPU_IO_BASE(iface)		\
++	(0xf9000000 + (CP110_NUM % 2) * 0x4010000 + (iface) *  0x10000)
++#define CP110_PCIEx_CPU_MEM_BASE(iface)		\
++	(0xf6000000 + (CP110_NUM % 2) * 0x4000000 + (iface) *  0x1000000)
++#define CP110_PCIEx_BUS_IO_BASE(iface)		\
++		(CP110_PCIEx_CPU_IO_BASE(iface))
++#define CP110_PCIEx_BUS_MEM_BASE(iface)		\
++		(CP110_PCIEx_CPU_MEM_BASE(iface))
++#define CP110_PCIE_BUS_MEM_CFG			(0x82000000)
++
+diff --git a/arch/arm/dts/armada-common.dtsi b/arch/arm/dts/armada-common.dtsi
+new file mode 100644
+index 0000000000..34bd7e3230
+--- /dev/null
++++ b/arch/arm/dts/armada-common.dtsi
+@@ -0,0 +1,30 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++/* Common definitions used by Armada 7K/8K DTs */
++#define PASTER(x, y)		x ## _ ## y
++#define EVALUATOR(x, y)		PASTER(x, y)
++
++/* This define used to create die label:
++ * For example:
++ * CP110 master:
++ *     CP110_LABEL(spi0) -> cp0_spi0
++ * CP110 slave:
++ *     CP110_LABEL(usb0) -> cp1_usb0
++ */
++#define CP110_LABEL(name)	EVALUATOR(CP110_NAME, name)
++
++#define APPEND_NX(A, B)		A ##-## B
++#define APPEND(A, B)		APPEND_NX(A, B)
++
++#define STRINGIZE_NX(x)		#x
++#define STRINGIZE(x)		STRINGIZE_NX(x)
++
++/* Same idea here, but this define convert the name to string:
++ * For example:
++ * master: CP110_STRING_LABEL(ppv2) -> "cp0-ppv2"
++ * slave: CP110_STRING_LABEL(ppv2) -> "cp1-ppv2"
++ */
++#define CP110_STRING_LABEL(name)	STRINGIZE(APPEND(CP110_NAME, name))
+diff --git a/arch/arm/dts/armada-cp110-slave.dtsi b/arch/arm/dts/armada-cp110-slave.dtsi
+deleted file mode 100644
+index dbe150fde9..0000000000
+--- a/arch/arm/dts/armada-cp110-slave.dtsi
++++ /dev/null
+@@ -1,268 +0,0 @@
+-/*
+- * Copyright (C) 2016 Marvell Technology Group Ltd.
+- *
+- * This file is dual-licensed: you can use it either under the terms
+- * of the GPLv2 or the X11 license, at your option. Note that this dual
+- * licensing only applies to this file, and not this project as a
+- * whole.
+- *
+- *  a) This library is free software; you can redistribute it and/or
+- *     modify it under the terms of the GNU General Public License as
+- *     published by the Free Software Foundation; either version 2 of the
+- *     License, or (at your option) any later version.
+- *
+- *     This library is distributed in the hope that it will be useful,
+- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *     GNU General Public License for more details.
+- *
+- * Or, alternatively,
+- *
+- *  b) Permission is hereby granted, free of charge, to any person
+- *     obtaining a copy of this software and associated documentation
+- *     files (the "Software"), to deal in the Software without
+- *     restriction, including without limitation the rights to use,
+- *     copy, modify, merge, publish, distribute, sublicense, and/or
+- *     sell copies of the Software, and to permit persons to whom the
+- *     Software is furnished to do so, subject to the following
+- *     conditions:
+- *
+- *     The above copyright notice and this permission notice shall be
+- *     included in all copies or substantial portions of the Software.
+- *
+- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+- *     OTHER DEALINGS IN THE SOFTWARE.
+- */
+-
+-/*
+- * Device Tree file for Marvell Armada CP110 Slave.
+- */
+-
+-#include <dt-bindings/comphy/comphy_data.h>
+-
+-/ {
+-	cp110-slave {
+-		#address-cells = <2>;
+-		#size-cells = <2>;
+-		compatible = "simple-bus";
+-		ranges;
+-
+-		config-space {
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			compatible = "simple-bus";
+-			ranges = <0x0 0x0 0xf4000000 0x2000000>;
+-
+-			cps_ethernet: ethernet@0 {
+-				compatible = "marvell,armada-7k-pp22";
+-				reg = <0x0 0x100000>, <0x129000 0xb000>;
+-				status = "disabled";
+-				dma-coherent;
+-
+-				cps_eth0: eth0 {
+-					port-id = <0>;
+-					gop-port-id = <0>;
+-					status = "disabled";
+-				};
+-
+-				cps_eth1: eth1 {
+-					port-id = <1>;
+-					gop-port-id = <2>;
+-					status = "disabled";
+-				};
+-
+-				cps_eth2: eth2 {
+-					port-id = <2>;
+-					gop-port-id = <3>;
+-					status = "disabled";
+-				};
+-			};
+-
+-			cps_mdio: mdio@12a200 {
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				compatible = "marvell,orion-mdio";
+-				reg = <0x12a200 0x10>;
+-				device-name = "cps-mdio";
+-			};
+-
+-			cps_pinctl: cps-pinctl@440000 {
+-				compatible = "marvell,mvebu-pinctrl",
+-					     "marvell,armada-8k-cps-pinctrl";
+-				bank-name ="cp1-110";
+-				reg = <0x440000 0x20>;
+-				pin-count = <63>;
+-				max-func = <0xf>;
+-
+-				cps_ge1_rgmii_pins: cps-ge-rgmii-pins-0 {
+-					marvell,pins = < 0  1  2  3  4  5  6  7
+-							 8  9  10 11 >;
+-					marvell,function = <3>;
+-				};
+-				cps_spi1_pins: cps-spi-pins-1 {
+-					marvell,pins = < 13 14 15 16 >;
+-					marvell,function = <3>;
+-				};
+-			};
+-
+-			cps_gpio0: gpio@440100 {
+-				compatible = "marvell,orion-gpio";
+-				reg = <0x440100 0x40>;
+-				ngpios = <32>;
+-				gpiobase = <20>;
+-				gpio-controller;
+-				#gpio-cells = <2>;
+-			};
+-
+-			cps_gpio1: gpio@440140 {
+-				compatible = "marvell,orion-gpio";
+-				reg = <0x440140 0x40>;
+-				ngpios = <31>;
+-				gpiobase = <52>;
+-				gpio-controller;
+-				#gpio-cells = <2>;
+-			};
+-
+-			cps_sata0: sata@540000 {
+-				compatible = "marvell,armada-8k-ahci";
+-				reg = <0x540000 0x30000>;
+-				status = "disabled";
+-			};
+-
+-			cps_usb3_0: usb3@500000 {
+-				compatible = "marvell,armada-8k-xhci",
+-					     "generic-xhci";
+-				reg = <0x500000 0x4000>;
+-				dma-coherent;
+-				status = "disabled";
+-			};
+-
+-			cps_usb3_1: usb3@510000 {
+-				compatible = "marvell,armada-8k-xhci",
+-					     "generic-xhci";
+-				reg = <0x510000 0x4000>;
+-				dma-coherent;
+-				status = "disabled";
+-			};
+-
+-			cps_spi0: spi@700600 {
+-				compatible = "marvell,armada-380-spi";
+-				reg = <0x700600 0x50>;
+-				#address-cells = <0x1>;
+-				#size-cells = <0x0>;
+-				cell-index = <1>;
+-				status = "disabled";
+-			};
+-
+-			cps_spi1: spi@700680 {
+-				compatible = "marvell,armada-380-spi";
+-				reg = <0x700680 0x50>;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				cell-index = <2>;
+-				status = "disabled";
+-			};
+-
+-			cps_i2c0: i2c@701000 {
+-				compatible = "marvell,mv78230-i2c";
+-				reg = <0x701000 0x20>;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				status = "disabled";
+-			};
+-
+-			cps_i2c1: i2c@701100 {
+-				compatible = "marvell,mv78230-i2c";
+-				reg = <0x701100 0x20>;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				status = "disabled";
+-			};
+-
+-			cps_comphy: comphy@441000 {
+-				compatible = "marvell,mvebu-comphy", "marvell,comphy-cp110";
+-				reg = <0x441000 0x8>,
+-				      <0x120000 0x8>;
+-				mux-bitcount = <4>;
+-				max-lanes = <6>;
+-			};
+-
+-			cps_utmi0: utmi@580000 {
+-				compatible = "marvell,mvebu-utmi-2.6.0";
+-				reg = <0x580000 0x1000>,	/* utmi-unit */
+-				      <0x440420 0x4>,		/* usb-cfg */
+-				      <0x440440 0x4>;		/* utmi-cfg */
+-				utmi-port = <UTMI_PHY_TO_USB3_HOST0>;
+-				status = "disabled";
+-			};
+-		};
+-
+-		cps_pcie0: pcie@f4600000 {
+-			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
+-			reg = <0 0xf4600000 0 0x10000>,
+-			      <0 0xfaf00000 0 0x80000>;
+-			reg-names = "ctrl", "config";
+-			#address-cells = <3>;
+-			#size-cells = <2>;
+-			device_type = "pci";
+-			dma-coherent;
+-
+-			bus-range = <0 0xff>;
+-			ranges =
+-				/* downstream I/O */
+-				<0x81000000 0 0xfd000000 0  0xfd000000 0 0x10000
+-				/* non-prefetchable memory */
+-				0x82000000 0 0xfa000000 0  0xfa000000 0 0xf00000>;
+-			num-lanes = <1>;
+-			status = "disabled";
+-		};
+-
+-		cps_pcie1: pcie@f4620000 {
+-			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
+-			reg = <0 0xf4620000 0 0x10000>,
+-			      <0 0xfbf00000 0 0x80000>;
+-			reg-names = "ctrl", "config";
+-			#address-cells = <3>;
+-			#size-cells = <2>;
+-			device_type = "pci";
+-			dma-coherent;
+-
+-			bus-range = <0 0xff>;
+-			ranges =
+-				/* downstream I/O */
+-				<0x81000000 0 0xfd010000 0  0xfd010000 0 0x10000
+-				/* non-prefetchable memory */
+-				0x82000000 0 0xfb000000 0  0xfb000000 0 0xf00000>;
+-
+-			num-lanes = <1>;
+-			status = "disabled";
+-		};
+-
+-		cps_pcie2: pcie@f4640000 {
+-			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
+-			reg = <0 0xf4640000 0 0x10000>,
+-			      <0 0xfcf00000 0 0x80000>;
+-			reg-names = "ctrl", "config";
+-			#address-cells = <3>;
+-			#size-cells = <2>;
+-			device_type = "pci";
+-			dma-coherent;
+-
+-			bus-range = <0 0xff>;
+-			ranges =
+-				/* downstream I/O */
+-				<0x81000000 0 0xfd020000 0  0xfd020000 0 0x10000
+-				/* non-prefetchable memory */
+-				0x82000000 0 0xfc000000 0  0xfc000000 0 0xf00000>;
+-
+-			num-lanes = <1>;
+-			status = "disabled";
+-		};
+-	};
+-};
+diff --git a/arch/arm/dts/armada-cp110-master.dtsi b/arch/arm/dts/armada-cp110.dtsi
+similarity index 50%
+rename from arch/arm/dts/armada-cp110-master.dtsi
+rename to arch/arm/dts/armada-cp110.dtsi
+index b25b7cd305..24e83047ec 100644
+--- a/arch/arm/dts/armada-cp110-master.dtsi
++++ b/arch/arm/dts/armada-cp110.dtsi
+@@ -1,53 +1,22 @@
++// SPDX-License-Identifier: GPL-2.0+
+ /*
+- * Copyright (C) 2016 Marvell Technology Group Ltd.
+- *
+- * This file is dual-licensed: you can use it either under the terms
+- * of the GPLv2 or the X11 license, at your option. Note that this dual
+- * licensing only applies to this file, and not this project as a
+- * whole.
+- *
+- *  a) This library is free software; you can redistribute it and/or
+- *     modify it under the terms of the GNU General Public License as
+- *     published by the Free Software Foundation; either version 2 of the
+- *     License, or (at your option) any later version.
+- *
+- *     This library is distributed in the hope that it will be useful,
+- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *     GNU General Public License for more details.
+- *
+- * Or, alternatively,
+- *
+- *  b) Permission is hereby granted, free of charge, to any person
+- *     obtaining a copy of this software and associated documentation
+- *     files (the "Software"), to deal in the Software without
+- *     restriction, including without limitation the rights to use,
+- *     copy, modify, merge, publish, distribute, sublicense, and/or
+- *     sell copies of the Software, and to permit persons to whom the
+- *     Software is furnished to do so, subject to the following
+- *     conditions:
+- *
+- *     The above copyright notice and this permission notice shall be
+- *     included in all copies or substantial portions of the Software.
+- *
+- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+- *     OTHER DEALINGS IN THE SOFTWARE.
++ * Copyright (C) 2018 Marvell International Ltd.
+  */
+ 
+ /*
+- * Device Tree file for Marvell Armada CP110 Master.
++ * Generic Device Tree describing Marvell Armada CP-110 device
+  */
+-
+ #include <dt-bindings/comphy/comphy_data.h>
+ 
++#define U64_TO_U32_H(addr)		(((addr) >> 32) & 0xffffffff)
++#define U64_TO_U32_L(addr)		((addr) & 0xffffffff)
++
++#define CP110_PCIEx_REG0_BASE(iface)	\
++	(CP110_BASE + 0x600000 + (iface) * 0x20000)
++#define CP110_PCIEx_REG1_BASE(iface)	\
++	(CP110_PCIEx_CPU_MEM_BASE(iface) + CP110_PCIE_MEM_SIZE)
+ / {
+-	cp110-master {
++	CP110_NAME {
+ 		#address-cells = <2>;
+ 		#size-cells = <2>;
+ 		compatible = "simple-bus";
+@@ -57,83 +26,23 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			compatible = "simple-bus";
+-			ranges = <0x0 0x0 0xf2000000 0x2000000>;
+-
+-			cpm_ethernet: ethernet@0 {
+-				compatible = "marvell,armada-7k-pp22";
+-				reg = <0x0 0x100000>, <0x129000 0xb000>;
+-				status = "disabled";
+-				dma-coherent;
++			ranges = <0x0 U64_TO_U32_H(CP110_BASE) U64_TO_U32_L(CP110_BASE) 0x2000000>;
+ 
+-				cpm_eth0: eth0 {
+-					port-id = <0>;
+-					gop-port-id = <0>;
+-					status = "disabled";
+-				};
+-
+-				cpm_eth1: eth1 {
+-					port-id = <1>;
+-					gop-port-id = <2>;
+-					status = "disabled";
+-				};
+-
+-				cpm_eth2: eth2 {
+-					port-id = <2>;
+-					gop-port-id = <3>;
+-					status = "disabled";
+-				};
+-			};
+-
+-			cpm_mdio: mdio@12a200 {
++			CP110_LABEL(mdio): mdio@12a200 {
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				compatible = "marvell,orion-mdio";
+ 				reg = <0x12a200 0x10>;
+-				device-name = "cpm-mdio";
+ 			};
+ 
+-			cpm_pinctl: cpm-pinctl@440000 {
+-				compatible = "marvell,mvebu-pinctrl",
+-					     "marvell,armada-7k-pinctrl",
+-					     "marvell,armada-8k-cpm-pinctrl";
+-				bank-name ="cp0-110";
++			CP110_LABEL(pinctl): pinctl@440000 {
++				compatible = "marvell,mvebu-pinctrl";
+ 				reg = <0x440000 0x20>;
+ 				pin-count = <63>;
+ 				max-func = <0xf>;
+-
+-				cpm_i2c0_pins: cpm-i2c-pins-0 {
+-					marvell,pins = < 37 38 >;
+-					marvell,function = <2>;
+-				};
+-				cpm_i2c1_pins: cpm-i2c-pins-1 {
+-					marvell,pins = < 35 36 >;
+-					marvell,function = <2>;
+-				};
+-				cpm_ge1_rgmii_pins: cpm-ge-rgmii-pins-0 {
+-					marvell,pins = < 0 1 2 3 4 5 6 7
+-							 8 9 10 11>;
+-					marvell,function = <3>;
+-				};
+-				cpm_ge2_rgmii_pins: cpm-ge-rgmii-pins-1 {
+-					marvell,pins = < 44 45 46 47 48 49 50 51
+-							 52 53 54 55 >;
+-					marvell,function = <1>;
+-				};
+-				pca0_pins: cpm-pca0_pins {
+-					marvell,pins = <62>;
+-					marvell,function = <0>;
+-				};
+-				cpm_sdhci_pins: cpm-sdhi-pins-0 {
+-					marvell,pins = < 56 57 58 59 60 61 >;
+-					marvell,function = <14>;
+-				};
+-				cpm_spi0_pins: cpm-spi-pins-0 {
+-					marvell,pins = < 13 14 15 16 >;
+-					marvell,function = <3>;
+-				};
+ 			};
+ 
+-			cpm_gpio0: gpio@440100 {
++			CP110_LABEL(gpio0): gpio@440100 {
+ 				compatible = "marvell,orion-gpio";
+ 				reg = <0x440100 0x40>;
+ 				ngpios = <32>;
+@@ -142,7 +51,7 @@
+ 				#gpio-cells = <2>;
+ 			};
+ 
+-			cpm_gpio1: gpio@440140 {
++			CP110_LABEL(gpio1): gpio@440140 {
+ 				compatible = "marvell,orion-gpio";
+ 				reg = <0x440140 0x40>;
+ 				ngpios = <31>;
+@@ -151,13 +60,13 @@
+ 				#gpio-cells = <2>;
+ 			};
+ 
+-			cpm_sata0: sata@540000 {
++			CP110_LABEL(sata0): sata@540000 {
+ 				compatible = "marvell,armada-8k-ahci";
+ 				reg = <0x540000 0x30000>;
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_usb3_0: usb3@500000 {
++			CP110_LABEL(usb3_0): usb3@500000 {
+ 				compatible = "marvell,armada-8k-xhci",
+ 					     "generic-xhci";
+ 				reg = <0x500000 0x4000>;
+@@ -165,7 +74,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_usb3_1: usb3@510000 {
++			CP110_LABEL(usb3_1): usb3@510000 {
+ 				compatible = "marvell,armada-8k-xhci",
+ 					     "generic-xhci";
+ 				reg = <0x510000 0x4000>;
+@@ -173,7 +82,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_spi0: spi@700600 {
++			CP110_LABEL(spi0): spi@700600 {
+ 				compatible = "marvell,armada-380-spi";
+ 				reg = <0x700600 0x50>;
+ 				#address-cells = <0x1>;
+@@ -182,7 +91,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_spi1: spi@700680 {
++			CP110_LABEL(spi1): spi@700680 {
+ 				compatible = "marvell,armada-380-spi";
+ 				reg = <0x700680 0x50>;
+ 				#address-cells = <1>;
+@@ -191,7 +100,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_i2c0: i2c@701000 {
++			CP110_LABEL(i2c0): i2c@701000 {
+ 				compatible = "marvell,mv78230-i2c";
+ 				reg = <0x701000 0x20>;
+ 				#address-cells = <1>;
+@@ -199,7 +108,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_i2c1: i2c@701100 {
++			CP110_LABEL(i2c1): i2c@701100 {
+ 				compatible = "marvell,mv78230-i2c";
+ 				reg = <0x701100 0x20>;
+ 				#address-cells = <1>;
+@@ -207,7 +116,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_comphy: comphy@441000 {
++			CP110_LABEL(comphy): comphy@441000 {
+ 				compatible = "marvell,mvebu-comphy", "marvell,comphy-cp110";
+ 				reg = <0x441000 0x8>,
+ 				      <0x120000 0x8>;
+@@ -215,7 +124,7 @@
+ 				max-lanes = <6>;
+ 			};
+ 
+-			cpm_utmi0: utmi@580000 {
++			CP110_LABEL(utmi0): utmi@580000 {
+ 				compatible = "marvell,mvebu-utmi-2.6.0";
+ 				reg = <0x580000 0x1000>,	/* utmi-unit */
+ 				      <0x440420 0x4>,		/* usb-cfg */
+@@ -224,7 +133,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_utmi1: utmi@581000 {
++			CP110_LABEL(utmi1): utmi@581000 {
+ 				compatible = "marvell,mvebu-utmi-2.6.0";
+ 				reg = <0x581000 0x1000>,	/* utmi-unit */
+ 				      <0x440420 0x4>,		/* usb-cfg */
+@@ -233,14 +142,14 @@
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_sdhci0: sdhci@780000 {
++			CP110_LABEL(sdhci0): sdhci@780000 {
+ 				compatible = "marvell,armada-8k-sdhci";
+ 				reg = <0x780000 0x300>;
+ 				dma-coherent;
+ 				status = "disabled";
+ 			};
+ 
+-			cpm_nand: nand@720000 {
++			CP110_LABEL(nand): nand@720000 {
+ 				compatible = "marvell,mvebu-pxa3xx-nand";
+ 				reg = <0x720000 0x100>;
+ 				#address-cells = <1>;
+@@ -251,12 +160,39 @@
+ 				nand-ecc-step-size = <512>;
+ 				status = "disabled";
+ 			};
++
++			CP110_LABEL(ethernet): ethernet@0 {
++				compatible = "marvell,armada-7k-pp22";
++				reg = <0x0 0x100000>, <0x129000 0xb000>;
++				status = "disabled";
++				dma-coherent;
++
++				CP110_LABEL(eth0): eth0 {
++					port-id = <0>;
++					gop-port-id = <0>;
++					status = "disabled";
++				};
++
++				CP110_LABEL(eth1): eth1 {
++					port-id = <1>;
++					gop-port-id = <2>;
++					status = "disabled";
++				};
++
++				CP110_LABEL(eth2): eth2 {
++					port-id = <2>;
++					gop-port-id = <3>;
++					status = "disabled";
++				};
++			};
+ 		};
+ 
+-		cpm_pcie0: pcie@f2600000 {
++		CP110_LABEL(pcie0): pcie0@600000 {
+ 			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
+-			reg = <0 0xf2600000 0 0x10000>,
+-			      <0 0xf6f00000 0 0x80000>;
++			reg =
++			   <U64_TO_U32_H(CP110_PCIEx_REG0_BASE(0)) U64_TO_U32_L(CP110_PCIEx_REG0_BASE(0)) 0 0x10000>,
++			   /* Last 512KB of mem space */
++			   <U64_TO_U32_H(CP110_PCIEx_REG1_BASE(0)) U64_TO_U32_L(CP110_PCIEx_REG1_BASE(0)) 0 0x80000>;
+ 			reg-names = "ctrl", "config";
+ 			#address-cells = <3>;
+ 			#size-cells = <2>;
+@@ -266,17 +202,24 @@
+ 			bus-range = <0 0xff>;
+ 			ranges =
+ 				/* downstream I/O */
+-				<0x81000000 0 0xf9000000 0  0xf9000000 0 0x10000
++				<0x81000000 U64_TO_U32_H(CP110_PCIEx_BUS_IO_BASE(0))
++				U64_TO_U32_L(CP110_PCIEx_BUS_IO_BASE(0)) U64_TO_U32_H(CP110_PCIEx_CPU_IO_BASE(0))
++				U64_TO_U32_L(CP110_PCIEx_CPU_IO_BASE(0)) 0 0x10000
+ 				/* non-prefetchable memory */
+-				0x82000000 0 0xf6000000 0  0xf6000000 0 0xf00000>;
++				CP110_PCIE_BUS_MEM_CFG U64_TO_U32_H(CP110_PCIEx_BUS_MEM_BASE(0))
++				U64_TO_U32_L(CP110_PCIEx_BUS_MEM_BASE(0)) U64_TO_U32_H(CP110_PCIEx_CPU_MEM_BASE(0))
++				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(0)) U64_TO_U32_H(CP110_PCIE_MEM_SIZE)
++				U64_TO_U32_L(CP110_PCIE_MEM_SIZE)>;
+ 			num-lanes = <1>;
+ 			status = "disabled";
+ 		};
+ 
+-		cpm_pcie1: pcie@f2620000 {
++		CP110_LABEL(pcie1): pcie1@620000 {
+ 			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
+-			reg = <0 0xf2620000 0 0x10000>,
+-			      <0 0xf7f00000 0 0x80000>;
++			reg =
++			   <U64_TO_U32_H(CP110_PCIEx_REG0_BASE(1)) U64_TO_U32_L(CP110_PCIEx_REG0_BASE(1)) 0 0x10000>,
++			   /* Last 512KB of mem space */
++			   <U64_TO_U32_H(CP110_PCIEx_REG1_BASE(1)) U64_TO_U32_L(CP110_PCIEx_REG1_BASE(1)) 0 0x80000>;
+ 			reg-names = "ctrl", "config";
+ 			#address-cells = <3>;
+ 			#size-cells = <2>;
+@@ -286,18 +229,24 @@
+ 			bus-range = <0 0xff>;
+ 			ranges =
+ 				/* downstream I/O */
+-				<0x81000000 0 0xf9010000 0  0xf9010000 0 0x10000
++				<0x81000000 U64_TO_U32_H(CP110_PCIEx_BUS_IO_BASE(1))
++				U64_TO_U32_L(CP110_PCIEx_BUS_IO_BASE(1)) U64_TO_U32_H(CP110_PCIEx_CPU_IO_BASE(1))
++				U64_TO_U32_L(CP110_PCIEx_CPU_IO_BASE(1)) 0 0x10000
+ 				/* non-prefetchable memory */
+-				0x82000000 0 0xf7000000 0  0xf7000000 0 0xf00000>;
+-
++				CP110_PCIE_BUS_MEM_CFG U64_TO_U32_H(CP110_PCIEx_BUS_MEM_BASE(1))
++				U64_TO_U32_L(CP110_PCIEx_BUS_MEM_BASE(1)) U64_TO_U32_H(CP110_PCIEx_CPU_MEM_BASE(1))
++				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(1)) U64_TO_U32_H(CP110_PCIE_MEM_SIZE)
++				U64_TO_U32_L(CP110_PCIE_MEM_SIZE)>;
+ 			num-lanes = <1>;
+ 			status = "disabled";
+ 		};
+ 
+-		cpm_pcie2: pcie@f2640000 {
++		CP110_LABEL(pcie2): pcie2@640000 {
+ 			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
+-			reg = <0 0xf2640000 0 0x10000>,
+-			      <0 0xf8f00000 0 0x80000>;
++			reg =
++			   <U64_TO_U32_H(CP110_PCIEx_REG0_BASE(2)) U64_TO_U32_L(CP110_PCIEx_REG0_BASE(2)) 0 0x10000>,
++			   /* Last 64KB of mem space */
++			   <U64_TO_U32_H(CP110_PCIEx_REG1_BASE(2)) U64_TO_U32_L(CP110_PCIEx_REG1_BASE(2)) 0 0x80000>;
+ 			reg-names = "ctrl", "config";
+ 			#address-cells = <3>;
+ 			#size-cells = <2>;
+@@ -307,10 +256,14 @@
+ 			bus-range = <0 0xff>;
+ 			ranges =
+ 				/* downstream I/O */
+-				<0x81000000 0 0xf9020000 0  0xf9020000 0 0x10000
++				<0x81000000 U64_TO_U32_H(CP110_PCIEx_BUS_IO_BASE(2))
++				U64_TO_U32_L(CP110_PCIEx_BUS_IO_BASE(2)) U64_TO_U32_H(CP110_PCIEx_CPU_IO_BASE(2))
++				U64_TO_U32_L(CP110_PCIEx_CPU_IO_BASE(2)) 0 0x10000
+ 				/* non-prefetchable memory */
+-				0x82000000 0 0xf8000000 0  0xf8000000 0 0xf00000>;
+-
++				CP110_PCIE_BUS_MEM_CFG U64_TO_U32_H(CP110_PCIEx_BUS_MEM_BASE(2))
++				U64_TO_U32_L(CP110_PCIEx_BUS_MEM_BASE(2)) U64_TO_U32_H(CP110_PCIEx_CPU_MEM_BASE(2))
++				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(2)) U64_TO_U32_H(CP110_PCIE_MEM_SIZE)
++				U64_TO_U32_L(CP110_PCIE_MEM_SIZE)>;
+ 			num-lanes = <1>;
+ 			status = "disabled";
+ 		};
+-- 
+2.29.0
+

@@ -1,0 +1,100 @@
+From 46973ea1ab1e48df7d6e36fa6a04193f3099cee5 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Sat, 19 Sep 2020 21:43:56 -0700
+Subject: [PATCH 1225/1239] board: marvell: Added new smc call to disable OOO
+ based on coremask
+
+Added disable_ooo_mask env variable to take coremask to disable OOO
+on specific cores.
+
+disable_ooo_mask has prefernce over disable_ooo env variable.
+
+If disable_ooo env variable is set, then disable OOO on all cores, by
+default OOO is enabled.
+
+Change-Id: Icd96364e4efa0ce43a36c42f38b5e90bb484e05a
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/36269
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/smc-id.h |  1 +
+ arch/arm/include/asm/arch-octeontx2/smc.h    |  3 ++-
+ board/Marvell/octeontx2/board.c              |  3 +++
+ board/Marvell/octeontx2/smc.c                | 13 ++++++++++++-
+ 4 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/smc-id.h b/arch/arm/include/asm/arch-octeontx2/smc-id.h
+index cf8cee970d..b53f2e2848 100644
+--- a/arch/arm/include/asm/arch-octeontx2/smc-id.h
++++ b/arch/arm/include/asm/arch-octeontx2/smc-id.h
+@@ -25,6 +25,7 @@
+ #define OCTEONTX2_DISABLE_RVU_LFS	0xc2000b01
+ 
+ #define OCTEONTX2_CONFIG_OOO		0xc2000b04
++#define OCTEONTX2_CONFIG_OOO_MASK	0xc2000b07
+ #define OCTEONTX2_CONFIG_WFE		0xc2000b06
+ 
+ /* fail safe */
+diff --git a/arch/arm/include/asm/arch-octeontx2/smc.h b/arch/arm/include/asm/arch-octeontx2/smc.h
+index 886082c6ed..3ab17b7d16 100644
+--- a/arch/arm/include/asm/arch-octeontx2/smc.h
++++ b/arch/arm/include/asm/arch-octeontx2/smc.h
+@@ -10,7 +10,8 @@
+ 
+ #include <asm/arch/smc-id.h>
+ 
+-ssize_t smc_configure_ooo(u64 val);
++ssize_t smc_configure_ooo(unsigned int val);
++ssize_t smc_configure_ooo_mask(u64 val);
+ ssize_t smc_configure_wfe(u64 val);
+ ssize_t smc_dram_size(unsigned int node);
+ ssize_t smc_disable_rvu_lfs(unsigned int node);
+diff --git a/board/Marvell/octeontx2/board.c b/board/Marvell/octeontx2/board.c
+index 0b1b0e54f3..c53dd5ccb9 100644
+--- a/board/Marvell/octeontx2/board.c
++++ b/board/Marvell/octeontx2/board.c
+@@ -371,6 +371,9 @@ int board_late_init(void)
+ 	val = env_get_hex("disable_ooo", 0);
+ 	smc_configure_ooo(val);
+ 
++	val = env_get_hex("disable_ooo_mask", 0);
++	smc_configure_ooo_mask(val);
++
+ 	val = env_get_hex("enable_wfe", 0);
+ 	smc_configure_wfe(val);
+ 
+diff --git a/board/Marvell/octeontx2/smc.c b/board/Marvell/octeontx2/smc.c
+index 1bcba61a63..cf21bf9452 100644
+--- a/board/Marvell/octeontx2/smc.c
++++ b/board/Marvell/octeontx2/smc.c
+@@ -39,7 +39,7 @@ ssize_t smc_disable_rvu_lfs(unsigned int node)
+ 	return regs.regs[0];
+ }
+ 
+-ssize_t smc_configure_ooo(u64 val)
++ssize_t smc_configure_ooo(unsigned int val)
+ {
+ 	struct pt_regs regs;
+ 
+@@ -50,6 +50,17 @@ ssize_t smc_configure_ooo(u64 val)
+ 	return regs.regs[0];
+ }
+ 
++ssize_t smc_configure_ooo_mask(u64 val)
++{
++	struct pt_regs regs;
++
++	regs.regs[0] = OCTEONTX2_CONFIG_OOO_MASK;
++	regs.regs[1] = val;
++	smc_call(&regs);
++
++	return regs.regs[0];
++}
++
+ ssize_t smc_configure_wfe(u64 val)
+ {
+ 	struct pt_regs regs;
+-- 
+2.29.0
+

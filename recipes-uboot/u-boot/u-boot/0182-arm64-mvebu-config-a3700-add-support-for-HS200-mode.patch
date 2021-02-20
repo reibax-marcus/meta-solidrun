@@ -1,0 +1,30 @@
+From b760555d4aa60a4b4f59eaf25b3183d94b7e71cb Mon Sep 17 00:00:00 2001
+From: Wojciech Macek <wma@semihalf.com>
+Date: Mon, 20 Aug 2018 09:23:28 +0200
+Subject: [PATCH 0182/1239] arm64: mvebu: config: a3700: add support for HS200
+ mode
+
+Enable support for HS200 mode, as it is now supported
+in the Xenon driver.
+
+Change-Id: I2224852772b75edf621900cdce582728186cc003
+Signed-off-by: Wojciech Macek <wma@semihalf.com>
+---
+ configs/mvebu_db-88f3720_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index b1bae26781..cb853694a2 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -47,6 +47,7 @@ CONFIG_DM_PCA953X=y
+ CONFIG_DM_I2C=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_HS200_SUPPORT=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_SDMA=y
+ CONFIG_MMC_SDHCI_XENON=y
+-- 
+2.29.0
+

@@ -1,0 +1,100 @@
+From 055a5c7e10a8eebf5775cb50f7847a931a05d283 Mon Sep 17 00:00:00 2001
+From: David Sniatkiwicz <davidsn@marvell.com>
+Date: Mon, 19 Jun 2017 11:29:59 +0300
+Subject: [PATCH 0108/1239] arm64: mvebu: cmd: add thermal sensor command
+
+Add "tsen" command to display temperature of the device.
+
+Change-Id: Ife970a3cf482212ef2e23daed5b78a984062229b
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ cmd/mvebu/Kconfig   |  8 ++++++++
+ cmd/mvebu/Makefile  |  1 +
+ cmd/mvebu/thermal.c | 47 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 56 insertions(+)
+ create mode 100644 cmd/mvebu/thermal.c
+
+diff --git a/cmd/mvebu/Kconfig b/cmd/mvebu/Kconfig
+index 5fa95d8d98..92af99d297 100644
+--- a/cmd/mvebu/Kconfig
++++ b/cmd/mvebu/Kconfig
+@@ -19,6 +19,14 @@ config CMD_MVEBU_PHY_FW_DOWNLOAD
+ 	  This command is used for Marvell PHYs
+ 	  88X3220/88X3310
+ 
++config CMD_MVEBU_TSEN
++	bool "tsen"
++	depends on MVEBU_THERMAL_SENSOR
++	default y
++	help
++	  tsen - Display the SoC temperature
++	  as read from the on chip thermal sensor
++
+ choice
+ 	prompt "Flash for image"
+ 	default MVEBU_SPI_BOOT
+diff --git a/cmd/mvebu/Makefile b/cmd/mvebu/Makefile
+index f2aa4bc581..f76d823a77 100644
+--- a/cmd/mvebu/Makefile
++++ b/cmd/mvebu/Makefile
+@@ -9,3 +9,4 @@ obj-$(CONFIG_CMD_MVEBU_BUBT) += bubt.o
+ obj-$(CONFIG_CMD_MVEBU_RX_TRAINING) += rx_training.o
+ obj-$(CONFIG_CMD_MVEBU_AVS) += avs.o
+ obj-$(CONFIG_CMD_MVEBU_MAP) += map.o
++obj-$(CONFIG_CMD_MVEBU_TSEN) += thermal.o
+diff --git a/cmd/mvebu/thermal.c b/cmd/mvebu/thermal.c
+new file mode 100644
+index 0000000000..f2d38da3de
+--- /dev/null
++++ b/cmd/mvebu/thermal.c
+@@ -0,0 +1,47 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2018 Marvell International Ltd.
++ */
++
++#include <common.h>
++#include <command.h>
++#include <console.h>
++#include <dm.h>
++#include <asm/arch-mvebu/thermal.h>
++#include <fdtdec.h>
++#include <thermal.h>
++#include <dm/device-internal.h>
++
++int thermal_sensor_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
++		       char * const argv[])
++{
++	struct udevice *dev;
++	struct uclass *uc;
++	int ret, temperature;
++
++	ret = uclass_get(UCLASS_THERMAL, &uc);
++
++	if (ret)
++		return ret;
++
++	uclass_foreach_dev(dev, uc) {
++		struct thermal_unit_config *thermal_cfg;
++
++		ret = device_probe(dev);
++		if (ret)
++			continue;
++
++		thermal_cfg = dev_get_priv(dev);
++		thermal_get_temp(dev, &temperature);
++		printf("Thermal.%8p = %d\n", thermal_cfg->regs_base,
++		       temperature);
++	}
++
++	return 0;
++}
++
++U_BOOT_CMD(
++	tsen, 1, 1, thermal_sensor_cmd,
++	"tsen - Display the SoC temperature.\n",
++	"\n\tDisplay the SoC temperature as read from the on chip thermal sensor.\n"
++);
+-- 
+2.29.0
+

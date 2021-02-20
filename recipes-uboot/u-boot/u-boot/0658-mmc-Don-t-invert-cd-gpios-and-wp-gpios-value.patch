@@ -1,0 +1,35 @@
+From f73fa0583a8569eeafe0e1eac89ab4afac6fa2fe Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 24 Jul 2017 17:05:24 -0700
+Subject: [PATCH 0658/1239] mmc: Don't invert cd-gpios and wp-gpios value.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/mmc/cavium_mmc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/mmc/cavium_mmc.c b/drivers/mmc/cavium_mmc.c
+index c70def96f1..dc1a08c489 100644
+--- a/drivers/mmc/cavium_mmc.c
++++ b/drivers/mmc/cavium_mmc.c
+@@ -5235,7 +5235,7 @@ int __cavium_mmc_getwp(struct mmc *mmc)
+ 	int val = 0;
+ 
+ 	if (dm_gpio_is_valid(&slot->wp_gpio)) {
+-		val = !dm_gpio_get_value(&slot->wp_gpio);
++		val = dm_gpio_get_value(&slot->wp_gpio);
+ 		debug("%s(%s): gpio %s pin %d returned %d\n", __func__,
+ 		      mmc->cfg->name,
+ 		      slot->wp_gpio.dev->name, gpio_get_number(&slot->wp_gpio),
+@@ -5254,7 +5254,7 @@ int __cavium_mmc_getcd(struct mmc *mmc)
+ 	int val = 1;
+ 
+ 	if (dm_gpio_is_valid(&slot->cd_gpio)) {
+-		val = !dm_gpio_get_value(&slot->cd_gpio);
++		val = dm_gpio_get_value(&slot->cd_gpio);
+ 		val ^= slot->cd_inverted;
+ 		debug("%s(%s): gpio %s pin %d returned %d\n", __func__,
+ 		      mmc->cfg->name,
+-- 
+2.29.0
+

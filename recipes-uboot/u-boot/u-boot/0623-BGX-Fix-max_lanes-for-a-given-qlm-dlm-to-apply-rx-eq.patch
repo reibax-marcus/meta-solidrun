@@ -1,0 +1,40 @@
+From f838bc7e29febec79dbb1b083018e33f8d2e2ddd Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Mon, 13 Mar 2017 08:09:24 -0700
+Subject: [PATCH 0623/1239] BGX: Fix max_lanes for a given qlm/dlm to apply
+ rx-equalization.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ drivers/net/cavium/thunder_bgx.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/cavium/thunder_bgx.c b/drivers/net/cavium/thunder_bgx.c
+index 0eccaefbd3..02bce45122 100644
+--- a/drivers/net/cavium/thunder_bgx.c
++++ b/drivers/net/cavium/thunder_bgx.c
+@@ -532,9 +532,20 @@ static int bgx_lmac_xaui_init(struct bgx *bgx, int lmacid, int lmac_type)
+ 	return 0;
+ }
+ 
++/* Get max number of lanes present in a given QLM/DLM */
++static int get_qlm_lanes(int qlm)
++{
++	if (CAVIUM_IS_MODEL(CAVIUM_CN81XX))
++		return 2;
++	else if (CAVIUM_IS_MODEL(CAVIUM_CN83XX))
++		return (qlm >= 5) ? 2 : 4;
++	else
++		return -1;
++}
++
+ int __rx_equalization(int qlm, int lane)
+ {
+-	int max_lanes = 2;
++	int max_lanes = get_qlm_lanes(qlm);
+ 	int l;
+ 	int fail = 0;
+ 
+-- 
+2.29.0
+

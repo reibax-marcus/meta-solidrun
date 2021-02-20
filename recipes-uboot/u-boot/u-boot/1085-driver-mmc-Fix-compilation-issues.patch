@@ -1,0 +1,34 @@
+From 3a71d2c5f7fa8b61b47766a8be0f34f35f9cb460 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Mon, 3 Feb 2020 10:18:18 -0800
+Subject: [PATCH 1085/1239] driver: mmc: Fix compilation issues
+
+Change-Id: Ia8e0113fbf369263b76d39878ea365e1b9ee12a9
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/22816
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index 31d4b0c026..853df3b7fc 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -2427,10 +2427,12 @@ static int octeontx_mmc_set_ios(struct udevice *dev)
+ 
+ 	err = octeontx_mmc_configure_delay(mmc);
+ 
++#ifdef MMC_SUPPORTS_TUNING
+ 	if (!err && mmc->selected_mode == MMC_HS_400 && !slot->hs400_tuned) {
+ 		debug("%s: Tuning HS400 mode\n", __func__);
+ 		err = octeontx_tune_hs400(mmc);
+ 	}
++#endif
+ 
+ 	return err;
+ }
+-- 
+2.29.0
+

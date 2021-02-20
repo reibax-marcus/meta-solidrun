@@ -1,0 +1,105 @@
+From aed4eb33e170e16bd321dfd74cd7a76c048cd3b2 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Date: Sun, 18 Oct 2020 22:51:13 -0700
+Subject: [PATCH 1232/1239] serdes: Add new serdes command
+
+Added serdes_tune to configure serdes TX parameters and serdes_loop
+command to configure serdes in loopback mode.
+
+Change-Id: Ia8522a8652915f658d2148cb6a62cf9b11a25a5a
+Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/38144
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ arch/arm/include/asm/arch-octeontx2/smc-id.h |  2 +
+ cmd/marvell/octeontx2_qlm_cmds.c             | 63 ++++++++++++++++++++
+ 2 files changed, 65 insertions(+)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/smc-id.h b/arch/arm/include/asm/arch-octeontx2/smc-id.h
+index e020aec591..b445956771 100644
+--- a/arch/arm/include/asm/arch-octeontx2/smc-id.h
++++ b/arch/arm/include/asm/arch-octeontx2/smc-id.h
+@@ -43,6 +43,8 @@
+ #define OCTEONTX_SERDES_DBG_GET_EYE     0xc2000d05
+ #define OCTEONTX_SERDES_DBG_GET_CONF    0xc2000d06
+ #define OCTEONTX_SERDES_DBG_PRBS        0xc2000d07
++#define OCTEONTX_SERDES_DBG_SET_CONF    0xc2000d08
++#define OCTEONTX_SERDES_DBG_SET_LOOP    0xc2000d09
+ 
+ 
+ #endif /* __SMC_ID_H__ */
+diff --git a/cmd/marvell/octeontx2_qlm_cmds.c b/cmd/marvell/octeontx2_qlm_cmds.c
+index 9da5d20be6..aa2aa080f7 100644
+--- a/cmd/marvell/octeontx2_qlm_cmds.c
++++ b/cmd/marvell/octeontx2_qlm_cmds.c
+@@ -143,3 +143,66 @@ U_BOOT_CMD(serdes,    3,    1,     do_serdes,
+ 	   "<qlm> <lane>\n"
+ 	   "    - display serdes state of 'lane' in 'qlm'\n"
+ );
++
++static int do_loop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	struct arm_smccc_res res;
++	ulong lane;
++	ulong qlm;
++	ulong type;
++
++	if (argc != 4)
++		return CMD_RET_USAGE;
++
++	qlm = simple_strtoul(argv[1], NULL, 10);
++	lane = simple_strtoul(argv[2], NULL, 10);
++	type = simple_strtoul(argv[3], NULL, 10);
++
++	arm_smccc_smc(OCTEONTX_SERDES_DBG_SET_LOOP, qlm, lane, type, 0, 0, 0,
++			0, &res);
++	waitforresult(&res);
++
++	if (res.a0 != SMCCC_RET_SUCCESS)
++		return CMD_RET_FAILURE;
++
++	return CMD_RET_SUCCESS;
++}
++
++U_BOOT_CMD(serdes_loop,    4,    1,     do_loop,
++	   "command to display serdes state of a lane in a given QLM",
++	   "<qlm> <lane> <flag>\n"
++	   "    - configure serdes in FEA/NED/NEA/FED loopback mode on 'lane' in 'qlm'\n"
++	   "	- if pass 'flag' as 1 = FEA/2 = NED/3 = NEA/4 = FED and 0 to disable\n"
++);
++
++static int do_tunetx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	struct arm_smccc_res res;
++	ulong lane;
++	ulong qlm;
++	ulong swing, pre, post;
++
++	if (argc != 6)
++		return CMD_RET_USAGE;
++
++	qlm = simple_strtoul(argv[1], NULL, 10);
++	lane = simple_strtoul(argv[2], NULL, 10);
++	swing = simple_strtoul(argv[3], NULL, 10);
++	pre = simple_strtoul(argv[4], NULL, 10);
++	post = simple_strtoul(argv[5], NULL, 10);
++
++	arm_smccc_smc(OCTEONTX_SERDES_DBG_SET_CONF, qlm, lane, swing,
++			(pre << 8) | (post & 0xff), 0, 0, 0, &res);
++	waitforresult(&res);
++
++	if (res.a0 != SMCCC_RET_SUCCESS)
++		return CMD_RET_FAILURE;
++
++	return CMD_RET_SUCCESS;
++}
++
++U_BOOT_CMD(serdes_tune,    6,    1,     do_tunetx,
++	   "command to configure serdes tuning parameters (swing, pre, post) on a lane in a given QLM",
++	   "<qlm> <lane> <swing> <pre> <post>\n"
++	   "    - configure serdes tuning on 'lane' in 'qlm'\n"
++);
+-- 
+2.29.0
+

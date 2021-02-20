@@ -1,0 +1,68 @@
+From b7a9f6b2d768cbf89d64a3a2246cbf0c23c5daa7 Mon Sep 17 00:00:00 2001
+From: Ben Peled <bpeled@marvell.com>
+Date: Tue, 21 Apr 2020 18:24:09 +0300
+Subject: [PATCH 1139/1239] drivers: mv88e6xxx add switch id 6193x
+
+Change-Id: I5ffe7b42228ca3477133018b5f21fda1d70e27f6
+Signed-off-by: Ben Peled <bpeled@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27196
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ drivers/net/phy/mv88e6xxx.c | 12 +++++++-----
+ drivers/net/phy/mv88e6xxx.h |  1 +
+ 2 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/net/phy/mv88e6xxx.c b/drivers/net/phy/mv88e6xxx.c
+index e58669d7c4..e590d914a9 100644
+--- a/drivers/net/phy/mv88e6xxx.c
++++ b/drivers/net/phy/mv88e6xxx.c
+@@ -239,7 +239,8 @@ void mv88e6xxx_display_switch_info(struct mv88e6xxx_dev *dev)
+ 	if (product_num == PORT_SWITCH_ID_PROD_NUM_6390 ||
+ 	    product_num == PORT_SWITCH_ID_PROD_NUM_6390X ||
+ 	    product_num == PORT_SWITCH_ID_PROD_NUM_6290 ||
+-	    product_num == PORT_SWITCH_ID_PROD_NUM_6190) {
++	    product_num == PORT_SWITCH_ID_PROD_NUM_6190 ||
++	    product_num == PORT_SWITCH_ID_PROD_NUM_6193X) {
+ 		printf("Switch    : SOHO\n");
+ 		printf("Series    : Peridot\n");
+ 		printf("Product # : %X\n", product_num);
+@@ -320,9 +321,10 @@ int mv88e6xxx_get_switch_id(struct mv88e6xxx_dev *dev)
+ 
+ 	product_num = id >> 4;
+ 	if ((product_num == PORT_SWITCH_ID_PROD_NUM_6190) ||
+-	    (product_num == PORT_SWITCH_ID_PROD_NUM_6290) ||
+-	    (product_num == PORT_SWITCH_ID_PROD_NUM_6390) ||
+-	    (product_num == PORT_SWITCH_ID_PROD_NUM_6390X)) {
++	   (product_num == PORT_SWITCH_ID_PROD_NUM_6193X) ||
++	   (product_num == PORT_SWITCH_ID_PROD_NUM_6290)  ||
++	   (product_num == PORT_SWITCH_ID_PROD_NUM_6390)  ||
++	   (product_num == PORT_SWITCH_ID_PROD_NUM_6390X)) {
+ 		/* Peridot switch port device address starts from 0 */
+ 		REG_PORT_BASE = REG_PORT_BASE_PERIDOT;
+ 		return id;
+@@ -586,7 +588,7 @@ static int do_sw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		       argv[1]);
+ 
+ 	default:
+-		break;
++		return CMD_RET_USAGE;
+ 	}
+ 	return 0;
+ }
+diff --git a/drivers/net/phy/mv88e6xxx.h b/drivers/net/phy/mv88e6xxx.h
+index 481e6645b7..d10c232336 100644
+--- a/drivers/net/phy/mv88e6xxx.h
++++ b/drivers/net/phy/mv88e6xxx.h
+@@ -91,6 +91,7 @@
+ #define PORT_SWITCH_ID				0x03
+ 
+ #define PORT_SWITCH_ID_PROD_NUM_6190		0x190
++#define PORT_SWITCH_ID_PROD_NUM_6193X		0x193
+ #define PORT_SWITCH_ID_PROD_NUM_6290		0x290
+ #define PORT_SWITCH_ID_PROD_NUM_6390		0x390
+ #define PORT_SWITCH_ID_PROD_NUM_6390X		0x0a1
+-- 
+2.29.0
+

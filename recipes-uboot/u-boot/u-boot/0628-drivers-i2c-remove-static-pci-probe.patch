@@ -1,0 +1,38 @@
+From 6c863989e10be7520a84be30bb949b7ba583f7e1 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarpati@caviumnetworks.com>
+Date: Tue, 4 Apr 2017 15:46:43 -0700
+Subject: [PATCH 0628/1239] drivers: i2c: remove static pci probe
+
+move to driver-model probe method based on compatible.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/i2c/thunderx_i2c.c | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/drivers/i2c/thunderx_i2c.c b/drivers/i2c/thunderx_i2c.c
+index 1046c0f2ea..8643a33750 100644
+--- a/drivers/i2c/thunderx_i2c.c
++++ b/drivers/i2c/thunderx_i2c.c
+@@ -72,8 +72,6 @@
+ 
+ #define RST_BOOT	0x87e006001600ll
+ 
+-#define PCI_DEVICE_ID_THUNDER_TWSI	0xa012
+-
+ #define TWSI_THP		24
+ 
+ #define TWSI_SW_TWSI		0x1000
+@@ -961,9 +959,3 @@ U_BOOT_DRIVER(thunderx_pci_twsi) = {
+ 	.ops	= &thunderx_i2c_ops,
+ };
+ 
+-static struct pci_device_id thunderx_pci_twsi_supported[] = {
+-	{ PCI_VDEVICE(CAVIUM, PCI_DEVICE_ID_THUNDER_TWSI) },
+-	{},
+-};
+-
+-U_BOOT_PCI_DEVICE(thunderx_pci_twsi, thunderx_pci_twsi_supported);
+-- 
+2.29.0
+

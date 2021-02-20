@@ -1,0 +1,112 @@
+From b6ad5fd394af16d06368047004de3158024f60fd Mon Sep 17 00:00:00 2001
+From: Yan Markman <ymarkman@marvell.com>
+Date: Wed, 31 Jul 2019 03:13:58 -0700
+Subject: [PATCH 0947/1239] board: octeontx2 octeontx: bootargs without debug
+
+By default the "debug" should not present in bootargs and in
+Kernel-command-line.
+
+The "debug" presence may cause a pollution of un-wanted debug-prints and
+therefore should not be present/enabled by default, but only manually on
+purpose by a sw designer.
+
+One of pollution's examples is
+systemd-journald[3314]: Journal effective settings seal=no compress=no \
+   compress_threshold_bytes=512B
+
+Change-Id: I701b0cf5968925ecae359e10fd553ab1c8ea4a28
+Signed-off-by: Yan Markman <ymarkman@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/13363
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ configs/octeontx2_95xx_defconfig | 2 +-
+ configs/octeontx2_96xx_defconfig | 2 +-
+ configs/octeontx2_98xx_defconfig | 2 +-
+ configs/octeontx2_loki_defconfig | 2 +-
+ configs/octeontx_81xx_defconfig  | 2 +-
+ configs/octeontx_83xx_defconfig  | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/configs/octeontx2_95xx_defconfig b/configs/octeontx2_95xx_defconfig
+index 8f3e8ae780..c63d7278d3 100644
+--- a/configs/octeontx2_95xx_defconfig
++++ b/configs/octeontx2_95xx_defconfig
+@@ -9,7 +9,7 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+-CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=6 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
++CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 maxcpus=6 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+diff --git a/configs/octeontx2_96xx_defconfig b/configs/octeontx2_96xx_defconfig
+index a8fe436c20..3145740854 100644
+--- a/configs/octeontx2_96xx_defconfig
++++ b/configs/octeontx2_96xx_defconfig
+@@ -11,7 +11,7 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+-CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=24 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
++CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 maxcpus=24 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+diff --git a/configs/octeontx2_98xx_defconfig b/configs/octeontx2_98xx_defconfig
+index 4fe4944165..6bd0f05ba3 100644
+--- a/configs/octeontx2_98xx_defconfig
++++ b/configs/octeontx2_98xx_defconfig
+@@ -11,7 +11,7 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+-CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=36 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
++CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 maxcpus=36 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+diff --git a/configs/octeontx2_loki_defconfig b/configs/octeontx2_loki_defconfig
+index a54f142cc8..25e33e7d49 100644
+--- a/configs/octeontx2_loki_defconfig
++++ b/configs/octeontx2_loki_defconfig
+@@ -9,7 +9,7 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+-CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=6 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
++CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 maxcpus=6 rootwait rw root=/dev/mmcblk0p2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+diff --git a/configs/octeontx_81xx_defconfig b/configs/octeontx_81xx_defconfig
+index fe7e6e74cb..6dc69e239b 100644
+--- a/configs/octeontx_81xx_defconfig
++++ b/configs/octeontx_81xx_defconfig
+@@ -10,7 +10,7 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+-CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=4 rootwait rw root=/dev/sda2 coherent_pool=16M"
++CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 maxcpus=4 rootwait rw root=/dev/sda2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+diff --git a/configs/octeontx_83xx_defconfig b/configs/octeontx_83xx_defconfig
+index b5b47212c1..d7256b6dc0 100644
+--- a/configs/octeontx_83xx_defconfig
++++ b/configs/octeontx_83xx_defconfig
+@@ -10,7 +10,7 @@ CONFIG_FIT_SIGNATURE=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTDELAY=5
+ CONFIG_USE_BOOTARGS=y
+-CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 debug maxcpus=24 rootwait rw root=/dev/sda2 coherent_pool=16M"
++CONFIG_BOOTARGS="console=ttyAMA0,115200n8 earlycon=pl011,0x87e028000000 maxcpus=24 rootwait rw root=/dev/sda2 coherent_pool=16M"
+ CONFIG_VERSION_VARIABLE=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+ CONFIG_BOARD_EARLY_INIT_R=y
+-- 
+2.29.0
+

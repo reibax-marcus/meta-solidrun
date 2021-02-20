@@ -1,0 +1,44 @@
+From 4636c40fd72d27b79442c795348f2721ec79d032 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Tue, 17 Apr 2018 12:18:58 -0700
+Subject: [PATCH 0774/1239] board: octeontx2: use correct chip reset register
+ and offset
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ arch/arm/include/asm/arch-octeontx2/octeontx2.h | 2 +-
+ board/cavium/octeontx2/octeontx2.c              | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/include/asm/arch-octeontx2/octeontx2.h b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+index 85fefc2c09..8efd9bafec 100644
+--- a/arch/arm/include/asm/arch-octeontx2/octeontx2.h
++++ b/arch/arm/include/asm/arch-octeontx2/octeontx2.h
+@@ -12,7 +12,7 @@
+ 
+ /** Reg offsets */
+ #define CAVM_RST_BOOT		0x87E006001600ULL
+-#define CAVM_RST_SOFT_RST	0x87E006001680ULL
++#define CAVM_RST_CHIP_DOM_W1S	0x87E006001810ULL
+ #define CAVM_MIO_FUS_DAT2	0x87E003001410ULL
+ 
+ #define CAVM_GTI_CWD_POKEX	0x802000050000ULL
+diff --git a/board/cavium/octeontx2/octeontx2.c b/board/cavium/octeontx2/octeontx2.c
+index d15875cc14..593d453784 100644
+--- a/board/cavium/octeontx2/octeontx2.c
++++ b/board/cavium/octeontx2/octeontx2.c
+@@ -74,9 +74,9 @@ int dram_init(void)
+  */
+ void reset_cpu(ulong addr)
+ {
+-	u64 val = readq(CAVM_RST_SOFT_RST) | 1;
++	u64 val = readq(CAVM_RST_CHIP_DOM_W1S) | 1;
+ 
+-	writeq(val, CAVM_RST_SOFT_RST);
++	writeq(val, CAVM_RST_CHIP_DOM_W1S);
+ }
+ 
+ /**
+-- 
+2.29.0
+

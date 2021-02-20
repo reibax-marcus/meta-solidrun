@@ -1,0 +1,35 @@
+From 9ae993a25eddb46c3f7c590afe5792d3f02a5a22 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Sat, 14 May 2016 17:43:26 -0400
+Subject: [PATCH 0440/1239] thunderx: Update default config for the new I2C
+ driver
+
+The new I2C driver is DM-based, so it needs the I2C uclass
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ configs/thunderx_81xx_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/thunderx_81xx_defconfig b/configs/thunderx_81xx_defconfig
+index dc3694408a..78eaad168e 100644
+--- a/configs/thunderx_81xx_defconfig
++++ b/configs/thunderx_81xx_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARM=y
+ CONFIG_TARGET_THUNDERX_81XX=y
++CONFIG_DM_I2C=y
+ CONFIG_DEFAULT_DEVICE_TREE="thunder-81xx"
+ CONFIG_SYS_EXTRA_OPTIONS="ARM64"
+ CONFIG_HUSH_PARSER=y
+@@ -20,6 +21,7 @@ CONFIG_CMD_SNTP=y
+ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_DM_I2C_COMPAT=y
+ CONFIG_PCI_THUNDERX_ECAM=y
+ CONFIG_DEBUG_UART=y
+ CONFIG_DEBUG_UART_PL011=y
+-- 
+2.29.0
+

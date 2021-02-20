@@ -1,0 +1,37 @@
+From e20e340b8b4e60d19fec185e3425b7293a46985e Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Thu, 26 Jul 2018 15:41:50 +0300
+Subject: [PATCH 0166/1239] arm64: mvebu: config: a8k-mcbin: enable
+ CONFIG_DISPLAY_BOARDINFO
+
+This allows to print information regarding the operating
+frequencies of the board and SoC information, for
+example:
+	Model: Marvell Armada 8040 MACCHIATOBin
+	SoC: Armada8040-A2; AP806-A1; 2xCP110-A2
+	Clock:  CPU     1300 [MHz]
+	        DDR     800  [MHz]
+	        FABRIC  800  [MHz]
+	        MSS     200  [MHz]
+
+Change-Id: I7df69ee67483c972b4d88f3ddf41531d203a0c6f
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ configs/mvebu_mcbin-88f8040_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/configs/mvebu_mcbin-88f8040_defconfig b/configs/mvebu_mcbin-88f8040_defconfig
+index 2cfe53e80e..d75a534446 100644
+--- a/configs/mvebu_mcbin-88f8040_defconfig
++++ b/configs/mvebu_mcbin-88f8040_defconfig
+@@ -17,7 +17,6 @@ CONFIG_USE_PREBOOT=y
+ CONFIG_SYS_CONSOLE_ENV_OVERWRITE=y
+ CONFIG_SYS_CONSOLE_INFO_QUIET=y
+ # CONFIG_DISPLAY_CPUINFO is not set
+-# CONFIG_DISPLAY_BOARDINFO is not set
+ CONFIG_DISPLAY_BOARDINFO_LATE=y
+ CONFIG_ARCH_EARLY_INIT_R=y
+ CONFIG_ARCH_MISC_INIT=y
+-- 
+2.29.0
+

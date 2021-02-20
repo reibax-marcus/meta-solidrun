@@ -1,0 +1,116 @@
+From 9c20c30a30f9bbcc357c77a1206b54958d07b3ea Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Mon, 25 Apr 2016 18:59:34 +0300
+Subject: [PATCH 0384/1239] cavium: Add L2 cache flush routine to run at the
+ start
+
+This commit adds an L2 cache flush routine to execute at
+the begining of U-Boot execution. It ensures that non-secure
+tags are in a valid state before U-Boot code relocation
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ arch/arm/cpu/armv8/Makefile                |  1 +
+ arch/arm/cpu/armv8/cvm-thunderx/Makefile   |  8 +++
+ arch/arm/cpu/armv8/cvm-thunderx/lowlevel.S | 65 ++++++++++++++++++++++
+ 3 files changed, 74 insertions(+)
+ create mode 100644 arch/arm/cpu/armv8/cvm-thunderx/Makefile
+ create mode 100644 arch/arm/cpu/armv8/cvm-thunderx/lowlevel.S
+
+diff --git a/arch/arm/cpu/armv8/Makefile b/arch/arm/cpu/armv8/Makefile
+index b349b13f49..ccd99d359f 100644
+--- a/arch/arm/cpu/armv8/Makefile
++++ b/arch/arm/cpu/armv8/Makefile
+@@ -35,3 +35,4 @@ obj-$(CONFIG_S32V234) += s32v234/
+ obj-$(CONFIG_TARGET_HIKEY) += hisilicon/
+ obj-$(CONFIG_ARMV8_PSCI) += psci.o
+ obj-$(CONFIG_ARCH_SUNXI) += lowlevel_init.o
++obj-$(CONFIG_THUNDERX) += cvm-thunderx/
+diff --git a/arch/arm/cpu/armv8/cvm-thunderx/Makefile b/arch/arm/cpu/armv8/cvm-thunderx/Makefile
+new file mode 100644
+index 0000000000..ca5188296a
+--- /dev/null
++++ b/arch/arm/cpu/armv8/cvm-thunderx/Makefile
+@@ -0,0 +1,8 @@
++#
++# Copyright 2014-2016, Cavium Networks, Inc
++#
++# SPDX-License-Identifier:	GPL-2.0+
++#
++
++obj-y += lowlevel.o
++
+diff --git a/arch/arm/cpu/armv8/cvm-thunderx/lowlevel.S b/arch/arm/cpu/armv8/cvm-thunderx/lowlevel.S
+new file mode 100644
+index 0000000000..36206d1350
+--- /dev/null
++++ b/arch/arm/cpu/armv8/cvm-thunderx/lowlevel.S
+@@ -0,0 +1,65 @@
++/*
++ * (C) Copyright 2014-2016, Cavium Networks, Inc
++ *
++ * SPDX-License-Identifier:	GPL-2.0+
++ *
++ * Extracted from armv8/start.S
++ */
++
++#include <config.h>
++#include <linux/linkage.h>
++#include <cavium/thunderx_svc.h>
++
++#include <asm/macro.h>
++
++ENTRY(lowlevel_init)
++	mov	x29, lr			/* Save LR */
++	ldr	x0, =THUNDERX_DRAM_SIZE
++	mov	x1, xzr
++	smc	#0			/* Get the DRAM size */
++
++	mov	x23, #2			/* Select L2 */
++	msr	csselr_el1, x23
++	mrs	x23, ccsidr_el1
++	ubfx	x20, x23, #13, #15	/* x20 = Sets - 1 */
++	ubfx	x21, x23, #3, #10	/* x21 = Assoc(Ways) - 1 */
++
++	ubfx	x22, x23, #0, #2
++	add	x22, x22, #4
++	mov	x23, #1
++	lsl	x22, x23, x22		/* x22 = Line Size */
++
++	add	x20, x20, #1		/* x20 = Sets */
++	add	x21, x21, #1		/* x21 = Ways */
++
++	mul	x20, x20, x21		/* x20 = Sets * Ways */
++	mul	x20, x20, x22		/* x20 = L2size */
++
++	sub	x21, x0, x20		/* x21 = last address - L2size */
++
++	mrs	x23, dczid_el0
++	ubfx	x1, x23, #4, #1		/* x1 = DZP bit */
++	cbnz	x1, 3f			/* If dc zva is prohibited, do nothing */
++	and	x23, x23, #15
++	add	x23, x23, #2
++	mov	x24, #1
++	lsl	x23, x24, x23		/* ZVA block size */
++
++1:
++	dc	zva, x21		/* Zero the end of DRAM block by block */
++	add	x21, x21, x23
++	cmp	x21, x0
++	b.lt	1b
++
++	sub	x21, x0, x20		/* x21 = last address - L2size */
++2:
++	sys	#0,c11,C1,#2, x21	/* Flush and invalidate L2 line by line */
++	add	x21, x21, x22
++	cmp	x21, x0
++	b.lt	2b
++
++3:
++	mov	lr, x29			/* Restore LR */
++	ret
++ENDPROC(lowlevel_init)
++
+-- 
+2.29.0
+

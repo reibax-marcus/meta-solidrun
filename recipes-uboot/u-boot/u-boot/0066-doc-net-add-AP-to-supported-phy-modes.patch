@@ -1,0 +1,29 @@
+From 5caed626f6dd5b0cf1cf3a7ae64b3ed3e853e3bb Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Wed, 5 Jul 2017 13:31:39 +0200
+Subject: [PATCH 0066/1239] doc: net: add AP to supported phy-modes
+
+Change-Id: If5f9b60e00c83236c81c5b32fcf7ad22814d9343
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+---
+ doc/device-tree-bindings/net/ethernet.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/doc/device-tree-bindings/net/ethernet.txt b/doc/device-tree-bindings/net/ethernet.txt
+index 658b2c7dee..ecea8f2f9f 100644
+--- a/doc/device-tree-bindings/net/ethernet.txt
++++ b/doc/device-tree-bindings/net/ethernet.txt
+@@ -11,8 +11,8 @@ The following properties are common to the Ethernet controllers:
+   the maximum frame size (there's contradiction in ePAPR).
+ - phy-mode: string, operation mode of the PHY interface; supported values are
+   "mii", "gmii", "sgmii", "qsgmii", "tbi", "rev-mii", "rmii", "rgmii", "rgmii-id",
+-  "rgmii-rxid", "rgmii-txid", "rtbi", "smii", "xgmii", "sfi"; this is now a de-facto
+-  standard property;
++  "rgmii-rxid", "rgmii-txid", "rtbi", "smii", "xgmii", "sfi", "ap"; this is now
++  a de-facto standard property;
+ - phy-connection-type: the same as "phy-mode" property but described in ePAPR;
+ - phy-handle: phandle, specifies a reference to a node representing a PHY
+   device; this property is described in ePAPR and so preferred;
+-- 
+2.29.0
+

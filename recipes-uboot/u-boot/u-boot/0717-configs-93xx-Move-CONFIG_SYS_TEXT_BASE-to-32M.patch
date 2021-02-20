@@ -1,0 +1,32 @@
+From 9f95bc7e2532c90bccfff329b2ba035917f159bc Mon Sep 17 00:00:00 2001
+From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+Date: Fri, 29 Sep 2017 10:34:34 +0200
+Subject: [PATCH 0717/1239] configs: 93xx: Move CONFIG_SYS_TEXT_BASE to 32M
+
+Due to hardware CCS_ASC_REGIONX configuration, the lowest possible
+address to set particular memory as secure is 16M.
+
+Set U-Boot CONFIG_SYS_TEXT_BASE to 32M to reserve memory
+for potential increase of ATF size in future.
+
+Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+---
+ include/configs/thunderx_93xx.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index bf2830d345..15d17546b1 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -41,7 +41,7 @@
+ /* Link Definitions */
+ 
+ /** Code start address */
+-#define CONFIG_SYS_TEXT_BASE		0x00500000
++#define CONFIG_SYS_TEXT_BASE		0x02000000
+ 
+ /** Stack starting address */
+ #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
+-- 
+2.29.0
+

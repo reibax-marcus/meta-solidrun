@@ -1,0 +1,92 @@
+From ba76215d9c5797f3f40c5f9ad3c45048c74f8fac Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 17 Aug 2020 17:03:22 +0300
+Subject: [PATCH 1205/1239] arch/arm: armada-3720: Fix eMMC card detection
+
+Remove unused entry for mmc card from DTS files.
+Add CONFIG_MMC_BROKEN_CD to a3720 DB default config file
+for enabling proper detection of eMMC device attached to
+SDHCI controller.
+
+Change-Id: Ie4983a6647630a58617aea8c0efb6217be1dd580
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/34115
+Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+Reviewed-by: Jia Ma <jiam@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ arch/arm/dts/armada-3720-db.dts          | 7 -------
+ arch/arm/dts/armada-3720-espressobin.dts | 7 -------
+ arch/arm/dts/armada-3720-uDPU.dts        | 7 -------
+ configs/mvebu_db-88f3720_defconfig       | 1 +
+ 4 files changed, 1 insertion(+), 21 deletions(-)
+
+diff --git a/arch/arm/dts/armada-3720-db.dts b/arch/arm/dts/armada-3720-db.dts
+index adba9ead48..f875ba5e3a 100644
+--- a/arch/arm/dts/armada-3720-db.dts
++++ b/arch/arm/dts/armada-3720-db.dts
+@@ -171,13 +171,6 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&mmc_pins>;
+ 	status = "okay";
+-
+-	#address-cells = <1>;
+-	#size-cells = <0>;
+-	mmccard: mmccard@0 {
+-		compatible = "mmc-card";
+-		reg = <0>;
+-	};
+ };
+ 
+ &spi0 {
+diff --git a/arch/arm/dts/armada-3720-espressobin.dts b/arch/arm/dts/armada-3720-espressobin.dts
+index 169060fb23..5e9f163132 100644
+--- a/arch/arm/dts/armada-3720-espressobin.dts
++++ b/arch/arm/dts/armada-3720-espressobin.dts
+@@ -119,13 +119,6 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&mmc_pins>;
+ 	status = "disabled";
+-
+-	#address-cells = <1>;
+-	#size-cells = <0>;
+-	mmccard: mmccard@0 {
+-		compatible = "mmc-card";
+-		reg = <0>;
+-	};
+ };
+ 
+ &spi0 {
+diff --git a/arch/arm/dts/armada-3720-uDPU.dts b/arch/arm/dts/armada-3720-uDPU.dts
+index 42fe726a8e..2065b69357 100644
+--- a/arch/arm/dts/armada-3720-uDPU.dts
++++ b/arch/arm/dts/armada-3720-uDPU.dts
+@@ -180,13 +180,6 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&sdio_pins>;
+ 	status = "okay";
+-
+-	#address-cells = <1>;
+-	#size-cells = <0>;
+-	mmccard: mmccard@0 {
+-		compatible = "mmc-card";
+-		reg = <0>;
+-	};
+ };
+ 
+ &uart0 {
+diff --git a/configs/mvebu_db-88f3720_defconfig b/configs/mvebu_db-88f3720_defconfig
+index 57fa9837c4..f8d6afb0ec 100644
+--- a/configs/mvebu_db-88f3720_defconfig
++++ b/configs/mvebu_db-88f3720_defconfig
+@@ -47,6 +47,7 @@ CONFIG_DM_PCA953X=y
+ CONFIG_DM_I2C=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_MMC_BROKEN_CD=y
+ CONFIG_MMC_IO_VOLTAGE=y
+ CONFIG_MMC_UHS_SUPPORT=y
+ CONFIG_MMC_HS400_SUPPORT=y
+-- 
+2.29.0
+

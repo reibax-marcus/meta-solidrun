@@ -1,0 +1,79 @@
+From 01b9ef8db8deb6447138af96b87fc656fd6ef29f Mon Sep 17 00:00:00 2001
+From: David Sniatkiwicz <davidsn@marvell.com>
+Date: Thu, 31 Aug 2017 13:32:45 +0300
+Subject: [PATCH 0158/1239] usb: xhci-mvebu: add current limiter support
+
+The USB device should linked to Current-Limiter through
+"current-limiter" DTS property.
+This patch adds handling for "current-limiter" property inside the USB
+device entry for turning on the Current-Limitation upon the host
+adapter probe.
+
+Change-Id: I7982f16a4021931819327f3d09c300d889a5bca3
+Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+---
+ .../usb/marvell.xhci-usb.txt                  |  3 +++
+ drivers/usb/host/xhci-mvebu.c                 | 20 +++++++++++++++++++
+ 2 files changed, 23 insertions(+)
+
+diff --git a/doc/device-tree-bindings/usb/marvell.xhci-usb.txt b/doc/device-tree-bindings/usb/marvell.xhci-usb.txt
+index e042d1b966..61734040a4 100644
+--- a/doc/device-tree-bindings/usb/marvell.xhci-usb.txt
++++ b/doc/device-tree-bindings/usb/marvell.xhci-usb.txt
+@@ -15,6 +15,8 @@ Optional properties:
+  - clocks: phandle to system controller clock driving this unit
+  - vbus-supply : If present, specifies the fixed regulator to be turned on
+    for providing power to the USB VBUS rail.
++ - current-limiter : If present, specifies the fixed regulator to be turned on
++   for providing current limitation to the USB.
+ 
+ Example:
+ 	cpm_usb3_0: usb3@500000 {
+@@ -24,5 +26,6 @@ Example:
+ 		interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&cpm_syscon0 1 22>;
+ 		vbus-supply = <&reg_usb3h0_vbus>;
++		current-limiter = <&reg_usb3h0_current_limiter>;
+ 		status = "disabled";
+ 	};
+diff --git a/drivers/usb/host/xhci-mvebu.c b/drivers/usb/host/xhci-mvebu.c
+index 317cb83235..a5e1978523 100644
+--- a/drivers/usb/host/xhci-mvebu.c
++++ b/drivers/usb/host/xhci-mvebu.c
+@@ -58,6 +58,16 @@ static int xhci_usb_probe(struct udevice *dev)
+ 		}
+ 	}
+ 
++	ret = device_get_supply_regulator(dev, "current-limiter", &regulator);
++	if (!ret) {
++		ret = regulator_set_enable(regulator, true);
++		if (ret) {
++			printf("Failed to turn ON the %s regulator\n",
++			       regulator->name);
++			return ret;
++		}
++	}
++
+ 	/* Enable USB xHCI (VBUS, reset etc) in board specific code */
+ 	board_xhci_enable(devfdt_get_addr_index(dev, 1));
+ 
+@@ -82,6 +92,16 @@ static int xhci_usb_remove(struct udevice *dev)
+ 		}
+ 	}
+ 
++	ret = device_get_supply_regulator(dev, "current-limiter", &regulator);
++	if (!ret) {
++		ret = regulator_set_enable(regulator, false);
++		if (ret) {
++			printf("Failed to turn OFF the %s regulator\n",
++			       regulator->name);
++			return ret;
++		}
++	}
++
+ 	return 0;
+ }
+ 
+-- 
+2.29.0
+

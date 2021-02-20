@@ -1,0 +1,26 @@
+From 052e56dd2efb5ed3da6ef4053d50e69d7e3456eb Mon Sep 17 00:00:00 2001
+From: Aaron Williams <aaron.williams@cavium.com>
+Date: Sat, 12 Nov 2016 00:22:52 -0800
+Subject: [PATCH 0561/1239] The ECAM driver needs to be able to be loaded early
+ before relocation.
+
+Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+---
+ drivers/pci/pci_thunderx_ecam.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/pci/pci_thunderx_ecam.c b/drivers/pci/pci_thunderx_ecam.c
+index 43b4a34492..2214e24707 100644
+--- a/drivers/pci/pci_thunderx_ecam.c
++++ b/drivers/pci/pci_thunderx_ecam.c
+@@ -266,6 +266,7 @@ U_BOOT_DRIVER(pci_thunderx_ecam) = {
+ 	.ofdata_to_platdata = pci_thunderx_ofdata_to_platdata,
+ 	.probe	= pci_thunderx_ecam_probe,
+ 	.priv_auto_alloc_size = sizeof(struct thunderx_pci),
++	.flags = DM_FLAG_PRE_RELOC,
+ };
+ 
+ U_BOOT_DRIVER(pci_thunderx_pcie) = {
+-- 
+2.29.0
+

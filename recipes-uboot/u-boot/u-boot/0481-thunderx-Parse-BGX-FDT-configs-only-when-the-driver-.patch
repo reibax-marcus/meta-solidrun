@@ -1,0 +1,27 @@
+From c068d5ba8bbeda9e28c8f294859ce01c4d362e47 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Thu, 19 May 2016 19:54:38 -0400
+Subject: [PATCH 0481/1239] thunderx: Parse BGX FDT configs only when the
+ driver is enabled Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
+---
+ board/cavium/thunderx/fdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index 70d12e5859..bd5ccd78ab 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -87,7 +87,9 @@ void thunderx_parse_bdk_config(void)
+ 			} else {
+ 				printf("Err: cannot retrieve board type from fdt\n");
+ 			}
++#ifdef CONFIG_THUNDERX_BGX
+ 			thunderx_parse_phy_address(gd->fdt_blob);
++#endif
+ 		}
+ 	}
+ 
+-- 
+2.29.0
+

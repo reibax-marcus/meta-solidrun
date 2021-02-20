@@ -1,0 +1,41 @@
+From b87d259c1f810782c57191cbadb097573b79705f Mon Sep 17 00:00:00 2001
+From: Marcin Wojtas <mw@semihalf.com>
+Date: Wed, 27 Nov 2019 15:32:25 +0100
+Subject: [PATCH 1056/1239] arm: dts: cn9130: fix model name of DB setup B
+
+This patch fixes wrong board model description, which
+was pointing to setup A.
+
+Change-Id: I8338be0ffdca0b1ef325e0d14d5e6d9065b13504
+Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/21320
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/cn9130-db-B.dts | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/arch/arm/dts/cn9130-db-B.dts b/arch/arm/dts/cn9130-db-B.dts
+index a00c0fa9a8..a773bed7fe 100644
+--- a/arch/arm/dts/cn9130-db-B.dts
++++ b/arch/arm/dts/cn9130-db-B.dts
+@@ -8,7 +8,7 @@
+ #include "cn9130-db.dtsi"
+ 
+ / {
+-	model = "Marvell CN9130 development board (CP NOR) setup(A)";
++	model = "Marvell CN9130 development board (CP NAND) setup(B)";
+ 	compatible = "marvell,cn9130-db", "marvell,cn91xx", "marvell,cn9030-vd",
+ 		     "marvell,cn9030", "marvell,armada-ap806-quad",
+ 		     "marvell,armada-ap806";
+@@ -19,7 +19,6 @@
+ 
+ 	aliases {
+ 		i2c0 = &cp0_i2c0;
+-		spi0 = &cp0_spi1;
+ 		gpio0 = &ap_gpio0;
+ 		gpio1 = &cp0_gpio0;
+ 		gpio2 = &cp0_gpio1;
+-- 
+2.29.0
+

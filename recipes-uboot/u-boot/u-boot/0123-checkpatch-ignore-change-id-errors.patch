@@ -1,0 +1,25 @@
+From d46a2e8c0926452fdbbb810deb9917741c0770f5 Mon Sep 17 00:00:00 2001
+From: Igal Liberman <igall@marvell.com>
+Date: Sun, 24 Jun 2018 16:16:14 +0300
+Subject: [PATCH 0123/1239] checkpatch: ignore change-id errors
+
+Change-Id: Ib58932c20d56b414facfb98b234eeef22f494975
+Signed-off-by: Igal Liberman <igall@marvell.com>
+---
+ .checkpatch.conf | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/.checkpatch.conf b/.checkpatch.conf
+index 95f19635d3..f044272b85 100644
+--- a/.checkpatch.conf
++++ b/.checkpatch.conf
+@@ -28,3 +28,6 @@
+ 
+ # A bit shorter of a description is OK with us.
+ --min-conf-desc-length=2
++
++# Ignore GERRIT_CHANGE_ID errors
++--ignore GERRIT_CHANGE_ID
+-- 
+2.29.0
+

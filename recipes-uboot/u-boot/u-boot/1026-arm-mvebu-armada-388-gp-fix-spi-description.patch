@@ -1,0 +1,67 @@
+From bcd1e7f3ec61935f5e98c570fff22d4a44825b1c Mon Sep 17 00:00:00 2001
+From: Grzegorz Jaszczyk <jaz@semihalf.com>
+Date: Tue, 26 Nov 2019 18:34:59 +0100
+Subject: [PATCH 1026/1239] arm: mvebu: armada-388-gp: fix spi description
+
+After commit "ARM: mvebu: sync Armada-38x dts with Linux 4.20" the spi
+node was moved directly to soc node - align the armada-388-gp.dts to
+this change.
+
+Change-Id: I4755a0bbb2aaf6607bd175004eba2b379af79a26
+Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+Reviewed-on: https://sj1git1.cavium.com/19344
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+---
+ arch/arm/dts/armada-388-gp.dts | 33 ++++++++++++++++++---------------
+ 1 file changed, 18 insertions(+), 15 deletions(-)
+
+diff --git a/arch/arm/dts/armada-388-gp.dts b/arch/arm/dts/armada-388-gp.dts
+index babd581ed6..a2bb198236 100644
+--- a/arch/arm/dts/armada-388-gp.dts
++++ b/arch/arm/dts/armada-388-gp.dts
+@@ -67,23 +67,26 @@
+ 		ranges = <MBUS_ID(0xf0, 0x01) 0 0xf1000000 0x100000
+ 			  MBUS_ID(0x01, 0x1d) 0 0xfff00000 0x100000>;
+ 
+-		internal-regs {
+-			spi@10600 {
+-				pinctrl-names = "default";
+-				pinctrl-0 = <&spi0_pins>;
+-				status = "okay";
+-				u-boot,dm-pre-reloc;
++		spi0: spi@10600 {
++			pinctrl-names = "default";
++			pinctrl-0 = <&spi0_pins>;
++			status = "okay";
++			u-boot,dm-pre-reloc;
+ 
+-				spi-flash@0 {
+-					u-boot,dm-pre-reloc;
+-					#address-cells = <1>;
+-					#size-cells = <1>;
+-					compatible = "st,m25p128", "jedec,spi-nor";
+-					reg = <0>; /* Chip select 0 */
+-					spi-max-frequency = <50000000>;
+-					m25p,fast-read;
+-				};
++			spi-flash@0 {
++				u-boot,dm-pre-reloc;
++				#address-cells = <1>;
++				#size-cells = <1>;
++				compatible = "st,m25p128",
++					   "jedec,spi-nor", "spi-flash";
++				reg = <0>; /* Chip select 0 */
++				spi-max-frequency = <50000000>;
++				m25p,fast-read;
+ 			};
++		};
++
++		internal-regs {
++
+ 
+ 			i2c@11000 {
+ 				pinctrl-names = "default";
+-- 
+2.29.0
+

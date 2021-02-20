@@ -1,0 +1,123 @@
+From c6a55e1a4c47b29d7276950d793f1ac5d38f7950 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Fri, 21 Feb 2020 18:57:42 -0800
+Subject: [PATCH 1106/1239] drivers: net: octeontx2: support to update
+ sh_fwdata mac address
+
+Enable support to update sh_fwdata in ATF with user provided MAC
+address for the specific CGX LMAC based on selected ethXaddr
+environment variable.
+
+Change-Id: Ibe17ccb4776134e536ead91eb459b07c093986e5
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Depends-On: https://sj1git1.cavium.com/c/IP/SW/boot/atf/+/23693
+Reviewed-on: https://sj1git1.cavium.com/23692
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/net/octeontx2/cgx.h      |  1 +
+ drivers/net/octeontx2/cgx_intf.c | 25 +++++++++++++++++++++++++
+ drivers/net/octeontx2/cgx_intf.h |  9 +++++++++
+ drivers/net/octeontx2/nix.c      |  4 ++++
+ 4 files changed, 39 insertions(+)
+
+diff --git a/drivers/net/octeontx2/cgx.h b/drivers/net/octeontx2/cgx.h
+index 7f2b1f5889..e7b4026a86 100644
+--- a/drivers/net/octeontx2/cgx.h
++++ b/drivers/net/octeontx2/cgx.h
+@@ -99,6 +99,7 @@ void cgx_lmac_mac_filter_setup(struct lmac *lmac);
+ int cgx_intf_get_link_sts(u8 cgx, u8 lmac, u64 *lnk_sts);
+ int cgx_intf_link_up_dwn(u8 cgx, u8 lmac, u8 up_dwn, u64 *lnk_sts);
+ int cgx_intf_get_mac_addr(u8 cgx, u8 lmac, u8 *mac);
++int cgx_intf_set_macaddr(struct udevice *dev);
+ int cgx_intf_prbs(u8 qlm, u8 mode, u32 time);
+ int cgx_intf_display_eye(u8 qlm, u8 lane);
+ 
+diff --git a/drivers/net/octeontx2/cgx_intf.c b/drivers/net/octeontx2/cgx_intf.c
+index 18365d8eb2..a919958256 100644
+--- a/drivers/net/octeontx2/cgx_intf.c
++++ b/drivers/net/octeontx2/cgx_intf.c
+@@ -626,6 +626,31 @@ int cgx_intf_set_ignore(struct udevice *ethdev, int ignore)
+ 	return 0;
+ }
+ 
++int cgx_intf_set_macaddr(struct udevice *ethdev)
++{
++	struct rvu_pf *rvu = dev_get_priv(ethdev);
++	struct nix *nix = rvu->nix;
++	union cgx_scratchx0 scr0;
++	int ret;
++	union cgx_cmd_s cmd;
++	u64 mac, tmp;
++
++	memcpy((void *)&tmp, nix->lmac->mac_addr, 6);
++	mac = swab64(tmp) >> 16;
++	cmd.cmd.id = CGX_CMD_SET_MAC_ADDR;
++	cmd.mac_args.addr = mac;
++	cmd.mac_args.pf_id = rvu->pfid;
++
++	ret = cgx_intf_req(nix->lmac->cgx->cgx_id, nix->lmac->lmac_id,
++			   cmd, &scr0.u, 0);
++	if (ret) {
++		printf("Set user mac addr failed for %s\n", ethdev->name);
++		return -1;
++	}
++
++	return 0;
++}
++
+ int cgx_intf_display_eye(u8 qlm, u8 lane)
+ {
+ 	union cgx_scratchx0 scr0;
+diff --git a/drivers/net/octeontx2/cgx_intf.h b/drivers/net/octeontx2/cgx_intf.h
+index 5607b64afa..e0d9750461 100644
+--- a/drivers/net/octeontx2/cgx_intf.h
++++ b/drivers/net/octeontx2/cgx_intf.h
+@@ -106,6 +106,7 @@ enum cgx_cmd_id {
+ 	CGX_CMD_AN_LOOPBACK,	/* = 30 */
+ 	CGX_CMD_GET_PERSIST_IGNORE,
+ 	CGX_CMD_SET_PERSIST_IGNORE,
++	CGX_CMD_SET_MAC_ADDR,
+ };
+ 
+ /* async event ids */
+@@ -402,6 +403,13 @@ struct cgx_set_flash_ignore_args {
+ 	uint64_t reserved2:55;
+ };
+ 
++/* command argument to be passed for cmd ID - CGX_CMD_SET_MAC_ADDR */
++struct cgx_mac_addr_args {
++	uint64_t reserved1:8;
++	uint64_t addr:48;
++	uint64_t pf_id:8;
++};
++
+ struct cgx_prbs_args {
+ 	u64 reserved1:8; /* start from bit 8 */
+ 	u64 qlm:8;
+@@ -427,6 +435,7 @@ union cgx_cmd_s {
+ 	struct cgx_set_fec_args fec_args;
+ 	struct cgx_set_phy_mod_args phy_mod_args;
+ 	struct cgx_set_flash_ignore_args persist_args;
++	struct cgx_mac_addr_args mac_args;
+ 	/* any other arg for command id * like : mtu, dmac filtering control */
+ 	struct cgx_prbs_args prbs_args;
+ 	struct cgx_display_eye_args dsp_eye_args;
+diff --git a/drivers/net/octeontx2/nix.c b/drivers/net/octeontx2/nix.c
+index 6250b45a49..bc5e835e8c 100644
+--- a/drivers/net/octeontx2/nix.c
++++ b/drivers/net/octeontx2/nix.c
+@@ -736,6 +736,10 @@ int nix_lf_setup_mac(struct udevice *dev)
+ 		eth_env_set_enetaddr_by_index("eth", rvu->dev->seq,
+ 					      pdata->enetaddr);
+ 		cgx_lmac_mac_filter_setup(nix->lmac);
++		/* Update user given MAC address to ATF for update
++		 * in sh_fwdata to use in Linux.
++		 */
++		cgx_intf_set_macaddr(dev);
+ 		debug("%s: lMAC %pM\n", __func__, nix->lmac->mac_addr);
+ 		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
+ 	}
+-- 
+2.29.0
+

@@ -1,0 +1,27 @@
+From f91d010cc225489df2477a354690bb6027606990 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Fri, 14 Sep 2018 12:54:52 -0700
+Subject: [PATCH 0827/1239] common: fix compile warning
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ common/fdt_support.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/common/fdt_support.c b/common/fdt_support.c
+index baf7924ff6..f9e31bd517 100644
+--- a/common/fdt_support.c
++++ b/common/fdt_support.c
+@@ -955,7 +955,9 @@ void fdt_del_node_and_alias(void *blob, const char *alias)
+ 
+ /* Max address size we deal with */
+ #define OF_MAX_ADDR_CELLS	4
++#ifndef OF_BAD_ADDR
+ #define OF_BAD_ADDR	FDT_ADDR_T_NONE
++#endif
+ #define OF_CHECK_COUNTS(na, ns)	((na) > 0 && (na) <= OF_MAX_ADDR_CELLS && \
+ 			(ns) > 0)
+ 
+-- 
+2.29.0
+

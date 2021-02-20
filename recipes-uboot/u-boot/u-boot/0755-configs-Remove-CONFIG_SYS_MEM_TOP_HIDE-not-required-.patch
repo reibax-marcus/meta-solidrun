@@ -1,0 +1,79 @@
+From fb50ba041f76691ccd75ab6b7f5e0d2349d61af9 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Wed, 21 Feb 2018 15:12:38 -0800
+Subject: [PATCH 0755/1239] configs: Remove CONFIG_SYS_MEM_TOP_HIDE, not
+ required for ARM64
+
+Fix for bug #32518
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ include/configs/thunderx_81xx.h | 9 ---------
+ include/configs/thunderx_83xx.h | 9 ---------
+ include/configs/thunderx_93xx.h | 9 ---------
+ 3 files changed, 27 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 1f0a13df23..aae1eedeaa 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -38,15 +38,6 @@
+ 
+ #define CONFIG_NR_DRAM_BANKS		1
+ 
+-/**
+- * This is defined in the board config header.  This specified memory area
+- * will get subtracted from the top (end) of memory and won't get
+- * "touched" at all by U-Boot.  By fixing up gd->ram_size the Linux kernel
+- * should get passed the now "corrected" memory size and won't touch it
+- * either.
+- */
+-#define CONFIG_SYS_MEM_TOP_HIDE		0x1000000
+-
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+  * overwritten once.
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index ac4e825d9f..68346ac646 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -38,15 +38,6 @@
+ 
+ #define CONFIG_NR_DRAM_BANKS		1
+ 
+-/**
+- * This is defined in the board config header.  This specified memory area
+- * will get subtracted from the top (end) of memory and won't get
+- * "touched" at all by U-Boot.  By fixing up gd->ram_size the Linux kernel
+- * should get passed the now "corrected" memory size and won't touch it
+- * either.
+- */
+-#define CONFIG_SYS_MEM_TOP_HIDE		0x1000000
+-
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+  * overwritten once.
+diff --git a/include/configs/thunderx_93xx.h b/include/configs/thunderx_93xx.h
+index 447faaf169..0a4f723206 100644
+--- a/include/configs/thunderx_93xx.h
++++ b/include/configs/thunderx_93xx.h
+@@ -38,15 +38,6 @@
+ 
+ #define CONFIG_NR_DRAM_BANKS		1
+ 
+-/**
+- * This is defined in the board config header.  This specified memory area
+- * will get subtracted from the top (end) of memory and won't get
+- * "touched" at all by U-Boot.  By fixing up gd->ram_size the Linux kernel
+- * should get passed the now "corrected" memory size and won't touch it
+- * either.
+- */
+-#define CONFIG_SYS_MEM_TOP_HIDE		0x1000000
+-
+ /**
+  * Only allow the Ethernet MAC address environment variable to be
+  * overwritten once.
+-- 
+2.29.0
+

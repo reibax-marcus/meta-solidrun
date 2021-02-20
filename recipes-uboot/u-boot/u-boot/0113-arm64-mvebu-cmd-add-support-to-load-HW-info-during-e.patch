@@ -1,0 +1,61 @@
+From 3b18724e84815fb5acd178cd9857c92507de52d5 Mon Sep 17 00:00:00 2001
+From: zachary zhang <zhangzg@marvell.com>
+Date: Tue, 15 May 2018 17:42:43 +0800
+Subject: [PATCH 0113/1239] arm64: mvebu: cmd: add support to load HW info
+ during env reset
+
+Call cmd_hw_info_load during env reset to initialize the
+HW configuration.
+
+Change-Id: If257c758bbc4759b8f22fbe50e0ba5a2750b8b30
+Signed-off-by: zachary zhang <zhangzg@marvell.com>
+---
+ env/common.c  | 12 ++++++++++++
+ include/env.h | 10 ++++++++++
+ 2 files changed, 22 insertions(+)
+
+diff --git a/env/common.c b/env/common.c
+index 4daaa6faea..4e5cd23252 100644
+--- a/env/common.c
++++ b/env/common.c
+@@ -85,6 +85,18 @@ void env_set_default(const char *s, int flags)
+ 
+ 	gd->flags |= GD_FLG_ENV_READY;
+ 	gd->flags |= GD_FLG_ENV_DEFAULT;
++
++#ifdef CONFIG_CMD_MVEBU_HW_INFO
++		/* load the HW configuration from EEPROM to env variables and
++		 * saveenv.
++		 * This is because when the env varibles are reset, need to
++		 * recover the HW configuration related env varibles from
++		 * EEPROM.
++		 * The only generic U-Boot env variable that will be overwrote
++		 * here will be the Marvell specific variables
++		 */
++		cmd_hw_info_load(NULL, 1);
++#endif /* CONFIG_CMD_MVEBU_HW_INFO */
+ }
+ 
+ 
+diff --git a/include/env.h b/include/env.h
+index b72239f6a5..c2490ab665 100644
+--- a/include/env.h
++++ b/include/env.h
+@@ -333,4 +333,14 @@ int env_get_char(int index);
+  */
+ void env_reloc(void);
+ 
++/*  */
++/**
++ * cmd_hw_info_load() - load HW information to environment
++ *
++ * This is updates environment with HW info.
++ */
++#ifdef CONFIG_CMD_MVEBU_HW_INFO
++int cmd_hw_info_load(char *name, int silence);
++#endif
++
+ #endif
+-- 
+2.29.0
+

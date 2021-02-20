@@ -1,0 +1,56 @@
+From d30c7654fe71eebae73a3fc5e5aab7f5481f9ba6 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Tue, 10 Dec 2019 20:46:47 -0800
+Subject: [PATCH 1032/1239] octeontx: mtd: Fix crash in NAND driver
+
+This fixes a crash in the NAND driver because mtd->dev is not
+initialized.
+
+As far as I can tell, mtd->dev is not used.
+
+Change-Id: I5caaa9ebdb8e2aecd7b60c907e75de37f9302310
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/20180
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mtd/nand/raw/octeontx_nand.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/mtd/nand/raw/octeontx_nand.c b/drivers/mtd/nand/raw/octeontx_nand.c
+index 69b21e5ec0..5819322b6d 100644
+--- a/drivers/mtd/nand/raw/octeontx_nand.c
++++ b/drivers/mtd/nand/raw/octeontx_nand.c
+@@ -19,7 +19,6 @@
+ #include <linux/err.h>
+ #include <linux/ioport.h>
+ #include <linux/libfdt.h>
+-#include <linux/mtd/mtd.h>
+ #include <linux/mtd/nand_bch.h>
+ #include <linux/mtd/nand_ecc.h>
+ #include <asm/io.h>
+@@ -1968,11 +1967,7 @@ static int octeontx_nfc_chip_init(struct octeontx_nfc *tn, struct udevice *dev,
+ 	nand->setup_data_interface = octeontx_nand_setup_dat_intf;
+ 
+ 	mtd = nand_to_mtd(nand);
+-	debug("%s: mtd: %p\n", __func__, mtd);
+-	mtd->dev->parent = dev;
+-
+-	debug("%s: NDF_MISC: 0x%llx\n", __func__,
+-	      readq(tn->base + NDF_MISC));
++	mtd->dev = dev;
+ 
+ 	/* TODO: support more then 1 chip */
+ 	debug("%s: Scanning identification\n", __func__);
+@@ -2225,7 +2220,7 @@ U_BOOT_DRIVER(octeontx_pci_nand) = {
+ 	.probe = octeontx_pci_nand_probe,
+ 	.priv_auto_alloc_size = sizeof(struct octeontx_nfc),
+ 	.remove = octeontx_pci_nand_disable,
+-	.flags = DM_FLAG_OS_PREPARE,
++	.flags = DM_FLAG_OS_PREPARE | DM_FLAG_ACTIVE_DMA,
+ };
+ 
+ U_BOOT_PCI_DEVICE(octeontx_pci_nand, octeontx_nfc_pci_id_table);
+-- 
+2.29.0
+

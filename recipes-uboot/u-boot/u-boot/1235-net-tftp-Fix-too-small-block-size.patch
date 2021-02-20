@@ -1,0 +1,46 @@
+From 738c18a788333a6cdb23c4d3807d100678841e59 Mon Sep 17 00:00:00 2001
+From: Andre Przywara <andre.przywara@arm.com>
+Date: Sat, 23 Nov 2019 17:58:59 +0000
+Subject: [PATCH 1235/1239] net: tftp: Fix too small block size
+
+Commit b618b3707633 ("net: Convert CONFIG_TFTP_BLOCKSIZE to Kconfig")
+accidentally set the default *option* TFTP block size to 512 bytes, even
+though the comment in the code says that this is a terrible choice. Most
+boards didn't define the symbol before, so they got the default block size
+of 1468 bytes before, but now use 512 bytes, which is also the fallback.
+This leads to both abysmal performance and a lot of hashes printed
+on the screen (one character for every 5K), which is both annoying and
+slow over serial links.
+
+Set the default block size in Kconfig back to the value it had before.
+
+This improves TFTP performance from 2.8 MB/s to 6.9 MB/s on a Pine64.
+
+Fixes: b618b3707633 ("net: Convert CONFIG_TFTP_BLOCKSIZE to Kconfig")
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Acked-by: Joe Hershberger <joe.hershberger@ni.com>
+Signed-off-by: Jia Ma <jiam@marvell.com>
+Change-Id: I6a43e7d18ea0185bfc682c9cf93111409f31d6dc
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/38591
+Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+---
+ net/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/Kconfig b/net/Kconfig
+index 68cecf75a2..a07f6746c5 100644
+--- a/net/Kconfig
++++ b/net/Kconfig
+@@ -31,7 +31,7 @@ config IP_DEFRAG
+ 
+ config TFTP_BLOCKSIZE
+ 	int "TFTP block size"
+-	default 512
++	default 1468
+ 	help
+ 	  Default TFTP block size.
+ 
+-- 
+2.29.0
+

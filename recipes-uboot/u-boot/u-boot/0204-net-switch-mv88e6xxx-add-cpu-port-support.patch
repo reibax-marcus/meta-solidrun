@@ -1,0 +1,88 @@
+From 1b076166ddb2ab1eb950300dd6ce30ce2faf5eda Mon Sep 17 00:00:00 2001
+From: Ken Ma <make@marvell.com>
+Date: Tue, 13 Jun 2017 09:37:27 +0800
+Subject: [PATCH 0204/1239] net: switch: mv88e6xxx: add cpu port support
+
+This patch adds cpu port support: cpu port is the switch port
+to which the cpu is attached when the switch is conneted to the
+cpu; cpu port must be forced link-up, duplex and 1 GB speed;
+if the switch product number is 0x341, the cpu port needs to be
+configured with RGMII delay.
+
+Change-Id: I4827c688f40c1de385e9e203ed2c6c2c31539210
+Signed-off-by: Ken Ma <make@marvell.com>
+---
+ drivers/net/phy/mv88e6xxx.c | 31 +++++++++++++++++++++++++++++++
+ drivers/net/phy/mv88e6xxx.h |  1 +
+ 2 files changed, 32 insertions(+)
+
+diff --git a/drivers/net/phy/mv88e6xxx.c b/drivers/net/phy/mv88e6xxx.c
+index 7e10358200..663b1a0ec9 100644
+--- a/drivers/net/phy/mv88e6xxx.c
++++ b/drivers/net/phy/mv88e6xxx.c
+@@ -243,12 +243,16 @@ void mv88e6xxx_display_switch_info(struct mv88e6xxx_dev *dev)
+ 		printf("Series    : Peridot\n");
+ 		printf("Product # : %X\n", product_num);
+ 		printf("Revision  : %X\n", dev->id & 0xf);
++		if (dev->cpu_port != -1)
++			printf("Cpu port  : %d\n", dev->cpu_port);
+ 	} else if (product_num == PORT_SWITCH_ID_PROD_NUM_6141 ||
+ 		   product_num == PORT_SWITCH_ID_PROD_NUM_6341) {
+ 		printf("Switch    : SOHO\n");
+ 		printf("Series    : Topaz\n");
+ 		printf("Product # : %X\n", product_num);
+ 		printf("Revision  : %X\n", dev->id & 0xf);
++		if (dev->cpu_port != -1)
++			printf("Cpu port  : %d\n", dev->cpu_port);
+ 	} else {
+ 		printf("Unknown switch with Device ID: 0x%X\n", dev->id);
+ 	}
+@@ -358,6 +362,33 @@ int mv88e6xxx_initialize(const void *blob)
+ 
+ 	soho_dev.id = mv88e6xxx_get_switch_id(&soho_dev);
+ 
++	soho_dev.cpu_port = fdtdec_get_int(blob, node, "cpu-port", -1);
++	if (soho_dev.cpu_port != -1) {
++		u16 reg;
++
++		reg = mv88e6xxx_read_register(&soho_dev,
++					      REG_PORT(soho_dev.cpu_port),
++					      PORT_PCS_CTRL);
++		/* CPU port is forced link-up, duplex and 1GB speed */
++		reg &= ~PORT_PCS_CTRL_UNFORCED;
++		reg |= PORT_PCS_CTRL_FORCE_LINK |
++		       PORT_PCS_CTRL_LINK_UP |
++		       PORT_PCS_CTRL_DUPLEX_FULL |
++		       PORT_PCS_CTRL_FORCE_DUPLEX |
++		       PORT_PCS_CTRL_1000;
++		if ((soho_dev.id >> 4) == PORT_SWITCH_ID_PROD_NUM_6341) {
++			/* Configure RGMII Delay on cpu port */
++			reg |= PORT_PCS_CTRL_FORCE_SPEED |
++			       PORT_PCS_CTRL_RGMII_DELAY_TXCLK |
++			       PORT_PCS_CTRL_RGMII_DELAY_RXCLK;
++		}
++		ret = mv88e6xxx_write_register(&soho_dev,
++					       REG_PORT(soho_dev.cpu_port),
++					       PORT_PCS_CTRL, reg);
++		if (ret)
++			return ret;
++	}
++
+ 	soho_dev_handle = &soho_dev;
+ 
+ 	return 0;
+diff --git a/drivers/net/phy/mv88e6xxx.h b/drivers/net/phy/mv88e6xxx.h
+index 499675baa4..e876e5a78c 100644
+--- a/drivers/net/phy/mv88e6xxx.h
++++ b/drivers/net/phy/mv88e6xxx.h
+@@ -367,6 +367,7 @@ struct mv88e6xxx_dev {
+ 	unsigned int port_mask;
+ 	unsigned int addr_mode;
+ 	int id;
++	int cpu_port;	/* The switch port to which the CPU is attached */
+ };
+ 
+ enum sw_opts {
+-- 
+2.29.0
+

@@ -1,0 +1,39 @@
+From 632fdbfa764f7d9deddd0dd2edbb3636298cd55a Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <suneel.garapati@cavium.com>
+Date: Thu, 23 Feb 2017 15:30:15 -0800
+Subject: [PATCH 0616/1239] configs: thunderx_81/83: remove re-definition
+ CONFIG_ATF
+
+Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+---
+ include/configs/thunderx_81xx.h | 1 -
+ include/configs/thunderx_83xx.h | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index d6a2f7f383..785ce8c2e9 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -383,7 +383,6 @@
+ /* Use uboot SPI APIs for env variables */
+ //#define CONFIG_SPI_ENV
+ 
+-#define CONFIG_ATF
+ #if defined(CONFIG_ATF)
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+diff --git a/include/configs/thunderx_83xx.h b/include/configs/thunderx_83xx.h
+index 31889fd4f1..76ffc7e771 100644
+--- a/include/configs/thunderx_83xx.h
++++ b/include/configs/thunderx_83xx.h
+@@ -384,7 +384,6 @@
+ /* Use uboot SPI APIs for env variables */
+ //#define CONFIG_SPI_ENV
+ 
+-#define CONFIG_ATF
+ #if defined(CONFIG_ATF)
+ #define CONFIG_ENV_IS_IN_ATF
+ #define CONFIG_SYS_ENV_ATF_NOR
+-- 
+2.29.0
+

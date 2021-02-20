@@ -1,0 +1,22 @@
+From b9684e624949992e743a5ab1256bf7001a1c43b6 Mon Sep 17 00:00:00 2001
+From: dmuthumani <dmuthumani@marvell.com>
+Date: Tue, 1 Dec 2020 18:47:41 -0800
+Subject: [PATCH 1239/1239] Update u-boot-2019.10 local version to 10.3.5.0-2
+
+Signed-off-by: dmuthumani <dmuthumani@marvell.com>
+Change-Id: I6d51ead963eeb44144c19590379948ad6454b557
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/41489
+---
+ localversion | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/localversion b/localversion
+index 75a2cc6a28..dcf984dd1b 100644
+--- a/localversion
++++ b/localversion
+@@ -1 +1 @@
+--devel
++-10.3.5.0-2
+-- 
+2.29.0
+

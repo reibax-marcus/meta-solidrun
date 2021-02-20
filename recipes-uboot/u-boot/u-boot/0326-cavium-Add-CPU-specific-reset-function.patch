@@ -1,0 +1,35 @@
+From e32ec4df59a5bc3d520015880e2d1aac441b3736 Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 3 Nov 2015 19:10:02 -0800
+Subject: [PATCH 0326/1239] cavium: Add CPU-specific reset function
+
+---
+ board/cavium/thunderx/thunderx.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/board/cavium/thunderx/thunderx.c b/board/cavium/thunderx/thunderx.c
+index 6c4268e859..4e81159982 100644
+--- a/board/cavium/thunderx/thunderx.c
++++ b/board/cavium/thunderx/thunderx.c
+@@ -12,6 +12,8 @@
+ 
+ #include <linux/compiler.h>
+ 
++#include "cavm-csr.h"
++
+ #ifdef CONFIG_OF_LIBFDT
+  #include <libfdt.h>
+  #include <fdt_support.h>
+@@ -103,6 +105,9 @@ int dram_init(void)
+  */
+ void reset_cpu(ulong addr)
+ {
++	u64 val = readq(RST_SOFT_RST) | 1;
++
++	writeq(val, RST_SOFT_RST);
+ }
+ 
+ /*
+-- 
+2.29.0
+

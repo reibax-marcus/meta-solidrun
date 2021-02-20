@@ -1,0 +1,28 @@
+From a5c2e857fb0e990653ac9022d9ce029709ef218d Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Mon, 4 Jun 2018 16:46:01 -0700
+Subject: [PATCH 0779/1239] drivers: usb eth: display interface name
+
+Display ethernet interfaces detected over usb while executing
+usb start/reset as there is no way to know about them using commands.
+
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ drivers/usb/eth/usb_ether.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/usb/eth/usb_ether.c b/drivers/usb/eth/usb_ether.c
+index 3aca9ac265..4a41899e86 100644
+--- a/drivers/usb/eth/usb_ether.c
++++ b/drivers/usb/eth/usb_ether.c
+@@ -240,6 +240,7 @@ static void probe_valid_drivers(struct usb_device *dev)
+ 			if (eth_write_hwaddr(eth, "usbeth",
+ 					usb_max_eth_dev - 1))
+ 				puts("Warning: failed to set MAC address\n");
++			printf("	%s", eth->name);
+ 			break;
+ 			}
+ 		}
+-- 
+2.29.0
+

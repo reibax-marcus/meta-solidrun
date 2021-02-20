@@ -1,0 +1,42 @@
+From 6d08fe3629b5793e834c31e494ac7b7cda3874fe Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Tue, 17 May 2016 16:23:36 -0400
+Subject: [PATCH 0458/1239] thunderx: Update configs for SMI support
+
+Update configs to support new DM-based SMI driver
+
+Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+---
+ configs/thunderx_81xx_defconfig | 3 +++
+ include/configs/thunderx_81xx.h | 1 -
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/configs/thunderx_81xx_defconfig b/configs/thunderx_81xx_defconfig
+index 31c988f647..aa97947a91 100644
+--- a/configs/thunderx_81xx_defconfig
++++ b/configs/thunderx_81xx_defconfig
+@@ -24,6 +24,9 @@ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_NET_RANDOM_ETHADDR=y
+ CONFIG_DM_I2C_COMPAT=y
++CONFIG_MISC=y
++CONFIG_PHYLIB=y
++CONFIG_NETDEVICES=y
+ CONFIG_PCI_THUNDERX_ECAM=y
+ CONFIG_DEBUG_UART=y
+ CONFIG_DEBUG_UART_PL011=y
+diff --git a/include/configs/thunderx_81xx.h b/include/configs/thunderx_81xx.h
+index 2eedaf48ef..9e7d644cf7 100644
+--- a/include/configs/thunderx_81xx.h
++++ b/include/configs/thunderx_81xx.h
+@@ -129,7 +129,6 @@
+ #define CONFIG_MAX_BGX_PER_NODE		2
+ #define CONFIG_MAX_BGX			2
+ 
+-#define CONFIG_PHYLIB
+ #define CONFIG_PHYLIB_10G
+ 
+ 
+-- 
+2.29.0
+

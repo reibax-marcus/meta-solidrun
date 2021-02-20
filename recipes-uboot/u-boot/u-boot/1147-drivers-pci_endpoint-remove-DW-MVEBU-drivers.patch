@@ -1,0 +1,759 @@
+From e9a617c9b7d81a4cf4445c12ace2a8fe4d94b6d9 Mon Sep 17 00:00:00 2001
+From: Konstantin Porotchkin <kostap@marvell.com>
+Date: Mon, 4 May 2020 13:07:18 +0300
+Subject: [PATCH 1147/1239] drivers/pci_endpoint: remove DW MVEBU drivers
+
+After moving the entire PCIe EP setup phase to BLE, there is
+noo need to keep the PCIe EP drivers in u-boot.
+This patch removes the drivers code, configuration entries
+and DTS nodes for these drivers.
+
+Change-Id: I74451403a8335aa496144df6ad18f63feb9923a8
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27843
+Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+---
+ arch/arm/dts/armada-8040-ocp.dts         |   8 -
+ arch/arm/dts/cn9130-crb-C.dts            |   8 -
+ arch/arm/dts/cn9130-db-C.dts             |   8 -
+ arch/arm/mach-mvebu/arm64-common.c       |   4 -
+ configs/mvebu_crb_ep_cn9130_defconfig    |   2 -
+ configs/mvebu_db_ep_cn91xx_defconfig     |   2 -
+ configs/mvebu_ocp-88f8040_defconfig      |   2 -
+ drivers/pci_endpoint/Kconfig             |  10 -
+ drivers/pci_endpoint/Makefile            |   1 -
+ drivers/pci_endpoint/pcie_dw_mvebu_ep.c  | 304 -----------------------
+ drivers/pci_endpoint/pcie_dw_mvebu_ep.h  |  93 -------
+ drivers/pci_endpoint/pcie_mvebu_ep_uio.c | 169 -------------
+ 12 files changed, 611 deletions(-)
+ delete mode 100644 drivers/pci_endpoint/pcie_dw_mvebu_ep.c
+ delete mode 100644 drivers/pci_endpoint/pcie_dw_mvebu_ep.h
+ delete mode 100644 drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+
+diff --git a/arch/arm/dts/armada-8040-ocp.dts b/arch/arm/dts/armada-8040-ocp.dts
+index 60796b0d6d..b8af2f154b 100644
+--- a/arch/arm/dts/armada-8040-ocp.dts
++++ b/arch/arm/dts/armada-8040-ocp.dts
+@@ -110,14 +110,6 @@
+ 	status = "okay";
+ };
+ 
+-&cp0_pci_ep_uio {
+-	status = "okay";
+-};
+-
+-&cp0_pcie_ep {
+-	status = "okay";
+-};
+-
+ &cp0_bootcmd {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/cn9130-crb-C.dts b/arch/arm/dts/cn9130-crb-C.dts
+index 4b2f80529a..c457e8304d 100644
+--- a/arch/arm/dts/cn9130-crb-C.dts
++++ b/arch/arm/dts/cn9130-crb-C.dts
+@@ -54,14 +54,6 @@
+ 	};
+ };
+ 
+-&cp0_pci_ep_uio {
+-	status = "okay";
+-};
+-
+-&cp0_pcie_ep {
+-	status = "okay";
+-};
+-
+ &cp0_bootcmd {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/dts/cn9130-db-C.dts b/arch/arm/dts/cn9130-db-C.dts
+index 476a97c589..4a512b0963 100644
+--- a/arch/arm/dts/cn9130-db-C.dts
++++ b/arch/arm/dts/cn9130-db-C.dts
+@@ -100,14 +100,6 @@
+ 		     0xe 0xe 0xe>;
+ };
+ 
+-&cp0_pci_ep_uio {
+-	status = "okay";
+-};
+-
+-&cp0_pcie_ep {
+-	status = "okay";
+-};
+-
+ &cp0_bootcmd {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/mach-mvebu/arm64-common.c b/arch/arm/mach-mvebu/arm64-common.c
+index 820b61bdbf..2809db8c51 100644
+--- a/arch/arm/mach-mvebu/arm64-common.c
++++ b/arch/arm/mach-mvebu/arm64-common.c
+@@ -187,10 +187,6 @@ int arch_early_init_r(void)
+ 	/* Cause the SATA device to do its early init */
+ 	uclass_first_device(UCLASS_AHCI, &dev);
+ 
+-#ifdef CONFIG_PCI_ENDPOINT
+-	uclass_first_device(UCLASS_NOP, &dev);
+-#endif
+-
+ #ifdef CONFIG_DM_PCI
+ 	/* Trigger PCIe devices detection */
+ 	pci_init();
+diff --git a/configs/mvebu_crb_ep_cn9130_defconfig b/configs/mvebu_crb_ep_cn9130_defconfig
+index c131f0eb81..be4e2207a6 100644
+--- a/configs/mvebu_crb_ep_cn9130_defconfig
++++ b/configs/mvebu_crb_ep_cn9130_defconfig
+@@ -79,8 +79,6 @@ CONFIG_E1000=y
+ CONFIG_MVPP2=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+-CONFIG_PCI_ENDPOINT=y
+-CONFIG_PCIE_DW_MVEBU_EP=y
+ CONFIG_MVEBU_COMPHY_SUPPORT=y
+ CONFIG_PINCTRL=y
+ CONFIG_PINCTRL_ARMADA_8K=y
+diff --git a/configs/mvebu_db_ep_cn91xx_defconfig b/configs/mvebu_db_ep_cn91xx_defconfig
+index 1cf7e70643..9a6cd1fd40 100644
+--- a/configs/mvebu_db_ep_cn91xx_defconfig
++++ b/configs/mvebu_db_ep_cn91xx_defconfig
+@@ -75,8 +75,6 @@ CONFIG_E1000=y
+ CONFIG_MVPP2=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+-CONFIG_PCI_ENDPOINT=y
+-CONFIG_PCIE_DW_MVEBU_EP=y
+ CONFIG_MVEBU_COMPHY_SUPPORT=y
+ CONFIG_PINCTRL=y
+ CONFIG_PINCTRL_ARMADA_8K=y
+diff --git a/configs/mvebu_ocp-88f8040_defconfig b/configs/mvebu_ocp-88f8040_defconfig
+index 6c519ba528..f991b6e9ee 100644
+--- a/configs/mvebu_ocp-88f8040_defconfig
++++ b/configs/mvebu_ocp-88f8040_defconfig
+@@ -67,8 +67,6 @@ CONFIG_SPI_FLASH_MTD=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_MVPP2=y
+ CONFIG_DM_PCI=y
+-CONFIG_PCI_ENDPOINT=y
+-CONFIG_PCIE_DW_MVEBU_EP=y
+ CONFIG_MVEBU_COMPHY_SUPPORT=y
+ CONFIG_PINCTRL=y
+ CONFIG_PINCTRL_ARMADA_8K=y
+diff --git a/drivers/pci_endpoint/Kconfig b/drivers/pci_endpoint/Kconfig
+index 252f904044..19cfa0aafb 100644
+--- a/drivers/pci_endpoint/Kconfig
++++ b/drivers/pci_endpoint/Kconfig
+@@ -31,14 +31,4 @@ config PCI_SANDBOX_EP
+ 	  The sandbox driver act as a dummy driver which stores and
+ 	  retrieves PCIe endpoint configuration as is.
+ 
+-config PCIE_DW_MVEBU_EP
+-	bool "Enable Armada-8K/OcteonTX2 CN91xx PCIe endpoint driver"
+-	depends on PCI_ENDPOINT
+-	depends on ARMADA_8K
+-	help
+-	  Say Y here if you want to enable PCIe controller support in endpoint
+-	  mode on Marvell Armada-8K/OcteonTX2 CN91xx SoCs.
+-	  The PCIe controller on Armada-8K/OcteonTX2 CN91xx is based on
+-	  DesignWare hardware.
+-
+ endmenu
+diff --git a/drivers/pci_endpoint/Makefile b/drivers/pci_endpoint/Makefile
+index ed2505bfb4..3cd987259d 100644
+--- a/drivers/pci_endpoint/Makefile
++++ b/drivers/pci_endpoint/Makefile
+@@ -6,4 +6,3 @@
+ obj-y += pci_ep-uclass.o
+ obj-$(CONFIG_PCIE_CADENCE_EP) += pcie-cadence-ep.o
+ obj-$(CONFIG_PCI_SANDBOX_EP) += sandbox-pci_ep.o
+-obj-$(CONFIG_PCIE_DW_MVEBU_EP) += pcie_dw_mvebu_ep.o pcie_mvebu_ep_uio.o
+diff --git a/drivers/pci_endpoint/pcie_dw_mvebu_ep.c b/drivers/pci_endpoint/pcie_dw_mvebu_ep.c
+deleted file mode 100644
+index 46c4938d08..0000000000
+--- a/drivers/pci_endpoint/pcie_dw_mvebu_ep.c
++++ /dev/null
+@@ -1,304 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- * Copyright (C) 2019 Marvell International Ltd.
+- *
+- * Written By:
+- * Konstantin Porotchkin <kostap@marvell.com>
+- *
+- * Based on :
+- *   - pci_endpoint/pcie-cadence-ep.c
+- * and Linux driver:
+- *   - drivers/pci/endpoint/pcie-armada-dw-ep.c
+- */
+-
+-#include <common.h>
+-#include <dm.h>
+-#include <errno.h>
+-#include <pci_ep.h>
+-#include <linux/io.h>
+-#include <linux/ioport.h>
+-#include <linux/log2.h>
+-#include <linux/kernel.h>
+-#include <linux/sizes.h>
+-#include <linux/types.h>
+-#include <asm/io.h>
+-#include "pcie_dw_mvebu_ep.h"
+-
+-#define ATU_NUM_OF_VFS_TO_MAP		4
+-
+-DECLARE_GLOBAL_DATA_PTR;
+-
+-static int pcie_dw_mvebu_ep_setup_bar(struct udevice *dev, uint func_id,
+-				      struct pci_bar *bar)
+-{
+-	struct armada_pcie_ep *ep = dev_get_priv(dev);
+-	void *pl_regs = ep->pl_regs;
+-	u32  v = 0;
+-	u32  region_indx = get_in_region_idx(func_id, bar->barno);
+-	void *bar_addr = cfg_func_base(ep, func_id,
+-				PCI_BASE_ADDRESS_0 + (bar->barno * 4));
+-	void *bar_mask = cfg_shadow_func_base(ep, func_id,
+-				PCI_BASE_ADDRESS_0 + (bar->barno * 4));
+-
+-	if (bar->flags & PCI_BASE_ADDRESS_SPACE_IO) {
+-		v = bar->flags & (~PCI_BASE_ADDRESS_IO_MASK);
+-		writel(v, bar_addr);
+-	} else {
+-		/* clear the top 32 bits of the address */
+-		if (bar->flags & PCI_BASE_ADDRESS_MEM_TYPE_64)
+-			writel(0, bar_addr + 4);
+-
+-		v = bar->flags & (~PCI_BASE_ADDRESS_MEM_MASK);
+-		writel(v, bar_addr);
+-	}
+-
+-	/*
+-	 * Set the BAR using resizable BAR capability registers
+-	 * The minimum (and the default) BAR size is 1MB
+-	 * Once the Resizable BAR capability register is set
+-	 * the resizable BAR control register at next offset gets
+-	 * updated automatically.
+-	 */
+-	if (bar->size > SZ_1M && PCIE_BAR_IS_RESIZABLE(bar->barno)) {
+-		/* BAR size should be power of 2 already */
+-		v = ((bar->size >> 20) & PCIE_RESBAR_EXT_CAP_REG_MASK);
+-		v <<= PCIE_RESBAR_EXT_CAP_REG_SHIFT;
+-		writel(v, pl_regs + PCIE_RESBAR_EXT_CAP_REG(bar->barno));
+-	}
+-
+-	/* Enable bar */
+-	setbits_le32(bar_mask, BAR_ENABLE_MASK);
+-
+-	/* Setup the internal target for the BAR.
+-	 * When the PCIe host accesses the bar
+-	 * it will reach the space defined by "addr" and "size"
+-	 * This code is moved from a separate function in Linux
+-	 * driver: armada_pcie_ep_bar_map()
+-	 */
+-	v = PCIE_ATU_REGION_INBOUND | region_indx;
+-	writel(v, pl_regs + PCIE_ATU_VIEWPORT);
+-
+-	bar->phys_addr = bar->phys_addr & ~(bar->size - 1);
+-	v = lower_32_bits(bar->phys_addr);
+-	writel(v, pl_regs + PCIE_ATU_LOWER_TARGET);
+-
+-	v = upper_32_bits(bar->phys_addr);
+-	writel(v, pl_regs + PCIE_ATU_UPPER_TARGET);
+-
+-	v = (func_id & PCIE_ATU_CR1_FUNC_MASK) << PCIE_ATU_CR1_FUNC_OFF;
+-	writel(v, pl_regs + PCIE_ATU_CR1);
+-
+-	v = PCIE_ATU_CR2_REGION_EN |
+-	    PCIE_ATU_CR2_BAR_EN |
+-	    (bar->barno << PCIE_ATU_CR2_BAR_OFF);
+-	writel(v, pl_regs + PCIE_ATU_CR2);
+-
+-	return 0;
+-}
+-
+-static int pcie_dw_mvebu_ep_disable_bar(struct udevice *dev, uint func_num,
+-					enum pci_barno barnum)
+-{
+-	struct armada_pcie_ep *ep = dev_get_priv(dev);
+-	void *bar_mask = cfg_shadow_func_base(ep, func_num,
+-					      PCI_BASE_ADDRESS_0);
+-
+-	writel(0, bar_mask + barnum * 4);
+-
+-	return 0;
+-}
+-
+-static int pcie_dw_mvebu_ep_enable(struct udevice *dev)
+-{
+-	struct armada_pcie_ep *ep = dev_get_priv(dev);
+-	u32 v;
+-
+-	v = readl(ep->lm_regs + PCIE_GLOBAL_CTRL);
+-	v &= ~PCIE_GLOBAL_CTRL_CRS_EN;
+-	writel(v, ep->lm_regs + PCIE_GLOBAL_CTRL);
+-
+-	return 0;
+-}
+-
+-/*
+- * Remap the host memory space to the local memory space.
+- * By default the memory spaces conflict so we must offset the
+- * host memory space in our local memory space
+- */
+-static int pcie_dw_mvebu_ep_remap_host(struct udevice *dev, uint func_id,
+-				       phys_addr_t addr, u64 pci_addr,
+-				       size_t size)
+-{
+-	struct armada_pcie_ep *ep = dev_get_priv(dev);
+-	void *pl_regs = ep->pl_regs;
+-	u32  v, region = 0;
+-	u64  remain_size = size;
+-	u32  vf_num;
+-
+-	/* ATU window size must be power of 2 */
+-	if (!is_power_of_2(size))
+-		return -EINVAL;
+-
+-	/* Setup outbound regions for PF */
+-	while (remain_size > 0) {
+-		if (region > (MAX_ATU_REGIONS - ATU_NUM_OF_VFS_TO_MAP)) {
+-			printf("Insufficient ATU regions to map host\n");
+-			return -1;
+-		}
+-
+-		v = PCIE_ATU_REGION_OUTBOUND;
+-		v |= get_out_region_idx(func_id, region);
+-		writel(v, pl_regs + PCIE_ATU_VIEWPORT);
+-
+-		writel(addr & U32_MAX, pl_regs + PCIE_ATU_LOWER_BASE);
+-		writel(addr >> 32, pl_regs + PCIE_ATU_UPPER_BASE);
+-		writel(pci_addr & U32_MAX, pl_regs + PCIE_ATU_LOWER_TARGET);
+-		writel(pci_addr >> 32, pl_regs + PCIE_ATU_UPPER_TARGET);
+-
+-		if (remain_size > MAX_ATU_SIZE)
+-			v = MAX_ATU_SIZE - 1;
+-		else
+-			v = remain_size - 1;
+-		writel(v, pl_regs + PCIE_ATU_LIMIT);
+-
+-		v = (func_id & PCIE_ATU_CR1_FUNC_MASK) << PCIE_ATU_CR1_FUNC_OFF;
+-		writel(v, pl_regs + PCIE_ATU_CR1);
+-
+-		v = PCIE_ATU_CR2_REGION_EN;
+-		writel(v, pl_regs + PCIE_ATU_CR2);
+-
+-		region++;
+-		addr += MAX_ATU_SIZE;
+-		pci_addr += MAX_ATU_SIZE;
+-		remain_size -= MAX_ATU_SIZE;
+-	}
+-
+-	/* Setup outbound regions for VFs */
+-	/* Continue with the next available region and address.
+-	 * They have already advanced by the PF loop.
+-	 */
+-	for (vf_num = 0; vf_num < ATU_NUM_OF_VFS_TO_MAP;
+-	     vf_num++, addr += MAX_ATU_SIZE, region++) {
+-		v = PCIE_ATU_REGION_OUTBOUND;
+-		v |= get_out_region_idx(func_id, region);
+-		writel(v, pl_regs + PCIE_ATU_VIEWPORT);
+-
+-		writel(addr & U32_MAX, pl_regs + PCIE_ATU_LOWER_BASE);
+-		writel(addr >> 32, pl_regs + PCIE_ATU_UPPER_BASE);
+-
+-		/* We always point to lower 4GB on host side for all VFs */
+-		v = 0;
+-		writel(v, pl_regs + PCIE_ATU_LOWER_TARGET);
+-		writel(v, pl_regs + PCIE_ATU_UPPER_TARGET);
+-
+-		/* Single region per VF. Region size is set to maximum */
+-		v = MAX_ATU_SIZE - 1;
+-		writel(v, pl_regs + PCIE_ATU_LIMIT);
+-
+-		/* Same PF for all VFs */
+-		v = (func_id & PCIE_ATU_CR1_FUNC_MASK)
+-				<< PCIE_ATU_CR1_FUNC_OFF;
+-		writel(v, pl_regs + PCIE_ATU_CR1);
+-
+-		/* bind this region to VF number */
+-		v = (vf_num & PCIE_ATU_CR3_VF_NUM_MASK)
+-				| PCIE_ATU_CR3_VF_ACTIVE;
+-		writel(v, pl_regs + PCIE_ATU_CR3);
+-
+-		v = PCIE_ATU_CR2_REGION_EN;
+-		writel(v, pl_regs + PCIE_ATU_CR2);
+-	}
+-
+-	return 0;
+-}
+-
+-/* setup the PCIe configuration header */
+-static int pcie_dw_armada_write_header(struct udevice *dev, uint func_id,
+-				       struct pci_ep_header *hdr)
+-{
+-	struct armada_pcie_ep *ep = dev_get_priv(dev);
+-	void *cfg_addr = cfg_func_base(ep, func_id, 0);
+-
+-	writew(hdr->vendorid, cfg_addr + PCI_VENDOR_ID);
+-	writew(hdr->deviceid, cfg_addr + PCI_DEVICE_ID);
+-	writew(hdr->vf_deviceid, cfg_addr + PCIE_SRIOV_DEVID_OFFSET);
+-
+-	writeb(hdr->revid,  cfg_addr + PCI_REVISION_ID);
+-	writeb(hdr->progif_code,  cfg_addr + PCI_CLASS_PROG);
+-	writew((hdr->baseclass_code << 8) | hdr->subclass_code,
+-	       cfg_addr + PCI_CLASS_DEVICE);
+-
+-	writew(hdr->subsys_id,  cfg_addr + PCI_SUBSYSTEM_ID);
+-	writew(hdr->subsys_vendor_id,
+-	       cfg_addr + PCI_SUBSYSTEM_VENDOR_ID);
+-
+-	return 0;
+-}
+-
+-static int pcie_dw_mvebu_ep_probe(struct udevice *dev)
+-{
+-	struct armada_pcie_ep *ep = dev_get_priv(dev);
+-	struct resource res;
+-	void *p;
+-
+-	/* Get registers bases and remap */
+-	dev_read_resource_byname(dev, "lm", &res);
+-	p = devm_ioremap(dev, res.start, resource_size(&res));
+-	if (IS_ERR(p)) {
+-		printf("couldn't remap lm regs base %pR\n", &res);
+-		return PTR_ERR(p);
+-	}
+-	ep->lm_regs = p;
+-
+-	dev_read_resource_byname(dev, "core", &res);
+-	p = devm_ioremap(dev, res.start, resource_size(&res));
+-	if (IS_ERR(p)) {
+-		printf("couldn't remap core regs base %pR\n", &res);
+-		return PTR_ERR(p);
+-	}
+-	ep->regs = p;
+-	ep->pl_regs = p;
+-
+-	dev_read_resource_byname(dev, "shadow_core", &res);
+-	p = devm_ioremap(dev, res.start, resource_size(&res));
+-	if (IS_ERR(p)) {
+-		printf("couldn't remap shadow regs base %pR\n", &res);
+-		return PTR_ERR(p);
+-	}
+-	ep->shadow_regs = p;
+-
+-	/* Disable Function 0. Set the vendor ID to 0xFFFFFFFF to avoid
+-	 * detection until the EP is fully configured
+-	 */
+-	writel(0xffffffff, cfg_func_base(ep, 0, PCI_VENDOR_ID));
+-
+-	return 0;
+-}
+-
+-static int pcie_dw_mvebu_ep_remove(struct udevice *dev)
+-{
+-	return 0;
+-}
+-
+-static const struct pci_ep_ops pcie_dw_mvebu_ep_ops = {
+-	.write_header = pcie_dw_armada_write_header,
+-	.map_addr = pcie_dw_mvebu_ep_remap_host,
+-	.set_bar = pcie_dw_mvebu_ep_setup_bar,
+-	.clear_bar = pcie_dw_mvebu_ep_disable_bar,
+-	.start = pcie_dw_mvebu_ep_enable,
+-};
+-
+-static const struct udevice_id pcie_dw_mvebu_ep_ids[] = {
+-	{ .compatible = "marvell,armada-pcie-ep" },
+-	{ }
+-};
+-
+-U_BOOT_DRIVER(pcie_dw_armada_ep) = {
+-	.name			= "armada-pcie-ep",
+-	.id			= UCLASS_PCI_EP,
+-	.of_match		= pcie_dw_mvebu_ep_ids,
+-	.ops			= &pcie_dw_mvebu_ep_ops,
+-	.probe			= pcie_dw_mvebu_ep_probe,
+-	.remove			= pcie_dw_mvebu_ep_remove,
+-	.priv_auto_alloc_size	= sizeof(struct armada_pcie_ep),
+-};
+diff --git a/drivers/pci_endpoint/pcie_dw_mvebu_ep.h b/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
+deleted file mode 100644
+index 5d191344e6..0000000000
+--- a/drivers/pci_endpoint/pcie_dw_mvebu_ep.h
++++ /dev/null
+@@ -1,93 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0+ */
+-/*
+- * Copyright (C) 2019 Marvell International Ltd.
+- *
+- * Written By:
+- * Konstantin Porotchkin <kostap@marvell.com>
+- *
+- * Based on :
+- *   - pci_endpoint/pcie-cadence-ep.c
+- * and Linux driver:
+- *   - drivers/pci/endpoint/pcie-armada-dw-ep.c
+- */
+-
+-#ifndef PCIE_DW_EP_MVEBU_H
+-#define PCIE_DW_EP_MVEBU_H
+-
+-#include <linux/bitops.h>
+-
+-#define PCIE_GLOBAL_CTRL		0x0
+-#define PCIE_GLOBAL_CTRL_CRS_EN		BIT(9)
+-#define PCIE_GLOBAL_CTRL_TYPE_OFF	4
+-#define PCIE_GLOBAL_CTRL_TYPE_MASK	0xF
+-#define PCIE_GLOBAL_CTRL_TYPE_RC	(0x4)
+-
+-#define PCIE_ATU_VIEWPORT		0x900
+-#define PCIE_ATU_REGION_INBOUND		(0x1 << 31)
+-#define PCIE_ATU_REGION_OUTBOUND	(0x0 << 31)
+-#define PCIE_ATU_REGION_INDEX1		(0x1 << 0)
+-#define PCIE_ATU_REGION_INDEX0		(0x0 << 0)
+-#define PCIE_ATU_CR1			0x904
+-#define PCIE_ATU_CR1_FUNC_OFF		20
+-#define PCIE_ATU_CR1_FUNC_MASK		0x1F
+-#define PCIE_ATU_TYPE_MEM		(0x0 << 0)
+-#define PCIE_ATU_TYPE_IO		(0x2 << 0)
+-#define PCIE_ATU_TYPE_CFG0		(0x4 << 0)
+-#define PCIE_ATU_TYPE_CFG1		(0x5 << 0)
+-#define PCIE_ATU_CR2			0x908
+-#define PCIE_ATU_CR2_REGION_EN		(0x1 << 31)
+-#define PCIE_ATU_CR2_BAR_EN		(0x1 << 30)
+-#define PCIE_ATU_CR2_FUNC_EN		(0x1 << 19)
+-#define PCIE_ATU_CR2_BAR_OFF		8
+-#define PCIE_ATU_LOWER_BASE		0x90C
+-#define PCIE_ATU_UPPER_BASE		0x910
+-#define PCIE_ATU_LIMIT			0x914
+-#define PCIE_ATU_LOWER_TARGET		0x918
+-#define PCIE_ATU_BUS(x)			(((x) & 0xff) << 24)
+-#define PCIE_ATU_DEV(x)			(((x) & 0x1f) << 19)
+-#define PCIE_ATU_FUNC(x)		(((x) & 0x7) << 16)
+-#define PCIE_ATU_UPPER_TARGET		0x91C
+-#define PCIE_ATU_CR3			0x920
+-#define PCIE_ATU_CR3_VF_ACTIVE		(0x1 << 31)
+-#define PCIE_ATU_CR3_VF_NUM_MASK	(0x7)
+-
+-#define PCIE_SRIOV_DEVID_OFFSET		0x192
+-
+-#define PCIE_RESBAR_EXT_CAP_HDR_REG	0x25c
+-#define PCIE_RESBAR_EXT_CAP_REG(bar)			\
+-	({ typeof(bar) _BAR_ = (bar);			\
+-		PCIE_RESBAR_EXT_CAP_HDR_REG + 4 +	\
+-		(((_BAR_) / 2 + (_BAR_) % 2) & 0x3) * 8; })
+-#define PCIE_RESBAR_EXT_CAP_REG_MASK	0x000fffff
+-#define PCIE_RESBAR_EXT_CAP_REG_SHIFT	4
+-
+-#define PCIE_BAR_IS_RESIZABLE(bar)		\
+-	({ typeof(bar) _BAR_ = (bar);		\
+-		(_BAR_) == 5 || (_BAR_) == 4 ||	\
+-		(_BAR_) == 2 || (_BAR_) == 0; })
+-
+-#define MAX_ATU_REGIONS			8
+-#define MAX_ATU_SIZE			(4ul * SZ_1G)
+-
+-#define  BAR_ENABLE_OFFSET		0
+-#define  BAR_ENABLE_MASK		BIT(BAR_ENABLE_OFFSET)
+-
+-struct armada_pcie_ep {
+-	void		*regs;
+-	void		*shadow_regs;
+-	void		*lm_regs;
+-	void		*pl_regs;	/*port logical register only PF0*/
+-};
+-
+-#define cfg_space_addr(func_id)			(0x1000 * (func_id))
+-
+-#define cfg_func_base(ep, func_id, off)		\
+-	((ep)->regs + cfg_space_addr(func_id) + (off))
+-
+-#define cfg_shadow_func_base(ep, func_id, off)	\
+-	((ep)->shadow_regs + cfg_space_addr(func_id) + (off))
+-
+-#define get_out_region_idx(func_id, id)		((func_id) + (id))
+-#define get_in_region_idx(func_id, bar)		((func_id) + (bar))
+-
+-#endif /* PCIE_DW_EP_MVEBU_H */
+diff --git a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c b/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
+deleted file mode 100644
+index bb89549848..0000000000
+--- a/drivers/pci_endpoint/pcie_mvebu_ep_uio.c
++++ /dev/null
+@@ -1,169 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- * Copyright (C) 2019 Marvell International Ltd.
+- *
+- * Written By:
+- * Konstantin Porotchkin <kostap@marvell.com>
+- *
+- * Based on Linux driver:
+- *   - drivers/uio/pcie-armada-dw-ep.c
+- *     authored by Yehuda Yitschak <yehuday@marvell.com>
+- */
+-
+-#include <common.h>
+-#include <dm.h>
+-#include <errno.h>
+-#include <pci_ep.h>
+-#include <linux/io.h>
+-#include <linux/ioport.h>
+-#include <linux/log2.h>
+-#include <linux/kernel.h>
+-#include <linux/sizes.h>
+-#include <linux/types.h>
+-
+-DECLARE_GLOBAL_DATA_PTR;
+-
+-struct uio_pci {
+-	struct udevice  *ep;
+-	struct resource	*host_map;
+-};
+-
+-/* make sure we have at least one mem regions to map the host ram */
+-#define MAX_BAR_MAP		6
+-#define PCIE_EP_ALL_BARS	0x3f
+-
+-
+-static int uio_pci_ep_probe(struct udevice *dev)
+-{
+-	struct uio_pci *uio_pci = dev_get_priv(dev);
+-	struct pci_ep_header hdr;
+-	struct pci_bar bar;
+-	struct resource res;
+-	int    bar_id, ret;
+-	char res_name[20];
+-	u16 bar_mask = 0;
+-	u32 val;
+-
+-	/* Expecting single PCI EP device */
+-	uclass_first_device(UCLASS_PCI_EP, &uio_pci->ep);
+-	if (!uio_pci->ep) {
+-		printf("Failed to find PCI EP driver\n");
+-		return -EFAULT;
+-	}
+-
+-	/* Configure the EP PCIe header */
+-	memset(&hdr, 0, sizeof(hdr));
+-	hdr.vendorid = PCI_VENDOR_ID_MARVELL;
+-
+-	ret = dev_read_u32(dev, "device-id", &val);
+-	if (ret) {
+-		printf("missing device-id from DT node\n");
+-		return ret;
+-	}
+-	hdr.deviceid = val;
+-
+-	ret = dev_read_u32(dev, "vf-device-id", &val);
+-	if (ret) {
+-		printf("missing vf-device-id from DT node\n");
+-		return ret;
+-	}
+-	hdr.vf_deviceid = val;
+-
+-	ret = dev_read_u32(dev, "class-code", &val);
+-	if (ret) {
+-		printf("missing class-code from DT node\n");
+-		return ret;
+-	}
+-	hdr.baseclass_code = val;
+-
+-	ret = dev_read_u32(dev, "subclass-code", &val);
+-	if (ret) {
+-		printf("missing subclass-code from DT node\n");
+-		return ret;
+-	}
+-	hdr.subclass_code = val;
+-
+-	pci_ep_write_header(uio_pci->ep, 0, &hdr);
+-
+-	/* Setup the BARs according to device tree */
+-	for (bar_id = 0; bar_id < MAX_BAR_MAP; bar_id++) {
+-		snprintf(res_name, 5, "bar%d", bar_id);
+-		ret = dev_read_resource_byname(dev, res_name, &res);
+-		if (ret)
+-			continue;
+-
+-		bar_mask |= 1 << bar_id;
+-
+-		bar.barno = bar_id;
+-		bar.phys_addr = res.start;
+-		bar.size = resource_size(&res);
+-		if (!is_power_of_2(bar.size)) {
+-			printf("BAR-%d size in not power of 2\n", bar_id);
+-			return -EINVAL;
+-		}
+-
+-		/* Now create the BAR to match the memory region */
+-		bar.flags = PCI_BASE_ADDRESS_SPACE_MEMORY;
+-		if (bar_id < 4)
+-			bar.flags |= PCI_BASE_ADDRESS_MEM_TYPE_64;
+-		else
+-			bar.flags |= PCI_BASE_ADDRESS_MEM_TYPE_32;
+-		pci_ep_set_bar(uio_pci->ep, 0, &bar);
+-
+-		/* First 2 BARs in HW are 64 bit BARs and consume 2 BAR slots */
+-		if (bar_id < 4) {
+-			bar_id++;
+-			bar_mask |= 1 << bar_id;
+-		}
+-	}
+-
+-	bar_mask = PCIE_EP_ALL_BARS & ~bar_mask;
+-	for (bar_id = 0; bar_mask; bar_mask >>= 1, bar_id++) {
+-		if (bar_mask & 1)
+-			pci_ep_clear_bar(uio_pci->ep, 0, bar_id);
+-	}
+-
+-	/* remap host RAM to local memory space  using shift mapping.
+-	 * i.e. address 0x0 in host becomes uio_pci->host_map->start.
+-	 */
+-	ret = dev_read_resource_byname(dev, "host-map", uio_pci->host_map);
+-	if (ret) {
+-		printf("Device tree missing host mappings\n");
+-		return -ENODEV;
+-	}
+-
+-	pci_ep_map_addr(uio_pci->ep, 0, uio_pci->host_map->start,
+-			0, resource_size(uio_pci->host_map));
+-
+-	/* Finally, allow the PCIe RC to detect us */
+-	pci_ep_start(uio_pci->ep);
+-
+-	printf("Registered UIO PCI EP successfully\n");
+-
+-	return 0;
+-}
+-
+-static int uio_pci_ep_remove(struct udevice *dev)
+-{
+-	struct uio_pci *uio_pci = dev_get_priv(dev);
+-	int    bar_id;
+-
+-	for (bar_id = 0; bar_id < MAX_BAR_MAP; bar_id++)
+-		pci_ep_clear_bar(uio_pci->ep, 0, bar_id);
+-
+-	return 0;
+-}
+-
+-const struct udevice_id uio_pci_ep_match[] = {
+-	{ .compatible = "marvell,pci-ep-uio" },
+-	{ }
+-};
+-
+-U_BOOT_DRIVER(cdns_pcie) = {
+-	.name	= "marvell,pci-ep-uio",
+-	.id	= UCLASS_NOP,
+-	.of_match = uio_pci_ep_match,
+-	.probe = uio_pci_ep_probe,
+-	.remove = uio_pci_ep_remove,
+-	.priv_auto_alloc_size = sizeof(struct uio_pci),
+-};
+-- 
+2.29.0
+

@@ -1,0 +1,93 @@
+From 8e4e1cca21a0a1717b4527ad3e3d9b3c1fc844ae Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@marvell.com>
+Date: Tue, 26 Nov 2019 17:05:55 -0800
+Subject: [PATCH 1015/1239] cmd: bootimgup: fix crash on memory corruption
+
+Skip allocation of compare buffer for each block in update
+to SPI flash. Instead in caller for block update use memalign
+to declare buffer size of flash sector size and pass it on.
+
+Change-Id: I386282014122fd53103b07af85a057316370ce38
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19357
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/19372
+Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+---
+ cmd/marvell/bootimgup.c | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
+
+diff --git a/cmd/marvell/bootimgup.c b/cmd/marvell/bootimgup.c
+index e221b4ceeb..874eb16ee5 100644
+--- a/cmd/marvell/bootimgup.c
++++ b/cmd/marvell/bootimgup.c
+@@ -284,16 +284,12 @@ static ulong bytes_per_second(unsigned int len, ulong start_ms)
+  * @return NULL if OK, else a string containing the stage which failed
+  */
+ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
+-					  size_t len, const char *buf)
++					  size_t len, const char *buf,
++					  char *cmp_buf)
+ {
+ 	char *ret = NULL;
+ 	char *ptr = (char *)buf;
+-	char *rbuf = malloc(len);
+-
+-	if (!rbuf) {
+-		printf("%s: Out of memory\n", __func__);
+-		return "no memory";
+-	}
++	char *rbuf = cmp_buf;
+ 
+ 	/* Read the entire sector so to allow for rewriting */
+ 	if (spi_flash_read(flash, offset, flash->sector_size, rbuf)) {
+@@ -304,8 +300,7 @@ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
+ 	}
+ 	/* Compare only what is meaningful (len) */
+ 	if (memcmp(rbuf, buf, len) == 0) {
+-		free(rbuf);
+-		return NULL;
++		return ret;
+ 	}
+ 
+ 	/* Erase the entire sector */
+@@ -338,7 +333,6 @@ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
+ 	}
+ 
+ error:
+-	free(rbuf);
+ 	return ret;
+ }
+ 
+@@ -361,10 +355,16 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
+ 	const ulong start_time = get_timer(0);
+ 	size_t scale = 1;
+ 	const char *start_buf = buf;
++	char *cmp_buf;
+ 	ulong delta;
+ 
+ 	if (end - buf >= 200)
+ 		scale = (end - buf) / 100;
++	cmp_buf = memalign(ARCH_DMA_MINALIGN, flash->sector_size);
++	if (!cmp_buf) {
++		printf("%s: Out of memory\n", __func__);
++		return 1;
++	}
+ 	ulong last_update = get_timer(0);
+ 
+ 	for (; (buf < end) && (!err_oper); buf += todo, offset += todo) {
+@@ -376,7 +376,8 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
+ 						 start_time));
+ 			last_update = get_timer(0);
+ 		}
+-		err_oper = spi_flash_update_block(flash, offset, todo, buf);
++		err_oper = spi_flash_update_block(flash, offset, todo, buf,
++						  cmp_buf);
+ 		if (err_oper)
+ 			break;
+ 	}
+-- 
+2.29.0
+

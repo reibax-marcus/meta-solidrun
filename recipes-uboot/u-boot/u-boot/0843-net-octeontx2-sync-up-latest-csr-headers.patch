@@ -1,0 +1,435 @@
+From 1dc37c8a6effdc47de7dfa7cbedd58eff392b2a5 Mon Sep 17 00:00:00 2001
+From: Suneel Garapati <sgarapati@caviumnetworks.com>
+Date: Thu, 6 Dec 2018 11:27:47 -0800
+Subject: [PATCH 0843/1239] net: octeontx2: sync up latest csr headers
+
+Change-Id: Ib95f1fd00f796628c6c0a66cd0eeb0a452095eee
+Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+Reviewed-on: https://sj1git1.cavium.com/1456
+Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+---
+ drivers/net/octeontx2/cavm-csrs-cgx.h | 23 +++++---
+ drivers/net/octeontx2/cavm-csrs-lmt.h | 11 ++--
+ drivers/net/octeontx2/cavm-csrs-nix.h | 85 ++++++++++++++-------------
+ drivers/net/octeontx2/cavm-csrs-npa.h | 12 ++--
+ drivers/net/octeontx2/cavm-csrs-npc.h | 36 +++++++-----
+ drivers/net/octeontx2/cavm-csrs-rvu.h | 24 ++++----
+ 6 files changed, 100 insertions(+), 91 deletions(-)
+
+diff --git a/drivers/net/octeontx2/cavm-csrs-cgx.h b/drivers/net/octeontx2/cavm-csrs-cgx.h
+index a4fc056cf4..ab784786d4 100644
+--- a/drivers/net/octeontx2/cavm-csrs-cgx.h
++++ b/drivers/net/octeontx2/cavm-csrs-cgx.h
+@@ -1,12 +1,12 @@
+ #ifndef __CAVM_CSRS_CGX_H__
+ #define __CAVM_CSRS_CGX_H__
+ /* This file is auto-generated.  Do not edit */
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- *
+- * SPDX-License-Identifier:    GPL-2.0
+- * https://spdx.org/licenses
+- */
++
++/***********************license start***********************************
++* Copyright (C) 2018 Marvell International Ltd.
++* SPDX-License-Identifier: BSD-3-Clause
++* https://spdx.org/licenses
++***********************license end**************************************/
+ 
+ /**
+  * @file
+@@ -6222,9 +6222,16 @@ union cavm_cgxx_spux_br_pmd_control {
+ 		u64 train_restart                    : 1;
+ 		u64 train_en                         : 1;
+ 		u64 use_lane_poly                    : 1;
+-		u64 reserved_3_63                    : 61;
++		u64 max_wait_disable                 : 1;
++		u64 reserved_4_63                    : 60;
+ 	} s;
+-	/* struct cavm_cgxx_spux_br_pmd_control_s cn; */
++	struct cavm_cgxx_spux_br_pmd_control_cn96xx {
++		u64 train_restart                    : 1;
++		u64 train_en                         : 1;
++		u64 use_lane_poly                    : 1;
++		u64 reserved_3_63                    : 61;
++	} cn96xx;
++	/* struct cavm_cgxx_spux_br_pmd_control_s cnf95xx; */
+ };
+ 
+ static inline u64 CAVM_CGXX_SPUX_BR_PMD_CONTROL(u64 a)
+diff --git a/drivers/net/octeontx2/cavm-csrs-lmt.h b/drivers/net/octeontx2/cavm-csrs-lmt.h
+index f646a00262..948606f8b8 100644
+--- a/drivers/net/octeontx2/cavm-csrs-lmt.h
++++ b/drivers/net/octeontx2/cavm-csrs-lmt.h
+@@ -1,13 +1,12 @@
+ #ifndef __CAVM_CSRS_LMT_H__
+ #define __CAVM_CSRS_LMT_H__
+ /* This file is auto-generated.  Do not edit */
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- *
+- * SPDX-License-Identifier:    GPL-2.0
+- * https://spdx.org/licenses
+- */
+ 
++/***********************license start***********************************
++* Copyright (C) 2018 Marvell International Ltd.
++* SPDX-License-Identifier: BSD-3-Clause
++* https://spdx.org/licenses
++***********************license end**************************************/
+ 
+ /**
+  * @file
+diff --git a/drivers/net/octeontx2/cavm-csrs-nix.h b/drivers/net/octeontx2/cavm-csrs-nix.h
+index f69c194432..41fefef31c 100644
+--- a/drivers/net/octeontx2/cavm-csrs-nix.h
++++ b/drivers/net/octeontx2/cavm-csrs-nix.h
+@@ -2,13 +2,11 @@
+ #define __CAVM_CSRS_NIX_H__
+ /* This file is auto-generated.  Do not edit */
+ 
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- *
+- * SPDX-License-Identifier:    GPL-2.0
+- * https://spdx.org/licenses
+- */
+-
++/***********************license start***********************************
++* Copyright (C) 2018 Marvell International Ltd.
++* SPDX-License-Identifier: BSD-3-Clause
++* https://spdx.org/licenses
++***********************license end**************************************/
+ 
+ /**
+  * @file
+@@ -757,11 +755,8 @@ union cavm_nix_iova_s {
+ /**
+  * Structure nix_ipsec_dyno_s
+  *
+- * NIX IPSEC Dynamic Ordering Counter Structure This structure specifies
+- * the format of an IPSEC dynamic ordering (DYNO) counter in
+- * NDC/LLC/DRAM. See NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA]. Software
+- * uses the same structure format to read and write a DYNO counter with
+- * the NIX admin queue.
++ * INTERNAL: NIX IPSEC Dynamic Ordering Counter Structure  Internal: Not
++ * used; no IPSEC fast-path.
+  */
+ union cavm_nix_ipsec_dyno_s {
+ 	u32 u;
+@@ -2157,10 +2152,9 @@ union cavm_nixx_af_const {
+ 		u64 cgx_lmacs                        : 4;
+ 		u64 num_cgx                          : 4;
+ 		u64 lbk_channels                     : 8;
+-		u64 lbk_to_nix0                      : 6;
+-		u64 lbk_to_nix1                      : 6;
+-		u64 lbk_from_nix0                    : 6;
+-		u64 lbk_from_nix1                    : 6;
++		u64 num_lbk                          : 4;
++		u64 num_sdp                          : 4;
++		u64 reserved_32_47                   : 16;
+ 		u64 links                            : 8;
+ 		u64 intfs                            : 4;
+ 		u64 reserved_60_63                   : 4;
+@@ -2936,7 +2930,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RSS_GRPX(u64 a, u64 b)
+ union cavm_nixx_af_lfx_rx_cfg {
+ 	u64 u;
+ 	struct cavm_nixx_af_lfx_rx_cfg_s {
+-		u64 reserved_0_32                    : 33;
++		u64 reserved_0_31                    : 32;
++		u64 drop_re                          : 1;
+ 		u64 lenerr_en                        : 1;
+ 		u64 ip6_udp_opt                      : 1;
+ 		u64 dis_apad                         : 1;
+@@ -2948,7 +2943,21 @@ union cavm_nixx_af_lfx_rx_cfg {
+ 		u64 len_ol3                          : 1;
+ 		u64 reserved_42_63                   : 22;
+ 	} s;
+-	/* struct cavm_nixx_af_lfx_rx_cfg_s cn; */
++	struct cavm_nixx_af_lfx_rx_cfg_cn96xx {
++		u64 reserved_0_31                    : 32;
++		u64 reserved_32                      : 1;
++		u64 lenerr_en                        : 1;
++		u64 ip6_udp_opt                      : 1;
++		u64 dis_apad                         : 1;
++		u64 csum_il4                         : 1;
++		u64 csum_ol4                         : 1;
++		u64 len_il4                          : 1;
++		u64 len_il3                          : 1;
++		u64 len_ol4                          : 1;
++		u64 len_ol3                          : 1;
++		u64 reserved_42_63                   : 22;
++	} cn96xx;
++	/* struct cavm_nixx_af_lfx_rx_cfg_s cnf95xx; */
+ };
+ 
+ static inline u64 CAVM_NIXX_AF_LFX_RX_CFG(u64 a)
+@@ -2961,7 +2970,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_CFG(u64 a)
+ /**
+  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_cfg0
+  *
+- * NIX AF LF Receive IPSEC Configuration Registers
++ * INTERNAL: NIX AF LF Receive IPSEC Configuration Registers  Internal:
++ * Not used; no IPSEC fast-path.
+  */
+ union cavm_nixx_af_lfx_rx_ipsec_cfg0 {
+ 	u64 u;
+@@ -2988,7 +2998,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG0(u64 a)
+ /**
+  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_cfg1
+  *
+- * NIX AF LF Receive IPSEC Security Association Configuration Register
++ * INTERNAL: NIX AF LF Receive IPSEC Security Association Configuration
++ * Register  Internal: Not used; no IPSEC fast-path.
+  */
+ union cavm_nixx_af_lfx_rx_ipsec_cfg1 {
+ 	u64 u;
+@@ -3010,11 +3021,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_CFG1(u64 a)
+ /**
+  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_dyno_base
+  *
+- * NIX AF LF Receive IPSEC Dynamic Ordering Base Address Registers This
+- * register specifies the base AF IOVA of the LF's IPSEC dynamic ordering
+- * counter table in NDC/LLC/DRAM. The table consists of 1 \<\<
+- * (NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_IDX_W]) NIX_IPSEC_DYNO_S
+- * structures. See NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA].
++ * INTERNAL: NIX AF LF Receive IPSEC Dynamic Ordering Base Address
++ * Registers  Internal: Not used; no IPSEC fast-path.
+  */
+ union cavm_nixx_af_lfx_rx_ipsec_dyno_base {
+ 	u64 u;
+@@ -3036,7 +3044,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_BASE(u64 a)
+ /**
+  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_dyno_cfg
+  *
+- * NIX AF LF Receive IPSEC Dynamic Ordering Base Address Registers
++ * INTERNAL: NIX AF LF Receive IPSEC Dynamic Ordering Base Address
++ * Registers  Internal: Not used; no IPSEC fast-path.
+  */
+ union cavm_nixx_af_lfx_rx_ipsec_dyno_cfg {
+ 	u64 u;
+@@ -3061,9 +3070,8 @@ static inline u64 CAVM_NIXX_AF_LFX_RX_IPSEC_DYNO_CFG(u64 a)
+ /**
+  * Register (RVU_PF_BAR0) nix#_af_lf#_rx_ipsec_sa_base
+  *
+- * NIX AF LF Receive IPSEC Security Association Base Address Register
+- * This register specifies the base IOVA of CPT's IPSEC SA table in
+- * LLC/DRAM.
++ * INTERNAL: NIX AF LF Receive IPSEC Security Association Base Address
++ * Register  Internal: Not used; no IPSEC fast-path.
+  */
+ union cavm_nixx_af_lfx_rx_ipsec_sa_base {
+ 	u64 u;
+@@ -4624,10 +4632,8 @@ static inline u64 CAVM_NIXX_AF_RX_DEF_IIP6(void)
+ /**
+  * Register (RVU_PF_BAR0) nix#_af_rx_def_ipsec#
+  *
+- * NIX AF Receive IPSEC Header Definition Registers These two registers
+- * define layer information in NPC_RESULT_S to identify an IPSEC header
+- * for up to two IPSEC packet formats. The two formats are typically
+- * IPSEC ESP (RFC 4303) and UDP-encapsulated IPSEC ESP (RFC 3948).
++ * INTERNAL: NIX AF Receive IPSEC Header Definition Registers  Internal:
++ * Not used; no IPSEC fast-path.
+  */
+ union cavm_nixx_af_rx_def_ipsecx {
+ 	u64 u;
+@@ -4912,9 +4918,8 @@ static inline u64 CAVM_NIXX_AF_RX_FLOW_KEY_ALGX_FIELDX(u64 a, u64 b)
+ /**
+  * Register (RVU_PF_BAR0) nix#_af_rx_ipsec_gen_cfg
+  *
+- * NIX AF Receive IPSEC General Configuration Register This register
+- * specifies the values of certain fields in CPT instructions
+- * (CPT_INST_S) generated by NIX for IPSEC hardware fast-path packets.
++ * INTERNAL: NIX AF Receive IPSEC General Configuration Register
++ * Internal: Not used; no IPSEC fast-path.
+  */
+ union cavm_nixx_af_rx_ipsec_gen_cfg {
+ 	u64 u;
+@@ -8717,12 +8722,8 @@ static inline u64 CAVM_NIXX_LF_MNQ_ERR_DBG(void)
+ /**
+  * Register (RVU_PFVF_BAR2) nix#_lf_op_ipsec_dyno_cnt
+  *
+- * NIX LF IPSEC Dynamic Ordering Counter Operation Register A 64-bit
+- * atomic load-and-add to this register reads an IPSEC dynamic ordering
+- * counter (NIX_IPSEC_DYNO_S). A write decrements
+- * NIX_IPSEC_DYNO_S[COUNT]. A read is RAZ. See
+- * NIX_AF_LF()_RX_IPSEC_DYNO_CFG[DYNO_ENA].  RSL accesses to this
+- * register are RAZ/WI.
++ * INTERNAL: NIX LF IPSEC Dynamic Ordering Counter Operation Register
++ * Internal: Not used; no IPSEC fast-path. All accesses are RAZ/WI.
+  */
+ union cavm_nixx_lf_op_ipsec_dyno_cnt {
+ 	u64 u;
+diff --git a/drivers/net/octeontx2/cavm-csrs-npa.h b/drivers/net/octeontx2/cavm-csrs-npa.h
+index 2901e5695a..6bacddd830 100644
+--- a/drivers/net/octeontx2/cavm-csrs-npa.h
++++ b/drivers/net/octeontx2/cavm-csrs-npa.h
+@@ -2,13 +2,11 @@
+ #define __CAVM_CSRS_NPA_H__
+ /* This file is auto-generated.  Do not edit */
+ 
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- *
+- * SPDX-License-Identifier:    GPL-2.0
+- * https://spdx.org/licenses
+- */
+-
++/***********************license start***********************************
++* Copyright (C) 2018 Marvell International Ltd.
++* SPDX-License-Identifier: BSD-3-Clause
++* https://spdx.org/licenses
++***********************license end**************************************/
+ 
+ /**
+  * @file
+diff --git a/drivers/net/octeontx2/cavm-csrs-npc.h b/drivers/net/octeontx2/cavm-csrs-npc.h
+index dac26001b4..c75bb9e9d4 100644
+--- a/drivers/net/octeontx2/cavm-csrs-npc.h
++++ b/drivers/net/octeontx2/cavm-csrs-npc.h
+@@ -2,13 +2,11 @@
+ #define __CAVM_CSRS_NPC_H__
+ /* This file is auto-generated.  Do not edit */
+ 
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- *
+- * SPDX-License-Identifier:    GPL-2.0
+- * https://spdx.org/licenses
+- */
+-
++/***********************license start***********************************
++* Copyright (C) 2018 Marvell International Ltd.
++* SPDX-License-Identifier: BSD-3-Clause
++* https://spdx.org/licenses
++***********************license end**************************************/
+ 
+ /**
+  * @file
+@@ -887,9 +885,11 @@ static inline u64 CAVM_NPC_AF_KPUX_ENTRYX_ACTION1(u64 a, u64 b)
+  * == 1. _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=1: Reserved.  The reserved
+  * combination is not allowed. Hardware suppresses any write to CAM(0) or
+  * CAM(1) that would result in the reserved combination for any CAM bit.
+- * Software must program a default entry for each KPU, e.g. by
+- * programming each KPU's last entry {b} (NPC_AF_KPU()_ENTRY({b})_CAM())
+- * to always match all bits.
++ * The reset value for all non-reserved fields is all zeros for CAM(1)
++ * and all ones for CAM(0), matching a search key of all zeros.  Software
++ * must program a default entry for each KPU, e.g. by programming each
++ * KPU's last entry {b} (NPC_AF_KPU()_ENTRY({b})_CAM()) to always match
++ * all bits.
+  */
+ union cavm_npc_af_kpux_entryx_camx {
+ 	u64 u;
+@@ -1162,10 +1162,14 @@ static inline u64 CAVM_NPC_AF_MCAMEX_BANKX_ACTION(u64 a, u64 b)
+  * 1. _ [CAM(1)]\<n\>=1, [CAM(0)]\<n\>=1: Reserved.  The reserved
+  * combination is not allowed. Hardware suppresses any write to CAM(0) or
+  * CAM(1) that would result in the reserved combination for any CAM bit.
+- * When an interface is configured to use the NPC_MCAM_KEY_X1_S search
+- * key format (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X1), the
+- * four banks of every MCAM entry are used as individual entries, each of
+- * which is independently compared with the search key as follows: _
++ * The reset value for all non-reserved fields in
++ * NPC_AF_MCAME()_BANK()_CAM()_INTF, NPC_AF_MCAME()_BANK()_CAM()_W0 and
++ * NPC_AF_MCAME()_BANK()_CAM()_W1 is all zeros for CAM(1) and all ones
++ * for CAM(0), matching a search key of all zeros.  When an interface is
++ * configured to use the NPC_MCAM_KEY_X1_S search key format
++ * (NPC_AF_INTF()_KEX_CFG[KEYW] = NPC_MCAMKEYW_E::X1), the four banks of
++ * every MCAM entry are used as individual entries, each of which is
++ * independently compared with the search key as follows: _
+  * NPC_AF_MCAME()_BANK()_CAM()_INTF[INTF] corresponds to
+  * NPC_MCAM_KEY_X1_S[INTF]. _ NPC_AF_MCAME()_BANK()_CAM()_W0[MD]
+  * corresponds to NPC_MCAM_KEY_X1_S[KW0]. _
+@@ -1560,8 +1564,8 @@ static inline u64 CAVM_NPC_AF_PKINDX_ACTION1(u64 a)
+  * possible layer definitions in the parsed packet, e.g. DiffServ DSCP
+  * from either IPv4 or IPv6 header.  CPI pseudocode: \<pre\> for (i = 0;
+  * i \< 2; i++) {    cpi_def = NPC_AF_PKIND()_CPI_DEF(i);    LX = LA, LB,
+- * ..., or LH as selected by cpi_def[LID];     if (cpi_def[VALID]
+- * && ((cpi_def[LTYPE_MATCH] & cpi_def[LTYPE_MASK])             ==
++ * ..., or LH as selected by cpi_def[LID];     if (cpi_def[ENA]        &&
++ * ((cpi_def[LTYPE_MATCH] & cpi_def[LTYPE_MASK])             ==
+  * (NPC_RESULT_S[LX[LTYPE]] & cpi_def[LTYPE_MASK]))        &&
+  * ((cpi_def[FLAGS_MATCH] & cpi_def[FLAGS_MASK])             ==
+  * (NPC_RESULT_S[LX[FLAGS]] & cpi_def[FLAGS_MASK])))    {       // Found
+diff --git a/drivers/net/octeontx2/cavm-csrs-rvu.h b/drivers/net/octeontx2/cavm-csrs-rvu.h
+index 5eef0fb62c..aeca8e8ee5 100644
+--- a/drivers/net/octeontx2/cavm-csrs-rvu.h
++++ b/drivers/net/octeontx2/cavm-csrs-rvu.h
+@@ -2,13 +2,11 @@
+ #define __CAVM_CSRS_RVU_H__
+ /* This file is auto-generated.  Do not edit */
+ 
+-/*
+- * Copyright (C) 2018 Marvell International Ltd.
+- *
+- * SPDX-License-Identifier:    GPL-2.0
+- * https://spdx.org/licenses
+- */
+-
++/***********************license start***********************************
++* Copyright (C) 2018 Marvell International Ltd.
++* SPDX-License-Identifier: BSD-3-Clause
++* https://spdx.org/licenses
++***********************license end**************************************/
+ 
+ /**
+  * @file
+@@ -51,7 +49,9 @@
+  *
+  * RVU Block Address Enumeration Enumerates addressing of RVU resource
+  * blocks within each RVU BAR, i.e. values of RVU_FUNC_ADDR_S[BLOCK] and
+- * RVU_AF_ADDR_S[BLOCK].
++ * RVU_AF_ADDR_S[BLOCK].  CNXXXX may not implement all enumerated blocks.
++ * Software can read RVU_PF/RVU_VF_BLOCK_ADDR()_DISC[IMP] to discover
++ * which blocks are implemented and enabled.
+  */
+ #define CAVM_RVU_BLOCK_ADDR_E_CPTX(a) (0xa + (a))
+ #define CAVM_RVU_BLOCK_ADDR_E_LMT (1)
+@@ -60,6 +60,7 @@
+ #define CAVM_RVU_BLOCK_ADDR_E_NPA (3)
+ #define CAVM_RVU_BLOCK_ADDR_E_NPC (6)
+ #define CAVM_RVU_BLOCK_ADDR_E_RX(a) (0 + (a))
++#define CAVM_RVU_BLOCK_ADDR_E_REEX(a) (0x14 + (a))
+ #define CAVM_RVU_BLOCK_ADDR_E_RVUM (0)
+ #define CAVM_RVU_BLOCK_ADDR_E_SSO (7)
+ #define CAVM_RVU_BLOCK_ADDR_E_SSOW (8)
+@@ -73,14 +74,13 @@
+  */
+ #define CAVM_RVU_BLOCK_TYPE_E_CPT (9)
+ #define CAVM_RVU_BLOCK_TYPE_E_DDF (0xb)
+-#define CAVM_RVU_BLOCK_TYPE_E_DFA (0xe)
+-#define CAVM_RVU_BLOCK_TYPE_E_HNA (0xf)
+ #define CAVM_RVU_BLOCK_TYPE_E_LMT (2)
+ #define CAVM_RVU_BLOCK_TYPE_E_NDC (0xa)
+ #define CAVM_RVU_BLOCK_TYPE_E_NIX (3)
+ #define CAVM_RVU_BLOCK_TYPE_E_NPA (4)
+ #define CAVM_RVU_BLOCK_TYPE_E_NPC (5)
+ #define CAVM_RVU_BLOCK_TYPE_E_RAD (0xd)
++#define CAVM_RVU_BLOCK_TYPE_E_REE (0xe)
+ #define CAVM_RVU_BLOCK_TYPE_E_RVUM (0)
+ #define CAVM_RVU_BLOCK_TYPE_E_SSO (6)
+ #define CAVM_RVU_BLOCK_TYPE_E_SSOW (7)
+@@ -966,7 +966,7 @@ static inline u64 CAVM_RVU_AF_RAS_W1S(void)
+  *
+  * RVU PF Block Address Discovery Registers These registers allow each PF
+  * driver to discover block resources that are provisioned to its PF. The
+- * register's block address index is enumerated by RVU_BLOCK_ADDR_E.
++ * register's BLOCK_ADDR index is enumerated by RVU_BLOCK_ADDR_E.
+  */
+ union cavm_rvu_pf_block_addrx_disc {
+ 	u64 u;
+@@ -2039,7 +2039,7 @@ static inline u64 CAVM_RVU_PRIV_PFX_TIM_CFG(u64 a)
+  *
+  * RVU VF Block Address Discovery Registers These registers allow each VF
+  * driver to discover block resources that are provisioned to its VF. The
+- * register's block address index is enumerated by RVU_BLOCK_ADDR_E.
++ * register's BLOCK_ADDR index is enumerated by RVU_BLOCK_ADDR_E.
+  */
+ union cavm_rvu_vf_block_addrx_disc {
+ 	u64 u;
+-- 
+2.29.0
+

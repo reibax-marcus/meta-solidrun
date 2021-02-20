@@ -1,0 +1,29 @@
+From 98a2b7fb9cf2452095d5e3dec793525727f60d90 Mon Sep 17 00:00:00 2001
+From: Chandrakala Chavva <cchavva@caviumnetworks.com>
+Date: Tue, 7 Jun 2016 09:06:37 -0700
+Subject: [PATCH 0496/1239] device tree: Changed printf to debug
+
+On 81xx, BGX can be configured as 2 lanes, so disabling printing phy not
+found message when parsing the device tree to check for phy addresses.
+
+Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+---
+ board/cavium/thunderx/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/cavium/thunderx/fdt.c b/board/cavium/thunderx/fdt.c
+index 6ef42149d5..ae121d9d42 100644
+--- a/board/cavium/thunderx/fdt.c
++++ b/board/cavium/thunderx/fdt.c
+@@ -40,7 +40,7 @@ static void thunderx_parse_phy_address(const void *fdt, int node)
+ 				mdio_bus = (buffer >> 8) & 0xF;
+ 				phy_addr[phy_id] = buffer & 0xFF;
+ 			} else {
+-				printf("Error: cannot retrieve phy address from fdt\n");
++				debug("Err: cannot retrieve phy address from fdt\n");
+ 			}
+ 		}
+ 		bgx_set_board_info(bgx_id, mdio_bus, &phy_addr[0]);
+-- 
+2.29.0
+

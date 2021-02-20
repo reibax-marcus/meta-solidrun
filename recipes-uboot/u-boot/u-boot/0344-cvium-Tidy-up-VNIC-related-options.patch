@@ -1,0 +1,46 @@
+From 98f4f82182b11b282c4e35b8e70828c13b10c18f Mon Sep 17 00:00:00 2001
+From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Date: Wed, 4 Nov 2015 20:31:31 -0800
+Subject: [PATCH 0344/1239] cvium: Tidy up VNIC-related options
+
+---
+ include/configs/thunderx_88xx.h | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/include/configs/thunderx_88xx.h b/include/configs/thunderx_88xx.h
+index b11d4d324d..83eda2caf8 100644
+--- a/include/configs/thunderx_88xx.h
++++ b/include/configs/thunderx_88xx.h
+@@ -116,8 +116,9 @@
+ #define CONFIG_BAUDRATE			115200
+ 
+ /* Net */
+-#define CONFIG_THUNDER_BGX
+-#define CONFIG_THUNDER_SMI
++#define CONFIG_THUNDERX_BGX
++#define CONFIG_THUNDERX_SMI
++#define CONFIG_THUNDERX_VNIC
+ #define CONFIG_RANDOM_MACADDR
+ 
+ #ifndef CONFIG_RANDOM_MACADDR
+@@ -175,8 +176,6 @@
+   #define CONFIG_SYS_64BIT_LBA
+ #endif
+ 
+-#define CONFIG_CMD_VNIC
+-
+ /* Partition systems */
+ #define CONFIG_DOS_PARTITION
+ #define CONFIG_EFI_PARTITION
+@@ -215,8 +214,6 @@
+ 
+ #define CONFIG_SYS_CACHELINE_SIZE 128
+ 
+-#define CONFIG_THUNDERX_VNIC
+-
+ /* BOOTP options */
+ #define CONFIG_BOOTP_BOOTFILESIZE
+ 
+-- 
+2.29.0
+

@@ -1,0 +1,187 @@
+From 9472233767c97abbeee9f55da056bf63d2205da3 Mon Sep 17 00:00:00 2001
+From: Aaron Williams <awilliams@marvell.com>
+Date: Thu, 13 Feb 2020 19:36:36 -0800
+Subject: [PATCH 1104/1239] octeontx2: mmc: Specify output tap timing in ps
+
+This patch allows the output timing to be specified in picoseconds instead
+of using hard-coded tap values.  The output timing may also be specified
+in the device tree.
+
+Change-Id: Ib32d054c7f5930d74e8e9503bd338da4642cdd18
+Signed-off-by: Aaron Williams <awilliams@marvell.com>
+Reviewed-on: https://sj1git1.cavium.com/23320
+Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+---
+ drivers/mmc/octeontx_hsmmc.c | 68 ++++++++++++++++++++++++++++--------
+ drivers/mmc/octeontx_hsmmc.h |  3 ++
+ 2 files changed, 57 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/mmc/octeontx_hsmmc.c b/drivers/mmc/octeontx_hsmmc.c
+index 0afe4c1f2d..a6fd400036 100644
+--- a/drivers/mmc/octeontx_hsmmc.c
++++ b/drivers/mmc/octeontx_hsmmc.c
+@@ -41,6 +41,8 @@
+ #define MMC_DEFAULT_HS200_DATA_IN_TAP		24
+ #define MMC_DEFAULT_HS200_CMD_OUT_TAP	(otx_is_soc(CN95XX) ? 10 : 5)
+ #define MMC_DEFAULT_HS200_DATA_OUT_TAP	(otx_is_soc(CN95XX) ? 10 : 5)
++#define MMC_DEFAULT_HS200_CMD_OUT_DLY		800	/* Delay in ps */
++#define MMC_DEFAULT_HS200_DATA_OUT_DLY		800	/* Delay in ps */
+ #define MMC_DEFAULT_SD_UHS_SDR104_CMD_OUT_TAP	MMC_DEFAULT_HS200_CMD_OUT_TAP
+ #define MMC_DEFAULT_SD_UHS_SDR104_DATA_OUT_TAP	MMC_DEFAULT_HS200_DATA_OUT_TAP
+ #define MMC_LEGACY_DEFAULT_CMD_OUT_TAP		39
+@@ -1906,6 +1908,21 @@ static int octeontx_tune_hs400(struct mmc *mmc)
+ 		snprintf(env_name, sizeof(env_name), "emmc%d_data_in_tap_end",
+ 			 slot->bus_id);
+ 		env_set_ulong(env_name, best_start + best_run);
++		snprintf(env_name, sizeof(env_name), "emmc%d_cmd_in_tap",
++			 slot->bus_id);
++		env_set_ulong(env_name, slot->hs400_taps.s.cmd_in_tap);
++		snprintf(env_name, sizeof(env_name), "emmc%d_cmd_out_tap",
++			 slot->bus_id);
++		env_set_ulong(env_name, slot->hs400_taps.s.cmd_out_tap);
++		snprintf(env_name, sizeof(env_name), "emmc%d_cmd_out_delay",
++			 slot->bus_id);
++		env_set_ulong(env_name, slot->cmd_out_hs200_delay);
++		snprintf(env_name, sizeof(env_name), "emmc%d_data_out_tap",
++			 slot->bus_id);
++		env_set_ulong(env_name, slot->hs400_taps.s.data_out_tap);
++		snprintf(env_name, sizeof(env_name), "emmc%d_data_out_delay",
++			 slot->bus_id);
++		env_set_ulong(env_name, slot->data_out_hs200_delay);
+ 	}
+ 	octeontx_mmc_set_timing(mmc);
+ 
+@@ -2501,6 +2518,7 @@ static void octeontx_mmc_set_timing(struct mmc *mmc)
+ static int octeontx_mmc_configure_delay(struct mmc *mmc)
+ {
+ 	struct octeontx_mmc_slot *slot = mmc_to_slot(mmc);
++	struct octeontx_mmc_host *host = slot->host;
+ 	bool __maybe_unused is_hs200;
+ 	bool __maybe_unused is_hs400;
+ 
+@@ -2554,14 +2572,29 @@ static int octeontx_mmc_configure_delay(struct mmc *mmc)
+ 			dout = MMC_DEFAULT_DATA_OUT_TAP;
+ 			break;
+ 		case MMC_HS_200:
+-			cout = MMC_DEFAULT_HS200_CMD_OUT_TAP;
+-			dout = MMC_DEFAULT_HS200_DATA_OUT_TAP;
+-			is_hs200 = true;
+-			break;
+ 		case MMC_HS_400:
+-			cout = MMC_DEFAULT_HS200_CMD_OUT_TAP;
+-			dout = MMC_DEFAULT_HS200_DATA_OUT_TAP;
+-			is_hs400 = true;
++			cout = -1;
++			dout = -1;
++			if (host->timing_calibrated) {
++				if (slot->cmd_out_hs200_delay)
++					cout = octeontx2_mmc_calc_delay(mmc,
++						slot->cmd_out_hs200_delay);
++				if (slot->data_out_hs200_delay)
++					dout = octeontx2_mmc_calc_delay(mmc,
++						slot->data_out_hs200_delay);
++				debug("%s(%s): Calibrated HS200/HS400 cmd out delay: %dps tap: %d, data out delay: %d, tap: %d\n",
++				      __func__, mmc->dev->name,
++				      slot->cmd_out_hs200_delay, cout,
++				      slot->data_out_hs200_delay, dout);
++			}
++			if (cout < 0)
++				cout = MMC_DEFAULT_HS200_CMD_OUT_TAP;
++			if (dout < 0)
++				dout = MMC_DEFAULT_HS200_DATA_OUT_TAP;
++			if (mmc->selected_mode == MMC_HS_200)
++				is_hs200 = true;
++			else
++				is_hs400 = true;
+ 			break;
+ 		default:
+ 			pr_err("%s(%s): Invalid mode %d\n", __func__,
+@@ -2858,6 +2891,7 @@ static int octeontx_mmc_calibrate_delay(struct mmc *mmc)
+ 	host->timing_taps = ((10 * 1000 * emm_tap.s.delay) + 511) / 512;
+ 	debug("%s(%s): timing taps: %llu, delay: %u\n",
+ 	      __func__, mmc->dev->name, host->timing_taps, emm_tap.s.delay);
++	host->timing_calibrated = true;
+ 	return 0;
+ }
+ #endif
+@@ -2943,12 +2977,9 @@ static int octeontx_mmc_set_output_bus_timing(struct mmc *mmc)
+ 	} else if (mmc->clock <= 52000000) {
+ 		cout_delay = 2500;
+ 		dout_delay = 2500;
+-	} else if (!mmc->ddr_mode) {
+-		cout_delay = 2000;
+-		dout_delay = 2000;
+ 	} else {
+-		cout_delay = 2000;
+-		dout_delay = 2000;
++		cout_delay = MMC_DEFAULT_HS200_CMD_OUT_DLY;
++		dout_delay = MMC_DEFAULT_HS200_DATA_OUT_DLY;
+ 	}
+ 
+ 	snprintf(env_name, sizeof(env_name), "mmc%d_hs200_dout_delay_ps",
+@@ -3336,7 +3367,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
+ 	}
+ 	slot->cfg.f_min = 400000;
+ 	slot->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+-
++#if defined(CONFIG_ARCH_OCTEONTX2)
+ 	slot->hs400_tuning_block =
+ 		ofnode_read_s32_default(dev->node,
+ 					"marvell,hs400-tuning-block", -1);
+@@ -3353,6 +3384,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
+ 					"marvell,hs400-tap-adjust", 0);
+ 	debug("%s(%s): hs400-tap-adjust: %d\n", __func__, dev->name,
+ 	      slot->hs400_tap_adj);
++#endif
+ 	err = ofnode_read_u32_array(dev->node, "voltage-ranges", voltages, 2);
+ 	if (err) {
+ 		slot->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
+@@ -3425,7 +3457,7 @@ static int octeontx_mmc_get_config(struct udevice *dev)
+ 	if (ofnode_read_bool(node, "sd-uhs-ddr50"))
+ 		slot->cfg.host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz |
+ 				       MMC_MODE_DDR_52MHz;
+-#if !defined(CONFIG_ARCH_OCTEONTX)
++#if defined(CONFIG_ARCH_OCTEONTX2)
+ 	if (!slot->is_asim && !slot->is_emul) {
+ 		if (ofnode_read_bool(node, "mmc-hs200-1_8v"))
+ 			slot->cfg.host_caps |= MMC_MODE_HS200 |
+@@ -3435,6 +3467,14 @@ static int octeontx_mmc_get_config(struct udevice *dev)
+ 					       MMC_MODE_HS_52MHz |
+ 					       MMC_MODE_HS200 |
+ 					       MMC_MODE_DDR_52MHz;
++		slot->cmd_out_hs200_delay =
++			ofnode_read_u32_default(node,
++						"marvell,cmd-out-hs200-dly",
++						MMC_DEFAULT_HS200_CMD_OUT_DLY);
++		slot->data_out_hs200_delay =
++			ofnode_read_u32_default(node,
++						"marvell,data-out-hs200-dly",
++						MMC_DEFAULT_HS200_DATA_OUT_DLY);
+ 	}
+ #endif
+ 	slot->disable_ddr = ofnode_read_bool(node, "marvell,disable-ddr");
+diff --git a/drivers/mmc/octeontx_hsmmc.h b/drivers/mmc/octeontx_hsmmc.h
+index 30e04e1c85..1be63de7bb 100644
+--- a/drivers/mmc/octeontx_hsmmc.h
++++ b/drivers/mmc/octeontx_hsmmc.h
+@@ -78,6 +78,8 @@ struct octeontx_mmc_slot {
+ 	uint			dat_cnt;	/* otx: sample data in delay */
+ 	uint			drive;		/* Current drive */
+ 	uint			slew;		/* clock skew */
++	uint			cmd_out_hs200_delay;
++	uint			data_out_hs200_delay;
+ 	uint			clk_period;
+ 	bool			valid:1;
+ 	bool			is_acmd:1;
+@@ -128,6 +130,7 @@ struct octeontx_mmc_host {
+ 	uint		per_tap_delay;
+ 	uint		num_slots;
+ 	bool		initialized:1;
++	bool		timing_calibrated:1;
+ 	bool		is_asim:1;
+ 	bool		is_emul:1;
+ 	bool		calibrate_glitch:1;
+-- 
+2.29.0
+
