@@ -1,0 +1,41 @@
+From daccaca55e040873d003d6398f1a519cd85ce7fa Mon Sep 17 00:00:00 2001
+From: Xabier Marquiegui <xmarquiegui@ainguraiiot.com>
+Date: Mon, 22 Feb 2021 16:45:54 +0100
+Subject: [PATCH] Fix fiptool native compilation
+
+Makefile was overriding CPPFLAGS in such a way that the system was
+unable to find some include directories
+---
+ Makefile               | 2 +-
+ tools/fiptool/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 961423826..ab38c7a0f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1270,7 +1270,7 @@ ${FIPTOOL}:
+ 	@${ECHO_BLANK_LINE}
+ 	@echo "Building $@"
+ ifdef UNIX_MK
+-	${Q}${MAKE} CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" FIPTOOL=${FIPTOOL} --no-print-directory -C ${FIPTOOLPATH}
++	${Q}${MAKE} CPPFLAGS="${BUILD_CPPFLAGS} -DVERSION='\"${VERSION_STRING}\"'" FIPTOOL=${FIPTOOL} --no-print-directory -C ${FIPTOOLPATH}
+ else
+ # Clear the MAKEFLAGS as we do not want
+ # to pass the gnumake flags to nmake.
+diff --git a/tools/fiptool/Makefile b/tools/fiptool/Makefile
+index df8ab5c7b..c56cc35e6 100644
+--- a/tools/fiptool/Makefile
++++ b/tools/fiptool/Makefile
+@@ -38,7 +38,7 @@ all: ${PROJECT}
+ 
+ ${PROJECT}: ${OBJECTS} Makefile
+ 	@echo "  HOSTLD  $@"
+-	${Q}${HOSTCC} ${OBJECTS} -o $@ ${LDLIBS}
++	${Q}${HOSTCC} ${BUILD_LDFLAGS} ${OBJECTS} -o $@ ${LDLIBS}
+ 	@${ECHO_BLANK_LINE}
+ 	@echo "Built $@ successfully"
+ 	@${ECHO_BLANK_LINE}
+-- 
+2.25.1
+

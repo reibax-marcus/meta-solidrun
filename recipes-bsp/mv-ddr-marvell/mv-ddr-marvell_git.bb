@@ -11,7 +11,10 @@
 LICENSE = "Unknown"
 LIC_FILES_CHKSUM = "file://drivers/snps/fw/snps_license.txt;md5=eec6820d302b600f6c1dc29d86f75ccb"
 
-SRC_URI = "git://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git;nobranch=1;protocol=https \
+SRC_URI = "\
+           git://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git;nobranch=1;protocol=https \
+           file://0001-Hide-snps_fw.c-compilation-error.patch \
+           file://0002-Avoid-multiple-definition-of-gd-error.patch \
            "
 
 # Modify these as desired

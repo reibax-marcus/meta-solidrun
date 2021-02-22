@@ -1256,3 +1256,5 @@ SRC_URI += "\
 do_compile_prepend() {
     export DEVICE_TREE="${UBOOT_BUILDENV_DEVICE_TREE}"
 }
+
+SYSROOT_DIRS +=  " /boot "

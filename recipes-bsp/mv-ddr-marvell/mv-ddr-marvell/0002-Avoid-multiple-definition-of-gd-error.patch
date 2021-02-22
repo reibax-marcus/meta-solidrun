@@ -1,0 +1,40 @@
+From 7275f69904aa829a4ea66e6b1cc34a83329fd493 Mon Sep 17 00:00:00 2001
+From: Xabier Marquiegui <xmarquiegui@ainguraiiot.com>
+Date: Mon, 22 Feb 2021 12:16:09 +0100
+Subject: [PATCH 2/2] Avoid multiple definition of gd error
+
+Avoid multiple definition of gd linker error
+---
+ drivers/snps/snps.h    | 2 +-
+ drivers/snps/snps_fw.c | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/snps/snps.h b/drivers/snps/snps.h
+index 2ed1fec..6964c1c 100644
+--- a/drivers/snps/snps.h
++++ b/drivers/snps/snps.h
+@@ -322,7 +322,7 @@ struct snps_global_data {
+ 	int current_run_num;
+ };
+ 
+-struct snps_global_data gd;
++extern struct snps_global_data gd;
+ 
+ 
+ extern int static_section_completed;
+diff --git a/drivers/snps/snps_fw.c b/drivers/snps/snps_fw.c
+index e2bbe57..8c9f6a4 100644
+--- a/drivers/snps/snps_fw.c
++++ b/drivers/snps/snps_fw.c
+@@ -101,6 +101,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #include "ddr_topology_def.h"
+ #include "ddr3_training_ip_db.h"
+ 
++struct snps_global_data gd;
++
+ struct mail_box_major_message mb_major_messages[] = {
+ /*	ID,					Message string	*/
+ 	{MB_MAJOR_ID_END_INIT,			"End of initialization"},
+-- 
+2.25.1
+

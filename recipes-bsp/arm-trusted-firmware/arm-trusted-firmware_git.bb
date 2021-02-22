@@ -15,10 +15,15 @@ LIC_FILES_CHKSUM = "file://license.rst;md5=1dd070c98a281d18d9eefd938729b031 \
                     file://lib/compiler-rt/LICENSE.TXT;md5=bf24bca27049b52e9738451aa55771d4 \
                     file://docs/license.rst;md5=189505435dbcdcc8caa63c46fe93fa89"
 
-DEPENDS = "mv-ddr-marvell"
+inherit deploy kernel-arch
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+DEPENDS = "mv-ddr-marvell virtual/bootloader openssl openssl-native coreutils-native"
 SRC_URI = "\
            git://github.com/ARM-software/arm-trusted-firmware.git;protocol=https \
            file://mrvl_scp_bl2.img \
+           file://0001-Fix-fiptool-native-compilation.patch \
            "
 
 # Modify these as desired
@@ -36,12 +41,18 @@ do_configure () {
 	:
 }
 
+HOST_CC_ARCH += " -Wno-error=sizeof-pointer-div "
+
+# requires CROSS_COMPILE set by hand as there is no configure script
+export CROSS_COMPILE="${TARGET_PREFIX}"
+
+# Let the Makefile handle the LDFLAGS
+LDFLAGS[unexport] = "1"
+
 do_compile () {
     export SCP_BL2="${WORKDIR}/mrvl_scp_bl2.img"
-    export CROSS_COMPILE=${HOST_PREFIX}
-#    export ARCH=arm64
-    export ARCH=aarch64
-#    alias gcc=aarch64-poky-linux-gcc
+    export BL33="${RECIPE_SYSROOT}/boot/u-boot.bin"
+
 	# You will almost certainly need to add additional arguments here
 	oe_runmake USE_COHERENT_MEM=0 LOG_LEVEL=20 PLAT=t9130 MV_DDR_PATH=${PKG_CONFIG_SYSROOT_DIR}/usr/src/mv-ddr-marvell CP_NUM=3 all fip
 }

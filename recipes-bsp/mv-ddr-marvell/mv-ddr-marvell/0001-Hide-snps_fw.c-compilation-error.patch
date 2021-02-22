@@ -1,0 +1,42 @@
+From df239d6896d68253fba9c58d18844cb2ce666382 Mon Sep 17 00:00:00 2001
+From: Xabier Marquiegui <xmarquiegui@ainguraiiot.com>
+Date: Sun, 21 Feb 2021 19:01:11 +0100
+Subject: [PATCH 1/2] Hide snps_fw.c compilation error
+
+Avoid the following compilation error:
+
+WE WILL NEED TO CHECK IF IT SHOULD BE FIXED
+
+| drivers/snps/snps_fw.c: In function 'snps_mail_box_print_stream_msg':
+| drivers/snps/snps_fw.c:454:48: error: division 'sizeof (const struct
+        mail_box_stream_message *) / sizeof (const struct
+            mail_box_stream_message)' does not compute the number of
+        array elements [-Werror=sizeof-pointer-div]
+        |   454 |  stream_msg_count = sizeof(mb_stream_database) /
+    sizeof(mb_stream_database[0]);
+    |       |                                                ^
+    | drivers/snps/snps_fw.c:446:40: note: first 'sizeof' operand was
+    declared here
+    |   446 |  const struct mail_box_stream_message *mb_stream_database,
+    *stream_msg;
+|       |                                        ^~~~~~~~~~~~~~~~~~
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index e69cdfe..95c9a48 100644
+--- a/Makefile
++++ b/Makefile
+@@ -334,7 +334,7 @@ ECHO     = @echo
+ OBJ_DIR ?= $(MV_DDR_ROOT)
+ 
+ CFLAGS = -DMV_DDR_ATF -DCONFIG_DDR4
+-CFLAGS += -Wall -Werror -Os -ffreestanding -mlittle-endian -g -gdwarf-2 -nostdinc
++CFLAGS += -Wall -Werror -Wno-error=sizeof-pointer-div -Os -ffreestanding -mlittle-endian -g -gdwarf-2 -nostdinc
+ CFLAGS += -march=armv8-a -fpie
+ 
+ # PLATFORM is set in ble/ble.mk
+-- 
+2.25.1
+
