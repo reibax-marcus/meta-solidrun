@@ -60,6 +60,14 @@ do_compile () {
 do_install () {
 	# NOTE: unable to determine what to put here - there is a Makefile but no
 	# target named "install", so you will need to define this yourself
-	:
+    install -d ${D}/lib/firmware
+    install -m 0644 ${B}/build/t9130/release/flash-image.bin ${D}/lib/firmware
 }
 
+do_deploy () {
+    install -d ${DEPLOYDIR}/fsbl
+    install -m 0644 ${D}/lib/firmware/flash-image.bin ${DEPLOYDIR}/fsbl/
+}
+addtask deploy after do_install before do_package
+
+FILES_${PN} = "/lib/firmware"
