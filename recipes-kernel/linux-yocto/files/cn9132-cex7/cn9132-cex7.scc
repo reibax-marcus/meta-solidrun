@@ -9,4 +9,4 @@ patch 0005-DTS-update-cn9130-device-tree.patch
 patch 0006-dts-update-kernel-dts-for-cn931x-cex7.patch
 patch 0007-update-spi-clock-frequency-to-10MHz.patch
 
-kconf hardware cn9132.cfg
+kconf hardware cn9132-cex7.cfg
