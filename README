@@ -1,0 +1,33 @@
+This README file contains information on the contents of the meta-solidrun layer.
+
+Please see the corresponding sections below for details.
+
+Dependencies
+============
+
+  URI: git@gitlab.internal.ainguraiiot.com:ainguraiiot/yocto/poky.git
+  branch: hardknott
+
+Patches
+=======
+
+Please submit any patches against the meta-solidrun layer to the maintainer:
+
+Maintainer: Xabier Marquiegui <xmarquiegui@ainguraiiiot.com>
+
+Table of Contents
+=================
+
+  I. Adding the meta-solidrun layer to your build
+ II. Misc
+
+
+I. Adding the meta-solidrun layer to your build
+=================================================
+
+Run 'bitbake-layers add-layer meta-solidrun'
+
+II. Misc
+========
+
+This is a hardware layer, so you will need to add your own layers if you want to build a complete system image.
