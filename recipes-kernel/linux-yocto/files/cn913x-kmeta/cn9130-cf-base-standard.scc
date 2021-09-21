@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: MIT
+# Sample available at: git://git.yoctoproject.org/yocto-kernel-cache , branch: yocto-5.8 , directory: bsp/marvell-cn96xx
+define KMACHINE cn9130-cf-base
+define KTYPE standard
+define KARCH arm64
+
+include ktypes/standard
+
+include cn9130-cf-base.scc

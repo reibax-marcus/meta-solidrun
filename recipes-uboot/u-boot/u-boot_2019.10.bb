@@ -1251,8 +1251,9 @@ SRC_URI += "\
             file://solidrun/0006-build-dts-for-CN913x-CEx7-by-SolidRun.patch \
             file://solidrun/0007-u-boot-config-Makefile-and-defconfig-cex7-cn913x.patch \
             file://solidrun/0008-u-boot-update-device-tree-of-cn9130-cex7.patch \
-	    file://solidrun/0009-dts-cn9132-cxe7-pwm-assert-and-xmdio-support.patch \
-	    file://solidrun/0010-dts-adding-support-for-second-xmdio.patch \
+            file://solidrun/0009-dts-cn9132-cxe7-pwm-assert-and-xmdio-support.patch \
+            file://solidrun/0010-dts-adding-support-for-second-xmdio.patch \
+            file://solidrun/0011-arm-dts-cn9130-add-cn9130-based-clearfog-base-and-pr.patch \
             "
 
 do_compile_prepend() {
