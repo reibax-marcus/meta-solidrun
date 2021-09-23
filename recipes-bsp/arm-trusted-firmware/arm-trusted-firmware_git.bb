@@ -27,6 +27,8 @@ SRC_URI = "\
            file://0001-Fix-fiptool-native-compilation.patch \
            "
 
+SRC_URI_append_cn9130-cf-base = " file://arm-trusted-firmware-temp-fix-cn9130-som-rev-1.0.patch "
+
 # Modify these as desired
 PV = "2.3+git${SRCPV}"
 SRCREV = "00ad74c7afe67b2ffaf08300710f18d3dafebb45"
@@ -53,12 +55,15 @@ CFLAGS[unexport] = "1"
 AS[unexport] = "1"
 LD[unexport] = "1"
 
+CP_NUM_cn9132-cex7 = "3"
+CP_NUM_cn9130-cf-base = "1"
+
 do_compile () {
     export SCP_BL2="${WORKDIR}/mrvl_scp_bl2.img"
     export BL33="${RECIPE_SYSROOT}/boot/u-boot.bin"
 
     # You will almost certainly need to add additional arguments here
-    oe_runmake USE_COHERENT_MEM=0 LOG_LEVEL=20 PLAT=t9130 MV_DDR_PATH=${PKG_CONFIG_SYSROOT_DIR}/usr/src/mv-ddr-marvell CP_NUM=3 all fip
+    oe_runmake USE_COHERENT_MEM=0 LOG_LEVEL=20 PLAT=t9130 MV_DDR_PATH=${PKG_CONFIG_SYSROOT_DIR}/usr/src/mv-ddr-marvell CP_NUM=${CP_NUM} all fip
 }
 
 do_install () {
