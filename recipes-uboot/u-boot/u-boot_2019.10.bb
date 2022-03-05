@@ -1256,7 +1256,7 @@ SRC_URI += "\
             file://solidrun/0011-arm-dts-cn9130-add-cn9130-based-clearfog-base-and-pr.patch \
             "
 
-do_compile_prepend() {
+do_compile:prepend() {
     export DEVICE_TREE="${UBOOT_BUILDENV_DEVICE_TREE}"
 }
 

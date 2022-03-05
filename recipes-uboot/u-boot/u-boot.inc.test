@@ -227,10 +227,10 @@ do_install () {
 }
 
 PACKAGE_BEFORE_PN += "${PN}-env"
-FILES_${PN} = "/boot ${sysconfdir} ${datadir}"
-RPROVIDES_${PN}-env += "u-boot-default-env"
-ALLOW_EMPTY_${PN}-env = "1"
-FILES_${PN}-env = " \
+FILES:${PN} = "/boot ${sysconfdir} ${datadir}"
+RPROVIDES:${PN}-env += "u-boot-default-env"
+ALLOW_EMPTY:${PN}-env = "1"
+FILES:${PN}-env = " \
     ${@ '${sysconfdir}/${UBOOT_INITIAL_ENV}*' if d.getVar('UBOOT_INITIAL_ENV') else ''} \
     ${sysconfdir}/fw_env.config \
 "

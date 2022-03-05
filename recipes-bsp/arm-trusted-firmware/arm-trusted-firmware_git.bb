@@ -27,7 +27,7 @@ SRC_URI = "\
            file://0001-Fix-fiptool-native-compilation.patch \
            "
 
-SRC_URI_append_cn9130-cf-base = " file://arm-trusted-firmware-temp-fix-cn9130-som-rev-1.0.patch "
+SRC_URI:append_cn9130-cf-base = " file://arm-trusted-firmware-temp-fix-cn9130-som-rev-1.0.patch "
 
 # Modify these as desired
 PV = "2.3+git${SRCPV}"
@@ -79,4 +79,4 @@ do_deploy () {
 }
 addtask deploy after do_install before do_package
 
-FILES_${PN} = "/lib/firmware"
+FILES:${PN} = "/lib/firmware"
