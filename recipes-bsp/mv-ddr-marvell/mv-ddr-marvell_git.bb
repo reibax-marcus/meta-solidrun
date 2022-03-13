@@ -1,15 +1,4 @@
-# Recipe created by recipetool
-# This is the basis of a recipe and may need further editing in order to be fully functional.
-# (Feel free to remove these comments when editing.)
-
-# WARNING: the following LICENSE and LIC_FILES_CHKSUM values are best guesses - it is
-# your responsibility to verify that the values are complete and correct.
-#
-# The following license files were not able to be identified and are
-# represented as "Unknown" below, you will need to check them yourself:
-#   drivers/snps/fw/snps_license.txt
-LICENSE = "Unknown"
-LIC_FILES_CHKSUM = "file://drivers/snps/fw/snps_license.txt;md5=eec6820d302b600f6c1dc29d86f75ccb"
+LICENSE = "CLOSED"
 
 SRC_URI = "\
            git://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git;nobranch=1;protocol=https \
