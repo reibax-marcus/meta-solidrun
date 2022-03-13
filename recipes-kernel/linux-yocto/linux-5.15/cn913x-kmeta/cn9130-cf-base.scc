@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: MIT
-# Sample available at: git://git.yoctoproject.org/yocto-kernel-cache , branch: yocto-5.8 , directory: bsp/marvell-cn96xx
-# XXX - TODO - Make it happen later - kconf hardware
+# Sample available at: git://git.yoctoproject.org/yocto-kernel-cache , branch: yocto-5.15.y , directory: bsp/marvell-cn96xx
 
 patch 0001-arm64-dts-cn913x-add-cn913x-based-COM-express-type-.patch
 patch 0002-arm64-dts-cn913x-add-cn913x-COM-device-trees-to-the.patch
 patch 0004-dts-update-device-trees-to-cn913x-rev-1.1.patch
 patch 0005-DTS-update-cn9130-device-tree.patch
-patch 0006-dts-update-kernel-dts-for-cn931x-cex7.patch
 patch 0007-update-spi-clock-frequency-to-10MHz.patch
+patch 0009-dts-cn9130-som-for-clearfog-base-and-pro.patch
+patch 0010-dts-add-usb2-support-and-interrupt-btn.patch
 
-kconf hardware cn9132-cex7.cfg
+kconf hardware cn913x_additions.config
