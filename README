@@ -6,7 +6,7 @@ Dependencies
 ============
 
   URI: git@gitlab.internal.ainguraiiot.com:ainguraiiot/yocto/poky.git
-  branch: hardknott
+  branch: honister
 
 Patches
 =======
