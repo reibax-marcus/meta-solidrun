@@ -1,14 +1,15 @@
-From 7237e122fbc678d59621ccf5cf127e47930349ed Mon Sep 17 00:00:00 2001
+From 653d9eba1072d29814a3894a27c3d607d90b80ec Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 28 Jun 2016 15:27:24 -0700
-Subject: [PATCH 0510/1239] Refactored bootloader code to put files in the
- correct locations
+Subject: [PATCH] Refactored bootloader code to put files in the correct
+ locations
 
 A lot of changes to the Kconfig configuration were made in order to support
 moving files to the correct locations.  Note that 88xx has not yet been tested
 and is now likely broken.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  arch/arm/Kconfig                       |  10 +-
  arch/arm/Makefile                      |   2 +
@@ -979,6 +980,3 @@ index 56910f6ae7..feb2e59ba7 100644
  /** I2C bus real-time clock resides on */
  #define CONFIG_SYS_RTC_BUS_NUM 0
  
--- 
-2.29.0
-

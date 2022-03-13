@@ -1,13 +1,13 @@
-From 70fda4d4f31ef1da7be50e5bf867b87cc39765d9 Mon Sep 17 00:00:00 2001
+From eb234296286f00d05a148843000189c8af85bd4b Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 16 May 2016 15:40:36 -0400
-Subject: [PATCH 0447/1239] thunderx: Remove stale PCI address windows
- definitions
+Subject: [PATCH] thunderx: Remove stale PCI address windows definitions
 
 New controller support code takes all the information from FDT,
 so these entries are unused
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  include/configs/thunderx_81xx.h | 17 -----------------
  1 file changed, 17 deletions(-)
@@ -40,6 +40,3 @@ index 826e154f6b..781ab6a912 100644
  #define CONFIG_SLT
  
  /* Link Definitions */
--- 
-2.29.0
-

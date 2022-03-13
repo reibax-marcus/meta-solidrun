@@ -1,8 +1,8 @@
-From 1fe929ed497bcc8975be8d37383ebafd22b99dd2 Mon Sep 17 00:00:00 2001
+From f49f28664f96db3ee1b38e8db7e5ab99c8151b57 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Thu, 21 Nov 2019 07:04:31 +0100
-Subject: [PATCH 0997/1239] spi: kirkwood: prevent configuring speed exceeding
- max controller freq
+Subject: [PATCH] spi: kirkwood: prevent configuring speed exceeding max
+ controller freq
 
 This patch adds a limitation in the kirkwood_spi driver
 set_speed hook, which prevents setting too high transfer
@@ -13,6 +13,7 @@ Signed-off-by: Marcin Wojtas <mw@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/19039
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  drivers/spi/kirkwood_spi.c | 7 +++++++
  1 file changed, 7 insertions(+)
@@ -39,6 +40,3 @@ index f64c693f20..8d151cc171 100644
  	/*
  	 * Calculate spi clock prescaller using max_hz.
  	 * SPPR is SPI Baud Rate Pre-selection, it holds bits 5 and 7:6 in
--- 
-2.29.0
-

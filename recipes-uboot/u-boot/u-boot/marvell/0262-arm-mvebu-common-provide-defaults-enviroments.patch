@@ -1,10 +1,11 @@
-From 4f44f319ae9e4e113f20928637b468f02692e5ba Mon Sep 17 00:00:00 2001
+From 383cbbba8a84120dafdc5aebd4b80960d6545724 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 24 May 2019 14:48:09 +0200
-Subject: [PATCH 0262/1239] arm: mvebu: common: provide defaults enviroments
+Subject: [PATCH] arm: mvebu: common: provide defaults enviroments
 
 Change-Id: I95ce2c0f4187547ba07fbdd777477176c6ea74ae
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  include/configs/db-88f6820-gp.h |  6 ++--
  include/configs/mv-common.h     | 52 +++++++++++++++++++++++++++++++++
@@ -90,6 +91,3 @@ index dceaa179aa..171e8cc83e 100644
  /*
   * PCI
   */
--- 
-2.29.0
-

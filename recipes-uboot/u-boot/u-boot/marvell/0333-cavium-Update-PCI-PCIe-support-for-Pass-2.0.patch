@@ -1,7 +1,7 @@
-From c90999bd14a4ee659588b32e53f3ef65df15f3ad Mon Sep 17 00:00:00 2001
+From e16fa25a70df549a8a79d02cb9da1608092d1149 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 14:40:50 -0800
-Subject: [PATCH 0333/1239] cavium: Update PCI/PCIe support for Pass 2.0
+Subject: [PATCH] cavium: Update PCI/PCIe support for Pass 2.0
 
 ---
  board/cavium/thunderx/pcie.c | 529 ++++++++++++++---------------------
@@ -665,6 +665,3 @@ index c166645280..73fdc39f9b 100644
 +	return 1;
 +}
  
--- 
-2.29.0
-

@@ -1,13 +1,14 @@
-From 4fcff7258502a066ed56b7834352206e64edd7cb Mon Sep 17 00:00:00 2001
+From e1f6eb1b5255101a08388e36712bc8f8ef4428c4 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 8 Nov 2019 13:03:46 -0800
-Subject: [PATCH 0984/1239] drivers: watchdog: add reset support for OcteonTX
+Subject: [PATCH] drivers: watchdog: add reset support for OcteonTX
 
 Adds support for Core 0 poke on OcteonTX and OcteonTX2
 platforms.
 
 Change-Id: I77f85fb41ca792217e39593b2d1691afb9f9dc84
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  drivers/watchdog/Kconfig        | 10 +++++
  drivers/watchdog/Makefile       |  1 +
@@ -130,6 +131,3 @@ index 0000000000..9362ad99bf
 +	.priv_auto_alloc_size = sizeof(struct octeontx_wdt),
 +	.probe = octeontx_wdt_probe,
 +};
--- 
-2.29.0
-

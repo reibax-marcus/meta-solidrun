@@ -1,11 +1,11 @@
-From 7d18c9cb2558f19ebc78ed0d71525c5e9aff7e44 Mon Sep 17 00:00:00 2001
+From eb8a4ceabb6b3b7ae576c9e60710d733c108323a Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 8 Nov 2019 17:02:18 -0800
-Subject: [PATCH 0989/1239] drivers: pci-uclass: clean up code after rebasing
- octeontx
+Subject: [PATCH] drivers: pci-uclass: clean up code after rebasing octeontx
 
 Change-Id: If0541b000d311e587794f9fdfbe2b09a0fa87666
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  drivers/pci/Kconfig      |  9 +++++++++
  drivers/pci/pci-uclass.c | 35 +++++++++++++++++++----------------
@@ -141,6 +141,3 @@ index f23886d453..5cee0fa935 100644
  	}
  
  	dm_pci_read_config16(pdev, pos + PCI_SRIOV_TOTAL_VF, &total_vf);
--- 
-2.29.0
-

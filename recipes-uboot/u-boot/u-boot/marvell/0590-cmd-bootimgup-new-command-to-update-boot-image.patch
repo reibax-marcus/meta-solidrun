@@ -1,13 +1,14 @@
-From 18377692e57fd00efff4f8064479b14cc525632a Mon Sep 17 00:00:00 2001
+From 154c918620790ff2bd2a9b07abebd231b2a54da1 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Tue, 20 Dec 2016 17:22:22 -0800
-Subject: [PATCH 0590/1239] cmd: bootimgup: new command to update boot image
+Subject: [PATCH] cmd: bootimgup: new command to update boot image
 
 creates bootimgup command to support flashing of boot
 images to flash on spi.
 Tested on SFF/EBB 8104 boards.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  cmd/Kconfig     |   5 +
  cmd/Makefile    |   1 +
@@ -326,6 +327,3 @@ index 0000000000..d400d730d1
 +	"bootimgup device offset addr len - loads image to device \n"
 +	"			at offset from addr of len bytes \n"
 +);
--- 
-2.29.0
-

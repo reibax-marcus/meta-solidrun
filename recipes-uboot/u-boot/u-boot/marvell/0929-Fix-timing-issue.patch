@@ -1,7 +1,7 @@
-From f2a96d8d6b5cf22f11bec3ecbd70b1d21a5773b1 Mon Sep 17 00:00:00 2001
+From 9cfee855f53f2afe09404a356c84c60960c3ee3b Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 5 Jun 2019 20:18:44 -0700
-Subject: [PATCH 0929/1239] Fix timing issue
+Subject: [PATCH] Fix timing issue
 
 There is an issue with F95 A0 where changing the MIO_EMM_TIMING
 data_in_tap field can cause an internal fifo to become corrupted.
@@ -17,6 +17,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10559
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 232 ++++++++++++++++++++++++-----------
  drivers/mmc/octeontx_hsmmc.h |   1 +
@@ -436,6 +437,3 @@ index 71bb95097f..54fedd64a7 100644
  };
  
  /*
--- 
-2.29.0
-

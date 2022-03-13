@@ -1,7 +1,7 @@
-From bcd1e7f3ec61935f5e98c570fff22d4a44825b1c Mon Sep 17 00:00:00 2001
+From 0927abf78d441aa1ee2b2be823664afec1fbd2ec Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 26 Nov 2019 18:34:59 +0100
-Subject: [PATCH 1026/1239] arm: mvebu: armada-388-gp: fix spi description
+Subject: [PATCH] arm: mvebu: armada-388-gp: fix spi description
 
 After commit "ARM: mvebu: sync Armada-38x dts with Linux 4.20" the spi
 node was moved directly to soc node - align the armada-388-gp.dts to
@@ -12,6 +12,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/19344
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-388-gp.dts | 33 ++++++++++++++++++---------------
  1 file changed, 18 insertions(+), 15 deletions(-)
@@ -62,6 +63,3 @@ index babd581ed6..a2bb198236 100644
  
  			i2c@11000 {
  				pinctrl-names = "default";
--- 
-2.29.0
-

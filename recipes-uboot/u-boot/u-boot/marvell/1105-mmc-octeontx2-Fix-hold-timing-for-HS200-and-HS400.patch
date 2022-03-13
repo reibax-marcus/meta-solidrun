@@ -1,7 +1,7 @@
-From 57c02ef3d24c72d10eb1d957e0dc47d26ea1ac08 Mon Sep 17 00:00:00 2001
+From 1a56cc533798ee5d5b2390c23cf53b8745f9e712 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Wed, 19 Feb 2020 14:30:32 -0800
-Subject: [PATCH 1105/1239] mmc: octeontx2: Fix hold timing for HS200 and HS400
+Subject: [PATCH] mmc: octeontx2: Fix hold timing for HS200 and HS400
 
 This patch fixes U-Boot to use calculated tap values for the data and
 command output timing rather than the hard-coded tap value of 5.
@@ -17,6 +17,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/23545
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 82 +++++++++++++++++++++++++++---------
  drivers/mmc/octeontx_hsmmc.h |  2 +
@@ -208,6 +209,3 @@ index 1be63de7bb..ed475798d0 100644
  	uint			clk_period;
  	bool			valid:1;
  	bool			is_acmd:1;
--- 
-2.29.0
-

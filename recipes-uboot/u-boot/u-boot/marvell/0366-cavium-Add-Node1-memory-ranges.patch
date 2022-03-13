@@ -1,7 +1,7 @@
-From 3c93854fd90b13cdd8f881db5dbe6652e611a9dd Mon Sep 17 00:00:00 2001
+From 3f17bc6ca20f0cbe14d1a7b5cc05c1c954d7117d Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 9 Nov 2015 14:28:53 -0800
-Subject: [PATCH 0366/1239] cavium: Add Node1 memory ranges
+Subject: [PATCH] cavium: Add Node1 memory ranges
 
 ---
  include/configs/thunderx_88xx.h | 14 ++++++++++++--
@@ -44,6 +44,3 @@ index 164b68d2b6..24bc7d4954 100644
  //#define CONFIG_RTL8169
  
  /* Initial environment variables */
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From 3c6720c8162180dab0f1cc2dc956c00922e9b7f8 Mon Sep 17 00:00:00 2001
+From e6ac36e0d5d5d608b657498c70cae72d65e25fd3 Mon Sep 17 00:00:00 2001
 From: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
 Date: Wed, 26 Oct 2016 16:10:43 -0400
-Subject: [PATCH 0533/1239] dm: pci: workaround SRIOV NVF for ThunderX 8xxx
+Subject: [PATCH] dm: pci: workaround SRIOV NVF for ThunderX 8xxx
 
 The PF SRIOV space on ThunderX 8xxx is all readonly. So the VF enabling
 logic will not work.
 
 Signed-off-by: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
+
 ---
  drivers/pci/pci-uclass.c | 23 ++++++++++-------------
  1 file changed, 10 insertions(+), 13 deletions(-)
@@ -62,6 +63,3 @@ index a7b230b5aa..f60a6cc637 100644
  
  }
  
--- 
-2.29.0
-

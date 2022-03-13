@@ -1,7 +1,7 @@
-From bc1e64e0fddc85da5558a782a4c84e8b8f6b37a0 Mon Sep 17 00:00:00 2001
+From 3b041a7054eda204aacf67b1b02763e014b9f5ae Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Sun, 30 Oct 2016 21:49:02 -0700
-Subject: [PATCH 0547/1239] Added functions for getting clock information.
+Subject: [PATCH] Added functions for getting clock information.
 
 ---
  arch/arm/include/asm/arch-thunderx/clock.h | 19 +++++++
@@ -101,6 +101,3 @@ index 0000000000..2ecc941600
 +
 +	return rst_boot.s.c_mul * PLL_REF_CLK;
 +}
--- 
-2.29.0
-

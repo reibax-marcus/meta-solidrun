@@ -1,14 +1,14 @@
-From c09225b917edbda29ebf44b2b6b72acd6fe97ac6 Mon Sep 17 00:00:00 2001
+From 2764a1f91f76934ffe343bf73c2fcd54bd297275 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 29 Nov 2016 14:04:17 -0800
-Subject: [PATCH 0578/1239] setbits_le64 should not be used to set or clear
- GPIO pins
+Subject: [PATCH] setbits_le64 should not be used to set or clear GPIO pins
 
 The GPIO_TX_SET And GPIO_TX_CLR registers expect only the pins that are
 being changed to have their bits set.  This means that these registers
 are not read-modify-write.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/gpio/thunderx_gpio.c | 11 ++++-------
  1 file changed, 4 insertions(+), 7 deletions(-)
@@ -49,6 +49,3 @@ index cb77adcb37..8cf0a76327 100644
  	if (GPIO_BIT_CFG_FN(pinsel))
  		return GPIOF_FUNC;
  	else if (GPIO_BIT_CFG_TX_OE(pinsel))
--- 
-2.29.0
-

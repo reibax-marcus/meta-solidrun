@@ -1,7 +1,7 @@
-From f347db08a1d199df3b2dfd45002bc64103d15fd2 Mon Sep 17 00:00:00 2001
+From 5cbcb2750245f1370c127ec0e99462b14d5873e4 Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Mon, 24 Apr 2017 11:38:03 +0300
-Subject: [PATCH 0116/1239] arm64: dts: a8k: add sar device tree node
+Subject: [PATCH] arm64: dts: a8k: add sar device tree node
 
 This patch adds the sar device tree nodes
 with freq and boot_mode fields
@@ -9,6 +9,7 @@ to armada-7040-db and armada-8040-db.
 
 Change-Id: I425736dc020f949662e342aafd37b99d51f52738
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-dev-info.dtsi | 73 ++++++++++++++++++++++++++
  arch/arm/dts/armada-70x0-db.dtsi       |  1 +
@@ -191,6 +192,3 @@ index bd505b1a0b..a40c3edba0 100644
  
  / {
  	compatible = "marvell,armada-80x0-db", "marvell,armada-8040";
--- 
-2.29.0
-

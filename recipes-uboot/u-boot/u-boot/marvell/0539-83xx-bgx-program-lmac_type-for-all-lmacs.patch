@@ -1,12 +1,13 @@
-From f8a53a9dd9e89cee0d74018d3419b703475ac009 Mon Sep 17 00:00:00 2001
+From 2eeed55e486bb9d57b63b8f01512ab2a884cadef Mon Sep 17 00:00:00 2001
 From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
 Date: Tue, 8 Nov 2016 07:38:49 +0530
-Subject: [PATCH 0539/1239] 83xx, bgx: program lmac_type for all lmacs
+Subject: [PATCH] 83xx, bgx: program lmac_type for all lmacs
 
 bdk-qlm init programs only lmac0 for lmac-type,
 let us program for all lmacs.
 
 Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 62 +++++++++++++++++++++++++++-----
  1 file changed, 54 insertions(+), 8 deletions(-)
@@ -136,6 +137,3 @@ index 0ac693610d..ad57e4599e 100644
  #ifdef CONFIG_THUNDERX_XCV
  skip_qlm_config:
  #endif
--- 
-2.29.0
-

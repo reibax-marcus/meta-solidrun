@@ -1,13 +1,14 @@
-From 02803d2d3d8e4264a027d8eb366f9deaef17beea Mon Sep 17 00:00:00 2001
+From bc5e2342bb4b28e5228ebf671c05120652bb5ec5 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 22 May 2020 13:51:45 -0700
-Subject: [PATCH 1165/1239] drivers: watchdog: Enable for OcteonTX3 platforms
+Subject: [PATCH] drivers: watchdog: Enable for OcteonTX3 platforms
 
 Change-Id: Iacc90ce2035cb70d794b7d0d1013d4bd7ed711ae
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29493
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/watchdog/Kconfig        | 4 ++--
  drivers/watchdog/octeontx_wdt.c | 2 +-
@@ -41,6 +42,3 @@ index 9362ad99bf..e558768422 100644
  #define REG_BASE 0x802000000000
  #endif
  
--- 
-2.29.0
-

@@ -1,10 +1,10 @@
-From 4636c40fd72d27b79442c795348f2721ec79d032 Mon Sep 17 00:00:00 2001
+From 1bd4861b6366b05be4bd63f1257dfdbb75b8faff Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 17 Apr 2018 12:18:58 -0700
-Subject: [PATCH 0774/1239] board: octeontx2: use correct chip reset register
- and offset
+Subject: [PATCH] board: octeontx2: use correct chip reset register and offset
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/octeontx2.h | 2 +-
  board/cavium/octeontx2/octeontx2.c              | 4 ++--
@@ -39,6 +39,3 @@ index d15875cc14..593d453784 100644
  }
  
  /**
--- 
-2.29.0
-

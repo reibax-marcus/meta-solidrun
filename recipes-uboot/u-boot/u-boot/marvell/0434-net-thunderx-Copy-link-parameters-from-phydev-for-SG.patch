@@ -1,13 +1,13 @@
-From 4772991281940efc733fa4d9c45df607de2cc44a Mon Sep 17 00:00:00 2001
+From 524fc27d42284ae0c97307ec4ec9d9e675c376d6 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 14 May 2016 14:49:48 -0400
-Subject: [PATCH 0434/1239] net: thunderx: Copy link parameters from phydev for
- SGMII
+Subject: [PATCH] net: thunderx: Copy link parameters from phydev for SGMII
 
 This commit makes bgx_poll_for_link() return the correct values
 for SGMII mode by copying link status from the phydev structure
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 4 ++++
  1 file changed, 4 insertions(+)
@@ -27,6 +27,3 @@ index 45ef16ddd8..dd9476e044 100644
  	} else {
  		u64 status1;
  		u64 tx_ctl;
--- 
-2.29.0
-

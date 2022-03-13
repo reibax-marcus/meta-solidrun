@@ -1,7 +1,7 @@
-From e2a436b927d5512a58329b03045b118626bc1528 Mon Sep 17 00:00:00 2001
+From 6d52bc43f6959b34da96f5f02a3c39aed36fa799 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Mon, 11 Jun 2018 17:52:52 +0200
-Subject: [PATCH 0151/1239] arm64: mvebu: do not map firmware RT service region
+Subject: [PATCH] arm64: mvebu: do not map firmware RT service region
 
 There is region left by ATF, which needs to remain in memory to provide RT
 services. To prevent overwriting it by u-boot, do not provide any mapping
@@ -10,6 +10,7 @@ synchronous exception.
 
 Change-Id: Ica4584306519d5905ee8dc02e228b8e868a40229
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  arch/arm/mach-mvebu/armada3700/cpu.c       | 10 ++++++++++
  arch/arm/mach-mvebu/armada8k/cpu.c         | 12 +++++++++++-
@@ -97,6 +98,3 @@ index 0000000000..28da19f5da
 +#define ATF_REGION_END			0x5400000
 +
 +#endif /* _FW_INFO_H_ */
--- 
-2.29.0
-

@@ -1,11 +1,11 @@
-From 127aa6d500ac9f6011516b6f7b39409c81814a45 Mon Sep 17 00:00:00 2001
+From fffa7815517c643071427fac51905b19f6432b3c Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Thu, 2 Jun 2016 00:10:14 -0700
-Subject: [PATCH 0491/1239] - Rewrote the device tree functions to use
- properties based on a node offset rather than searching for them globally
- each time they are accessed. - Fixed the parsing of the board Ethernet MAC
- address from the device tree and the setting of the ethaddr environment
- variable. - Cleaned up the code.
+Subject: [PATCH] - Rewrote the device tree functions to use properties based
+ on a node offset rather than searching for them globally each time they are
+ accessed. - Fixed the parsing of the board Ethernet MAC address from the
+ device tree and the setting of the ethaddr environment variable. - Cleaned up
+ the code.
 
 ---
  board/cavium/thunderx/fdt.c | 120 +++++++++++++++++++-----------------
@@ -182,6 +182,3 @@ index 534b9c19f5..6ef42149d5 100644
  }
  
  int arch_fixup_memory_node(void *blob)
--- 
-2.29.0
-

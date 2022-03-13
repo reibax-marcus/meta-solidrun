@@ -1,9 +1,10 @@
-From 33c7db1bf061137d0dd352ef1559a0265eef742a Mon Sep 17 00:00:00 2001
+From 0e6e9c2532e97d773297f7bba35a726003c7adc3 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 17 Jan 2018 15:14:55 -0800
-Subject: [PATCH 0748/1239] thunderx: more code cleanup
+Subject: [PATCH] thunderx: more code cleanup
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/mach-thunderx/Makefile   |    4 +-
  board/cavium/thunderx/thunderx.c  |   39 +-
@@ -3782,6 +3783,3 @@ index 31aba7496b..d6608737d6 100644
  struct mmc *find_mmc_device(int dev_num);
  int mmc_set_dev(int dev_num);
  void print_mmc_devices(char separator);
--- 
-2.29.0
-

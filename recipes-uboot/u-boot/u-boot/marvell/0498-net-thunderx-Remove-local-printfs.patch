@@ -1,9 +1,10 @@
-From d59b3440741a64aa0b52206529b2f148256e496a Mon Sep 17 00:00:00 2001
+From 3fee6c1899dc73090bb4f1c5b28704d0ef9bfd42 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 7 Jun 2016 14:29:09 -0700
-Subject: [PATCH 0498/1239] net: thunderx: Remove local printfs
+Subject: [PATCH] net: thunderx: Remove local printfs
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_xcv.c | 3 ---
  1 file changed, 3 deletions(-)
@@ -36,6 +37,3 @@ index 628de2f45a..548851d074 100644
  
  	return 0;
  }
--- 
-2.29.0
-

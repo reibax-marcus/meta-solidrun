@@ -1,12 +1,13 @@
-From 84fbd2d60ff99be6392ddf54840fd45a9c5cf985 Mon Sep 17 00:00:00 2001
+From 8651408d58a4f6316a7db65654b9b9db95122bb1 Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Sun, 7 May 2017 10:29:48 +0300
-Subject: [PATCH 0044/1239] arm64: dts: a70x0: a80x0: add io expander gpio node
- in i2c node
+Subject: [PATCH] arm64: dts: a70x0: a80x0: add io expander gpio node in i2c
+ node
 
 Change-Id: I6fc50d74b9ef96cf86f8be9e3df5607bb4efe012
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-70x0-db.dtsi | 13 +++++++++++++
  arch/arm/dts/armada-80x0-db.dtsi | 20 ++++++++++++++++++++
@@ -63,6 +64,3 @@ index 00027e10d0..da2925c565 100644
 +	};
 +
  };
--- 
-2.29.0
-

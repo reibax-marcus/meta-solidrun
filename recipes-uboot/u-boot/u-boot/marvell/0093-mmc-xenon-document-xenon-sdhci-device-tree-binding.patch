@@ -1,11 +1,11 @@
-From c38c70e9ece3f0561818e6203b5b941477055f16 Mon Sep 17 00:00:00 2001
+From c3368756322a98c16d77114a603a259d5d0430ca Mon Sep 17 00:00:00 2001
 From: Evan Wang <xswang@marvell.com>
 Date: Thu, 6 Apr 2017 09:51:48 +0800
-Subject: [PATCH 0093/1239] mmc: xenon: document xenon-sdhci device tree
- binding
+Subject: [PATCH] mmc: xenon: document xenon-sdhci device tree binding
 
 Change-Id: I67a442f26a647c86e9362315f2a81c6306ce071c
 Signed-off-by: Evan Wang <xswang@marvell.com>
+
 ---
  doc/device-tree-bindings/mmc/xenon-mmc.txt | 46 ++++++++++++++++++++++
  1 file changed, 46 insertions(+)
@@ -63,6 +63,3 @@ index 0000000000..a5559b37b8
 +                 3300000 0x0>;
 +       gpios = <&gpio1 23 GPIO_ACTIVE_HIGH>;
 +};
--- 
-2.29.0
-

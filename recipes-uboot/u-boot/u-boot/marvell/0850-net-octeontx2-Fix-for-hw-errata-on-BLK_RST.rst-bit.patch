@@ -1,8 +1,7 @@
-From 6323c1ec6c2147daff6753467def9c7fd6a5e519 Mon Sep 17 00:00:00 2001
+From a3d763624f38db86226eb0f3fb1350040b6d4c81 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 13 Dec 2018 13:07:25 -0800
-Subject: [PATCH 0850/1239] net: octeontx2: Fix for hw errata on BLK_RST.rst
- bit
+Subject: [PATCH] net: octeontx2: Fix for hw errata on BLK_RST.rst bit
 
 Although BLK_RST.rst bit is WO it is not suggested to write
 0 (Writing 0 works for NPC, NPA but does not work for NIX).
@@ -13,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/1463
 Tested-by: sa_ip-sw-jenkins
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/net/octeontx2/nix_af.c | 9 ---------
  1 file changed, 9 deletions(-)
@@ -51,6 +51,3 @@ index 92e48211cc..87cb3c40e4 100644
  	rvu_aq_free(&nix_af->aq);
  
  	debug("%s: nix af reset -- \n", __func__);
--- 
-2.29.0
-

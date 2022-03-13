@@ -1,8 +1,8 @@
-From 01d07cf01f396a83d463c2d508f730542af3aa0b Mon Sep 17 00:00:00 2001
+From f9cc290577840dfbd7158c98c683634b30aa562a Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Mon, 2 Dec 2019 12:25:02 -0800
-Subject: [PATCH 1019/1239] board: octeontx2: probe serial bootcmd using driver
- instead of name
+Subject: [PATCH] board: octeontx2: probe serial bootcmd using driver instead
+ of name
 
 With upgrade to v2019.10, uclass_get_device_by_name is altered to
 match on complete dev->name string instead of length of argument name.
@@ -15,6 +15,7 @@ Reviewed-on: https://sj1git1.cavium.com/19679
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  board/Marvell/octeontx2/board.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
@@ -35,6 +36,3 @@ index 493207391b..63a6cd442b 100644
  	if (ret) {
  		pr_err("%s: Error getting %s serial class\n", __func__,
  		       BOOTCMD_NAME);
--- 
-2.29.0
-

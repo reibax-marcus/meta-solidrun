@@ -1,7 +1,7 @@
-From 5e60a043c280b78cc0bf7f200f9f94612dec553b Mon Sep 17 00:00:00 2001
+From 61bcb094606885c80e5f3bcfc1a4ad30f237a1d6 Mon Sep 17 00:00:00 2001
 From: zachary <zhangzg@marvell.com>
 Date: Wed, 10 May 2017 10:50:12 +0800
-Subject: [PATCH 0269/1239] cmd: mvebu: add efuse command support
+Subject: [PATCH] cmd: mvebu: add efuse command support
 
 This patch adds efuse commands function for a3700 platform. These
 commands could be also used by a7k/8k platforms after adding their efuse
@@ -12,6 +12,7 @@ with fuse mainline commands in the future.
 Change-Id: I1cb308fbe9addf0dc4cd5eccdf5b629e27ec5979
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Signed-off-by: zachary <zhangzg@marvell.com>
+
 ---
  arch/arm/mach-mvebu/Kconfig |   2 +
  cmd/mvebu/Kconfig           |  11 +++
@@ -209,6 +210,3 @@ index 0000000000..310e3ccca4
 +	"\tread id      - Read eFuse entry \"id\"\n"
 +	"\twrite id val - Write \"val\" to eFuse entry \"id\"\n"
 +);
--- 
-2.29.0
-

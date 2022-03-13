@@ -1,7 +1,7 @@
-From f5eae33210605a80547f5b1747216d1bbd6823d5 Mon Sep 17 00:00:00 2001
+From a81492192f4563c9740b4a56de73d5dbf940f17e Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Fri, 13 Mar 2015 18:01:39 +0300
-Subject: [PATCH 0285/1239] armv8: cavium: Add "cpucore" command
+Subject: [PATCH] armv8: cavium: Add "cpucore" command
 
 ---
  board/cavium/thunderx/Makefile   |   1 +
@@ -205,6 +205,3 @@ index cf55b633c3..dba5eadef1 100644
  	return 0;
  }
  
--- 
-2.29.0
-

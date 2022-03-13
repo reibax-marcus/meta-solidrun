@@ -1,8 +1,8 @@
-From 881a901fc9ff65e1b4e837e8645a4a9e0dc6948b Mon Sep 17 00:00:00 2001
+From 22913899b38e7ea574c9a29fe61ff2c8f518c042 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Tue, 15 Oct 2019 12:29:05 +0200
-Subject: [PATCH 0010/1239] arm64: dts: armada-8040-mcbin: set cp1 comphy to
- SGMII2.5 mode
+Subject: [PATCH] arm64: dts: armada-8040-mcbin: set cp1 comphy to SGMII2.5
+ mode
 
 Currently, cp1 comphy5 is set to SGMII3 - this is incorrect.
 According to mcbin board layout, Comphy5 should be set to
@@ -10,6 +10,7 @@ SGMII2 2.5G.
 
 Change-Id: Ia7e5c670354645681b04387252cda5d9a09affde
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-mcbin.dts | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
@@ -36,6 +37,3 @@ index 5a046d9de4..eb75387ce9 100644
 +		phy-speed = <PHY_SPEED_3_125G>;
  	};
  };
--- 
-2.29.0
-

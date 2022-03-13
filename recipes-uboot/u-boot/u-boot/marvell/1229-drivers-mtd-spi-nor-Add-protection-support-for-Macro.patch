@@ -1,8 +1,7 @@
-From 69e75c3bdde8dc89430dfd0c51dbe3ee506e9dcc Mon Sep 17 00:00:00 2001
+From 29c82e8e253d79ce6ffcb0149cb3dcfd2a90105c Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 22 Sep 2020 13:27:02 -0700
-Subject: [PATCH 1229/1239] drivers: mtd: spi-nor: Add protection support for
- Macronix
+Subject: [PATCH] drivers: mtd: spi-nor: Add protection support for Macronix
 
 Add lock and unlock handlers for Macronix parts including
 support for BP3 in status register.
@@ -12,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/36463
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/mtd/spi/spi-nor-core.c | 353 +++++++++++++++++++++++++++++++++
  include/linux/mtd/spi-nor.h    |   4 +
@@ -410,6 +410,3 @@ index cfbef0351e..120cf82f46 100644
  
  /* Status Register 2 bits. */
  #define SR2_QUAD_EN_BIT7	BIT(7)
--- 
-2.29.0
-

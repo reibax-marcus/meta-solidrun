@@ -1,11 +1,12 @@
-From 2305780edb55b0856d5a5d9ef45fb1cf81ee3bda Mon Sep 17 00:00:00 2001
+From 332b4159bbb2e301da8d8593f94042603ca8573f Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 23:21:35 -0400
-Subject: [PATCH 0468/1239] dm: pci: Return BAR size from dm_map_bar()
+Subject: [PATCH] dm: pci: Return BAR size from dm_map_bar()
 
 Return BAR size from dm_map_bar() to support advanced features
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci-uclass.c | 39 +--------------------------------------
  include/pci.h            |  3 ++-
@@ -78,6 +79,3 @@ index 9aba49751f..d37809dcd4 100644
  
  /**
   * dm_pci_find_next_capability() - find a capability starting from an offset
--- 
-2.29.0
-

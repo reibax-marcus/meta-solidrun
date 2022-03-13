@@ -1,11 +1,12 @@
-From 71fb6eb6e6545adf70bd150dee731d7e22537391 Mon Sep 17 00:00:00 2001
+From a0435cbc276ad2865bd9d8aa3bc4d0255772586d Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Thu, 19 Jan 2017 13:43:17 -0800
-Subject: [PATCH 0600/1239] bgx: remove hardcoded values
+Subject: [PATCH] bgx: remove hardcoded values
 
 This patch improves code readability
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 28 ++++++++++++++--------------
  1 file changed, 14 insertions(+), 14 deletions(-)
@@ -114,6 +115,3 @@ index 762a2eecb9..c57b04db2c 100644
  			if ((lmacid == 0) || (lmacid == 2)) {
  				lmac->qlm_mode = QLM_MODE_QSGMII;
  				printf("BGX%d QLM%d LMAC%d mode: QSGMII\n",
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 6af5dd5b8594ac3916d174b7b74f038c2ac7147a Mon Sep 17 00:00:00 2001
+From 0b5494a7d65fe01b4598c3c58f225feaeefaa028 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 19 Nov 2015 10:43:21 -0800
-Subject: [PATCH 0371/1239] cavium: Add CONFIG_SYS_VSNPRINTF
+Subject: [PATCH] cavium: Add CONFIG_SYS_VSNPRINTF
 
 ---
  include/configs/thunderx_88xx.h | 2 ++
@@ -20,6 +20,3 @@ index a1447fbe3d..8974fba8a1 100644
  #define CONFIG_IDENT_STRING	\
  	" for Cavium Thunder CN88XX ARM v8 Multi-Core"
  #define CONFIG_BOOTP_VCI_STRING		"Diagnostics"
--- 
-2.29.0
-

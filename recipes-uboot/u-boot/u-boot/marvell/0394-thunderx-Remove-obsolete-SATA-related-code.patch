@@ -1,12 +1,13 @@
-From ad96b1824d013d3c254a344a7fda715b0b991778 Mon Sep 17 00:00:00 2001
+From 4f19d2244c4d1f70e4420aa15997ab95c6c8dcef Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 May 2016 18:56:26 -0700
-Subject: [PATCH 0394/1239] thunderx: Remove obsolete SATA-related code
+Subject: [PATCH] thunderx: Remove obsolete SATA-related code
 
 This code is unused since moving AHCI to PCI. This commit
 removes the obsolete code
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  board/cavium/thunderx/sata.c | 47 ------------------------------------
  1 file changed, 47 deletions(-)
@@ -65,6 +66,3 @@ index 478cce08fc..0000000000
 -		return 0;
 -	}
 -}
--- 
-2.29.0
-

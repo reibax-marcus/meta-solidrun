@@ -1,9 +1,10 @@
-From 26cea2c8f71eaddb64820d466453df4c0b2bf1fa Mon Sep 17 00:00:00 2001
+From 95ffefaa2cba7bf3c97638e06d42643ef269a81d Mon Sep 17 00:00:00 2001
 From: Alon Rotman <alon.rotman@solid-run.com>
 Date: Tue, 19 Jan 2021 15:35:07 +0200
-Subject: [PATCH 6/6] build: dts for CN913x CEx7 by SolidRun
+Subject: [PATCH] build: dts for CN913x CEx7 by SolidRun
 
 Signed-off-by: Alon Rotman <alon.rotman@solid-run.com>
+
 ---
  arch/arm/dts/cn9130-cex7-A.dts | 177 +++++++++++++++++-------
  arch/arm/dts/cn9131-cex7-A.dts |  29 +---
@@ -743,6 +744,3 @@ index 46d54bb647..0244fd6aa4 100644
  &cp2_usb3_0 {
  	status = "okay";
  };
--- 
-2.25.1
-

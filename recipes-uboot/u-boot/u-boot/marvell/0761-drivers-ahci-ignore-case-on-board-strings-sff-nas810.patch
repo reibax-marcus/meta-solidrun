@@ -1,10 +1,10 @@
-From 9ea19384cff2887f396980ccb589461868459f1c Mon Sep 17 00:00:00 2001
+From 8be694276b146a70f3fa799bc3fc00dc75c0eb69 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 26 Feb 2018 16:07:46 -0800
-Subject: [PATCH 0761/1239] drivers: ahci: ignore case on board strings
- sff/nas8104
+Subject: [PATCH] drivers: ahci: ignore case on board strings sff/nas8104
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/ata/ahci.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -24,6 +24,3 @@ index 56cfd8dbcd..60ab841382 100644
  		return 0;
  	/*
  	 * Make sure interface is not busy based on error and status
--- 
-2.29.0
-

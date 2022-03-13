@@ -1,7 +1,7 @@
-From 8102d0cbab80fb0cd5b0acf12f2a69a93231d966 Mon Sep 17 00:00:00 2001
+From 68365f4c279e6199d370853d8fc732f5630da8ef Mon Sep 17 00:00:00 2001
 From: aaronw <awilliams@marvell.com>
 Date: Thu, 23 May 2019 17:41:22 -0700
-Subject: [PATCH 0920/1239] mmc: octeontx2: Allow device tree to set taps
+Subject: [PATCH] mmc: octeontx2: Allow device tree to set taps
 
 This patch allows the device tree to override the default tap
 values for the command and data outputs.  If not set, the
@@ -20,6 +20,7 @@ Signed-off-by: aaronw <awilliams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/9841
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 31 +++++++++++++++++++++++++++----
  drivers/mmc/octeontx_hsmmc.h |  6 ++++++
@@ -101,6 +102,3 @@ index 6c27d909aa..8cb744e4bc 100644
  };
  
  struct octeontx_mmc_cr_mods {
--- 
-2.29.0
-

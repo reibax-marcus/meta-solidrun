@@ -1,8 +1,8 @@
-From 984bc41a6bf2297c55d4b09ca4f9f638483a892c Mon Sep 17 00:00:00 2001
+From ab512cb0e3b7b6a22a218ae1d0c566cca32d3336 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 22:17:41 -0400
-Subject: [PATCH 0465/1239] dm: pci: Update e1000 for changed semantics
- Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Subject: [PATCH] dm: pci: Update e1000 for changed semantics Signed-off-by:
+ Sergey Temerkhanov <s.temerkhanov@gmail.com>
 
 ---
  drivers/net/e1000.c | 3 +--
@@ -22,6 +22,3 @@ index d5818d188e..65fe63c8ce 100644
  #else
  	hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
  						PCI_REGION_MEM);
--- 
-2.29.0
-

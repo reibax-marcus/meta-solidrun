@@ -1,8 +1,7 @@
-From 2d472707bfdc88f0bdde3da28f748f9c61bef572 Mon Sep 17 00:00:00 2001
+From be99506e532de430a327dd4afbab4b217dc25667 Mon Sep 17 00:00:00 2001
 From: Yan Markman <ymarkman@marvell.com>
 Date: Wed, 9 Jan 2019 18:48:15 +0200
-Subject: [PATCH 0239/1239] arm64: mvebu: dts: a37xx description with B/C board
- type
+Subject: [PATCH] arm64: mvebu: dts: a37xx description with B/C board type
 
 There are 3 kind of armada-3720-** board-variants:
 "A" (default), "B", "C". All of them have different U-boots.
@@ -10,6 +9,7 @@ To distinct U-boots, add an appropriated "B" or "C" into description.
 
 Change-Id: Iaa1a7cdafced971b5ab35139d88e0b545487a718
 Signed-off-by: Yan Markman <ymarkman@marvell.com>
+
 ---
  arch/arm/dts/armada-3720-ddr3-db-v1-B.dts | 2 +-
  arch/arm/dts/armada-3720-ddr3-db-v1-C.dts | 2 +-
@@ -111,6 +111,3 @@ index e4ae11c6a4..1fa8b5409d 100644
  	compatible = "marvell,armada-3720-db-v3",
  		     "marvell,armada3720",
  		     "marvell,armada3710";
--- 
-2.29.0
-

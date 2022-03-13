@@ -1,13 +1,14 @@
-From 71b227ad3b14eced5f482e6c7abe39a65ef47bef Mon Sep 17 00:00:00 2001
+From 7821d69e9084ea5e5593db01a0ff17bd17f04728 Mon Sep 17 00:00:00 2001
 From: zachary zhang <zhangzg@marvell.com>
 Date: Wed, 30 May 2018 17:58:08 +0800
-Subject: [PATCH 0121/1239] arm64: mvebu: dts: a8k: add efuse nodes
+Subject: [PATCH] arm64: mvebu: dts: a8k: add efuse nodes
 
 This patch adds HD/LD efuse nodes on armada 70x0 and 80x0 dtsi
 and dts file for efuse driver usage.
 
 Change-Id: I9e1442df96c6f68e8f96279df3dbc031410effba
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-db-B.dts    | 25 ++++++++++++++++++++
  arch/arm/dts/armada-7040-db-C.dts    | 17 ++++++++++++++
@@ -949,6 +950,3 @@ index dfa7a1c6fa..74b9a7c2d9 100644
  			CP110_LABEL(pinctl): pinctl@440000 {
  				compatible = "marvell,mvebu-pinctrl";
  				reg = <0x440000 0x20>;
--- 
-2.29.0
-

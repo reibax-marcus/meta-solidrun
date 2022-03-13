@@ -1,13 +1,14 @@
-From f99e404541384666ce37a8394aac095dcc3d1aab Mon Sep 17 00:00:00 2001
+From 1c986d4842b49016c138ae5ab32f038d0f0c427d Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 29 Sep 2016 15:40:43 -0700
-Subject: [PATCH 0545/1239] Check lmc_mode32 for returning the correct
- alternative package
+Subject: [PATCH] Check lmc_mode32 for returning the correct alternative
+ package
 
 Some 80xx parts are not fused out properly so check mio_fus_dat2.lmc_mode32
 to determine the alternate package.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/thunderx.c | 10 +++++++++-
  1 file changed, 9 insertions(+), 1 deletion(-)
@@ -34,6 +35,3 @@ index 54177b8afd..0b626d5142 100644
  }
  
  /**
--- 
-2.29.0
-

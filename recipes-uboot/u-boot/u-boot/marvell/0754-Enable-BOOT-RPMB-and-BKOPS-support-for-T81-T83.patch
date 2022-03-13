@@ -1,7 +1,7 @@
-From 599f56a6ae83ade417809176ba056c4d9e519c8c Mon Sep 17 00:00:00 2001
+From e17f3867c61de491b8ac0df56d1f06f9b9c55151 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 7 Feb 2018 20:16:18 -0800
-Subject: [PATCH 0754/1239] Enable BOOT, RPMB and BKOPS support for T81 & T83
+Subject: [PATCH] Enable BOOT, RPMB and BKOPS support for T81 & T83
 
 ---
  include/configs/thunderx_81xx.h | 5 +++++
@@ -36,6 +36,3 @@ index 77c4ae4688..ac4e825d9f 100644
 +#define CONFIG_CMD_BKOPS_ENABLE
 +
  #endif /* __THUNDERX_83XX_H__ */
--- 
-2.29.0
-

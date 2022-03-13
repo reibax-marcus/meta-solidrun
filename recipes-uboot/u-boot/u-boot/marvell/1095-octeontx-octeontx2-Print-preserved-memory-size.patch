@@ -1,7 +1,7 @@
-From 6272396a05148abf60b305466ae6408c484db7a3 Mon Sep 17 00:00:00 2001
+From df53362d9739ffb0626f1885bb9cd57380a2fbd7 Mon Sep 17 00:00:00 2001
 From: Lukasz Majczak <lukaszm@marvell.com>
 Date: Tue, 11 Feb 2020 13:35:37 +0100
-Subject: [PATCH 1095/1239] octeontx: octeontx2: Print preserved memory size
+Subject: [PATCH] octeontx: octeontx2: Print preserved memory size
 
 Print separate log for secure and non-secure memory region.
 
@@ -10,6 +10,7 @@ Signed-off-by: Lukasz Majczak <lukaszm@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/23207
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  board/Marvell/octeontx/board-fdt.c  | 23 ++++++++++++++++-------
  board/Marvell/octeontx2/board-fdt.c | 23 ++++++++++++++++-------
@@ -105,6 +106,3 @@ index ff1cb4af6b..7d161ce8f7 100644
  }
  
  const char *fdt_get_board_serial(void)
--- 
-2.29.0
-

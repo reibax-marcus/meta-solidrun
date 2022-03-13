@@ -1,7 +1,7 @@
-From f95d4225610ac8a6f5b7ad270ef5f3b7853b78c4 Mon Sep 17 00:00:00 2001
+From deeb3c7ba7baa66fa9c8bc5a573ff86b67f85ad3 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Mon, 19 Nov 2018 09:58:32 +0200
-Subject: [PATCH 0034/1239] phy: marvell cp110: mark u-boot power-off calls
+Subject: [PATCH] phy: marvell cp110: mark u-boot power-off calls
 
 It helps ATF to determine who called power off
 function (U-boot/Linux) and act accordingly
@@ -9,6 +9,7 @@ function (U-boot/Linux) and act accordingly
 Change-Id: Icfc5cbfdba64754496812154272b28c0ff639f0f
 Signed-off-by: Igal Liberman <igall@marvell.com>
 Reviewed-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -30,6 +31,3 @@ index 39d173087b..63cba8a39e 100644
  		case COMPHY_TYPE_IGNORE:
  			continue;
  			break;
--- 
-2.29.0
-

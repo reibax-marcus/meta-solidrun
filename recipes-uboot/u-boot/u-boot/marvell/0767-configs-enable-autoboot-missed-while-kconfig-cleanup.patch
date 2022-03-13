@@ -1,10 +1,10 @@
-From 3cb39a25240ea4c2247ca95e337dff52d303a072 Mon Sep 17 00:00:00 2001
+From e9bbffab3591fd5a29d59d4c67390d1c3d6ce2ca Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 6 Mar 2018 13:42:56 -0800
-Subject: [PATCH 0767/1239] configs: enable autoboot missed while kconfig
- cleanup
+Subject: [PATCH] configs: enable autoboot missed while kconfig cleanup
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  configs/octeontx2_93xx_defconfig | 2 +-
  configs/octeontx_81xx_defconfig  | 2 +-
@@ -71,6 +71,3 @@ index d9a8a4e3a1..ec2744e2a6 100644
  # CONFIG_CMD_BOOTEFI_HELLO_COMPILE is not set
  CONFIG_CMD_MEMTEST=y
  CONFIG_CMD_MX_CYCLIC=y
--- 
-2.29.0
-

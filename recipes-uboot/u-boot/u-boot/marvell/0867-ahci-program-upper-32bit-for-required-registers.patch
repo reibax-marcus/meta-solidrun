@@ -1,7 +1,7 @@
-From babdd34c8c8252b8146591032de9332caf22ced3 Mon Sep 17 00:00:00 2001
+From 3a418de103f17ba550dd6ab825a913af673216e7 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 14 Jan 2019 17:26:35 -0800
-Subject: [PATCH 0867/1239] ahci: program upper 32bit for required registers
+Subject: [PATCH] ahci: program upper 32bit for required registers
 
 If 64-bit address is supported, use '_hi' suffix registers
 to program upper 32bit.
@@ -11,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/2175
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Tested-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+
 ---
  drivers/ata/ahci.c | 17 +++++++++++++++++
  include/ahci.h     |  3 +++
@@ -67,6 +68,3 @@ index 4b2762ac28..673473deeb 100644
  /* Registers for each SATA port */
  #define PORT_LST_ADDR		0x00 /* command list DMA addr */
  #define PORT_LST_ADDR_HI	0x04 /* command list DMA addr hi */
--- 
-2.29.0
-

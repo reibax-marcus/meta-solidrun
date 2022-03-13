@@ -1,8 +1,7 @@
-From c37a0717d037d3d2824479b7381cadfb80883da8 Mon Sep 17 00:00:00 2001
+From bc103caaec379d83397e2cfffd1edb08a4e86cbf Mon Sep 17 00:00:00 2001
 From: Omri Itach <omrii@marvell.com>
 Date: Thu, 6 Apr 2017 12:54:16 +0300
-Subject: [PATCH 0014/1239] phy: marvell: cp110: initialize only enabled UTMI
- units
+Subject: [PATCH] phy: marvell: cp110: initialize only enabled UTMI units
 
 UTMI should be initialized only for enabled device tree nodes.
 
@@ -17,6 +16,7 @@ contain valid ports information obtained from the DT.
 Change-Id: I9c43c6a5d234e15ae9005d1c9bc983fc1f3544b8
 Signed-off-by: Omri Itach <omrii@marvell.com>
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 51 +++++++++++++++---------------
  1 file changed, 26 insertions(+), 25 deletions(-)
@@ -127,6 +127,3 @@ index 886f6e2eed..e3dbaad69e 100644
  
  	debug_exit();
  }
--- 
-2.29.0
-

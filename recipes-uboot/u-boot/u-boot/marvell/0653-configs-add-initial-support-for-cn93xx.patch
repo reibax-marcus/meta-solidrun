@@ -1,12 +1,13 @@
-From ea98dd0f1110e0512904509a6fe09868326c20cc Mon Sep 17 00:00:00 2001
+From cf0bc3cc35ecf6708f30950c8fd54be2c967b3ca Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 3 May 2017 17:12:37 -0700
-Subject: [PATCH 0653/1239] configs: add initial support for cn93xx
+Subject: [PATCH] configs: add initial support for cn93xx
 
 board file support and config files addition to support
 cn93xx.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/Kconfig   |  20 +-
  configs/t93_defconfig           |   2 +-
@@ -518,6 +519,3 @@ index 0000000000..20b0514f45
 +#define CONFIG_CMD_TIME
 +
 +#endif /* __THUNDERX_93XX_H__ */
--- 
-2.29.0
-

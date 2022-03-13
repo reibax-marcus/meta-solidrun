@@ -1,7 +1,7 @@
-From 1561849a279692e4572fc37dd57034c3afed1b25 Mon Sep 17 00:00:00 2001
+From 68d79ae88cf6f10207185683c505560b3f11fb4f Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 Nov 2015 20:36:20 -0800
-Subject: [PATCH 0350/1239] Remove writeq_relaxed() reference
+Subject: [PATCH] Remove writeq_relaxed() reference
 
 ---
  drivers/net/cavium/thunder_bgx.c | 2 +-
@@ -20,6 +20,3 @@ index 5318c95476..39e2cc7f45 100644
  		bgx->lmac[lmac].dmac--;
  	}
  }
--- 
-2.29.0
-

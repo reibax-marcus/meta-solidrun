@@ -1,8 +1,8 @@
-From acb56783b50c0ef1ede18bf69d950544a18af5a7 Mon Sep 17 00:00:00 2001
+From 06ed1ac5be5dd3c84644cec192ad42ef87aff629 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 3 Apr 2018 16:59:12 +0200
-Subject: [PATCH 0026/1239] phy: marvell: cp110: let the firmware perform
- training for XFI
+Subject: [PATCH] phy: marvell: cp110: let the firmware perform training for
+ XFI
 
 Replace the XFI training with appropriate SMC call, so the firmware will
 perform exact initialization.
@@ -10,6 +10,7 @@ perform exact initialization.
 Change-Id: I789b130b05529dc80dadcf66aef407d93595b762
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 168 +----------------------------
  1 file changed, 4 insertions(+), 164 deletions(-)
@@ -214,6 +215,3 @@ index b323257370..01e5800507 100644
  
  	debug_exit();
  
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From 70c89c1b0b89e302e54adc93ff643975987b00b0 Mon Sep 17 00:00:00 2001
+From ac47cf95ebd6b89c9bdae8262d86f4979f437075 Mon Sep 17 00:00:00 2001
 From: Konrad Adamczyk <kadamczyk@marvell.com>
 Date: Thu, 6 Sep 2018 12:05:54 +0200
-Subject: [PATCH 0829/1239] octeontx: svc: change id of SMC calls
+Subject: [PATCH] octeontx: svc: change id of SMC calls
 
 Change id of Octeontx SMC calls to match SiP Services range
 from ARM DEN0028B.
 
 Signed-off-by: Konrad Adamczyk <kadamczyk@marvell.com>
+
 ---
  .../arm/include/asm/arch-octeontx/octeontx_svc.h | 14 +++++++-------
  .../include/asm/arch-octeontx2/octeontx2_svc.h   | 16 ++++++++--------
@@ -74,6 +75,3 @@ index 38eae6c9af..79e88781ce 100644
 +#define OCTEONTX2_DISABLE_RVU_LFS	0xc2000b01
  
  #endif /* __OCTEONTX2_SVC_H__ */
--- 
-2.29.0
-

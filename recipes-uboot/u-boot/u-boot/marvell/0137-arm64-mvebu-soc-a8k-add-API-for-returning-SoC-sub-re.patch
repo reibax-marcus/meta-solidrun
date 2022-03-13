@@ -1,11 +1,12 @@
-From a9f9aa379c39924198629c2ef5c9bdfcb434ac1c Mon Sep 17 00:00:00 2001
+From a958cd0082e55caf831611277ab26564599f4752 Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Mon, 25 Jun 2018 18:02:17 +0300
-Subject: [PATCH 0137/1239] arm64: mvebu: soc: a8k: add API for returning SoC
- sub revision
+Subject: [PATCH] arm64: mvebu: soc: a8k: add API for returning SoC sub
+ revision
 
 Change-Id: I756a9d884f81ceb20c6a437db0bc947a965a686b
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/soc.c | 25 +++++++++++++++++++++----
  1 file changed, 21 insertions(+), 4 deletions(-)
@@ -66,6 +67,3 @@ index f1863eaa32..cc0d9cbdd5 100644
  				if (sub_rev == soc_info_table[i].sub_rev) {
  					*index = i;
  					ret = 0;
--- 
-2.29.0
-

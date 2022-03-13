@@ -1,7 +1,7 @@
-From 2a27b7adc39fbb381c4a8c3102bed56dcbb754bd Mon Sep 17 00:00:00 2001
+From 20cd82ff724b1ac4bb6e846acbec198556ef35eb Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Wed, 22 Jan 2020 17:55:39 +0100
-Subject: [PATCH 1069/1239] arm64: dts: a8k: add explicit sgmii-2500 support
+Subject: [PATCH] arm64: dts: a8k: add explicit sgmii-2500 support
 
 Now as the 'phy-speed' property is not used
 for describing the SGMII@2.5GHz, update the
@@ -14,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/22244
 Reviewed-by: Grzegorz Jaszczyk <jaszczyk@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-clearfog-gt-8k.dts | 3 +--
  arch/arm/dts/armada-8040-mcbin.dts          | 3 +--
@@ -61,6 +62,3 @@ index a040288007..5455095179 100644
  	phy = <&mvswitch>;
  	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 24 GPIO_ACTIVE_HIGH>;
  	fixed-link {
--- 
-2.29.0
-

@@ -1,9 +1,10 @@
-From a0e8f648f3e9935073cbe124052dd62649c907b6 Mon Sep 17 00:00:00 2001
+From 7432f4b5af12003e16644a9b056ac43512c3c9f2 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 26 Sep 2017 15:31:34 -0700
-Subject: [PATCH 0715/1239] BGX: Print only valid BGX configurations
+Subject: [PATCH] BGX: Print only valid BGX configurations
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 46 +++++++++++++++++++++++++-------
  1 file changed, 37 insertions(+), 9 deletions(-)
@@ -187,6 +188,3 @@ index 29f5b3b7d3..e311e479b2 100644
  					bgx->bgx_id, lmac->qlm, lmacid);
  			}
  			break;
--- 
-2.29.0
-

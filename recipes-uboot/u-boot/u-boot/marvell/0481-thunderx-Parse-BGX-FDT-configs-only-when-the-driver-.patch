@@ -1,8 +1,8 @@
-From c068d5ba8bbeda9e28c8f294859ce01c4d362e47 Mon Sep 17 00:00:00 2001
+From f6d324fe9d70957aae475ccc6a351f2171653197 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 19 May 2016 19:54:38 -0400
-Subject: [PATCH 0481/1239] thunderx: Parse BGX FDT configs only when the
- driver is enabled Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Subject: [PATCH] thunderx: Parse BGX FDT configs only when the driver is
+ enabled Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 
 ---
  board/cavium/thunderx/fdt.c | 2 ++
@@ -22,6 +22,3 @@ index 70d12e5859..bd5ccd78ab 100644
  		}
  	}
  
--- 
-2.29.0
-

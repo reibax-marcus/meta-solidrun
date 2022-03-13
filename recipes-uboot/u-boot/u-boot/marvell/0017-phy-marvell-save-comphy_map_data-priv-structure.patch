@@ -1,7 +1,7 @@
-From 24da8a9c48c8314bee3be4c6d92ac7de74300146 Mon Sep 17 00:00:00 2001
+From 3c3a491c67813cc7ff51febc965546f8a430dc88 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Mon, 21 Aug 2017 16:58:21 +0300
-Subject: [PATCH 0017/1239] phy: marvell: save comphy_map_data priv structure
+Subject: [PATCH] phy: marvell: save comphy_map_data priv structure
 
 This allows the lower level driver access to comphy map data
 (required for RX training support, which is introduced
@@ -9,6 +9,7 @@ in the following patches).
 
 Change-Id: Ib7ffdc4b32076c01c3a5d33f59552c9dfc6b12fa
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_core.c | 20 ++++++++++----------
  drivers/phy/marvell/comphy_core.h |  1 +
@@ -94,6 +95,3 @@ index 12ab921d24..c08677e56d 100644
  };
  
  /* Register helper functions */
--- 
-2.29.0
-

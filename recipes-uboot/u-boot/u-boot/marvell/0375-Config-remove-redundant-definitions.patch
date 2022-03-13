@@ -1,7 +1,7 @@
-From ac93c127e8ad4400e793739d71745fb6c7d6a2f5 Mon Sep 17 00:00:00 2001
+From c617f37c007c3f285278f0b05d06b20f2d998187 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 29 Jan 2016 15:08:23 -0800
-Subject: [PATCH 0375/1239] Config: remove redundant definitions
+Subject: [PATCH] Config: remove redundant definitions
 
 ---
  include/configs/thunderx_88xx.h | 3 +--
@@ -28,6 +28,3 @@ index 8974fba8a1..eaddbf22a5 100644
  
  /* AHCI support Definitions */
  #ifdef CONFIG_CMD_SATA
--- 
-2.29.0
-

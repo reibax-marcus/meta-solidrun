@@ -1,8 +1,7 @@
-From 08a50bf1fd1c99e4aad00068b59c87ce88e1b97e Mon Sep 17 00:00:00 2001
+From 3f016ea27fa9aeaac7b17c50ccdbc56c8949b779 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 10 Jul 2019 18:11:06 -0700
-Subject: [PATCH 0938/1239] board: octeontx2: Fix issue with roll over of MAC
- address
+Subject: [PATCH] board: octeontx2: Fix issue with roll over of MAC address
 
 Use 64 bit variable instead of char array to handle increments
 on MAC address.
@@ -12,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/12400
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx2/octeontx2.c | 22 +++++++++++-----------
  1 file changed, 11 insertions(+), 11 deletions(-)
@@ -72,6 +72,3 @@ index 8b1580fd94..53687fce42 100644
  }
  
  void board_quiesce_devices(void)
--- 
-2.29.0
-

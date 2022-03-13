@@ -1,7 +1,7 @@
-From 32d18dcb7ed41dd8a39e2c1882e5ee8fdeaab2c5 Mon Sep 17 00:00:00 2001
+From acd9a0a1e9b37d6a8ec5cc39e821196e71a41994 Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Tue, 22 Dec 2015 09:59:49 -0800
-Subject: [PATCH 0378/1239] Thunderx : u-boot XAUI fixes
+Subject: [PATCH] Thunderx : u-boot XAUI fixes
 
     - CONFIG_THUNDERX_BGX is defined in include/configs/thunder-88xx.h
     and when used in source code, it is used as CONFIG_THUNDER_BGX.
@@ -14,6 +14,7 @@ Subject: [PATCH 0378/1239] Thunderx : u-boot XAUI fixes
     BGX node is not updated based on the latest device tree structure
     and hence it couldn't find BGX node for setup.Updated the code
     accordingly to locate the BGX node.
+
 ---
  board/cavium/thunderx/fdt.c      | 31 ++++++++++++++++++++-----------
  drivers/net/cavium/thunder_bgx.c |  1 +
@@ -106,6 +107,3 @@ index 7216d9b688..ce9d2539ed 100644
  	    (bgx->lmac_type != BGX_MODE_XLAUI) &&
  	    (bgx->lmac_type != BGX_MODE_40G_KR) &&
  	    (bgx->lmac_type != BGX_MODE_10G_KR)) {
--- 
-2.29.0
-

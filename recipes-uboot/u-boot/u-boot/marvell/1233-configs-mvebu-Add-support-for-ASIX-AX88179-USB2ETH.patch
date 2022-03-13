@@ -1,7 +1,7 @@
-From 9857e438437c88deb2d49b035bb4e1c5a697c398 Mon Sep 17 00:00:00 2001
+From 590d23600e9876ff3e51021da0ea2048a64b0564 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 20 Oct 2020 13:49:23 +0300
-Subject: [PATCH 1233/1239] configs/mvebu: Add support for ASIX AX88179 USB2ETH
+Subject: [PATCH] configs/mvebu: Add support for ASIX AX88179 USB2ETH
 
 Add support for ASIX AX88179 USB2ETH adapters for Marvell boards
 The adapter is detected as ax88179_eth device.
@@ -11,6 +11,7 @@ Change-Id: Ic3f8026599d9e5cf2f07c65fd11339ccb339013c
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/38263
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+
 ---
  configs/mvebu_comexpress-88f7020_defconfig  | 3 ++-
  configs/mvebu_crb_cn9130_defconfig          | 3 ++-
@@ -234,6 +235,3 @@ index bd84651db8..a7058ec599 100644
 -CONFIG_OF_BOARD_SETUP=y
 \ No newline at end of file
 +CONFIG_OF_BOARD_SETUP=y
--- 
-2.29.0
-

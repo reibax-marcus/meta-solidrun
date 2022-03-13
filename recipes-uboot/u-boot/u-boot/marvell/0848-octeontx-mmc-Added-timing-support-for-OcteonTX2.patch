@@ -1,7 +1,7 @@
-From 395788e550384ed26209cc55297305148ad95a40 Mon Sep 17 00:00:00 2001
+From 630c223b8c738d26557d95c96764729c2b37bcba Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 11 Dec 2018 00:20:25 -0500
-Subject: [PATCH 0848/1239] octeontx: mmc: Added timing support for OcteonTX2
+Subject: [PATCH] octeontx: mmc: Added timing support for OcteonTX2
 
 For now this hard codes the timing values.  Later this will be
 fixed properly with an algorithm to calculate the proper timing.
@@ -11,6 +11,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/1461
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/mmc/octeontx_mmc.c | 92 ++++++++++++++++++++++++++++++++++----
  1 file changed, 84 insertions(+), 8 deletions(-)
@@ -196,6 +197,3 @@ index e6f2033966..ae091ad306 100644
  	if (octeontx2_mmc_calibrate_delay(mmc)) {
  		printf("%s: Error: could not calibrate tap delay\n", __func__);
  		return -1;
--- 
-2.29.0
-

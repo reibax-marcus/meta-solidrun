@@ -1,12 +1,13 @@
-From 31e8c477af4e31d39278a78cb697107ff6c6ff71 Mon Sep 17 00:00:00 2001
+From be1bdd840d16f413e4a2a9d3fb7ac99e9a8a46e6 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 3 Aug 2017 16:19:07 -0700
-Subject: [PATCH 0682/1239] board: cavium: remove use of CPU_RELEASE_ADDR
+Subject: [PATCH] board: cavium: remove use of CPU_RELEASE_ADDR
 
 CPU_RELEASE_ADDR is not needed as u-boot is neither multi
 entry nor uses spin-table method.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/thunderx.c |  2 --
  include/configs/thunderx_81xx.h  |  7 -------
@@ -82,6 +83,3 @@ index 87b4d169a2..6c16676cb0 100644
  /* Generic Timer Definitions */
  #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
  
--- 
-2.29.0
-

@@ -1,10 +1,11 @@
-From 82633e7d4da7d9ea670944987de5343879e75c71 Mon Sep 17 00:00:00 2001
+From 23f054d9dc62ba63e9d446df046d07bb145a4394 Mon Sep 17 00:00:00 2001
 From: zachary <zhangzg@marvell.com>
 Date: Fri, 17 Mar 2017 10:47:57 +0800
-Subject: [PATCH 0088/1239] dts: a3700: add io expander gpio node in i2c node
+Subject: [PATCH] dts: a3700: add io expander gpio node in i2c node
 
 Change-Id: I5c2660e013da72bdf193884d83d203a75d2356b1
 Signed-off-by: zachary <zhangzg@marvell.com>
+
 ---
  arch/arm/dts/armada-3720-db.dts | 9 +++++++++
  1 file changed, 9 insertions(+)
@@ -29,6 +30,3 @@ index 8882f23b41..4543c66af8 100644
  };
  
  /* CON3 */
--- 
-2.29.0
-

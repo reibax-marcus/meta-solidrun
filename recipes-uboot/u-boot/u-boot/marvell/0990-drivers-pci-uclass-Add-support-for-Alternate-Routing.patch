@@ -1,13 +1,14 @@
-From 569613fa09db1ebf1b11861697b4513143000df0 Mon Sep 17 00:00:00 2001
+From aa9c767c620adbff690dcd7e62958e27b739f28e Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 23 Oct 2019 18:40:36 -0700
-Subject: [PATCH 0990/1239] drivers: pci-uclass: Add support for
- Alternate-RoutingID capability
+Subject: [PATCH] drivers: pci-uclass: Add support for Alternate-RoutingID
+ capability
 
 If ARI capability is found on device, use it to update next function
 number in bus scan and also helps to skip unnecessary bdf scans.
 
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  drivers/pci/pci-uclass.c | 18 +++++++++++++++++-
  1 file changed, 17 insertions(+), 1 deletion(-)
@@ -48,6 +49,3 @@ index 5cee0fa935..eb4eda0e8c 100644
  	}
  
  	return 0;
--- 
-2.29.0
-

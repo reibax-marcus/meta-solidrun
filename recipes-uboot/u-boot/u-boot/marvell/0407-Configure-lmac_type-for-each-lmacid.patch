@@ -1,7 +1,7 @@
-From 5f5fae277c4e8dd24e7e179565c804c7df79241c Mon Sep 17 00:00:00 2001
+From 02a0d281cc52a50f547fc9ffb74611d121446334 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 5 May 2016 20:04:52 -0700
-Subject: [PATCH 0407/1239] Configure lmac_type for each lmacid.
+Subject: [PATCH] Configure lmac_type for each lmacid.
 
 Read GSERx_CFG.bgx to configure DLMs. BDK configures gser1_cfg.bgx for DLM0/2
 and gser3_cfg.bgx for DLM1/3.
@@ -9,6 +9,7 @@ and gser3_cfg.bgx for DLM1/3.
 Read GSERx_SCRATCH to determine KR mode.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 375 +++++++++++++++++--------------
  1 file changed, 201 insertions(+), 174 deletions(-)
@@ -560,6 +561,3 @@ index a42df1b3be..a8afdeba69 100644
  			bgx->lmac[lmac].mii_bus = miiphy_get_dev_by_name(mii_name);
  			debug("bgx->lmac[lmac].mii_bus: %p\n", bgx->lmac[lmac].mii_bus);
  			if (!bgx->lmac[lmac].mii_bus) {
--- 
-2.29.0
-

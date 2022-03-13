@@ -1,10 +1,10 @@
-From a053c5e7b824729068f163f76c4f983cbfeac004 Mon Sep 17 00:00:00 2001
+From b41680cfa953f964ef49e377489b8d397735675e Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 23 Feb 2018 16:33:39 -0800
-Subject: [PATCH 0757/1239] Remove multiple definition of
- CONFIG_SPI_FLASH_4BAIS.
+Subject: [PATCH] Remove multiple definition of CONFIG_SPI_FLASH_4BAIS.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  configs/t81_defconfig | 5 -----
  1 file changed, 5 deletions(-)
@@ -22,6 +22,3 @@ index 81cfc74c94..d912e7e514 100644
 -CONFIG_OF_LIBFDT=y
 -CONFIG_OF_BOARD=y
 -CONFIG_SPI_FLASH_4BAIS=y
--- 
-2.29.0
-

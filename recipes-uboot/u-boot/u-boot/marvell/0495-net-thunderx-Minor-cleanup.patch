@@ -1,9 +1,10 @@
-From b6ac0fb5bd703143d8f66a119163569d433e70b4 Mon Sep 17 00:00:00 2001
+From 47842db330137b2291a63bc6a873742ec00f7470 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 6 Jun 2016 17:45:20 -0700
-Subject: [PATCH 0495/1239] net: thunderx: Minor cleanup.
+Subject: [PATCH] net: thunderx: Minor cleanup.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/nic_main.c    | 2 +-
  drivers/net/cavium/thunder_bgx.c | 7 -------
@@ -40,6 +41,3 @@ index 4225838bfe..3acdf945e6 100644
  		snprintf(bgx->lmac[lmac].netdev.name,
  			 sizeof(bgx->lmac[lmac].netdev.name),
  			 "lmac%d", lmac);
--- 
-2.29.0
-

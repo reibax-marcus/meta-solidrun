@@ -1,8 +1,8 @@
-From 3a1361d08317fe84ee03b7238f47c1cfdca58f7f Mon Sep 17 00:00:00 2001
+From 3a5ac76afb60221f6874935aaafd3d2abc8e2903 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 20 Jun 2017 23:06:47 -0700
-Subject: [PATCH 0638/1239] This fixes some additional issues with the new MMC
- device tree format.
+Subject: [PATCH] This fixes some additional issues with the new MMC device
+ tree format.
 
   The compatible string was wrong and the power control is now on a per-slot
   basis and NOT on a per controller basis.  Additionally there was a bug where
@@ -11,6 +11,7 @@ Subject: [PATCH 0638/1239] This fixes some additional issues with the new MMC
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  .../include/asm/arch-thunderx/cavium_mmc.h    |  2 +-
  drivers/mmc/cavium_mmc.c                      | 30 +++++++++++++++++--
@@ -94,6 +95,3 @@ index 0631852f21..7d45f4975d 100644
  	slot->power_delay = power_delay;
  	slot->power_active_high = active_high;
  	slot->cfg.voltages = voltages;
--- 
-2.29.0
-

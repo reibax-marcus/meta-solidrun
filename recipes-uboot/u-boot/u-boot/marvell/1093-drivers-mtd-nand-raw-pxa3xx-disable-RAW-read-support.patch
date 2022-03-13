@@ -1,8 +1,7 @@
-From d89923ba728de770075c4db6a3cdf08a5d80681a Mon Sep 17 00:00:00 2001
+From b9fdf0125697f836ab71b98b2202a51252634181 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 9 Feb 2020 11:15:42 +0200
-Subject: [PATCH 1093/1239] drivers/mtd/nand/raw/pxa3xx: disable RAW read
- support
+Subject: [PATCH] drivers/mtd/nand/raw/pxa3xx: disable RAW read support
 
 Temporarely disable RAW read support due to failures on NFCv2
 platforms (A7K/A8K/CN913x)
@@ -14,6 +13,7 @@ Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+
 ---
  drivers/mtd/nand/raw/pxa3xx_nand.c | 11 +++++++++++
  1 file changed, 11 insertions(+)
@@ -63,6 +63,3 @@ index 22c3fef4b2..8538c38cd5 100644
  		chip->ecc.write_page	= pxa3xx_nand_write_page_hwecc;
  		chip->controller        = &info->controller;
  		chip->waitfunc		= pxa3xx_nand_waitfunc;
--- 
-2.29.0
-

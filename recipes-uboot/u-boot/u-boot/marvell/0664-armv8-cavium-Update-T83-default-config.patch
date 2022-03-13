@@ -1,7 +1,7 @@
-From cb678e69ab3e50eacbe9d46b9af2706fe9d530f2 Mon Sep 17 00:00:00 2001
+From 4246e92b782abd92755f40060349273d2066256a Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 26 Jul 2017 17:01:12 +0300
-Subject: [PATCH 0664/1239] armv8: cavium: Update T83 default config
+Subject: [PATCH] armv8: cavium: Update T83 default config
 
 Upstream requires that the platform default config be obtained
 as a result of 'save defconfig' command execution. This commit
@@ -9,6 +9,7 @@ updates the config files to comply with this requirement and
 enables the NVME driver
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  configs/t83_defconfig           | 3 +++
  include/configs/thunderx_83xx.h | 1 -
@@ -54,6 +55,3 @@ index 0e8989524a..3bc7ea50ca 100644
  
  /* SMP Spin Table Definitions */
  #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
--- 
-2.29.0
-

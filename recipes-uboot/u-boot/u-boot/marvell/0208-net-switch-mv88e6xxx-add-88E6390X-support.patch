@@ -1,7 +1,7 @@
-From b7996de0112fb2a54b530eecffbae97eb4b7b4a9 Mon Sep 17 00:00:00 2001
+From 8a03128acf9fc50dbc6044f7d2853ce2b2a629a9 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Tue, 6 Nov 2018 17:18:11 +0200
-Subject: [PATCH 0208/1239] net: switch: mv88e6xxx: add 88E6390X support
+Subject: [PATCH] net: switch: mv88e6xxx: add 88E6390X support
 
 Link Street SOHO 88E6390X is a switch,
 it has 11 ports:
@@ -14,6 +14,7 @@ too, but without 10G support).
 
 Change-Id: I7234271a756148dea2d68bd25adc1ba392332c3c
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/net/phy/mv88e6xxx.c | 62 +++++++++++++++++++++++++------------
  drivers/net/phy/mv88e6xxx.h |  3 ++
@@ -142,6 +143,3 @@ index 7083b7dba1..481e6645b7 100644
  #define PORT_SWITCH_ID_PROD_NUM_6141		0x141
  #define PORT_SWITCH_ID_PROD_NUM_6341		0x341
  
--- 
-2.29.0
-

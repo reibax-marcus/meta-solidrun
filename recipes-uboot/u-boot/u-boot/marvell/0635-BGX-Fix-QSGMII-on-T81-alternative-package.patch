@@ -1,12 +1,13 @@
-From 201551e60fd61a00d27e5eb3e7c8a9391453bb38 Mon Sep 17 00:00:00 2001
+From d081cd473f21623d6a36c48e991d3adacfc4cb5e Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 27 Apr 2017 12:17:28 -0700
-Subject: [PATCH 0635/1239] BGX: Fix QSGMII on T81 alternative package
+Subject: [PATCH] BGX: Fix QSGMII on T81 alternative package
 
 No need to do anything special for initializing qlm[] for alternative
 package, it will be sorted out later.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 17 ++++++-----------
  1 file changed, 6 insertions(+), 11 deletions(-)
@@ -39,6 +40,3 @@ index 6bbc2736b5..55bb5f9955 100644
  	}
  
  	/* A BGX can take 1 or 2 DLMs, if both the DLMs are not configured
--- 
-2.29.0
-

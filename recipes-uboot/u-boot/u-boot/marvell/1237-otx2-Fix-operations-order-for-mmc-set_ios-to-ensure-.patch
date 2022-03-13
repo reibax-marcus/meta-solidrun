@@ -1,8 +1,8 @@
-From 34075c57fda6d2e2fa9cfaafdddf6af1e76a818f Mon Sep 17 00:00:00 2001
+From a28fed2917f172f650de1f71c1945f1de4f3001f Mon Sep 17 00:00:00 2001
 From: Wojciech Bartczak <wbartczak@marvell.com>
 Date: Mon, 23 Nov 2020 14:55:13 -0800
-Subject: [PATCH 1237/1239] otx2: Fix operations order for mmc set_ios()to
- ensure respecting DT values
+Subject: [PATCH] otx2: Fix operations order for mmc set_ios()to ensure
+ respecting DT values
 
 Tuning operation should be executed before setting final mmc timing values.
 
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/40901
 Reviewed-by: Rick Farrington <rfarrington@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
@@ -41,6 +42,3 @@ index 95544b1960..cbeb1210cf 100644
  }
  
  /**
--- 
-2.29.0
-

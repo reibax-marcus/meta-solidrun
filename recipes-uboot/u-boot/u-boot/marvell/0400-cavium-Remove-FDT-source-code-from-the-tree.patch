@@ -1,12 +1,13 @@
-From 5cc68637253387b0823b383bfabbc3100e43b2ef Mon Sep 17 00:00:00 2001
+From 6c22fc3f86f1729805123ad366a3f3313ee9d5cf Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 May 2016 16:59:46 -0700
-Subject: [PATCH 0400/1239] cavium: Remove FDT source code from the tree
+Subject: [PATCH] cavium: Remove FDT source code from the tree
 
 Since ATF now places the FDT blob right after the end of the U-Boot
 image, the FDT sources aren't needed anymore
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  arch/arm/dts/Makefile             |    3 -
  arch/arm/dts/thunder-86xx.dts     |   75 -
@@ -5445,6 +5446,3 @@ index b8d6f7b315..0000000000
 -		};
 -	};
 -};
--- 
-2.29.0
-

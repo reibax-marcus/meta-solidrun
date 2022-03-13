@@ -1,13 +1,14 @@
-From 4d720c9029ec1acb95f3cc886d79f50772b35f7b Mon Sep 17 00:00:00 2001
+From 76ff5ef38150c43b1ff81fb90c0fc5cba2725c75 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Tue, 22 Oct 2019 14:13:16 +0200
-Subject: [PATCH 0276/1239] arm64: mvebu: cn913x: introduce new SoC family
+Subject: [PATCH] arm64: mvebu: cn913x: introduce new SoC family
 
 Introduce files relevant for CN913X SoC support,
 use unique board name octeontx2_cn913x.
 
 Change-Id: I03a6d20f864054fae2f1af5333a796e8532c2bc4
 Signed-off-by: Alex Evraev <alexev@marvell.com>
+
 ---
  arch/arm/mach-mvebu/Kconfig                |  9 +++
  board/Marvell/octeontx2_cn913x/MAINTAINERS |  4 ++
@@ -284,6 +285,3 @@ index 0000000000..2ae70e5efe
 +#endif
 +
 +#endif /* _CONFIG_OCTEONTX2_CN913X_H */
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 9451481c08eee3ef4da23d693c829b334ed76565 Mon Sep 17 00:00:00 2001
+From 7e844fb7ceb66698091c5b526b1f9fbfac8f61f4 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 30 Jun 2020 15:29:55 +0300
-Subject: [PATCH 1189/1239] common/update: add support for SPI flash for FIT
- update
+Subject: [PATCH] common/update: add support for SPI flash for FIT update
 
 This patch implements SPI flash access functions for running
 the update (fitupd) that currently only supported for parallel
@@ -25,6 +24,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/31196
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+
 ---
  common/update.c                    | 95 +++++++++++++++++++++++++++---
  doc/uImage.FIT/update_mv_flash.its | 24 ++++++++
@@ -199,6 +199,3 @@ index 0000000000..e856a6656a
 +		};
 +	};
 +};
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From ee47f1c16f9f33de39c0e80d9fe6af1dec52a80a Mon Sep 17 00:00:00 2001
+From 90bf29bca9cfc1128bc77dd9af866ab6f3ee7272 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 21 Oct 2018 17:11:39 +0300
-Subject: [PATCH 0197/1239] arm64: mvebu: dts: armada-8040-db-H: Add dual PCIe
- x4 with dual SFI 10G
+Subject: [PATCH] arm64: mvebu: dts: armada-8040-db-H: Add dual PCIe x4 with
+ dual SFI 10G
 
 Add DTS file for Armada-8040-DB setup H.
 This configuration includes 1 PCIe x4 and one PCIe x1 port
@@ -10,6 +10,7 @@ on each of CP0 and CP1 along with SFI 10G on each CPx
 
 Change-Id: Ic4c0fe320654e7a8999dae968f9079da309f9889
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/Makefile             |   1 +
  arch/arm/dts/armada-8040-db-H.dts | 351 ++++++++++++++++++++++++++++++
@@ -385,6 +386,3 @@ index 0000000000..d8b78cd4ce
 +	phy = <&phy0>;
 +	phy-mode = "rgmii-id";
 +};
--- 
-2.29.0
-

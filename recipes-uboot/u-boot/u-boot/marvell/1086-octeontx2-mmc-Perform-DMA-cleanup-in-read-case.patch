@@ -1,7 +1,7 @@
-From a0112d703e129fcc1b130056d937374f5b3f9164 Mon Sep 17 00:00:00 2001
+From 493a88a49c78f8ffbf263e6aa8c498c2c76406b1 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Mon, 3 Feb 2020 16:58:57 -0800
-Subject: [PATCH 1086/1239] octeontx2: mmc: Perform DMA cleanup in read case
+Subject: [PATCH] octeontx2: mmc: Perform DMA cleanup in read case
 
 DMA cleanup should be performed in the case of read errors in addition
 to write errors.
@@ -11,6 +11,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/22821
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 1 +
  1 file changed, 1 insertion(+)
@@ -27,6 +28,3 @@ index 853df3b7fc..0afe4c1f2d 100644
  #ifdef DEBUG
  				octeontx_mmc_print_rsp_errors(mmc, rsp_sts);
  #endif
--- 
-2.29.0
-

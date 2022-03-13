@@ -1,13 +1,14 @@
-From eb88c8a23946bc01a2f8bf7c1542224ed12f02c1 Mon Sep 17 00:00:00 2001
+From 64b70dc20ab66acb46c994c1a4e17702d29cc8f6 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Sat, 12 Aug 2017 00:10:30 -0700
-Subject: [PATCH 0689/1239] Enable PCIe to be initialized before the
- environment is initialized.
+Subject: [PATCH] Enable PCIe to be initialized before the environment is
+ initialized.
 
 This allows eMMC and SPI to be initialized before the environment is loaded
 when not loaded from ATF.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  include/configs/thunderx_81xx.h | 7 +++++++
  include/configs/thunderx_83xx.h | 9 +++++++--
@@ -58,6 +59,3 @@ index cad22dcc96..8f171ed9c9 100644
  /** Show devices found on PCI bus */
  #define CONFIG_PCI_SCAN_SHOW
  #undef CONFIG_PCI_ENUM_ONLY
--- 
-2.29.0
-

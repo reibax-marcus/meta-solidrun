@@ -1,7 +1,7 @@
-From f9974c5f192423d2b6ed33d38a23675e5f511c44 Mon Sep 17 00:00:00 2001
+From fce1c52ed8c1260a88ec299473dfb140d39169b5 Mon Sep 17 00:00:00 2001
 From: Guo Yi <yi.guo@cavium.com>
 Date: Fri, 31 Jan 2020 11:05:41 -0800
-Subject: [PATCH 1080/1239] spi: use 4B opcode for mx66l1g45g
+Subject: [PATCH] spi: use 4B opcode for mx66l1g45g
 
 Without 4B Opcode flag, when u-boot access the mx66l1g45g
 spi flash, it will change the mode of the spi flash to 4B mode.
@@ -16,6 +16,7 @@ Signed-off-by: Yi Guo <yig@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/22697
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/mtd/spi/spi-nor-ids.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -33,6 +34,3 @@ index 6f18519ef4..d55fc79cca 100644
  	{ INFO("mx25l1633e", 0xc22415, 0, 64 * 1024,   32, SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES | SECT_4K) },
  #endif
  
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 8f2856e6fd323831593d0d781d31bcd50b96e07a Mon Sep 17 00:00:00 2001
+From 5203d2e578dd41c0729dc6e1f3087fe91c07fe2d Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 17 Dec 2018 15:17:59 -0800
-Subject: [PATCH 0865/1239] net: octeontx2: add remove handler to clear mac
- filter setup
+Subject: [PATCH] net: octeontx2: add remove handler to clear mac filter setup
 
 Clear the mac filter setup with reset defaults to the same
 registers using remove driver handler so that it will not
@@ -14,6 +13,7 @@ Reviewed-on: https://sj1git1.cavium.com/1465
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/net/octeontx2/cgx.c | 36 ++++++++++++++++++++++++++++++++++++
  1 file changed, 36 insertions(+)
@@ -76,6 +76,3 @@ index a7de312a79..34b7cfe7cf 100644
          .priv_auto_alloc_size = sizeof(struct cgx),
  };
  
--- 
-2.29.0
-

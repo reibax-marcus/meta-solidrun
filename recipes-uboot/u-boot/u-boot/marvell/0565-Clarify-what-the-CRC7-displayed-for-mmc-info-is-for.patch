@@ -1,10 +1,10 @@
-From eb72213921df0757ad0d9760f4b8216371337bc6 Mon Sep 17 00:00:00 2001
+From 62d68b10d8701f6ec56e1fa1b97a4833624b9797 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 14 Nov 2016 03:52:26 -0800
-Subject: [PATCH 0565/1239] Clarify what the CRC7 displayed for mmc info is
- for.
+Subject: [PATCH] Clarify what the CRC7 displayed for mmc info is for.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -22,6 +22,3 @@ index 357cfdee0b..6bc24a7cbf 100644
  	       (mmc->cid[3] & 0xff) == mmc_crc7_32(mmc->cid, 4) ? "" : "in");
  	printf("Capacity:              %llu bytes (%llu blocks)\n",
  	       mmc->capacity, mmc->capacity / mmc->read_bl_len);
--- 
-2.29.0
-

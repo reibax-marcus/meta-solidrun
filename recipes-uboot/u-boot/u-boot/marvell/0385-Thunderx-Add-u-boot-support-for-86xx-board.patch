@@ -1,7 +1,7 @@
-From 5cdae4a6b7bc644a8a44c9b1bf3f31bbca3eed01 Mon Sep 17 00:00:00 2001
+From 9f86a1bac7009912a2a4be877f4a97aa6b3b3930 Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Fri, 25 Mar 2016 16:10:31 -0700
-Subject: [PATCH 0385/1239] Thunderx : Add u-boot support for 86xx board
+Subject: [PATCH] Thunderx : Add u-boot support for 86xx board
 
 This patch adds DT files for 86xx and fixes u-boot
 implementation to read the PHY address from BDK DT
@@ -12,6 +12,7 @@ changes to add seperate image/config for 86xx. For now,
 it will use 88xx image and config files
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  arch/arm/dts/Makefile            |   2 +-
  arch/arm/dts/thunder-86xx.dts    |  75 +++
@@ -1374,6 +1375,3 @@ index 6d31faa565..66238319c3 100644
 +			unsigned int *phy_addr);
  
  #endif /* VNIC_H_ */
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From b598ac5a2932673855fda1b601357e5e63f3a89d Mon Sep 17 00:00:00 2001
+From ce4dda4801109256fa06298bd9320829abbcc3f0 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 3 May 2019 18:54:12 -0700
-Subject: [PATCH 0903/1239] drivers: net: octeontx2: move link bringup from
- boot to command driven
+Subject: [PATCH] drivers: net: octeontx2: move link bringup from boot to
+ command driven
 
 Bring up of all CGX interfaces delays boot time significantly. So move
 the bringup of CGX interfaces whenever preferred interface is selected
@@ -16,6 +16,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/8559
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  .../include/asm/arch-octeontx2/octeontx2.h    |  1 +
  board/Marvell/octeontx2/octeontx2.c           | 45 +++++++++-
@@ -389,6 +390,3 @@ index 8dc1701fba..448889e115 100644
  
  	return 0;
  }
--- 
-2.29.0
-

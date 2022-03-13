@@ -1,8 +1,8 @@
-From 6b0fff124d4d02e74924b5a9d375f1ecd974d6f7 Mon Sep 17 00:00:00 2001
+From ed17e8bae6c958f1b0b47746a23a4aa5939ffcda Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 7 Dec 2016 20:48:02 -0800
-Subject: [PATCH 0581/1239] Use the GPIO_CONST register to determine the number
- of GPIO pins.
+Subject: [PATCH] Use the GPIO_CONST register to determine the number of GPIO
+ pins.
 
 Don't use the device tree to find out the number of pins, use
 a register instead.
@@ -10,6 +10,7 @@ a register instead.
 Also removed a coupel useless __iowmb() calls.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/gpio/thunderx_gpio.c | 32 ++++++++++++++++----------------
  1 file changed, 16 insertions(+), 16 deletions(-)
@@ -96,6 +97,3 @@ index 2237e96686..d0bb20f1a8 100644
  	uc_priv->bank_name  = strdup(dev->name);
  	end = strchr(uc_priv->bank_name, '@');
  	end[0] = 'A' + dev->seq;
--- 
-2.29.0
-

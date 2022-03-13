@@ -1,13 +1,14 @@
-From 5e85ad0d25330df4b4f602f03692ff1709c3eb4e Mon Sep 17 00:00:00 2001
+From 42fc1748a4bc7c0f40344295f0712e69bb531e17 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Wed, 16 Oct 2019 10:54:34 +0200
-Subject: [PATCH 0070/1239] arm64: dts: cp110: declare missing I2C controller
+Subject: [PATCH] arm64: dts: cp110: declare missing I2C controller
 
 Each CP110 south bridge unit has 3 I2C controllers.
 Add the missing one.
 
 Change-Id: Ie7436681fb1c1c6536276974fb7105c1a9827737
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  arch/arm/dts/armada-cp110.dtsi | 8 ++++++++
  1 file changed, 8 insertions(+)
@@ -31,6 +32,3 @@ index b180710ad8..dda2feb9a0 100644
  			CP110_LABEL(comphy): comphy@441000 {
  				compatible = "marvell,mvebu-comphy", "marvell,comphy-cp110";
  				reg = <0x441000 0x8>,
--- 
-2.29.0
-

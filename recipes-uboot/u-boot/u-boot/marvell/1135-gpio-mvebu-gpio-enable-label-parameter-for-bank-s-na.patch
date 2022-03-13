@@ -1,8 +1,7 @@
-From 4aaacd4dfbd93722bef78c3fefcc1e1274f5a9d1 Mon Sep 17 00:00:00 2001
+From 72046e6ae912e4443ef0311d7f900ff597133ef4 Mon Sep 17 00:00:00 2001
 From: Ben Peled <bpeled@marvell.com>
 Date: Mon, 20 Apr 2020 21:15:56 +0300
-Subject: [PATCH 1135/1239] gpio: mvebu gpio: enable label parameter for bank's
- name
+Subject: [PATCH] gpio: mvebu gpio: enable label parameter for bank's name
 
 enable label parameter for bank's name
 
@@ -12,6 +11,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27190
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  drivers/gpio/mvebu_gpio.c | 19 +++++++++++++++++--
  1 file changed, 17 insertions(+), 2 deletions(-)
@@ -50,6 +50,3 @@ index e8b1c5965c..ffc3b77251 100644
  	return 0;
  }
  
--- 
-2.29.0
-

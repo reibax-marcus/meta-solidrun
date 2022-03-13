@@ -1,14 +1,15 @@
-From 832c6eb9c3ff1111ae9623836a97a429eca34be4 Mon Sep 17 00:00:00 2001
+From 07a9b82295fe1796c176e6b60e3f73a2a18e7390 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Thu, 29 Mar 2018 12:30:20 +0200
-Subject: [PATCH 0025/1239] phy: marvell: cp110: let the firmware configure
- comphy for USB
+Subject: [PATCH] phy: marvell: cp110: let the firmware configure comphy for
+ USB
 
 Replace the comphy initialization for USB with appropriate SMC call,
 so the firmware will execute required serdes configuration.
 
 Change-Id: I7f773c0dfac70db9dd2653de2cdcfac577e78c4e
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 133 ++---------------------------
  1 file changed, 9 insertions(+), 124 deletions(-)
@@ -165,6 +166,3 @@ index 04b3e995f2..b323257370 100644
  			break;
  		case COMPHY_TYPE_SGMII0:
  		case COMPHY_TYPE_SGMII1:
--- 
-2.29.0
-

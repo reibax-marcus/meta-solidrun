@@ -1,8 +1,7 @@
-From 458f92af0f23e241dfaaaab9052179bcdc2c864a Mon Sep 17 00:00:00 2001
+From 696bc51ed072bea1cd6b56a480ddd304d02a6128 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 14 Nov 2016 03:23:32 -0800
-Subject: [PATCH 0564/1239] Fix a number of issues with eMMC and adds some
- enhancements.
+Subject: [PATCH] Fix a number of issues with eMMC and adds some enhancements.
 
 There are a number of changes with this checkin.  One problem with the old
 code is it would crash if a device were not plugged in and would also
@@ -30,6 +29,7 @@ The driver name is now in a #define
 Fixed the initialization of host->dev_index and do not use host->node.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  .../include/asm/arch-thunderx/cavium_mmc.h    |   3 +-
  drivers/mmc/cavium_mmc.c                      | 573 ++++++++++++------
@@ -1176,6 +1176,3 @@ index 5a6dfae2c8..357cfdee0b 100644
  	.id	= UCLASS_MMC,
  	.of_match = of_match_ptr(cavium_mmc_ids),
  	.ofdata_to_platdata = cavium_mmc_ofdata_to_platdata,
--- 
-2.29.0
-

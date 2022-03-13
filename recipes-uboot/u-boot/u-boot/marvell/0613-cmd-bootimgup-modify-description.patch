@@ -1,11 +1,12 @@
-From 51e95da12b1bcd0092366ecc9a56824f08a8d5b5 Mon Sep 17 00:00:00 2001
+From 251e5c6acb2edf1bc99b7c92b537d2a24c1bcd91 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Fri, 10 Feb 2017 17:11:19 -0800
-Subject: [PATCH 0613/1239] cmd: bootimgup: modify description
+Subject: [PATCH] cmd: bootimgup: modify description
 
 modify description to indicate mandatory interface parameter.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  cmd/bootimgup.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -23,6 +24,3 @@ index 9b326517e8..77c6f97e84 100644
  	" where: \n"
  	" spi - updates boot image on spi flash \n"
  	" mmc - updates boot image on mmc card/chip \n"
--- 
-2.29.0
-

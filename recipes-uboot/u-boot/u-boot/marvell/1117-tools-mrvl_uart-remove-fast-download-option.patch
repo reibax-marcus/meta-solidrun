@@ -1,7 +1,7 @@
-From e787362603b6d513a6e159b2a82e7faf56fdd88f Mon Sep 17 00:00:00 2001
+From 15c1e753c519c2e0db3440b17ceb11f95efe6c7c Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sat, 21 Mar 2020 20:42:50 +0200
-Subject: [PATCH 1117/1239] tools/mrvl_uart: remove fast download option
+Subject: [PATCH] tools/mrvl_uart: remove fast download option
 
 The baudrate speed-up was a preparation for SoCs based on AP810 die.
 Since AP810 has been phased out by Marvell, this support is not needed
@@ -13,6 +13,7 @@ Reviewed-on: https://sj1git1.cavium.com/25307
 Reviewed-by: Yan Markman <ymarkman@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  tools/mrvl_uart.sh | 42 ++++++------------------------------------
  1 file changed, 6 insertions(+), 36 deletions(-)
@@ -113,6 +114,3 @@ index a46411fc99..e662faf745 100755
  # Optional - fire up Minicom
  minicom -D $port -b $default_baudrate
  
--- 
-2.29.0
-

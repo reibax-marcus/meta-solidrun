@@ -1,7 +1,7 @@
-From a265b62f1781cd76d05e20632952843d99c9dda9 Mon Sep 17 00:00:00 2001
+From f232a7abca24f699524e0c6fb59ff68a921046a8 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 27 Nov 2019 09:07:35 -0800
-Subject: [PATCH 1016/1239] cmd: bootimgup: fix memory leak in spi_flash_update
+Subject: [PATCH] cmd: bootimgup: fix memory leak in spi_flash_update
 
 Free the allocated compare buffer.
 
@@ -10,6 +10,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19440
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/marvell/bootimgup.c | 1 +
  1 file changed, 1 insertion(+)
@@ -26,6 +27,3 @@ index 874eb16ee5..e9f8b4dc1a 100644
  	putc('\r');
  	if (err_oper) {
  		printf("SPI flash failed in %s step\n", err_oper);
--- 
-2.29.0
-

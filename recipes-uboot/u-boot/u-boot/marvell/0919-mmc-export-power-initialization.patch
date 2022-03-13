@@ -1,7 +1,7 @@
-From 9129f92cc9e7e9d12b6a4a9e2906bc60388c19a7 Mon Sep 17 00:00:00 2001
+From 2b9e5769d935741a5925bef44d1a2f03c2d24c0f Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Thu, 30 May 2019 15:09:16 -0700
-Subject: [PATCH 0919/1239] mmc: export power initialization
+Subject: [PATCH] mmc: export power initialization
 
 The OcteonTX driver needs to be able to make sure all of the
 slots are powered down even if they have not been initialized.
@@ -16,6 +16,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10291
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/mmc.c | 2 +-
  include/mmc.h     | 1 +
@@ -46,6 +47,3 @@ index 289fe810e5..a612f73b94 100644
  /* Set block count limit because of 16 bit register limit on some hardware*/
  #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT
  #define CONFIG_SYS_MMC_MAX_BLK_COUNT 65535
--- 
-2.29.0
-

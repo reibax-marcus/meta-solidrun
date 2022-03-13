@@ -1,7 +1,7 @@
-From 01b9ef8db8deb6447138af96b87fc656fd6ef29f Mon Sep 17 00:00:00 2001
+From 096fef00fe77f3505413ff849bae46a56f5094fc Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Thu, 31 Aug 2017 13:32:45 +0300
-Subject: [PATCH 0158/1239] usb: xhci-mvebu: add current limiter support
+Subject: [PATCH] usb: xhci-mvebu: add current limiter support
 
 The USB device should linked to Current-Limiter through
 "current-limiter" DTS property.
@@ -11,6 +11,7 @@ adapter probe.
 
 Change-Id: I7982f16a4021931819327f3d09c300d889a5bca3
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+
 ---
  .../usb/marvell.xhci-usb.txt                  |  3 +++
  drivers/usb/host/xhci-mvebu.c                 | 20 +++++++++++++++++++
@@ -74,6 +75,3 @@ index 317cb83235..a5e1978523 100644
  	return 0;
  }
  
--- 
-2.29.0
-

@@ -1,13 +1,13 @@
-From 3a7f0b4250685a6d29cd73ebd924204a0cd6afc3 Mon Sep 17 00:00:00 2001
+From 6cb3adbd904adc6dfc771944400854e8ab4fcbdd Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 27 Mar 2018 19:35:33 -0700
-Subject: [PATCH 0804/1239] net: Cavium NIX: Initial checkin of generated CSR
- files.
+Subject: [PATCH] net: Cavium NIX: Initial checkin of generated CSR files.
 
 Note that the format of these files is subject to change as the script that
 generates these files matures, likely eliminating many of the chip checks.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/net/cavium/octeontx2/cavm-csrs-cgx.h |  8414 ++++++++++++++
  drivers/net/cavium/octeontx2/cavm-csrs-lmt.h |    98 +
@@ -22966,6 +22966,3 @@ index 0000000000..db7c3c6268
 +}
 +
 +#endif /* __CAVM_CSRS_RVU_H__ */
--- 
-2.29.0
-

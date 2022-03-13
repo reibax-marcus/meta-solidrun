@@ -1,12 +1,13 @@
-From f6a823635910ebebfd5046045e3cc95b852af50d Mon Sep 17 00:00:00 2001
+From 68d11e1ce27226cb27bbc7402da00dd56b69941f Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 15 Nov 2018 15:24:12 -0800
-Subject: [PATCH 0840/1239] [PULL] Fix compilation issues
+Subject: [PATCH] Fix compilation issues
 
 Marvell u-boot-2018.03-devel branch is rebased on uboot-combined,
 this patch fixes all compilation issues.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/mem.c           | 4 ++++
  common/board_f.c    | 2 +-
@@ -81,6 +82,3 @@ index 80f4cd592f..703707edf5 100644
  		break;
  	}
  
--- 
-2.29.0
-

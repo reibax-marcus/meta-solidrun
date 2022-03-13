@@ -1,11 +1,12 @@
-From 709c3f1a66c348a629e87ecff36382f5372890c2 Mon Sep 17 00:00:00 2001
+From 97e9ab3d7a99e515872eb530b083b995578e2121 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarpati@caviumnetworks.com>
 Date: Tue, 4 Apr 2017 15:47:15 -0700
-Subject: [PATCH 0629/1239] drivers: net: cavium: remove static pci probe
+Subject: [PATCH] drivers: net: cavium: remove static pci probe
 
 move bgx to driver-model probe method based on compatible.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/nic.h         |  2 --
  drivers/net/cavium/thunder_bgx.c | 13 ++-----------
@@ -59,6 +60,3 @@ index 02bce45122..fea13adb1b 100644
 -};
 -
 -U_BOOT_PCI_DEVICE(thunderx_bgx, thunderx_bgx_supported);
--- 
-2.29.0
-

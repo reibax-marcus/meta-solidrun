@@ -1,8 +1,8 @@
-From 174cce94fbd3d94cec2a1447bc56da0f65eb8fd8 Mon Sep 17 00:00:00 2001
+From a2dbbbf839b4f39710e74a450aa58ff535cf6d3d Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Thu, 14 Mar 2019 12:45:09 +0100
-Subject: [PATCH 0245/1239] phy: marvell: add extra comment clarifying utmi
- registers offsets
+Subject: [PATCH] phy: marvell: add extra comment clarifying utmi registers
+ offsets
 
 Some UTMI offset may be misleading due to differentiation between common
 UTMI registers and port specific one.
@@ -12,6 +12,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/5695
 Tested-by: sa_ip-sw-jenkins
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+
 ---
  drivers/phy/marvell/utmi_phy.h | 5 +++++
  1 file changed, 5 insertions(+)
@@ -39,6 +40,3 @@ index d1cad07cf5..e64087a406 100644
  #define UTMI_TX_CH_CTRL_REG			0x0
  #define UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET	12
  #define UTMI_TX_CH_CTRL_DRV_EN_LS_MASK		\
--- 
-2.29.0
-

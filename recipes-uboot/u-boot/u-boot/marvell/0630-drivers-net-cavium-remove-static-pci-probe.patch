@@ -1,11 +1,12 @@
-From c6af009e795b8d3bbf6d16a1e27cbf94c2d9b350 Mon Sep 17 00:00:00 2001
+From 68471627d939e7f29de43b025a93cdccdfaff863 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarpati@caviumnetworks.com>
 Date: Tue, 4 Apr 2017 15:48:07 -0700
-Subject: [PATCH 0630/1239] drivers: net: cavium: remove static pci probe
+Subject: [PATCH] drivers: net: cavium: remove static pci probe
 
 move xcv to driver-model probe method based on compatible.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_xcv.c | 7 -------
  1 file changed, 7 deletions(-)
@@ -32,6 +33,3 @@ index cbcbf22fb1..aa5aca1a83 100644
 -};
 -
 -U_BOOT_PCI_DEVICE(thunderx_xcv, thunderx_xcv_supported);
--- 
-2.29.0
-

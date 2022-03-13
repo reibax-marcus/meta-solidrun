@@ -1,7 +1,7 @@
-From ca430c1d9e831696cd4ab50fabd4c230a1ba9f26 Mon Sep 17 00:00:00 2001
+From 34e899bf2321ba202f4115471162ac5de16b67e8 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Sat, 4 Jan 2020 05:07:16 -0800
-Subject: [PATCH 1054/1239] Allow tuning to work on CN96xx pass C0.
+Subject: [PATCH] Allow tuning to work on CN96xx pass C0.
 
 Note that it is not stable above 100MHz, which is worse than pass B0.
 
@@ -10,6 +10,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/21071
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 92 ++++++++++++++++++++++++++++++++----
  drivers/mmc/octeontx_hsmmc.h |  1 +
@@ -199,6 +200,3 @@ index 0e2e143e5f..67dd67dd24 100644
  };
  
  /*
--- 
-2.29.0
-

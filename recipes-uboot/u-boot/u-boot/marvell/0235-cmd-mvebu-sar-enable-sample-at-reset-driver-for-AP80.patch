@@ -1,8 +1,7 @@
-From de87695bdf88872cb8a7139cc2e5f6f1070b2b67 Mon Sep 17 00:00:00 2001
+From 9918122e06aa5e883c4b25a0f6940d4764d16707 Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Mon, 25 Jun 2018 20:44:33 +0300
-Subject: [PATCH 0235/1239] cmd: mvebu: sar: enable sample-at-reset driver for
- AP807
+Subject: [PATCH] cmd: mvebu: sar: enable sample-at-reset driver for AP807
 
 This patch enables the sampled-at-reset driver for AP807
 by adding the driver's compatible to AP807 SoC level DT
@@ -10,6 +9,7 @@ by adding the driver's compatible to AP807 SoC level DT
 Change-Id: I77392bc42b214a8b1a3205df9fce9f96e5d97ef7
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-ap806.dtsi  | 9 +++++++++
  arch/arm/dts/armada-ap807.dtsi  | 8 ++++++++
@@ -86,6 +86,3 @@ index d0f73dd981..03086b88d8 100644
  obj-$(CONFIG_TARGET_MVEBU_ARMADA_8K) += ap806_sar.o
 +obj-$(CONFIG_TARGET_MVEBU_ARMADA_8K) += ap807_sar.o
  obj-$(CONFIG_TARGET_MVEBU_ARMADA_8K) += cp110_sar.o
--- 
-2.29.0
-

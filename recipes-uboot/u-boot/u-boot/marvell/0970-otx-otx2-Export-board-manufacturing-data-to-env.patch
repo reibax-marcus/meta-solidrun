@@ -1,7 +1,7 @@
-From a3033d068143add6cca14d00da05d9265bb0b5c5 Mon Sep 17 00:00:00 2001
+From 3ce090af97237d7e307cfe58ba11cf786d4a5b11 Mon Sep 17 00:00:00 2001
 From: Srikanth Pidugu <spidugu@marvell.com>
 Date: Wed, 9 Oct 2019 12:04:30 -0700
-Subject: [PATCH 0970/1239] otx/otx2: Export board manufacturing data to env
+Subject: [PATCH] otx/otx2: Export board manufacturing data to env
 
 Change-Id: I05a169bbc1368ea752f728126e4fd44e36a91c5d
 Signed-off-by: Srikanth Pidugu <spidugu@marvell.com>
@@ -9,6 +9,7 @@ Reviewed-on: https://sj1git1.cavium.com/17138
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/board.h  |  2 +
  arch/arm/include/asm/arch-octeontx2/board.h |  2 +
@@ -254,6 +255,3 @@ index f199549630..b7f69a7844 100644
  	return 0;
  }
  
--- 
-2.29.0
-

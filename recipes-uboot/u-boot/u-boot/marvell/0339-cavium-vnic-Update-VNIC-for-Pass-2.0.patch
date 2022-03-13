@@ -1,9 +1,10 @@
-From 6d7b9331836c8e134763869f57d974ca2349fe9d Mon Sep 17 00:00:00 2001
+From eb1cf52dd4e9106cd3b4bfa19616470c63dbaa03 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 17:54:48 -0800
-Subject: [PATCH 0339/1239] cavium: vnic: Update VNIC for Pass 2.0
+Subject: [PATCH] cavium: vnic: Update VNIC for Pass 2.0
 
 This commit adds support for Pass 2.0 ThunderX chips
+
 ---
  drivers/net/cavium/nic.h          | 321 +++++++++++------
  drivers/net/cavium/nic_main.c     | 414 +++++++++++++--------
@@ -4979,6 +4980,3 @@ index 6083e807f5..9fcd332571 100644
 +
  	return mdio_register(bus);
  }
--- 
-2.29.0
-

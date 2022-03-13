@@ -1,9 +1,10 @@
-From 9d7fa2a19b6a454717ab87f4964a479b0405df1d Mon Sep 17 00:00:00 2001
+From 48f18086fcca17bbacb1a1ce3516baf940187bcb Mon Sep 17 00:00:00 2001
 From: Alon Rotman <alon.rotman@solid-run.com>
 Date: Tue, 9 Feb 2021 17:19:00 +0200
 Subject: [PATCH] dts: adding support for second xmdio
 
 Signed-off-by: Alon Rotman <alon.rotman@solid-run.com>
+
 ---
  arch/arm/dts/armada-cp110.dtsi | 9 +++++++++
  arch/arm/dts/cn9131-cex7-A.dts | 3 ++-
@@ -11,7 +12,7 @@ Signed-off-by: Alon Rotman <alon.rotman@solid-run.com>
  3 files changed, 14 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/dts/armada-cp110.dtsi b/arch/arm/dts/armada-cp110.dtsi
-index 448cdb2f80..af55c5573d 100644
+index 130ef1e75d..24c553389b 100644
 --- a/arch/arm/dts/armada-cp110.dtsi
 +++ b/arch/arm/dts/armada-cp110.dtsi
 @@ -49,6 +49,15 @@
@@ -67,6 +68,3 @@ index f552ac1310..ebe1a42a6d 100644
          status = "okay";
          pinctrl-0 = <&cp2_xmdio_pins>;
          sfi_phy_cp2_0: ethernet-phy@0 {
--- 
-2.25.1
-

@@ -1,13 +1,14 @@
-From f960ebafc043b5dcca480660c8a64780c78b86c6 Mon Sep 17 00:00:00 2001
+From 610eaed471a4e26f9f21963d51dc57b007edb847 Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Tue, 3 May 2016 15:42:07 -0700
-Subject: [PATCH 0404/1239] cavium: Add 81xx config
+Subject: [PATCH] cavium: Add 81xx config
 
 This commit adds the configuration for ThunderX 81xx
 family of SoCs
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  arch/arm/Kconfig                |  10 ++
  board/cavium/thunderx/Kconfig   |  22 ++-
@@ -429,6 +430,3 @@ index 0000000000..82ddb27f06
 +#define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
 +
 +#endif /* __THUNDERX_81XX_H__ */
--- 
-2.29.0
-

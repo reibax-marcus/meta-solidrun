@@ -1,14 +1,15 @@
-From c305b64a504e80e4a48c41718204739bcacb2a86 Mon Sep 17 00:00:00 2001
+From 9d0b475501b77d74b8cfd3a55b7409410ab92805 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Sun, 30 Apr 2017 20:16:55 +0300
-Subject: [PATCH 0015/1239] phy: marvell: cp110: utmi: update analog parameters
- according to latest ETP
+Subject: [PATCH] phy: marvell: cp110: utmi: update analog parameters according
+ to latest ETP
 
 Add UTMI analog parameters initialization values according to
 latest ETP.
 
 Change-Id: I5bcca205a3995202a18ff126f371a81f69e205c8
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 9 +++------
  drivers/phy/marvell/utmi_phy.h     | 5 ++++-
@@ -60,6 +61,3 @@ index 682a3acc40..fa6bf3c914 100644
  #define UTMI_RX_CH_CTRL1_SQ_AMP_CAL_EN_OFFSET	3
  #define UTMI_RX_CH_CTRL1_SQ_AMP_CAL_EN_MASK	\
  	(0x1 << UTMI_RX_CH_CTRL1_SQ_AMP_CAL_EN_OFFSET)
--- 
-2.29.0
-

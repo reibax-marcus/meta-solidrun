@@ -1,9 +1,10 @@
-From c9294116bfee45a87c8e3f0134c05325f47d0643 Mon Sep 17 00:00:00 2001
+From 104e52066e15f29db977f701ac199530d49b64fd Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 19 May 2016 16:17:17 -0400
-Subject: [PATCH 0478/1239] net: cavium: Get subsystem ID from PCI config space
+Subject: [PATCH] net: cavium: Get subsystem ID from PCI config space
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic_main.c | 12 ++----------
  1 file changed, 2 insertions(+), 10 deletions(-)
@@ -33,6 +34,3 @@ index a66b910e2c..ca5f5ca5cf 100644
  
  	switch (sdevid) {
  	case PCI_SUBSYS_DEVID_88XX_NIC_PF:
--- 
-2.29.0
-

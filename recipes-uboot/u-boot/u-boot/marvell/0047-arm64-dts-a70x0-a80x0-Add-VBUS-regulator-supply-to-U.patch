@@ -1,8 +1,7 @@
-From 89732f1cb5566d38971cf06716a2a51c0fd91a7b Mon Sep 17 00:00:00 2001
+From f8f864d473f285bf7a0af34c36c3bb370c691f08 Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Sun, 7 May 2017 10:48:47 +0300
-Subject: [PATCH 0047/1239] arm64: dts: a70x0: a80x0: Add VBUS regulator supply
- to USB3
+Subject: [PATCH] arm64: dts: a70x0: a80x0: Add VBUS regulator supply to USB3
 
 - The USB device should linked to VBUS regulator through
 "vbus-supply" DTS property.
@@ -13,6 +12,7 @@ Subject: [PATCH 0047/1239] arm64: dts: a70x0: a80x0: Add VBUS regulator supply
 
 Change-Id: I3ed712f96d3deb2a81a97e7dd8d993d301eaf3fe
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+
 ---
  arch/arm/dts/armada-70x0-db.dtsi | 28 ++++++++++++++++++
  arch/arm/dts/armada-80x0-db.dtsi | 50 ++++++++++++++++++++++++++++++++
@@ -119,6 +119,3 @@ index da2925c565..f6b03508cc 100644
 +		};
 +	};
  };
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From fae88f5175f337ba6ec27e2e4e9751f17ecd6081 Mon Sep 17 00:00:00 2001
+From 13df09046821f84bfa55a34ded77ab0e2e5376dc Mon Sep 17 00:00:00 2001
 From: Ofer Heifetz <oferh@marvell.com>
 Date: Tue, 19 Nov 2019 17:55:15 +0200
-Subject: [PATCH 1003/1239] arm64: dts: a8k: change ocp eth1 mode to sgmii
+Subject: [PATCH] arm64: dts: a8k: change ocp eth1 mode to sgmii
 
 OCP board uses the CP0 eth0 port for traffic, eth1 port on CP1
 is usually used for NFS or ssh. 1G-SGMII is more appropriate than
@@ -13,6 +13,7 @@ Reviewed-on: https://sj1git1.cavium.com/18956
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Marcin Wojtas <marcin@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-ocp.dts | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
@@ -40,6 +41,3 @@ index b2af482496..642d095430 100644
 +	phy-mode = "sgmii";
  	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 10 GPIO_ACTIVE_HIGH>;
  };
--- 
-2.29.0
-

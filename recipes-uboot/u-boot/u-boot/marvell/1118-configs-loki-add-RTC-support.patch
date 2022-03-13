@@ -1,13 +1,14 @@
-From 044b278974341ccf9997d827c60202a20b119de5 Mon Sep 17 00:00:00 2001
+From e2a416365834010cc1dd1bd4efe5480927b50167 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 24 Mar 2020 16:40:08 -0700
-Subject: [PATCH 1118/1239] configs: loki: add RTC support
+Subject: [PATCH] configs: loki: add RTC support
 
 Change-Id: I6c9fb27037cb79151df5aa5c033bedb93ef4a3b0
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/25485
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  configs/octeontx2_loki_defconfig | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
@@ -37,6 +38,3 @@ index 096bc7dd29..d7866e6250 100644
  CONFIG_DM_SERIAL=y
  CONFIG_DEBUG_UART_PL011=y
  CONFIG_DEBUG_UART_SKIP_INIT=y
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 57873d3896b67b5bb0e2f00127e39e3223987d2f Mon Sep 17 00:00:00 2001
+From 9b388c12969790c8f8e759b1bffa75b9534f3fb2 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Wed, 13 Mar 2019 14:23:16 -0700
-Subject: [PATCH 0898/1239] configs: Enable necessary configuration for MMC to
- work.
+Subject: [PATCH] configs: Enable necessary configuration for MMC to work.
 
 Some configurations were missed out in previous config files.
 
@@ -10,6 +9,7 @@ Change-Id: I5daaa0902fc7f8d4292567984312b0c04b13737b
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5654
 Tested-by: sa_ip-sw-jenkins
+
 ---
  configs/octeontx2_95xx_defconfig |  2 --
  configs/octeontx2_96xx_defconfig |  5 +++--
@@ -96,6 +96,3 @@ index f713400ab5..3bc934dec7 100644
 +#endif
  
  #endif /* __OCTEONTX2_96XX_H__ */
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From aabcf118b37eff4a958eff44c4436cee15f43032 Mon Sep 17 00:00:00 2001
+From 21343e77b01884b57a5eee12a3f4b64b1395bd2d Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Mon, 2 Dec 2019 12:28:57 -0800
-Subject: [PATCH 1018/1239] drivers: serial: pcie-console: remove redundant
- dm_fdt_scan in bind
+Subject: [PATCH] drivers: serial: pcie-console: remove redundant dm_fdt_scan
+ in bind
 
 With upgrade to v2019.10, no need for explicit probe of child nodes
 using bind call, otherwise duplicate entries are created.
@@ -12,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19680
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/serial/serial_octeontx_pcie_console.c | 16 ----------------
  1 file changed, 16 deletions(-)
@@ -50,6 +51,3 @@ index a358a79c1d..e80f9cf3d4 100644
  	.probe = octeontx_pcie_console_nexus_probe,
  	.priv_auto_alloc_size = sizeof(struct octeontx_pcie_console_nexus_priv),
  	.child_pre_probe = octeontx_pcie_console_nexus_child_pre_probe,
--- 
-2.29.0
-

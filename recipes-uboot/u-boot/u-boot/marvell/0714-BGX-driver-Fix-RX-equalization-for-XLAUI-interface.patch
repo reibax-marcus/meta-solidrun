@@ -1,12 +1,13 @@
-From d0809f55a95174474ea1fb1722ccaebbcef66480 Mon Sep 17 00:00:00 2001
+From 2d9e60ee5ff788b43017e1f963247787ac9cc432 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 25 Sep 2017 23:24:16 -0700
-Subject: [PATCH 0714/1239] BGX driver: Fix RX equalization for XLAUI interface
+Subject: [PATCH] BGX driver: Fix RX equalization for XLAUI interface
 
 T83 has QLMs where XLAUI can be configured on a single QLM interface
 instead of two DLMs.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 30 +++++++++++++++++++++---------
  1 file changed, 21 insertions(+), 9 deletions(-)
@@ -82,6 +83,3 @@ index e31e8c75c1..29f5b3b7d3 100644
  						bgx->bgx_id, lid, lmac->qlm);
  			}
  			break;
--- 
-2.29.0
-

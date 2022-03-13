@@ -1,8 +1,8 @@
-From 866b2067b44790ada8809f216384839370638abd Mon Sep 17 00:00:00 2001
+From f47e14bc4361794a32c8921e33f8c0540b9c1303 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 23:25:32 -0400
-Subject: [PATCH 0470/1239] i2c: Update ThunderX I2C for new dm_map_bar()
- semantics Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Subject: [PATCH] i2c: Update ThunderX I2C for new dm_map_bar() semantics
+ Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 
 ---
  drivers/i2c/thunderx_i2c.c | 3 ++-
@@ -26,6 +26,3 @@ index 597ddcde54..3c23e48f00 100644
  
  	debug("TWSI bus %d at %p\n",dev->seq, twsi->baseaddr);
  
--- 
-2.29.0
-

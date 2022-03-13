@@ -1,10 +1,10 @@
-From b40ec166c3a4cef7a40ff771dae9ae7437572c60 Mon Sep 17 00:00:00 2001
+From 67f12f5208e006c0c7bfb5908772e2bc3ac1354a Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 1 Mar 2018 11:31:30 -0800
-Subject: [PATCH 0762/1239] cavm: get rid of csr headers and minor cleanup in
- board files
+Subject: [PATCH] cavm: get rid of csr headers and minor cleanup in board files
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/cpu/armv8/cache_v8.c                 |   2 +-
  arch/arm/include/asm/arch-thunderx/clock.h    | 206 ++++++++++++++
@@ -1560,6 +1560,3 @@ index 8bbfe3f8fc..1831aa420f 100644
 -#define CONFIG_HW_WATCHDOG
 -
  #endif /* __THUNDERX_93XX_H__ */
--- 
-2.29.0
-

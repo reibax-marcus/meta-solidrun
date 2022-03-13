@@ -1,8 +1,7 @@
-From da114958232bacfd41428b97b684f5c255f11654 Mon Sep 17 00:00:00 2001
+From a08df9bc29b187128b74e9cdbf70eff8fcd6c3d1 Mon Sep 17 00:00:00 2001
 From: zachary zhang <zhangzg@marvell.com>
 Date: Mon, 21 Aug 2017 18:36:41 +0800
-Subject: [PATCH 0120/1239] efuse: mvebu: add Low Density (LD) efuse operation
- code
+Subject: [PATCH] efuse: mvebu: add Low Density (LD) efuse operation code
 
 LD efuse operation support is required on ap806 and cp110 since their HW
 include two LD efuses along with HD efuse array.
@@ -11,6 +10,7 @@ introduces efuse mbus registration function for A38x SoC.
 
 Change-Id: I782155e2b41c52958813f71fe0bf49b8516e279d
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/mach-mvebu/Kconfig  |   1 +
  arch/arm/mach-mvebu/cpu.c    |  15 +++++
@@ -386,6 +386,3 @@ index 77752ef6b3..b338a06392 100644
 +int mvebu_efuse_init_hw(struct udevice *dev);
  
  #endif
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From c8e007b50b3baf7914c0489a697b6f1443c5716f Mon Sep 17 00:00:00 2001
+From 2ee65da0f11a85d85b89f85df61d1fd78d4a8467 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 May 2016 18:11:35 -0700
-Subject: [PATCH 0391/1239] cavium: Move RC status checking code to fdt.c
+Subject: [PATCH] cavium: Move RC status checking code to fdt.c
 
 This commit moves obsolete RC status checking functions
 to fdt.c until DM-based code is ready
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  board/cavium/thunderx/fdt.c | 64 ++++++++++++++++++++++++++++++++++++-
  1 file changed, 63 insertions(+), 1 deletion(-)
@@ -86,6 +87,3 @@ index 5eaa398fbf..1f477712da 100644
  
  static void ft_setup_pems(char *fdt)
  {
--- 
-2.29.0
-

@@ -1,13 +1,14 @@
-From 8871734064a0de0434104c6eed07f3a861b7fc2c Mon Sep 17 00:00:00 2001
+From 8fc8b631ca4d76dfe8815d78615488f9d2cb9845 Mon Sep 17 00:00:00 2001
 From: Alexey Kovalev <alexey.kovalev@cavium.com>
 Date: Mon, 22 Apr 2019 23:06:19 +0300
-Subject: [PATCH 0906/1239] marvell: octeontx2: adding fail safe commands
+Subject: [PATCH] marvell: octeontx2: adding fail safe commands
 
 Change-Id: I6b4c2d821b07a498e013c02bf90cd5f181ab04d2
 Signed-off-by: Alexey Kovalev <alexey.kovalev@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/7956
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/atf.h     |  2 ++
  .../asm/arch-octeontx2/octeontx2_svc.h        |  4 ++++
@@ -192,6 +193,3 @@ index 3bc934dec7..f4c3f1dfe8 100644
  /**
   * Only allow the Ethernet MAC address environment variable to be
   * overwritten once.
--- 
-2.29.0
-

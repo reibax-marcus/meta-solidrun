@@ -1,11 +1,12 @@
-From 712a4de25e32b94cc9db07a84d3fe07ebdb9defb Mon Sep 17 00:00:00 2001
+From 8343cf4dff80a3d8b0dacd61263d1d6381132ed2 Mon Sep 17 00:00:00 2001
 From: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
 Date: Wed, 28 Sep 2016 10:43:35 +0530
-Subject: [PATCH 0528/1239] 83xx: adding board support for 83xx.
+Subject: [PATCH] 83xx: adding board support for 83xx.
 
 this is a copy of 81xx files.
 
 Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/Kconfig   |  22 +-
  configs/thunderx_83xx_defconfig |  52 +++++
@@ -518,6 +519,3 @@ index 0000000000..c68b825f69
 +#define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
 +
 +#endif /* __THUNDERX_83XX_H__ */
--- 
-2.29.0
-

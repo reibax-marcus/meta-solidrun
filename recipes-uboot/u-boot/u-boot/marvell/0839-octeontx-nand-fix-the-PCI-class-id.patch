@@ -1,7 +1,7 @@
-From 1221cae9bac900d8e9aa3ba991865f60c8d9906b Mon Sep 17 00:00:00 2001
+From 027e5f3781270efa159ca873952080f2dfeae194 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 13 Nov 2018 16:59:45 -0800
-Subject: [PATCH 0839/1239] octeontx: nand: fix the PCI class id
+Subject: [PATCH] octeontx: nand: fix the PCI class id
 
 This fixes the PCI class ID so that the OcteonTX NAND driver is
 properly probed.  Additionally, this adds functionality to
@@ -12,6 +12,7 @@ causes the Linux kernel to crash when asynchronous interrupts
 are enabled.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mtd/nand/octeontx_bch.c  |  1 +
  drivers/mtd/nand/octeontx_nand.c | 41 +++++++++++++++++++++++++++++---
@@ -130,6 +131,3 @@ index f7f88da3fa..a411f3f0bf 100644
  					  DM_GET_DRIVER(octeontx_pci_nand),
  					  &dev);
  	if (ret && ret != -ENODEV)
--- 
-2.29.0
-

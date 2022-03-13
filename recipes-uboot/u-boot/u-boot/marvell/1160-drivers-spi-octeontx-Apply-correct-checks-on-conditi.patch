@@ -1,14 +1,15 @@
-From 0619b1c4ff8a0ed306472ada34f71e45149e1b83 Mon Sep 17 00:00:00 2001
+From d46a9ae6a58184956682ae1096834c693f34c56a Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 13 May 2020 16:39:32 -0700
-Subject: [PATCH 1160/1239] drivers: spi: octeontx: Apply correct checks on
- conditional code
+Subject: [PATCH] drivers: spi: octeontx: Apply correct checks on conditional
+ code
 
 Change-Id: Ia78cd06b548e30a22997788ac2a456c246da8e57
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29488
 Reviewed-by: Rick Farrington <rfarrington@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/spi/octeontx_spi.c | 7 +++++--
  1 file changed, 5 insertions(+), 2 deletions(-)
@@ -45,6 +46,3 @@ index ee4c426df9..a4c7c32c9a 100644
  	acquire_flash_arb(false);
  #endif
  
--- 
-2.29.0
-

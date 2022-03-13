@@ -1,9 +1,10 @@
-From 9419f9aca669a2c63c996439663ed88fbf688675 Mon Sep 17 00:00:00 2001
+From 16dd6c849bea90077b5a84db13a08d9388dd4263 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Tue, 27 Dec 2016 16:49:46 -0800
-Subject: [PATCH 0604/1239] cmd: bootimgup: update image support for mmc device
+Subject: [PATCH] cmd: bootimgup: update image support for mmc device
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  cmd/bootimgup.c | 193 +++++++++++++++++++++++++++++++++++++++++++-----
  1 file changed, 175 insertions(+), 18 deletions(-)
@@ -312,6 +313,3 @@ index bc9e712b2f..ddf0e9c535 100644
  	return 0;
  }
  
--- 
-2.29.0
-

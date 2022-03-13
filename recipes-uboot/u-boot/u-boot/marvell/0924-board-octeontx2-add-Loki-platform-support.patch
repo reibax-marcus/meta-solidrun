@@ -1,7 +1,7 @@
-From 190a47b75b44beb9dde51dc01e2ea20d3cff7b92 Mon Sep 17 00:00:00 2001
+From 08a356b6b13619020aa1557b16629df9f72d04d5 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 4 Jun 2019 09:00:21 -0700
-Subject: [PATCH 0924/1239] board: octeontx2: add Loki platform support
+Subject: [PATCH] board: octeontx2: add Loki platform support
 
 Add Loki config files and minor code changes to enable
 the platform. This is very similar to CN95XX and most of the
@@ -12,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/10471
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  .../include/asm/arch-octeontx2/octeontx2.h    |   1 +
  arch/arm/mach-octeontx2/Kconfig               |   3 +
@@ -291,6 +292,3 @@ index 0000000000..3a75b8980d
 +#endif
 +
 +#endif /* __OCTEONTX2_LOKI_H__ */
--- 
-2.29.0
-

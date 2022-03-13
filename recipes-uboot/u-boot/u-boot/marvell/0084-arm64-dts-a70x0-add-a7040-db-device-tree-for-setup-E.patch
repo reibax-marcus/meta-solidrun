@@ -1,8 +1,7 @@
-From 00936136b07041d24b7497c8ef3a0fdcdefc57a9 Mon Sep 17 00:00:00 2001
+From 8644d2c02f3db23ef048e13f28532e4aaddf51c2 Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Mon, 15 May 2017 19:55:43 +0300
-Subject: [PATCH 0084/1239] arm64: dts: a70x0: add a7040-db device tree for
- setup E
+Subject: [PATCH] arm64: dts: a70x0: add a7040-db device tree for setup E
 
 Update setup E of a7040-db according to board topology:
 SerDes:
@@ -20,6 +19,7 @@ CP-MPPs:
 Change-Id: I9ffd40c4d60aae9dfcfb19841af7b50427ef94f7
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  arch/arm/dts/Makefile             |   1 +
  arch/arm/dts/armada-7040-db-E.dts | 204 ++++++++++++++++++++++++++++++
@@ -248,6 +248,3 @@ index 0000000000..cf95e2634a
 +	phy = <&phy0>;
 +	phy-mode = "rgmii-id"; /* lane-0 */
 +};
--- 
-2.29.0
-

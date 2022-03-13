@@ -1,12 +1,13 @@
-From b877ffbef00f328019397dc2f1616b61a07aab57 Mon Sep 17 00:00:00 2001
+From 7f8741d0722181d45391525f64b13668f2eb50c0 Mon Sep 17 00:00:00 2001
 From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
 Date: Wed, 26 Oct 2016 00:16:59 +0530
-Subject: [PATCH 0531/1239] 83xx, bringup: disable bgx, vnic and smi drivers
- till issues fixed.
+Subject: [PATCH] 83xx, bringup: disable bgx, vnic and smi drivers till issues
+ fixed.
 
 ** this commit needs to be reverted **
 
 Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+
 ---
  include/configs/thunderx_83xx.h | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
@@ -32,6 +33,3 @@ index 10d6eabab8..56be0c22a6 100644
  
  /** Generate a random MAC address if it is not already defined */
  #define CONFIG_RANDOM_MACADDR
--- 
-2.29.0
-

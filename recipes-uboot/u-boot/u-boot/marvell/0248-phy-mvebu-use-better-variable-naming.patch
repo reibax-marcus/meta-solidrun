@@ -1,12 +1,13 @@
-From 123c565bd61c39651f92fa0518bd050b5d889c68 Mon Sep 17 00:00:00 2001
+From b8f64725fee0c6a2faf7b07c4aad27f4b6860ffe Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 8 Mar 2019 09:26:05 +0100
-Subject: [PATCH 0248/1239] phy: mvebu: use better variable naming
+Subject: [PATCH] phy: mvebu: use better variable naming
 
 No functional change.
 
 Change-Id: Iff60d7a202493a0d198e37ed5e71edc9b948f68f
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/net/phy/mvebu_fw_download.c | 40 ++++++++++++++---------------
  1 file changed, 20 insertions(+), 20 deletions(-)
@@ -104,6 +105,3 @@ index 5346a551d0..8850deeca0 100644
  		return MVEBU_ERR_VALUE_READ_BACK;
  	printf("Flash program have been erased.\n");
  
--- 
-2.29.0
-

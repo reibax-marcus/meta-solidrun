@@ -1,8 +1,8 @@
-From 9daf90585dfa528008b1e4b2a68001170b8ed30a Mon Sep 17 00:00:00 2001
+From f50fdb095f6056fa111944bb81346fb87127cf20 Mon Sep 17 00:00:00 2001
 From: Rick Farrington <Ricardo.Farrington@cavium.com>
 Date: Tue, 22 Oct 2019 11:30:53 -0400
-Subject: [PATCH 0973/1239] cmd: attest: add FIT image kernel ID support to
- Software Attestation
+Subject: [PATCH] cmd: attest: add FIT image kernel ID support to Software
+ Attestation
 
 Also changed attest cmd to use new SMC API.
 
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/17670
 Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/board.h  |   1 +
  arch/arm/include/asm/arch-octeontx2/smc-id.h |   6 +-
@@ -328,6 +329,3 @@ index 89b1a67370..6824b4c699 100644
 +	   "      This supports the FIT syntax <address:kernel@x>.\n"
  	   "\nExample: attest ABCDEF0123\n"
  );
--- 
-2.29.0
-

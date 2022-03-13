@@ -1,8 +1,8 @@
-From dff3e51e37d6bf2863afddaca63e2c3eb1e809af Mon Sep 17 00:00:00 2001
+From f4f24ed00f3b5f5751054bcf9b8e074389976feb Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Tue, 15 Oct 2019 18:20:34 +0200
-Subject: [PATCH 0054/1239] arm64: mvebu: armada-8040-mcbin: enable networking
- in device tree
+Subject: [PATCH] arm64: mvebu: armada-8040-mcbin: enable networking in device
+ tree
 
 Enabled interfaces:
 10G SFI CP0, 10G SFI CP1, 2.5G SGMII CP1, 1G SGMII CP1;
@@ -12,6 +12,7 @@ Enabled interfaces:
 Change-Id: I9189babd873ee798729061ee7efe165fa5bbe696
 Signed-off-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-mcbin.dts | 44 ++++++++++++++++++++++++++++++
  1 file changed, 44 insertions(+)
@@ -91,6 +92,3 @@ index 23df369747..caf6544def 100644
  &cp1_pinctl {
  	/*
  	 * MPP Bus:
--- 
-2.29.0
-

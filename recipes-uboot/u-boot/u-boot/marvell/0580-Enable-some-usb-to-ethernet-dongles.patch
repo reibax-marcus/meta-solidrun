@@ -1,9 +1,10 @@
-From 6fca382a3708ac825bcfe1ea7e3b2bca049dd3cb Mon Sep 17 00:00:00 2001
+From 50da1bb851e75c6a68adc6c535c8b6f7a4b86b48 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 2 Dec 2016 16:23:51 -0800
-Subject: [PATCH 0580/1239] Enable some usb to ethernet dongles.
+Subject: [PATCH] Enable some usb to ethernet dongles.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  include/configs/thunderx_81xx.h | 5 ++++-
  include/configs/thunderx_83xx.h | 5 ++++-
@@ -41,6 +42,3 @@ index c61220a9db..3cd92da8c7 100644
  
  /* PCIe network controller drivers */
  /** Intel E1000 network card */
--- 
-2.29.0
-

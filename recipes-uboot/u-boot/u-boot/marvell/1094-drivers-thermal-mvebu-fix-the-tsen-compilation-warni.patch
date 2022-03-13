@@ -1,8 +1,7 @@
-From 63ee73de3d7569d56f468aadeb5778a06b28b73f Mon Sep 17 00:00:00 2001
+From f857772125d67150b835759554a74368dd90ac23 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 10 Feb 2020 13:20:47 +0200
-Subject: [PATCH 1094/1239] drivers/thermal/mvebu: fix the tsen compilation
- warning
+Subject: [PATCH] drivers/thermal/mvebu: fix the tsen compilation warning
 
 Change-Id: I80495a0e30d227a471611b9bb8df7e9b9305d8e9
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
@@ -10,6 +9,7 @@ Reviewed-on: https://sj1git1.cavium.com/23167
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  drivers/thermal/mvebu_ext_thermal_28nm.c | 9 ++++-----
  1 file changed, 4 insertions(+), 5 deletions(-)
@@ -58,6 +58,3 @@ index 980de4cf3b..00093b4ca6 100644
  }
  
  u32 mvebu_thermal_ext_sensor_probe(struct thermal_unit_config *tsen)
--- 
-2.29.0
-

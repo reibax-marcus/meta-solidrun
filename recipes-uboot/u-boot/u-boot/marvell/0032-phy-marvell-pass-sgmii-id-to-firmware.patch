@@ -1,7 +1,7 @@
-From 1ac9d9aaf3c0d188fad14b5122049f015a5458e8 Mon Sep 17 00:00:00 2001
+From 842fa1f55e239c3b98bf196194ad71518ac67c97 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Wed, 9 May 2018 18:50:29 +0300
-Subject: [PATCH 0032/1239] phy: marvell: pass sgmii id to firmware
+Subject: [PATCH] phy: marvell: pass sgmii id to firmware
 
 Currently, we don't pass id for SGMII 0/1.
 A bug in comphy selector configuration was found (in comphy
@@ -11,6 +11,7 @@ so we need to pass the ID the firmware.
 Change-Id: Idcff4029cc9cf018278e493221b64b33574e0d38
 Signed-off-by: Igal Liberman <igall@marvell.com>
 Reviewed-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 27 +++++----------------------
  1 file changed, 5 insertions(+), 22 deletions(-)
@@ -68,6 +69,3 @@ index 5d458b8dac..c59e76a1f7 100644
  						ptr_comphy_map->speed);
  			ret = comphy_smc(MV_SIP_COMPHY_POWER_ON,
  					 ptr_chip_cfg->comphy_base_addr, lane,
--- 
-2.29.0
-

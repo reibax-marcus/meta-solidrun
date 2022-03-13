@@ -1,7 +1,7 @@
-From 782c8d9877bafad5a02fa5262a07d9c45d7ba5cc Mon Sep 17 00:00:00 2001
+From 707c0dfc03c0e84cbfa301ee521bf9f0cbe94704 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 23 Dec 2019 11:36:39 +0200
-Subject: [PATCH 1048/1239] arch/arm: add support for cn9130-db-C (PCIe EP)
+Subject: [PATCH] arch/arm: add support for cn9130-db-C (PCIe EP)
 
 The "C" configuration is based on "A", but PCIe0 interface is set to EP
 mode. The u-boot config enables the CONFIG_PCIE_DW_MVEBU_EP and
@@ -12,6 +12,7 @@ Change-Id: I196b034cb1f2a9381700600bc2f8d81f985d6a2d
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20734
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+
 ---
  arch/arm/dts/Makefile                |   1 +
  arch/arm/dts/cn9130-db-C.dts         | 240 +++++++++++++++++++++++++++
@@ -378,6 +379,3 @@ index 0000000000..7c58275d75
 +CONFIG_USB_ETHER_RTL8152=y
 +CONFIG_USB_ETHER_SMSC95XX=y
 +CONFIG_SMBIOS_MANUFACTURER=""
--- 
-2.29.0
-

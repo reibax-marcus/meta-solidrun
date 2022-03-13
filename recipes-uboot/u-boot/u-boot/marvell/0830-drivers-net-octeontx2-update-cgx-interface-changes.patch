@@ -1,12 +1,12 @@
-From 49a908203b29a5c6f57518a730bb389a794921c5 Mon Sep 17 00:00:00 2001
+From 1858e2e8ba91d274cc6e2cb09661583c345ef738 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 17 Sep 2018 14:53:04 -0700
-Subject: [PATCH 0830/1239] drivers: net: octeontx2: update cgx interface
- changes
+Subject: [PATCH] drivers: net: octeontx2: update cgx interface changes
 
 Handle new changes in cgx interface header file.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/octeontx2/cgx_intf.c |  5 -----
  drivers/net/octeontx2/cgx_intf.h | 13 ++++++-------
@@ -82,6 +82,3 @@ index 7503419170..ebe0d15598 100644
  	struct cgx_cmd cmd;
  	struct cgx_ctl_args cmd_args;
  	struct cgx_mtu_args mtu_size;
--- 
-2.29.0
-

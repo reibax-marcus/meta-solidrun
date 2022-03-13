@@ -1,13 +1,13 @@
-From 09948953b7572c302a012d269ed540d4a8c1c745 Mon Sep 17 00:00:00 2001
+From 033b1515df38668c1706ad17a52cda7ea5a8c3c4 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 1 Aug 2017 12:04:51 -0700
-Subject: [PATCH 0673/1239] drivers: thunder_gpio: store desc offset while
- xlate
+Subject: [PATCH] drivers: thunder_gpio: store desc offset while xlate
 
 While parsing ofnode_phandle_args, store the offset value
 in gpio_desc offset member.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/gpio/thunderx_gpio.c | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
@@ -30,6 +30,3 @@ index 04d5720cef..e429883d9b 100644
  	desc->flags = 0;
  	if (args->args_count > 1) {
  		if (args->args[1] & GPIO_ACTIVE_LOW)
--- 
-2.29.0
-

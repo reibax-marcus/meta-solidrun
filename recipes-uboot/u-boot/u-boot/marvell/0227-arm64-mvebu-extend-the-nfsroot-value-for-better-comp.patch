@@ -1,7 +1,7 @@
-From 0b1a563de1e39331add517ea7e28f46331885239 Mon Sep 17 00:00:00 2001
+From 862b6a82538813c58b3a59bcfa82ebe887ba784e Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 4 Dec 2018 09:47:32 +0200
-Subject: [PATCH 0227/1239] arm64: mvebu: extend the nfsroot value for better
+Subject: [PATCH] arm64: mvebu: extend the nfsroot value for better
  compatibility
 
 With modern NFS servers found on Debian 10, Ubuntu 18.04 and
@@ -15,6 +15,7 @@ mentioned above.
 
 Change-Id: I48056b1cb2666473cbfb63a125c79605f3297130
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  include/configs/mvebu_armada-common.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -32,6 +33,3 @@ index 884cf8b95c..3210ebdfad 100644
  						"$extra_params " \
  						"$cpuidle"
  
--- 
-2.29.0
-

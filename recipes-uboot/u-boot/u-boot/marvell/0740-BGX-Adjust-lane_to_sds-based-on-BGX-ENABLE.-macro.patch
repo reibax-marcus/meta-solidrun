@@ -1,7 +1,7 @@
-From e65f50849c9318b53defc2dae2598c8938dfbdf8 Mon Sep 17 00:00:00 2001
+From abddc4dde3c17e6acae2c7de9d57df953d7aad10 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 9 Feb 2018 14:30:38 -0800
-Subject: [PATCH 0740/1239] BGX: Adjust lane_to_sds based on BGX-ENABLE.* macro
+Subject: [PATCH] BGX: Adjust lane_to_sds based on BGX-ENABLE.* macro
 
 On SFF8104 BGX0 is configured as QSGMII or XFI interface based on the GPIO settings.
 When BGX0 is in XFI mode, according to schematics, it uses DLM1 lane1. Recently
@@ -22,6 +22,7 @@ sff8104 board
 u-boot still configures BGX0.lmac0, sets lane_to_sds to 3 instead of 2.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  .../include/asm/arch-thunderx/thunderx_vnic.h |  2 +-
  board/cavium/thunderx/fdt.c                   | 25 ++++++++++++++--
@@ -190,6 +191,3 @@ index a3cde5a773..b7e64ef368 100644
  };
  
  enum LMAC_TYPE {
--- 
-2.29.0
-

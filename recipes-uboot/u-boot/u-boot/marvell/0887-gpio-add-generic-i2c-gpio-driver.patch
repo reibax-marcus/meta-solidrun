@@ -1,7 +1,7 @@
-From 731a79f8cfcf0bcf2dcacd6deff78ee73f72ed07 Mon Sep 17 00:00:00 2001
+From db7a4a42acc23256aac2970ca7273a750b7770ce Mon Sep 17 00:00:00 2001
 From: aaronw <aaron.williams@cavium.com>
 Date: Mon, 4 Mar 2019 21:23:54 -0800
-Subject: [PATCH 0887/1239] gpio: add generic i2c gpio driver
+Subject: [PATCH] gpio: add generic i2c gpio driver
 
 This driver implements a simple i2c GPIO device where each
 pin is represented by a bit on an indexed register.  This
@@ -14,6 +14,7 @@ Signed-off-by: aaronw <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5420
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/gpio/Kconfig    |  14 ++-
  drivers/gpio/Makefile   |   2 +-
@@ -297,6 +298,3 @@ index 0000000000..91956d717c
 +	.platdata_auto_alloc_size = sizeof(struct i2c_gpio_chip),
 +	.of_match	= i2c_gpio_ids,
 +};
--- 
-2.29.0
-

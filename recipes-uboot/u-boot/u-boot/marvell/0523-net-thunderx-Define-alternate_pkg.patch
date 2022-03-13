@@ -1,9 +1,10 @@
-From d2390a987f1071ea3c5dcd2223cafba302fd2909 Mon Sep 17 00:00:00 2001
+From d103962c92713d3159d77bb46d75b319ace4cfd8 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 12 Sep 2016 19:06:51 -0700
-Subject: [PATCH 0523/1239] net:thunderx: Define alternate_pkg()
+Subject: [PATCH] net:thunderx: Define alternate_pkg()
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  include/common.h | 1 +
  1 file changed, 1 insertion(+)
@@ -20,6 +21,3 @@ index d8f302ea92..75c70a4a12 100644
  
  #if defined(CONFIG_SYS_DRAM_TEST)
  int testdram(void);
--- 
-2.29.0
-

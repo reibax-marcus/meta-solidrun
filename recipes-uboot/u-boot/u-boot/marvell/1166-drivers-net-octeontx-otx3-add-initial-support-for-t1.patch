@@ -1,8 +1,8 @@
-From a91085a47fccbbcbfccd050c2bf9aa4d82c4ee6e Mon Sep 17 00:00:00 2001
+From 1f45c79afb4718766e61e097cfaa7df30075fdf4 Mon Sep 17 00:00:00 2001
 From: Rick Farrington <rfarrington@marvell.com>
 Date: Sun, 24 May 2020 00:50:14 -0400
-Subject: [PATCH 1166/1239] drivers: net: octeontx: otx3: add initial support
- for t106 RVU AF
+Subject: [PATCH] drivers: net: octeontx: otx3: add initial support for t106
+ RVU AF
 
 Change-Id: I3bbbdb0b8f86872b241745f6cbaf2b07c58fb39b
 Signed-off-by: Rick Farrington <rfarrington@marvell.com>
@@ -11,6 +11,7 @@ Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29494
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  board/Marvell/octeontx3/board.c    |   18 +
  cmd/marvell/Kconfig                |    4 +-
@@ -2071,6 +2072,3 @@ index 0000000000..02ad27bebe
 +	qmem_free(&aq->res);
 +	memset(aq, 0, sizeof(*aq));
 +}
--- 
-2.29.0
-

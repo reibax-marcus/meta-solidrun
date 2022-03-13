@@ -1,12 +1,13 @@
-From 5b7ce152a1312c9228c138d77dd4a25e50884a11 Mon Sep 17 00:00:00 2001
+From 6474e88ca4391d7ea24a3d9fd7346a980f4a92e6 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 17 May 2016 16:19:08 -0400
-Subject: [PATCH 0456/1239] mdio: thunderx: Rework SMI support for DM
+Subject: [PATCH] mdio: thunderx: Rework SMI support for DM
 
 Use ECAM-based enumeration for SMI support which gives more
 flexibility in SoC support
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/thunderx_smi.c | 138 +++++++++++++++++++-----------
  1 file changed, 89 insertions(+), 49 deletions(-)
@@ -304,6 +305,3 @@ index 674dab8d46..6fce11bff1 100644
 +};
 +
 +U_BOOT_PCI_DEVICE(thunderx_smi, thunderx_smi_supported);
--- 
-2.29.0
-

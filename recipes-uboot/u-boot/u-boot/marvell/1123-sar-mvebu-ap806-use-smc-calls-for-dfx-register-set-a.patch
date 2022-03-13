@@ -1,8 +1,7 @@
-From 93d07a8da1e406402b222d073c55f17b8623f5d6 Mon Sep 17 00:00:00 2001
+From 8759f062b5b0a9ee5c356c6556051cf2e0e79a2c Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Wed, 18 Mar 2020 23:10:18 +0100
-Subject: [PATCH 1123/1239] sar: mvebu: ap806: use smc calls for dfx
- register-set access
+Subject: [PATCH] sar: mvebu: ap806: use smc calls for dfx register-set access
 
 This change will be needed after dfx register set will be secured by the
 trusted firmware.
@@ -12,6 +11,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/25183
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/misc/mvebu_sar/ap806_sar.c | 24 +++++++++++++++++++-----
  1 file changed, 19 insertions(+), 5 deletions(-)
@@ -68,6 +68,3 @@ index a19de16778..3cda3d3b63 100644
  	printf("\nAP806 SAR register 1 [0x%08x]:\n", reg);
  	printf("----------------------------------\n");
  	sar = ap806_sar_1;
--- 
-2.29.0
-

@@ -1,9 +1,10 @@
-From 01138f8f75a1715841d28b88da969b4aef020299 Mon Sep 17 00:00:00 2001
+From 9568fdce5e3680f6705e9ee508dbf09d96196aa9 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 7 Jun 2016 21:02:08 -0700
-Subject: [PATCH 0502/1239] Enable USB was removed from previous commits.
+Subject: [PATCH] Enable USB was removed from previous commits.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  configs/thunderx_81xx_defconfig | 10 +++++-----
  include/configs/thunderx_81xx.h |  4 ++--
@@ -49,6 +50,3 @@ index fe73b6784f..5b86a1726d 100644
  
  
  
--- 
-2.29.0
-

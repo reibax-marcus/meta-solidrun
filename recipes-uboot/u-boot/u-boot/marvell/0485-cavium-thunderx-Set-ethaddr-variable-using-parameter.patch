@@ -1,12 +1,13 @@
-From 04fa086716135acebef835396a1610ca8ecd45ee Mon Sep 17 00:00:00 2001
+From 1b8f38828708409359bec590a3be36c13a18864c Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 23 May 2016 20:59:34 -0700
-Subject: [PATCH 0485/1239] cavium: thunderx: Set 'ethaddr' variable using
- parameters passed from BDK
+Subject: [PATCH] cavium: thunderx: Set 'ethaddr' variable using parameters
+ passed from BDK
 
 Use the "BOARD-MAC-ADDRESS" variable to set the 'ethaddr' value
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  board/cavium/thunderx/fdt.c | 8 ++++++++
  1 file changed, 8 insertions(+)
@@ -37,6 +38,3 @@ index f38f2b4687..b6223c52de 100644
  #endif
  		}
  	}
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From afbd2942b780f176e60f208638f2789d42bd6273 Mon Sep 17 00:00:00 2001
+From ec72b5e2dbc58e513244c3c507060a32edeaf6de Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 28 May 2019 16:17:09 -0700
-Subject: [PATCH 0916/1239] mmc: octeontx: Skip calibration check on broken hw
+Subject: [PATCH] mmc: octeontx: Skip calibration check on broken hw
 
 The calibration code improperly checks the calibration
 status when calibration is not performed on certain
@@ -12,6 +12,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10131
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 11 ++++++-----
  1 file changed, 6 insertions(+), 5 deletions(-)
@@ -38,6 +39,3 @@ index d0f5519247..9382746b24 100644
  	}
  
  	host->timing_taps = 10 * 1000 * emm_tap.s.delay / 512;
--- 
-2.29.0
-

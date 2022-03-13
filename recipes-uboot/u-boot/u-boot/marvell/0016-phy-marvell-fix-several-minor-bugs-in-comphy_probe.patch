@@ -1,8 +1,7 @@
-From 60d610ba7bfa4277bffcaa85afbf50ea2b23128f Mon Sep 17 00:00:00 2001
+From fb21207c57d1c104db48fc3fe3a0d89342183fda Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Tue, 22 Aug 2017 11:14:22 +0300
-Subject: [PATCH 0016/1239] phy: marvell: fix several minor bugs in
- comphy_probe
+Subject: [PATCH] phy: marvell: fix several minor bugs in comphy_probe
 
 If fdtdec_get_int can't find speed, set COMPHY_SPEED_INVALID
 If fdtdec_get_int can't find type, set COMPHY_TYPE_INVALID
@@ -12,6 +11,7 @@ Cosmetic changes
 
 Change-Id: I0c61b40bfe685437426fe907942ed338b7845378
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_core.c | 29 +++++++++++++++++++----------
  1 file changed, 19 insertions(+), 10 deletions(-)
@@ -61,6 +61,3 @@ index f3725312b1..8b0de902de 100644
  		lane++;
  	}
  
--- 
-2.29.0
-

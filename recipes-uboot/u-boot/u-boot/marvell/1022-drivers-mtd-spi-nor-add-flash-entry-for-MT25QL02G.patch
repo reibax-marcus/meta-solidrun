@@ -1,8 +1,7 @@
-From 6ad13d49908aa8a9f770802c92a08e371ab1042a Mon Sep 17 00:00:00 2001
+From eaea0df7094385eb39ab1bc43b36a8bce1f53afb Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 4 Dec 2019 09:46:22 -0800
-Subject: [PATCH 1022/1239] drivers: mtd: spi-nor: add flash entry for
- MT25QL02G
+Subject: [PATCH] drivers: mtd: spi-nor: add flash entry for MT25QL02G
 
 Add entry to support MT25QL02G flash device found on
 one of OcteonTX2 platforms.
@@ -12,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19828
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/mtd/spi/spi-nor-ids.c | 1 +
  1 file changed, 1 insertion(+)
@@ -28,6 +28,3 @@ index 40e2bb2114..a8e5c30769 100644
  	{ INFO("mt35xu512aba", 0x2c5b1a, 0,  128 * 1024,  512, USE_FSR | SPI_NOR_4B_OPCODES) },
  	{ INFO("mt35xu02g",  0x2c5b1c, 0, 128 * 1024,  2048, USE_FSR | SPI_NOR_4B_OPCODES) },
  #endif
--- 
-2.29.0
-

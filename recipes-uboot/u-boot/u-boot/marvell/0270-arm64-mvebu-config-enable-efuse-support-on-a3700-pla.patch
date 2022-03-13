@@ -1,11 +1,11 @@
-From 40ab0268be9517682644a5228a2b9110e1c57acd Mon Sep 17 00:00:00 2001
+From 2954905b99d1eef516d654dceead1f86b2800a39 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 1 Sep 2019 10:50:33 +0300
-Subject: [PATCH 0270/1239] arm64: mvebu: config: enable efuse support on a3700
- platforms
+Subject: [PATCH] arm64: mvebu: config: enable efuse support on a3700 platforms
 
 Change-Id: I98700515b942b2bd143f299b00c62604e271c04f
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  configs/mvebu_db-88f3720_defconfig          | 1 +
  configs/mvebu_espressobin-88f3720_defconfig | 1 +
@@ -35,6 +35,3 @@ index 962c2a738c..489d1e45b6 100644
  CONFIG_CMD_EXT4_WRITE=y
  CONFIG_MAC_PARTITION=y
  CONFIG_ENV_IS_IN_SPI_FLASH=y
--- 
-2.29.0
-

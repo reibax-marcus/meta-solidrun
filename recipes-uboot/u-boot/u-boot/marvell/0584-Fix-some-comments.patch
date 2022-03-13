@@ -1,9 +1,10 @@
-From ccb024994cad419af871556094e46cf524d575e6 Mon Sep 17 00:00:00 2001
+From fbb8c81d2b7af5fd406bf6cb06c1d084e294ea5e Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 5 Jan 2017 21:11:13 -0800
-Subject: [PATCH 0584/1239] Fix some comments.
+Subject: [PATCH] Fix some comments.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -30,6 +31,3 @@ index 6a2b002eda..9a9cc75d6a 100644
  
  			return UNUSABLE_ERR;
  		}
--- 
-2.29.0
-

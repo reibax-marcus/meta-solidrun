@@ -1,13 +1,13 @@
-From 844f2d41f9d0f1a63414819bde66652e680fb515 Mon Sep 17 00:00:00 2001
+From fa2fb4a835c0eb1da0a36782850754c9795ff0b1 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Sat, 12 Nov 2016 00:47:38 -0800
-Subject: [PATCH 0563/1239] This fixes a crash when a MMC/SD device is not
- plugged in
+Subject: [PATCH] This fixes a crash when a MMC/SD device is not plugged in
 
 This also adds support for checking the card detect to see
 if something is plugged in or not.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 22 +++++++++++++++++++---
  1 file changed, 19 insertions(+), 3 deletions(-)
@@ -95,6 +95,3 @@ index 168ae13e24..5a6dfae2c8 100644
  	free(mmc);
  }
  
--- 
-2.29.0
-

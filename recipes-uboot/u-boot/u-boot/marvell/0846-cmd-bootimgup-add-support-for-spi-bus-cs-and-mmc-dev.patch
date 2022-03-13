@@ -1,8 +1,8 @@
-From 6a23f7efa22de5c72d73fe44623de84cca3ff771 Mon Sep 17 00:00:00 2001
+From 849ebee342c82ab9ff2e624cd3be9cea85ab81e1 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 6 Dec 2018 20:46:05 -0800
-Subject: [PATCH 0846/1239] cmd: bootimgup: add support for spi[bus:cs] and
- mmc[device id]
+Subject: [PATCH] cmd: bootimgup: add support for spi[bus:cs] and mmc[device
+ id]
 
 Adds support to take extra arguments of bus,cs for spi and
 device id for mmc to flash onto different controllers or devices
@@ -14,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/1459
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  cmd/bootimgup.c | 104 ++++++++++++++++++++++++++++++++++++------------
  1 file changed, 78 insertions(+), 26 deletions(-)
@@ -212,6 +213,3 @@ index a04e1d7d32..5b55b80ead 100644
  	" If not given, then $loadaddr and $filesize values in \n"
  	" environment are used, otherwise fail to update. \n"
  );
--- 
-2.29.0
-

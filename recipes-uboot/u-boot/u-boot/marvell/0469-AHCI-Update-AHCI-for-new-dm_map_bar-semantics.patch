@@ -1,9 +1,10 @@
-From 2d04e905f88f452b01d837e20617ba754935264d Mon Sep 17 00:00:00 2001
+From a7bb98745142b91caedd833e4f5a45833c28c850 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 23:23:48 -0400
-Subject: [PATCH 0469/1239] AHCI: Update AHCI for new dm_map_bar() semantics
+Subject: [PATCH] AHCI: Update AHCI for new dm_map_bar() semantics
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/ata/ahci.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
@@ -35,6 +36,3 @@ index 9ee170daf9..1abf934761 100644
  	return 0;
  }
 -#endif
--- 
-2.29.0
-

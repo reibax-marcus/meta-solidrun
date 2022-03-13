@@ -1,7 +1,7 @@
-From 8f3e051e7e5539c75518e1c753ff7e3edad08b37 Mon Sep 17 00:00:00 2001
+From 26da8c52fad07bb38f7383dd0e9afd219ed2ca9d Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 16 Dec 2019 18:47:42 +0200
-Subject: [PATCH 1034/1239] configs: add defconfig for CN9130-CRB board
+Subject: [PATCH] configs: add defconfig for CN9130-CRB board
 
 The CN9130-CR board default boot device CP0 SDHCI (SD),
 which is sampled as 0x29 by the BootROM.
@@ -15,6 +15,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20404
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  configs/mvebu_crb_cn9130_defconfig | 94 ++++++++++++++++++++++++++++++
  1 file changed, 94 insertions(+)
@@ -120,6 +121,3 @@ index 0000000000..79bdd8f383
 +CONFIG_USB_ETHER_RTL8152=y
 +CONFIG_USB_ETHER_SMSC95XX=y
 +CONFIG_SMBIOS_MANUFACTURER=""
--- 
-2.29.0
-

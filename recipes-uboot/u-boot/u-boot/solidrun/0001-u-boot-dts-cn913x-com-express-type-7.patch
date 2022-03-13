@@ -1,9 +1,10 @@
-From 393a3b9cb2cae3325dbf485970b8bdf090ae098c Mon Sep 17 00:00:00 2001
+From 8bd16fa09c3179d7e20ae2adb6004dbc9c098b72 Mon Sep 17 00:00:00 2001
 From: Alon Rotman <alon.rotman@solid-run.com>
 Date: Thu, 29 Oct 2020 17:18:50 +0200
-Subject: [PATCH 1/6] u-boot: dts cn913x com express type 7
+Subject: [PATCH] u-boot: dts cn913x com express type 7
 
 Signed-off-by: Alon Rotman <alon.rotman@solid-run.com>
+
 ---
  arch/arm/dts/cn9130-cex7-A.dts | 302 +++++++++++++++++++++++++++++++++
  arch/arm/dts/cn9130-cex7.dtsi  | 123 ++++++++++++++
@@ -913,6 +914,3 @@ index 0000000000..46d54bb647
 +&cp2_utmi1 {
 +	status = "okay";
 +};
--- 
-2.25.1
-

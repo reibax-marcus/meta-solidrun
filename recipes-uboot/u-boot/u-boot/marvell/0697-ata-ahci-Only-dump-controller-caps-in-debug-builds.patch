@@ -1,13 +1,13 @@
-From bc5cc25c1df87df0f20f3611f3a6898d5f786ecc Mon Sep 17 00:00:00 2001
+From 443d05d0373ceab0cf5992a1966ff1844737a658 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 23 Aug 2017 00:23:30 +0300
-Subject: [PATCH 0697/1239] ata: ahci: Only dump controller caps in debug
- builds
+Subject: [PATCH] ata: ahci: Only dump controller caps in debug builds
 
 Only print lines like "AHCI 0001.0300 32 slots 1 ports..."
 in debug builds
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/ata/ahci.c | 64 +++++++++++++++++++++++-----------------------
  1 file changed, 32 insertions(+), 32 deletions(-)
@@ -87,6 +87,3 @@ index 8d984205d3..28b2f633c1 100644
  }
  
  #if defined(CONFIG_DM_SCSI) || !defined(CONFIG_SCSI_AHCI_PLAT)
--- 
-2.29.0
-

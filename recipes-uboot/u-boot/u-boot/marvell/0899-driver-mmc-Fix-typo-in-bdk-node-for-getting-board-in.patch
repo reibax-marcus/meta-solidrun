@@ -1,13 +1,14 @@
-From 39c1579b02e270076f5c13b266133c33a76f69f2 Mon Sep 17 00:00:00 2001
+From db742688918c77be1464a2f273dadd2e3516cd55 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Wed, 13 Mar 2019 15:32:15 -0700
-Subject: [PATCH 0899/1239] driver: mmc: Fix typo in bdk node for getting board
+Subject: [PATCH] driver: mmc: Fix typo in bdk node for getting board
  information
 
 Change-Id: I58dbc8368b7dd711ab7a665b60ebd9d44189250f
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5655
 Tested-by: sa_ip-sw-jenkins
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -25,6 +26,3 @@ index 25a184f6e4..32ae5e12de 100644
  	if (ofnode_valid(node)) {
  		board_model = ofnode_read_string(node, "BOARD-MODEL");
  		if (board_model && !strncmp(board_model, "ASIM-", 5))
--- 
-2.29.0
-

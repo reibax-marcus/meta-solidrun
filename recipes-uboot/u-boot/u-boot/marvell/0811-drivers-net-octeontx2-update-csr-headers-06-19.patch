@@ -1,9 +1,10 @@
-From 0bd2bf5628b15e63f3f131b0a98781973a5d1b86 Mon Sep 17 00:00:00 2001
+From 70c4f6a44b1356baa0d70f6e9f9a5674056b8894 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 21 Jun 2018 18:33:01 -0700
-Subject: [PATCH 0811/1239] drivers: net: octeontx2: update csr headers 06/19
+Subject: [PATCH] drivers: net: octeontx2: update csr headers 06/19
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx2/cavm-csrs-cgx.h | 1088 +++---------
  drivers/net/cavium/octeontx2/cavm-csrs-lmt.h |    8 +-
@@ -9543,6 +9544,3 @@ index 59fe6e80d5..8a56294f9c 100644
  }
  
  #endif /* __CAVM_CSRS_RVU_H__ */
--- 
-2.29.0
-

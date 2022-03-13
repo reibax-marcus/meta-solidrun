@@ -1,8 +1,7 @@
-From b0173639fa5f93a753e85bfb9ad87946904febca Mon Sep 17 00:00:00 2001
+From 3a1854e6756603b785396229f1c7d675c7561a98 Mon Sep 17 00:00:00 2001
 From: Hanna Hawa <hannah@marvell.com>
 Date: Sun, 13 Dec 2015 14:43:45 +0200
-Subject: [PATCH 0086/1239] phy: mvebu: add command to download firmware for
- Marvell PHYs
+Subject: [PATCH] phy: mvebu: add command to download firmware for Marvell PHYs
 
 This is relevant for Marvell's PHY's, where a FW download and burn
 is needed in order to operate the PHY. The FW files are not part of
@@ -11,6 +10,7 @@ U-Boot, it's expected that the user will load this to RAM.
 Change-Id: I6246a376ffea1ae9ef5444e294d1d3769f99775a
 Signed-off-by: Hanna Hawa <hannah@marvell.com>
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  cmd/mii.c                           |  19 +
  cmd/mvebu/Kconfig                   |  10 +
@@ -642,6 +642,3 @@ index 9b97d09f18..81492d1f2c 100644
 +				u8 salve_data[], u32 slave_size);
 +#endif
  #endif
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 85e634f032ad6984bd70a563742ac194825da605 Mon Sep 17 00:00:00 2001
+From 1361dfa5ebf776815f8f710d55f9359f9be00d7f Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 14 Feb 2020 10:14:22 +0100
-Subject: [PATCH 1120/1239] thermal: mvebu: restore thermal error checking
+Subject: [PATCH] thermal: mvebu: restore thermal error checking
 
 The error checking was dropped by accident in one of previous fix-up
 commit - restore it.
@@ -11,6 +11,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/25049
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  drivers/thermal/mvebu_ext_thermal_28nm.c | 8 +++++---
  1 file changed, 5 insertions(+), 3 deletions(-)
@@ -43,6 +44,3 @@ index 00093b4ca6..97fa5977b1 100644
  		pr_err("%s: thermal.%lx: external sensor is not ready\n",
  		       __func__, (uintptr_t)tsen->regs_base);
  		return -1;
--- 
-2.29.0
-

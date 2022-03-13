@@ -1,8 +1,8 @@
-From 0a3cfa4ea2223626610ce8f2fc5dabebc9332a06 Mon Sep 17 00:00:00 2001
+From 5bdfb10a37507a1f634dd1a29953c1a591da3ca4 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 2 Oct 2018 16:09:37 +0200
-Subject: [PATCH 0199/1239] nand: pxa3xx: allow pxa3xx_nand_info to be used
- outside of the driver
+Subject: [PATCH] nand: pxa3xx: allow pxa3xx_nand_info to be used outside of
+ the driver
 
 Moving pxa3xx_nand_info and all dependent structures to header will
 allow to reference it in upcoming commit.
@@ -11,6 +11,7 @@ No functional change.
 
 Change-Id: I4af3950c72e2147fb0aa09873a88f2df3cb04634
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/mtd/nand/raw/pxa3xx_nand.c | 106 ----------------------------
  drivers/mtd/nand/raw/pxa3xx_nand.h | 107 +++++++++++++++++++++++++++++
@@ -249,6 +250,3 @@ index 8f24ae6d18..a465b0f60a 100644
 +};
 +
  #endif /* __ASM_ARCH_PXA3XX_NAND_H */
--- 
-2.29.0
-

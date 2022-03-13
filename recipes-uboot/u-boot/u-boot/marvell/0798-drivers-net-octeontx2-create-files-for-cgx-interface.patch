@@ -1,10 +1,10 @@
-From b58e44c0d237cbf71db8838b48dd97b7933282b6 Mon Sep 17 00:00:00 2001
+From b6ca441552a7d8994e9a5a7149c6706734b25a41 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 5 Mar 2018 13:19:23 -0800
-Subject: [PATCH 0798/1239] drivers: net: octeontx2: create files for cgx
- interface
+Subject: [PATCH] drivers: net: octeontx2: create files for cgx interface
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx2/Kconfig          |   6 +-
  drivers/net/cavium/octeontx2/octeontx2_cgx.c  |  10 +
@@ -290,6 +290,3 @@ index 0000000000..4fa139f83c
 +};
 +
 +#endif
--- 
-2.29.0
-

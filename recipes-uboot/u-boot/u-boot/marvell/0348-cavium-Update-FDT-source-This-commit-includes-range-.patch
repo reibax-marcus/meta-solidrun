@@ -1,8 +1,8 @@
-From ce64ea95b1c96ae442a56420cc4d8acce31debc7 Mon Sep 17 00:00:00 2001
+From d52d989aac84f08534051e4e6e5299d6948f81de Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 Nov 2015 20:33:28 -0800
-Subject: [PATCH 0348/1239] cavium: Update FDT source This commit includes
- range settings for PEMs
+Subject: [PATCH] cavium: Update FDT source This commit includes range settings
+ for PEMs
 
 ---
  arch/arm/dts/thunder-88xx.dtsi | 16 +++++++---------
@@ -56,6 +56,3 @@ index e17a5b552a..2deaf4a0ff 100644
          };
  
  	smmu0@0x8300,00000000 {
--- 
-2.29.0
-

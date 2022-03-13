@@ -1,7 +1,7 @@
-From 1a9ee9df4ff27b6c96b2a9b76519ae0b2d936ab7 Mon Sep 17 00:00:00 2001
+From 3c8c53007f4e9fb43ed530703dc382bc327cceba Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 25 Jul 2017 18:41:17 -0700
-Subject: [PATCH 0659/1239] config: kconfig changes for t81/83/93
+Subject: [PATCH] config: kconfig changes for t81/83/93
 
 u-boot has moved to kconfig(not completely), this is first
 commit to cleanup kconfig related to board specific code and
@@ -10,6 +10,7 @@ More kconfig cleanup is required, also v2017.09 should have
 complete kconfig menu entries.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/Kconfig                |  12 ++++
  arch/arm/mach-thunderx/Kconfig  |  88 ------------------------
@@ -1052,6 +1053,3 @@ index af5e1c4251..1af83e57da 100644
  #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
  #define CONFIG_SYS_MMC_SET_DEV
  
--- 
-2.29.0
-

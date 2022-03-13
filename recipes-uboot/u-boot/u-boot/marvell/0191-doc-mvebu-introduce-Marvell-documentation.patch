@@ -1,12 +1,13 @@
-From b97b5ef0c283fd629938d32a48af1928d1a95ce4 Mon Sep 17 00:00:00 2001
+From aed5552599bd9c6b37f497695229408de643b768 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 16 Sep 2018 14:37:49 +0300
-Subject: [PATCH 0191/1239] doc: mvebu: introduce Marvell documentation
+Subject: [PATCH] doc: mvebu: introduce Marvell documentation
 
 Import and update Marvell documentation.
 
 Change-Id: I1f1a79cea8c65e9407a1bcb12706fa385b67c915
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  doc/mvebu/a3700/armada-3700-db-setup.txt  |  76 +++
  doc/mvebu/a7k-a8k/armada70x0-db-setup.txt | 229 +++++++++
@@ -2092,6 +2093,3 @@ index 0000000000..7c182d2605
 +	Marvell>> tsen
 +	Thermal.f06f8084 = 49
 +	Thermal.f2400070 = 53
--- 
-2.29.0
-

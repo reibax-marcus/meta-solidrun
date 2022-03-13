@@ -1,13 +1,14 @@
-From f2e90152b50579e214d7adc907ffd68c27a26cfe Mon Sep 17 00:00:00 2001
+From 60e564f009e1b55d4b8b79e9445c4ce8484da031 Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Tue, 3 May 2016 15:21:37 -0700
-Subject: [PATCH 0399/1239] cavium: Use FDT blob from ATF
+Subject: [PATCH] cavium: Use FDT blob from ATF
 
 Remove the DT from u-boot image and use the DT passed
 from BDK.
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  arch/arm/cpu/armv8/cvm-thunderx/lowlevel.S | 6 ++++++
  1 file changed, 6 insertions(+)
@@ -29,6 +30,3 @@ index 36206d1350..9d87d78af2 100644
  	ldr	x0, =THUNDERX_DRAM_SIZE
  	mov	x1, xzr
  	smc	#0			/* Get the DRAM size */
--- 
-2.29.0
-

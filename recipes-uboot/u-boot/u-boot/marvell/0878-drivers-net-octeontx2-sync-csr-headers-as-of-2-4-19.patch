@@ -1,14 +1,14 @@
-From 1894e89b58aec9b0b17064e3af878f20adb332cb Mon Sep 17 00:00:00 2001
+From f245bebd18f88767a953088fd83ebdd64e9ef542 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 6 Feb 2019 09:24:16 -0800
-Subject: [PATCH 0878/1239] drivers: net: octeontx2: sync csr headers as of
- 2/4/19
+Subject: [PATCH] drivers: net: octeontx2: sync csr headers as of 2/4/19
 
 Change-Id: I2fa76ebdf6f2a815a2cd6abc30336d12ff9ce108
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/3602
 Tested-by: sa_ip-sw-jenkins
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/octeontx2/cavm-csrs-cgx.h |  2 +-
  drivers/net/octeontx2/cavm-csrs-lmt.h |  2 +-
@@ -155,6 +155,3 @@ index aeca8e8ee5..0555e9c1a3 100644
  * SPDX-License-Identifier: BSD-3-Clause
  * https://spdx.org/licenses
  ***********************license end**************************************/
--- 
-2.29.0
-

@@ -1,10 +1,11 @@
-From 256170ee59019b628ae731efb824c70f4780d3f9 Mon Sep 17 00:00:00 2001
+From 7b1c28eecf214982e5f8047e4caca010299d8eae Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Wed, 23 Oct 2019 21:25:30 +0200
-Subject: [PATCH 0278/1239] scripts: ci: import scripts from SDK10.1
+Subject: [PATCH] scripts: ci: import scripts from SDK10.1
 
 Change-Id: I3f5035abbf34db68d615881c40dcbc2ea07ea1bc
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  scripts/ci/baseline.txt         |   7 +
  scripts/ci/compile.sh           | 244 ++++++++++++++++++++++++++++++++
@@ -445,6 +446,3 @@ index 0000000000..630a34c453
 +uboot_2018_a37xx_espressobin_ddr4_v7_1G_emmc_1000_800
 +uboot_2018_a37xx_espressobin_ddr4_v7_2G_emmc_1000_800
 +uboot_2018_freertos_a37xx_ddr3_v2_A_1000_800
--- 
-2.29.0
-

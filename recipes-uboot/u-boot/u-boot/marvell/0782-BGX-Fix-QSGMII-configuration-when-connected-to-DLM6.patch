@@ -1,12 +1,12 @@
-From e664b253f56407dda35353aa7bdc9abb9c6e0fba Mon Sep 17 00:00:00 2001
+From 29b58c4888fd0b591bfd71ddbc01c19ccb906fed Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 22 Jun 2018 11:10:07 -0700
-Subject: [PATCH 0782/1239] BGX: Fix QSGMII configuration when connected to
- DLM6.
+Subject: [PATCH] BGX: Fix QSGMII configuration when connected to DLM6.
 
 Bgx id is 2 when DLM6 is configured as QSGMII mode.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx_bgx.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
@@ -32,6 +32,3 @@ index f311fb4152..02c27e45e8 100644
  				//lmac->qlm_mode = QLM_MODE_DISABLED;
  				continue;
  			}
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 07fe28a624dbee0e1fb8129cfd8d907237d77c01 Mon Sep 17 00:00:00 2001
+From 602281aec38356b52bd78bcf2471afa3ad8b8b93 Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Thu, 18 May 2017 14:50:03 +0800
-Subject: [PATCH 0098/1239] arm64: dts: a3700: set lane2 comphy speed to 6Gbps
+Subject: [PATCH] arm64: dts: a3700: set lane2 comphy speed to 6Gbps
 
 Lane2 is used for SATA, its phy speed is auto-negotiated at 6Gbps;
 the lane2 phy speed in dts is synchronized to 6Gbps so that boot log
@@ -9,6 +9,7 @@ can print out correct lane2 phy speed.
 
 Change-Id: I13aea4b218f1faf115aff5d42eede971544d66e4
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  arch/arm/dts/armada-3720-db.dts          | 2 +-
  arch/arm/dts/armada-3720-espressobin.dts | 2 +-
@@ -40,6 +41,3 @@ index c2bc2aac0e..f8fd4ed244 100644
  	};
  };
  
--- 
-2.29.0
-

@@ -1,13 +1,14 @@
-From d954395feb64a1428b0ef2482f467261bd8fb4f9 Mon Sep 17 00:00:00 2001
+From 9c989c6cd08c6ba34c1c48d111fe7fbe877526f2 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 23 Aug 2017 00:05:39 +0300
-Subject: [PATCH 0699/1239] cmd: Add 'init' subcommand as a synonym for 'scan'
- to the 'scsi' command
+Subject: [PATCH] cmd: Add 'init' subcommand as a synonym for 'scan' to the
+ 'scsi' command
 
 Add 'init' as a synonym for 'scan' to the 'scsi' command to
 provide compatibility with the 'sata' command options
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  cmd/scsi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -25,6 +26,3 @@ index aa98e929c6..2052b7f50d 100644
  	"sata device [dev] - show or set current device\n"
  	"sata part [dev] - print partition table of one or all SATA devices\n"
  	"sata read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
--- 
-2.29.0
-

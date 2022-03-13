@@ -1,11 +1,12 @@
-From 0dd20cdc01094bc7104f2a98f43be7b0b74d5698 Mon Sep 17 00:00:00 2001
+From a8a5af7f377ae57ab3b9c0fe6ab47c443316e485 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 5 Mar 2018 16:36:24 -0800
-Subject: [PATCH 0766/1239] mmc: Fix typo in cavium,dat-clk-skew
+Subject: [PATCH] mmc: Fix typo in cavium,dat-clk-skew
 
 This property in device tree is used to configure number of coprocessor clocks before sampling data.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -23,6 +24,3 @@ index 09bb84a734..6d63c3cca4 100644
  		slot->bus_id = reg;
  
  		/* Initialize mmc data structure */
--- 
-2.29.0
-

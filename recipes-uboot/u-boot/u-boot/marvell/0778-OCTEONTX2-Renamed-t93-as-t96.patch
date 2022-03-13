@@ -1,12 +1,13 @@
-From e98808803c22be1b419025967adcc59d4f06a101 Mon Sep 17 00:00:00 2001
+From 8c357f0a85335a04af2b6191607138cda6884f43 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 31 May 2018 00:00:34 -0700
-Subject: [PATCH 0778/1239] OCTEONTX2: Renamed t93 as t96
+Subject: [PATCH] OCTEONTX2: Renamed t93 as t96
 
 BDK renamed CN93xx to CN96XX, updated config files accordingly
 to work with PLAT=t96.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/octeontx2/Kconfig                              | 6 +++---
  board/cavium/octeontx2/MAINTAINERS                          | 4 ++--
@@ -71,6 +72,3 @@ diff --git a/include/configs/octeontx2_93xx.h b/include/configs/octeontx2_96xx.h
 similarity index 100%
 rename from include/configs/octeontx2_93xx.h
 rename to include/configs/octeontx2_96xx.h
--- 
-2.29.0
-

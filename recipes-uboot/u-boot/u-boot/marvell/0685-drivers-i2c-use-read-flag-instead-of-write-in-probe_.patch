@@ -1,8 +1,7 @@
-From a7522acd782ab8dc727d8918cf46f1b61fa8a159 Mon Sep 17 00:00:00 2001
+From 3b5d31acc70f85339d06a9b1bf5821cddc39b029 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 10 Aug 2017 20:22:28 -0700
-Subject: [PATCH 0685/1239] drivers: i2c: use read flag instead of write in
- probe_chip
+Subject: [PATCH] drivers: i2c: use read flag instead of write in probe_chip
 
 fix issues with thunderx i2c driver wrt structure members and
 fix minor issues.
@@ -10,6 +9,7 @@ this fixes bug 29191 as some slaves behave roguely with write
 flag for zero message length.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/i2c/i2c-uclass.c   |  1 +
  drivers/i2c/thunderx_i2c.c | 89 +++++++++++++++++++++++---------------
@@ -171,6 +171,3 @@ index 310680f6eb..c7f1c1fc63 100644
  
  	sw_twsi.u = 0;
  	sw_twsi.s.v = 1;	/* Clear valid bit */
--- 
-2.29.0
-

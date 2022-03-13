@@ -1,14 +1,14 @@
-From eb8fc9d4f4d02a1abafa367576071af1655e26c3 Mon Sep 17 00:00:00 2001
+From 04dbf2c5148e09203ded62146863b67deb4a7749 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Sun, 22 Jul 2018 17:43:22 +0300
-Subject: [PATCH 0161/1239] arm64: dts: a8k: add phy-speed property for all sfi
- comphys
+Subject: [PATCH] arm64: dts: a8k: add phy-speed property for all sfi comphys
 
 The SFI can work with different speeds, add phy-speed property anywhere
 it was missing.
 
 Change-Id: Ifb3c53de4648a3c0d689370e4ae31f7b78a3e61d
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-db-C.dts  | 1 +
  arch/arm/dts/armada-8040-db-C.dts  | 2 ++
@@ -127,6 +127,3 @@ index 82295a54e5..cfff455e24 100644
  	};
  	phy5 {
  		phy-type = <COMPHY_TYPE_SGMII2>;
--- 
-2.29.0
-

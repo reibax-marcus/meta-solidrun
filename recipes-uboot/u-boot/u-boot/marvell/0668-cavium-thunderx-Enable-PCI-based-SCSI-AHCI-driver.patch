@@ -1,11 +1,12 @@
-From cf3b94cdd6c289a2336a0c18a29b57d2474be20c Mon Sep 17 00:00:00 2001
+From 5deb4d52c3edc154c520e6572c1d53b05106ac75 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 27 Jul 2017 03:37:09 +0300
-Subject: [PATCH 0668/1239] cavium: thunderx: Enable PCI-based SCSI AHCI driver
+Subject: [PATCH] cavium: thunderx: Enable PCI-based SCSI AHCI driver
 
 Enable the PCI-based SCSI AHCI driver in the default T83 config
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  configs/t83_defconfig           |  1 +
  include/configs/thunderx_83xx.h | 12 +++++++-----
@@ -53,6 +54,3 @@ index 3bc7ea50ca..04c4ac1418 100644
  /** Enable 48-bit SATA addressing */
  # define CONFIG_LBA48
  /** Enable libata, required for SATA */
--- 
-2.29.0
-

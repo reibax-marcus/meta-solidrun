@@ -1,7 +1,7 @@
-From 90bc0e6ef5bd79bdc246329580c48bad93bb8ad5 Mon Sep 17 00:00:00 2001
+From fa647665f8d0a89229afb2d9833c5a766c5f6483 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 12 Aug 2016 12:16:03 -0700
-Subject: [PATCH 0518/1239] thunderx: Don't enable debugging by default.
+Subject: [PATCH] thunderx: Don't enable debugging by default.
 
 ---
  board/cavium/thunderx/fdt.c | 2 +-
@@ -20,6 +20,3 @@ index 8d2db07958..028bdd4faa 100644
  #include <common.h>
  #include <malloc.h>
  #include <errno.h>
--- 
-2.29.0
-

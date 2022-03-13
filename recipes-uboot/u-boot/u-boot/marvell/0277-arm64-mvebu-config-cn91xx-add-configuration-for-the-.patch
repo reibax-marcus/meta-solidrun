@@ -1,13 +1,14 @@
-From 48bb3686a0d827166760f774e575f80227b7c37f Mon Sep 17 00:00:00 2001
+From 525fc25c34cc40aeaeedf7d15ef7263fe6f0c0e7 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Thu, 13 Dec 2018 10:30:37 +0100
-Subject: [PATCH 0277/1239] arm64: mvebu: config: cn91xx: add configuration for
- the new cn91xx family
+Subject: [PATCH] arm64: mvebu: config: cn91xx: add configuration for the new
+ cn91xx family
 
 The default configuration for cn91xx is based on Armada-8040 support.
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 
 Change-Id: I95cb56971740488e8571334d8ba30665709208b3
+
 ---
  configs/mvebu_db_cn91xx_defconfig | 90 +++++++++++++++++++++++++++++++
  1 file changed, 90 insertions(+)
@@ -109,6 +110,3 @@ index 0000000000..ea2705e44a
 +CONFIG_USB_ETHER_RTL8152=y
 +CONFIG_USB_ETHER_SMSC95XX=y
 +CONFIG_SMBIOS_MANUFACTURER=""
--- 
-2.29.0
-

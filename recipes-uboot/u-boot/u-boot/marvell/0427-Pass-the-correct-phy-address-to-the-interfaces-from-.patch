@@ -1,12 +1,13 @@
-From fef0ad4fa7edd87e36e37107fa24fba801752e2c Mon Sep 17 00:00:00 2001
+From fe268a4b1030ff22889366499b0514b9095f7f4e Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 12 May 2016 12:58:53 -0700
-Subject: [PATCH 0427/1239] Pass the correct phy address to the interfaces from
- the dtsi file
+Subject: [PATCH] Pass the correct phy address to the interfaces from the dtsi
+ file
 
 Renamed lmacid_bd to phy_addr.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
@@ -41,6 +42,3 @@ index 4f830210ce..c1640704b2 100644
  			debug("bgx->lmac[lmac].mii_bus: %p\n", bgx->lmac[lmac].mii_bus);
  			if (!bgx->lmac[lmac].mii_bus) {
  				printf("MDIO device %s not found\n", mii_name);
--- 
-2.29.0
-

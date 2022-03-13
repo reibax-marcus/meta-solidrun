@@ -1,7 +1,7 @@
-From ef21e9c7936f6dfdb00d7e47842947e4423c36a4 Mon Sep 17 00:00:00 2001
+From 79e18d785d0a04f047d79a4d223babbce0eaeb17 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Thu, 18 Jun 2020 10:02:52 -0700
-Subject: [PATCH 1180/1239] qlm command: Fix prbs command syntax
+Subject: [PATCH] qlm command: Fix prbs command syntax
 
 Allow all parameters to be passed, run prbs only on the lane
 provided.
@@ -11,6 +11,7 @@ Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/30326
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  cmd/marvell/octeontx2_qlm_cmds.c | 15 +++++----------
  1 file changed, 5 insertions(+), 10 deletions(-)
@@ -50,6 +51,3 @@ index 60dbbdcf5b..caa40abcbf 100644
  );
  
  static int do_eye(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
--- 
-2.29.0
-

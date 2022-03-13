@@ -1,10 +1,11 @@
-From e44a27b4d91fcae137468dea9cbf807eb8df42bb Mon Sep 17 00:00:00 2001
+From 6c9fd61befeb17d8c8532d9f331c02b802de6eee Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Wed, 23 Oct 2019 13:29:18 +0200
-Subject: [PATCH 0255/1239] arm64: mvbeu: config: a8k: enable EFUSE support
+Subject: [PATCH] arm64: mvbeu: config: a8k: enable EFUSE support
 
 Change-Id: Ia19fdb0f53dc461a0c12be6c0c854ea673931cd3
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  configs/mvebu_db_armada8k_defconfig | 3 +++
  1 file changed, 3 insertions(+)
@@ -30,6 +31,3 @@ index 0ad7eaf21f..46ed70b24c 100644
  CONFIG_DM_GPIO=y
  CONFIG_DM_PCA953X=y
  CONFIG_DM_I2C=y
--- 
-2.29.0
-

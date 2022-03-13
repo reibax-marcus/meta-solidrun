@@ -1,8 +1,8 @@
-From 46973ea1ab1e48df7d6e36fa6a04193f3099cee5 Mon Sep 17 00:00:00 2001
+From cc3b41766c4d7845dea1140222d29349d2dafa03 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Sat, 19 Sep 2020 21:43:56 -0700
-Subject: [PATCH 1225/1239] board: marvell: Added new smc call to disable OOO
- based on coremask
+Subject: [PATCH] board: marvell: Added new smc call to disable OOO based on
+ coremask
 
 Added disable_ooo_mask env variable to take coremask to disable OOO
 on specific cores.
@@ -17,6 +17,7 @@ Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/36269
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/smc-id.h |  1 +
  arch/arm/include/asm/arch-octeontx2/smc.h    |  3 ++-
@@ -95,6 +96,3 @@ index 1bcba61a63..cf21bf9452 100644
  ssize_t smc_configure_wfe(u64 val)
  {
  	struct pt_regs regs;
--- 
-2.29.0
-

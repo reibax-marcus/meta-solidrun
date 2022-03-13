@@ -1,13 +1,14 @@
-From e2e0ede8555afad320fc25ff77b576a35e549a44 Mon Sep 17 00:00:00 2001
+From 1c2051eaf9070b34a73a5ee605274e8643b3d21b Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 6 Mar 2019 09:10:50 -0800
-Subject: [PATCH 0885/1239] drivers: net: octeontx2: add entry for 80G speed
+Subject: [PATCH] drivers: net: octeontx2: add entry for 80G speed
 
 Change-Id: I46bdc33b7312d4b293625372fc5b950957b8539b
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/5303
 Tested-by: sa_ip-sw-jenkins
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/octeontx2/cgx.c      | 1 +
  drivers/net/octeontx2/cgx_intf.h | 1 +
@@ -37,6 +38,3 @@ index 0f86ff064a..c684b4abfb 100644
  	CGX_LINK_100G,
  	CGX_LINK_MAX,
  };
--- 
-2.29.0
-

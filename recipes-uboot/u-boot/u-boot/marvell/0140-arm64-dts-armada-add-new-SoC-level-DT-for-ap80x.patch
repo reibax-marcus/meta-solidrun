@@ -1,7 +1,7 @@
-From d1b88d97fa66ca74dffd12be0e0805413766b0c3 Mon Sep 17 00:00:00 2001
+From c9a36dc63b95105fe0f5d89b6d845a10f824a6c8 Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Sun, 10 Jun 2018 16:40:31 +0300
-Subject: [PATCH 0140/1239] arm64: dts: armada: add new SoC level DT for ap80x
+Subject: [PATCH] arm64: dts: armada: add new SoC level DT for ap80x
 
 AP807 SoC DT is required, since there's non-shared
 nodes between AP806 and AP807, therefore a new shared
@@ -16,6 +16,7 @@ ap806-quad DT is now a shared DT for ap806 and ap807
 Change-Id: Iedbbf7175d431b70ccd395f936845e7ba8b7d6d5
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-3900-db.dtsi    | 210 ++++++++++++++++++++++++++++
  arch/arm/dts/armada-3900.dtsi       |  67 +++++++++
@@ -853,6 +854,3 @@ index 0000000000..1f6fe6477d
 +		};
 +	};
 +};
--- 
-2.29.0
-

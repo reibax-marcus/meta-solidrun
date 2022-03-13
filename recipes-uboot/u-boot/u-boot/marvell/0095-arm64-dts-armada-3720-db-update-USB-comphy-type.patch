@@ -1,13 +1,14 @@
-From 347c1bfa5661c03b65bb49e7bd97d365525bf0cd Mon Sep 17 00:00:00 2001
+From cc2f5f32697a4d1a743b03b2c4d220f503717cc5 Mon Sep 17 00:00:00 2001
 From: jinghua <jinghua@marvell.com>
 Date: Mon, 24 Apr 2017 16:12:57 +0800
-Subject: [PATCH 0095/1239] arm64: dts: armada-3720-db: update USB comphy type
+Subject: [PATCH] arm64: dts: armada-3720-db: update USB comphy type
 
 Comphy type of PHY_TYPE_USB3 supports both USB host
 and device controller.
 
 Change-Id: Idb77fc8c11c4b4f1394c3cb7e3c4eadbf67e96fb
 Signed-off-by: jinghua <jinghua@marvell.com>
+
 ---
  arch/arm/dts/armada-3720-db.dts          | 2 +-
  arch/arm/dts/armada-3720-espressobin.dts | 2 +-
@@ -39,6 +40,3 @@ index 79c1bf36e0..c2bc2aac0e 100644
  		phy-speed = <COMPHY_SPEED_5G>;
  	};
  
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 0b209f5946d423a0d58f1e24a53669abef6a5a3f Mon Sep 17 00:00:00 2001
+From f73576aca54c0702ce29f9e7dd5521e8134f7a38 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Tue, 15 Oct 2019 05:42:29 +0200
-Subject: [PATCH 0009/1239] arm64: mvebu: a8k: config: Add missing config
- options
+Subject: [PATCH] arm64: mvebu: a8k: config: Add missing config options
 
 This patch adds missing config options:
 - For A8k DB config file, enable CONFIG_CMD_GPIO, CONFIG_NAND,
@@ -12,6 +11,7 @@ This patch adds missing config options:
 Change-Id: Id33f268212df4478a99e11d222e4e433fcf87f0c
 Signed-off-by: Omri Itach <omrii@marvell.com>
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  configs/mvebu_db_armada8k_defconfig | 9 +++++++++
  1 file changed, 9 insertions(+)
@@ -63,6 +63,3 @@ index c4b1233de4..f07ec8aa3a 100644
  CONFIG_DEBUG_UART_SHIFT=2
  CONFIG_DEBUG_UART_ANNOUNCE=y
  CONFIG_SYS_NS16550=y
--- 
-2.29.0
-

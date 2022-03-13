@@ -1,7 +1,7 @@
-From 6e7b9b57268b09c16cefc33ba07161a275772263 Mon Sep 17 00:00:00 2001
+From b30c419a7acd5d22ed518610dc61b5498bc670d1 Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Wed, 21 Mar 2018 17:18:51 +0800
-Subject: [PATCH 0168/1239] spi: kirkwood: support extended baud rates
+Subject: [PATCH] spi: kirkwood: support extended baud rates
 
 The Armada SoC family implementation of this SPI hardware module has
 extended the configuration register to allow for a wider range of SPI
@@ -16,6 +16,7 @@ accurate set.
 
 Change-Id: Id9a20603a27884e802313934353516c9a59ad3b9
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  drivers/spi/kirkwood_spi.c | 60 ++++++++++++++++++++++++++++++++++----
  1 file changed, 55 insertions(+), 5 deletions(-)
@@ -92,6 +93,3 @@ index c725625146..e14eb53917 100644
  
  	/* program spi clock prescaler using max_hz */
  	writel(KWSPI_ADRLEN_3BYTE | data, &reg->cfg);
--- 
-2.29.0
-

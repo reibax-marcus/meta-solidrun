@@ -1,8 +1,7 @@
-From 2726218fc25a383fbd54d3192424334df10e0eae Mon Sep 17 00:00:00 2001
+From 8e89a08db0bc83ab78f7b10ac284ae6dfebc7589 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Tue, 26 Nov 2019 11:35:31 -0800
-Subject: [PATCH 1014/1239] board: octeontx: Add check on board environment
- variables
+Subject: [PATCH] board: octeontx: Add check on board environment variables
 
 Fix crash while comparing board environment variables like boardrev
 by adding check on return value of env_get so that strcmp doesn't
@@ -16,6 +15,7 @@ Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19371
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx/board.c  | 6 ++++--
  board/Marvell/octeontx2/board.c | 6 ++++--
@@ -69,6 +69,3 @@ index 2d1f577d99..493207391b 100644
  			save_env = true;
  		env_set("serial#", boardserial);
  	}
--- 
-2.29.0
-

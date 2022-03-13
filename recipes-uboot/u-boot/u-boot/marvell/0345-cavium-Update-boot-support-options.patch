@@ -1,7 +1,7 @@
-From 9694510deaa53367d1df9b8f3b47325176a6ffb5 Mon Sep 17 00:00:00 2001
+From 4bef5418c550b6de4b6cdc49c5e88ff7f24d851b Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 20:32:23 -0800
-Subject: [PATCH 0345/1239] cavium: Update boot support options
+Subject: [PATCH] cavium: Update boot support options
 
 ---
  include/configs/thunderx_88xx.h | 14 ++++++++++++--
@@ -50,6 +50,3 @@ index 83eda2caf8..5806c49ad0 100644
  #define CONFIG_CMD_ECHO
  #define CONFIG_CMD_SOURCE
  
--- 
-2.29.0
-

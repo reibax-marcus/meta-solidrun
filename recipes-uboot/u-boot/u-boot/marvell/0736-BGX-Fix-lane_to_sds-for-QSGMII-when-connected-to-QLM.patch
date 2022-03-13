@@ -1,10 +1,10 @@
-From 80a2e92350e12517fd0313a2b7c809e8b1a5260b Mon Sep 17 00:00:00 2001
+From 1fb5f763f865faec56da8bc793310d8e68ca76d2 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 29 Jan 2018 15:40:47 -0800
-Subject: [PATCH 0736/1239] BGX: Fix lane_to_sds for QSGMII when connected to
- QLM3
+Subject: [PATCH] BGX: Fix lane_to_sds for QSGMII when connected to QLM3
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 12 ++++++++++++
  1 file changed, 12 insertions(+)
@@ -53,6 +53,3 @@ index 5ba58ed444..41fa5e706e 100644
  			if ((lmacid == 0) || (lmacid == 2)) {
  				lmac->qlm_mode = QLM_MODE_QSGMII;
  				debug("BGX%d QLM%d LMAC%d mode: QSGMII\n",
--- 
-2.29.0
-

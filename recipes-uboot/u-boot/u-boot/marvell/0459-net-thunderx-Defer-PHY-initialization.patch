@@ -1,12 +1,13 @@
-From 24ba24a55061e4eb351a45a7ba9cf6343215c42a Mon Sep 17 00:00:00 2001
+From 671dd233a236d4ce31c627faa724554e372d22e5 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 17 May 2016 17:15:56 -0400
-Subject: [PATCH 0459/1239] net: thunderx: Defer PHY initialization
+Subject: [PATCH] net: thunderx: Defer PHY initialization
 
 Initialize PHYs only when they are accessed reducing
 loadind time
 
 Signed-off-by: Sergey Temerx<s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 90 ++++++++++++++++----------------
  1 file changed, 44 insertions(+), 46 deletions(-)
@@ -185,6 +186,3 @@ index c0cea068e4..3a24377612 100644
  }
 +
 +
--- 
-2.29.0
-

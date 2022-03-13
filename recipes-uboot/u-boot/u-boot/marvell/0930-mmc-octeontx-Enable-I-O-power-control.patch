@@ -1,7 +1,7 @@
-From 4361ad0553d33ec3859b66de885c051fd1a1129b Mon Sep 17 00:00:00 2001
+From 199b7e18043284a0d10c0f6c835d36300b1bdf48 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 5 Jun 2019 20:51:12 -0700
-Subject: [PATCH 0930/1239] mmc: octeontx: Enable I/O power control
+Subject: [PATCH] mmc: octeontx: Enable I/O power control
 
 This patch allows the OcteonTX driver to automatically control
 the I/O power so it can switch between 3.3 and 1.8v devices.
@@ -21,6 +21,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10560
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 93 ++++++++++++++++++++++++++++++++++++
  drivers/mmc/octeontx_hsmmc.h |  1 +
@@ -170,6 +171,3 @@ index 54fedd64a7..ad3f3a50d7 100644
  	ofnode		node;
  	int		cur_slotid;
  	int		last_slotid;
--- 
-2.29.0
-

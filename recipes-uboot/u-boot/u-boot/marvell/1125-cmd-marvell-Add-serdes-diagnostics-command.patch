@@ -1,13 +1,14 @@
-From 7b76daa15320ac5eadca5f9a2edfed66c91262e2 Mon Sep 17 00:00:00 2001
+From c1b955778ed608fdb2abab0b83e9089d916ac5f0 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Tue, 31 Mar 2020 00:10:14 -0700
-Subject: [PATCH 1125/1239] cmd: marvell: Add serdes diagnostics command
+Subject: [PATCH] cmd: marvell: Add serdes diagnostics command
 
 Change-Id: Iaa053c1032551f2a35f23a3db91f37805bc6c70e
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/25935
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  cmd/marvell/octeontx2_qlm_cmds.c | 22 ++++++++++++++++++++++
  drivers/net/octeontx2/cgx.h      |  1 +
@@ -88,6 +89,3 @@ index a919958256..99b760b44d 100644
 +
 +	return 0;
 +}
--- 
-2.29.0
-

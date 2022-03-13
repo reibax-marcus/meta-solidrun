@@ -1,8 +1,8 @@
-From a392ec17fc5bb4d73d74b376ebd25956e86669ed Mon Sep 17 00:00:00 2001
+From 829bab178525146d151452d02cf26c54c875ec79 Mon Sep 17 00:00:00 2001
 From: Rick Farrington <rfarrington@marvell.com>
 Date: Wed, 13 May 2020 23:17:00 -0400
-Subject: [PATCH 1149/1239] drivers: net: otx2: support up to five (5) CGX
- blocks (i.e. T98)
+Subject: [PATCH] drivers: net: otx2: support up to five (5) CGX blocks (i.e.
+ T98)
 
 Change CGX_PER_NODE from 3 to 5; this definition
 simply bounds the PCI scan loop which locates devices
@@ -14,6 +14,7 @@ Signed-off-by: Rick Farrington <rfarrington@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28464
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/net/octeontx2/cgx.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -31,6 +32,3 @@ index d2ce7e04a4..fdb039e09b 100644
  
  enum lmac_type {
  	LMAC_MODE_SGMII		= 0,
--- 
-2.29.0
-

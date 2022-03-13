@@ -1,11 +1,12 @@
-From 1bf7b33b6e944f99cb2ea1a10704300ac6b2d9cc Mon Sep 17 00:00:00 2001
+From 7882355f00f97e1f3bc50c0232fd1bd5008069dd Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 16 May 2016 13:03:15 -0400
-Subject: [PATCH 0445/1239] thunderx: Update configs for DM USB
+Subject: [PATCH] thunderx: Update configs for DM USB
 
 This commit updates Thunderx 81xx configs for USB device model
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  configs/thunderx_81xx_defconfig |  4 ++++
  include/configs/thunderx_81xx.h | 14 +++++++++++---
@@ -85,6 +86,3 @@ index 7cb7088fa4..cf43069e49 100644
  					"autoload=0\0"
  
  #define CONFIG_BOOTARGS			\
--- 
-2.29.0
-

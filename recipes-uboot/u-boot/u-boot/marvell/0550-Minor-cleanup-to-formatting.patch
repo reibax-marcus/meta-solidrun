@@ -1,9 +1,10 @@
-From c0462df6c11457dc4c466bfe4f88202c6ed9c707 Mon Sep 17 00:00:00 2001
+From 079e01a228558eb841d2eee0aebb65044fc6fb00 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 2 Nov 2016 17:03:33 -0700
-Subject: [PATCH 0550/1239] Minor cleanup to formatting
+Subject: [PATCH] Minor cleanup to formatting
 
 Signed-off-by: Aaron Williams <Aaron.Williams@cavium.com>
+
 ---
  drivers/pci/pci_thunderx_ecam.c | 22 ++++++++++++----------
  1 file changed, 12 insertions(+), 10 deletions(-)
@@ -75,6 +76,3 @@ index 33313d720b..43b4a34492 100644
  
  	if (err) {
  		printf("Error reading resource: %s\n", fdt_strerror(err));
--- 
-2.29.0
-

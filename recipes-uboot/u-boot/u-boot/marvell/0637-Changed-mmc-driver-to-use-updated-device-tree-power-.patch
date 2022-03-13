@@ -1,7 +1,7 @@
-From 341e78606df5cd31336f14631348f829f9000961 Mon Sep 17 00:00:00 2001
+From 3ef155e4b4ce005d3678fb1d0c3827805c806b9c Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 20 Jun 2017 18:11:29 -0700
-Subject: [PATCH 0637/1239] Changed mmc driver to use updated device tree power
+Subject: [PATCH] Changed mmc driver to use updated device tree power
  specification.
 
   This patch changes the Cavium MMC driver to use the updated mmc power
@@ -10,6 +10,7 @@ Subject: [PATCH 0637/1239] Changed mmc driver to use updated device tree power
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  .../include/asm/arch-thunderx/cavium_mmc.h    |   5 +-
  drivers/mmc/cavium_mmc.c                      | 158 ++++++++++++------
@@ -273,6 +274,3 @@ index 3e3e2d7258..0631852f21 100644
  
  		gpio_request_by_name_nodev(blob, slot_node, "cd-gpios", 0,
  					   &slot->cd_gpio, GPIOD_IS_IN);
--- 
-2.29.0
-

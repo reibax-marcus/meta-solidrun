@@ -1,7 +1,7 @@
-From 73c2543ee8e33c75e232c4c311fdb896c50d530c Mon Sep 17 00:00:00 2001
+From b6517c7238d148a95d82fd11e741ef9d2226db3d Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 23 Sep 2019 18:19:13 -0700
-Subject: [PATCH 0962/1239] drivers: net: octeontx2: Fix stack corruption in
+Subject: [PATCH] drivers: net: octeontx2: Fix stack corruption in
  nix_lf_shutdown
 
 Move required structure definition outside of this function as
@@ -14,6 +14,7 @@ Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/16346
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/net/octeontx2/nix.h    | 18 ++++++++++++++
  drivers/net/octeontx2/nix_af.c | 43 +++++++++++++---------------------
@@ -145,6 +146,3 @@ index 6f42587101..8ea6168a4d 100644
  		if (err) {
  			printf("%s: Error disabling LF %d CQ(%d)\n",
  			       __func__, lf, index);
--- 
-2.29.0
-

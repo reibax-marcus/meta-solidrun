@@ -1,8 +1,7 @@
-From fb144104b094f593a8424b2be2dece4f23ab5c72 Mon Sep 17 00:00:00 2001
+From 968ea0f253336a464e81e22de93552f8539a430b Mon Sep 17 00:00:00 2001
 From: Patrick Williams <alpawi@amazon.com>
 Date: Wed, 12 Jun 2019 16:43:22 -0500
-Subject: [PATCH 0253/1239] pinctrl: armada-37xx: remove SPI CS control from
- UART2 group
+Subject: [PATCH] pinctrl: armada-37xx: remove SPI CS control from UART2 group
 
 (This code is not "correct" for upstreaming, but works for our needs)
 
@@ -18,6 +17,7 @@ the SPI CSs are not disabled correctly.
 
 Change-Id: I53ad6b590a921ac33098481c6960e2b89b8e869c
 Signed-off-by: Patrick Williams <alpawi@amazon.com>
+
 ---
  drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -37,6 +37,3 @@ index f197f4a142..42350ac16b 100644
  		      18, 2, "gpio", "uart"),
  	PIN_GRP_GPIO("led0_od", 11, 1, BIT(20), "led"),
  	PIN_GRP_GPIO("led1_od", 12, 1, BIT(21), "led"),
--- 
-2.29.0
-

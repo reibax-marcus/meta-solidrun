@@ -1,10 +1,10 @@
-From d900b0ce4aac20306b3e3663dce53f810bf2c7b9 Mon Sep 17 00:00:00 2001
+From 2c53071f40b9cb3f4a96402b3d6a777698a23f46 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 8 Nov 2016 20:00:44 -0800
-Subject: [PATCH 0555/1239] Fixed function definition by using ulong instead of
- u32.
+Subject: [PATCH] Fixed function definition by using ulong instead of u32.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  board/cavium/common/env_atf.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
@@ -40,6 +40,3 @@ index 23cf0d3134..0f1766256c 100755
  	int ret;
  
  	if (atf_get_env_addr(0, &offset)) {
--- 
-2.29.0
-

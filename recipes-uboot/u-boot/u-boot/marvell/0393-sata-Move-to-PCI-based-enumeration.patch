@@ -1,13 +1,14 @@
-From 7f41bf6acd280f51d6c3b5e4c9470f5b20f47a53 Mon Sep 17 00:00:00 2001
+From 5f2e6e88d0bf38768e0f1bd40f0b728ad163e665 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 May 2016 18:51:12 -0700
-Subject: [PATCH 0393/1239] sata: Move to PCI-based enumeration
+Subject: [PATCH] sata: Move to PCI-based enumeration
 
 This commit removes references to fixed base address calculation
 routines and replaces them with code determining base addresses
 using DM PCI.
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/block/sata_ahci.c | 58 ++++++---------------------------------
  1 file changed, 9 insertions(+), 49 deletions(-)
@@ -112,6 +113,3 @@ index 90c0ddbdae..84c6a17da1 100644
  void ahci_sata_flush_cache_ext(int dev)
  {
  	struct ahci_probe_ent *probe_ent =
--- 
-2.29.0
-

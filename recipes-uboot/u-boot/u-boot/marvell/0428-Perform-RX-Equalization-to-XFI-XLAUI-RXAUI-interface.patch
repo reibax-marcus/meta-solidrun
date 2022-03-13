@@ -1,10 +1,10 @@
-From cbe4a0df57a24fa7b810d7b0cd17436d7f1112ae Mon Sep 17 00:00:00 2001
+From 0eb1a9e7ddbeff8460f773d6e0aa6a218be5ea4c Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 13 May 2016 08:38:54 -0700
-Subject: [PATCH 0428/1239] Perform RX Equalization to XFI/XLAUI/RXAUI
- interfaces.
+Subject: [PATCH] Perform RX Equalization to XFI/XLAUI/RXAUI interfaces.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 117 +++++++++++++++++++++++++++++--
  drivers/net/cavium/thunder_bgx.h |  13 ++++
@@ -185,6 +185,3 @@ index 897eca0700..de982aa27b 100644
  #define BGX_CMRX_CFG			0x00
  #define CMR_PKT_TX_EN				(1ull << 13)
  #define CMR_PKT_RX_EN				(1ull << 14)
--- 
-2.29.0
-

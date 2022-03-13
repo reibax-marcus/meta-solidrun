@@ -1,12 +1,12 @@
-From ed869d5e7b3bd53fd86be5ab36f794f3f10161dc Mon Sep 17 00:00:00 2001
+From 4aae2298e283e91a5ccfac45c255fe706dd595af Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 2 Aug 2017 15:18:48 +0300
-Subject: [PATCH 0672/1239] thunderx: Update T81 config for the new block
- devices
+Subject: [PATCH] thunderx: Update T81 config for the new block devices
 
 Include SCSI AHCI and NVME support
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  configs/t81_defconfig           |  4 ++++
  include/configs/thunderx_81xx.h | 21 +++++++++++++--------
@@ -71,6 +71,3 @@ index 2724cf5411..b3b4de1abc 100644
  /** Enable EXT4 filesystem support */
  #define CONFIG_FS_EXT4
  
--- 
-2.29.0
-

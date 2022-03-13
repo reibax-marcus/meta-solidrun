@@ -1,7 +1,7 @@
-From c4a81e5492a4efca067b598dd16df2e6e594f075 Mon Sep 17 00:00:00 2001
+From 14b82ec8e5ba56b5a487712693c7ba76bc3d93c8 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Tue, 7 Apr 2015 21:50:20 +0300
-Subject: [PATCH 0322/1239] Fix fdt.c build warnings
+Subject: [PATCH] Fix fdt.c build warnings
 
 ---
  board/cavium/thunderx/fdt.c | 10 ++++++----
@@ -39,6 +39,3 @@ index 5cee3a6e37..571d652772 100644
  static void ft_setup_macs(void *fdt, int node)
  {
  	int nodeoffset, addr, len, ret, i;
--- 
-2.29.0
-

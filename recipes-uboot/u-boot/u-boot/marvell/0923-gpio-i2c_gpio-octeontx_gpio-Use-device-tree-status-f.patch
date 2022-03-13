@@ -1,8 +1,7 @@
-From 0f0ed4231f753cfb331cdcd734ac0767ea2148a2 Mon Sep 17 00:00:00 2001
+From b2d152c695a30a7bd6962b090eeda8263af0aa6b Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 21 May 2019 23:06:32 -0700
-Subject: [PATCH 0923/1239] gpio: i2c_gpio: octeontx_gpio: Use device tree
- status field.
+Subject: [PATCH] gpio: i2c_gpio: octeontx_gpio: Use device tree status field.
 
 When probing the device, honor the status field in the
 device tree.
@@ -12,6 +11,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/9421
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/gpio/i2c_gpio.c      | 9 +++++++++
  drivers/gpio/octeontx_gpio.c | 9 +++++++++
@@ -82,6 +82,3 @@ index 250fbc613b..8986521da6 100644
  	}
  	memset(host, 0, sizeof(*host));
  	host->base_addr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
--- 
-2.29.0
-

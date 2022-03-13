@@ -1,7 +1,7 @@
-From 0aeb5a2aed1414cc8d20a181d703d1cfa846a6ce Mon Sep 17 00:00:00 2001
+From 8d06bca6f37f1e148a71295ab61997e4166f622f Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 Nov 2015 22:28:01 -0800
-Subject: [PATCH 0359/1239] cavium: Update PCIe support
+Subject: [PATCH] cavium: Update PCIe support
 
 ---
  board/cavium/thunderx/pcie.c | 88 ++++++++++++++++++++++++++----------
@@ -188,6 +188,3 @@ index fe95ee3a84..dc79836462 100644
  
  	/* parse each EA entry */
  	for (i = 0; i < num_ent; ++i)
--- 
-2.29.0
-

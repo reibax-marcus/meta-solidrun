@@ -1,13 +1,14 @@
-From c818955d7c8e8a301c824c26e316504031b606cc Mon Sep 17 00:00:00 2001
+From a34f8ad350bb515a5bf070c7a7ec7ef2953e01e0 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Wed, 23 Oct 2019 21:45:44 +0200
-Subject: [PATCH 0275/1239] arm64: mvebu: dts: cn913x: import device trees
+Subject: [PATCH] arm64: mvebu: dts: cn913x: import device trees
 
 This patch adds a device tree structure for
 the new CN913x SoC family.
 
 Change-Id: I77beeb05505411e20675d4e7a04ec58c9b548769
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  arch/arm/dts/Makefile                |  10 +-
  arch/arm/dts/cn9130-crb-A.dts        |  57 +++++++
@@ -1869,6 +1870,3 @@ index 0000000000..add9f60237
 +&cp2_utmi1 {
 +	status = "okay";
 +};
--- 
-2.29.0
-

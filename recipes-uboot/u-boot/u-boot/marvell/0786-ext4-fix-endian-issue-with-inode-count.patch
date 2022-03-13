@@ -1,12 +1,13 @@
-From ad379331ea022108f829db01c044c0047734766a Mon Sep 17 00:00:00 2001
+From 82514d011ee49dc2647295dd75b67c8a64b5d5fd Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 24 Jul 2018 03:59:06 -0700
-Subject: [PATCH 0786/1239] ext4: fix endian issue with inode count
+Subject: [PATCH] ext4: fix endian issue with inode count
 
 The block group inode count requires a cpu_to_le16 wrapper before setting it.
 Additionally, for 64-bit filesystems the upper 16 bits should also be set.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  fs/ext4/ext4_common.c | 12 +++++++++++-
  1 file changed, 11 insertions(+), 1 deletion(-)
@@ -41,6 +42,3 @@ index a7add7dec8..f67c9aee51 100644
  				if (bg_flags & EXT4_BG_INODE_UNINIT) {
  					put_ext4(i_bitmap_blk * fs->blksz,
  						 zero_buffer, fs->blksz);
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From 648d48b2ce126949a462dfaeeb2e7dee88ecb559 Mon Sep 17 00:00:00 2001
+From 418093c9108f4684b358c529e4a21491e3eb2e64 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Wed, 8 Feb 2017 11:37:21 -0800
-Subject: [PATCH 0607/1239] configs: thunderx_81xx: remove NOR flash defines
+Subject: [PATCH] configs: thunderx_81xx: remove NOR flash defines
 
 remove accidentally added nor flash defines in
 commit 6690c019f23acb8ecf4263534eafce888eb6d8c8.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  include/configs/thunderx_81xx.h | 11 ++---------
  1 file changed, 2 insertions(+), 9 deletions(-)
@@ -40,6 +41,3 @@ index 32d03250d6..bba9840d6f 100644
  
  /** Stack starting address */
  /*#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)*/
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 58cfc3743a3941e0db4567a4f6d4bd8e1c324f27 Mon Sep 17 00:00:00 2001
+From 51a94d037a1ca30247a3bc50f1f3c7c4728ab201 Mon Sep 17 00:00:00 2001
 From: Alex Deymo <deymo@google.com>
 Date: Sun, 2 Apr 2017 01:25:20 -0700
-Subject: [PATCH 0648/1239] Allow boards to initialize the DT at runtime.
+Subject: [PATCH] Allow boards to initialize the DT at runtime.
 
 In some boards like the Raspberry Pi the initial bootloader will pass
 a DT to the kernel. When using U-Boot as such kernel, the board code in
@@ -17,6 +17,7 @@ files, including the run-time selected device tree overlays.
 
 Signed-off-by: Alex Deymo <deymo@google.com>
 Reviewed-by: Simon Glass <sjg@chromium.org>
+
 ---
  board/raspberrypi/rpi/rpi.c | 10 ++++++++++
  1 file changed, 10 insertions(+)
@@ -42,6 +43,3 @@ index 9e0abdda31..98a07deaa4 100644
  int ft_board_setup(void *blob, bd_t *bd)
  {
  	/*
--- 
-2.29.0
-

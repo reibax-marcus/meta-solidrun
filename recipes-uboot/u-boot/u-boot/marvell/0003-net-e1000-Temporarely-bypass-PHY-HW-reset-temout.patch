@@ -1,7 +1,7 @@
-From 91e637e6c9819242c307b6ca83d8cc45ddde6f3e Mon Sep 17 00:00:00 2001
+From f058cff20bf2483c6e803039389f3e513b70d1b2 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Thu, 15 Dec 2016 12:41:17 +0200
-Subject: [PATCH 0003/1239] net: e1000: Temporarely bypass PHY HW reset temout
+Subject: [PATCH] net: e1000: Temporarely bypass PHY HW reset temout
 
 The e1000 driver fails with timeout on MACHHIATOBin board.
 The reason for this timeout is unknown and requres further
@@ -14,6 +14,7 @@ Change-Id: I3a744d22b37da40426a53fce120997552029c8f4
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-by: Lior Amsalem <alior@marvell.com>
 Reviewed-by: Hua Jing <jinghua@marvell.com>
+
 ---
  drivers/net/e1000.c | 10 +++++++++-
  1 file changed, 9 insertions(+), 1 deletion(-)
@@ -39,6 +40,3 @@ index a34f697461..f7bf2a4151 100644
  		}
  		break;
  	}
--- 
-2.29.0
-

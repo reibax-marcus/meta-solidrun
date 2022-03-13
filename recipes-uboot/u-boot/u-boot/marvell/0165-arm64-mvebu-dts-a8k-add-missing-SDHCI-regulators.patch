@@ -1,8 +1,7 @@
-From d72ce942338e5dd2d269a61f3f9705d37c1a1a9c Mon Sep 17 00:00:00 2001
+From 4e024bd81875ad3ec9175cc3afeb92c75b3913ad Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Wed, 25 Jul 2018 17:25:35 +0300
-Subject: [PATCH 0165/1239] arm64: mvebu: dts: a8k: add missing SDHCI
- regulators
+Subject: [PATCH] arm64: mvebu: dts: a8k: add missing SDHCI regulators
 
 Add SDHCI regulators to A7K and A8K DTSI fuiles.
 Connect these regulators to CP-side SDHCI for switching between
@@ -10,6 +9,7 @@ Connect these regulators to CP-side SDHCI for switching between
 
 Change-Id: I3f8e1062217edaee6924d42e6f4516f04fa1fcbf
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-70x0-db.dtsi | 14 ++++++++++++++
  arch/arm/dts/armada-80x0-db.dtsi | 14 ++++++++++++++
@@ -79,6 +79,3 @@ index 2411bea8ab..b2160e5a93 100644
  		};
  	};
  
--- 
-2.29.0
-

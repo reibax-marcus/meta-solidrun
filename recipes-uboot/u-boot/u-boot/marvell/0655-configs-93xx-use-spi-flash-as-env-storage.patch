@@ -1,9 +1,10 @@
-From 2ad5ed4dca08f28d8dfc363bb3d1e8408fc632d9 Mon Sep 17 00:00:00 2001
+From efdd1daf90328f6093fe85506da9a92528d952c9 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 21 Jun 2017 16:03:43 -0700
-Subject: [PATCH 0655/1239] configs: 93xx: use spi flash as env storage
+Subject: [PATCH] configs: 93xx: use spi flash as env storage
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  include/configs/thunderx_93xx.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -25,6 +26,3 @@ index be7386c5a3..645de5e332 100644
  
  #if defined(CONFIG_ATF)
  #define CONFIG_ENV_IS_IN_ATF
--- 
-2.29.0
-

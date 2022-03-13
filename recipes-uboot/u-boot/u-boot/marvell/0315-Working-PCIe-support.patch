@@ -1,7 +1,7 @@
-From 643f85e07ad2e461ffe06df51aadc093d7a6a244 Mon Sep 17 00:00:00 2001
+From 69ee7b4ba92780f4e707a11005e36d31b50fa67e Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Tue, 31 Mar 2015 19:22:03 +0300
-Subject: [PATCH 0315/1239] Working PCIe support
+Subject: [PATCH] Working PCIe support
 
 ---
  board/cavium/thunderx/pcie.c | 474 ++++++++++++++++++++++-------------
@@ -597,6 +597,3 @@ index 11efaf675a..c166645280 100644
 +#endif
  
 -#endif /* CONFIG_PCI */
--- 
-2.29.0
-

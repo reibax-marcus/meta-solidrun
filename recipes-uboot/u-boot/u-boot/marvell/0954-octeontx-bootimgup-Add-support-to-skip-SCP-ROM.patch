@@ -1,7 +1,7 @@
-From d1089cd0b30a594be84a181a0be1de888193ba70 Mon Sep 17 00:00:00 2001
+From a83e4fae428fc064330f1cf995b2507d666875ee Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Sat, 24 Aug 2019 04:24:55 -0700
-Subject: [PATCH 0954/1239] octeontx: bootimgup: Add support to skip SCP ROM
+Subject: [PATCH] octeontx: bootimgup: Add support to skip SCP ROM
 
 This patch allows the bootimgup command to default to not overwrite
 the SCP ROM image located between offsets 0x5000-0x8fff.
@@ -22,6 +22,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/14866
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/bootimgup.c | 297 ++++++++++++++++++++++++++++++++++++------------
  1 file changed, 225 insertions(+), 72 deletions(-)
@@ -558,6 +559,3 @@ index d42a4bf874..eda5fef34d 100644
  	" spi - updates boot image on spi flash \n"
  	" bus and cs should be passed together, passing only one \n"
  	" of them treated as invalid. If [bus:cs] not given, 0:0 is used \n"
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From d16a15027b7c1e2f1bbbc1a9e389d1a399531ffc Mon Sep 17 00:00:00 2001
+From cb401d53d15886bf114a92ccbabbe65be83aec4d Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 28 May 2019 21:41:10 -0700
-Subject: [PATCH 0917/1239] mmc: octeontx: Make sure timing is set
+Subject: [PATCH] mmc: octeontx: Make sure timing is set
 
 There are cases where the data out value was not being
 set while adjusting the timing.
@@ -13,6 +13,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10140
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 115 ++++++++++++++++++++++-------------
  1 file changed, 73 insertions(+), 42 deletions(-)
@@ -313,6 +314,3 @@ index 9382746b24..079ba87b1c 100644
  	host->timing_taps = 10 * 1000 * emm_tap.s.delay / 512;
  	debug("%s: timing taps: %llu, delay: %u\n",
  	      __func__, host->timing_taps, emm_tap.s.delay);
--- 
-2.29.0
-

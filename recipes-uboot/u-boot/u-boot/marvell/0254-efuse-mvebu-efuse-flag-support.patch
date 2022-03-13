@@ -1,7 +1,7 @@
-From 7c18ba29a14349d65a967e6c7d2b4e35c07bba19 Mon Sep 17 00:00:00 2001
+From 04617f980e6704689be1004e3853593cb8a93cd3 Mon Sep 17 00:00:00 2001
 From: Alex Leibovich <alexl@marvell.com>
 Date: Sun, 7 Apr 2019 10:12:36 +0300
-Subject: [PATCH 0254/1239] efuse: mvebu: efuse flag support
+Subject: [PATCH] efuse: mvebu: efuse flag support
 
 By default, efuse will support read operation.
 Added EFUSE_READ_ONLY flag, to block write operation,
@@ -9,6 +9,7 @@ removed DRY_RUN flag, left from former debug.
 
 Change-Id: I2d5a5cb678d5c6c011647556ba27e732c219e43d
 Signed-off-by: Alex Leibovich <alexl@marvell.com>
+
 ---
  drivers/fuse/Kconfig         | 10 ++++------
  drivers/fuse/fuse-mvebu-hd.c | 13 ++++++-------
@@ -158,6 +159,3 @@ index b338a06392..fbb483f9b1 100644
  #endif
  
  #define MVEBU_EFUSE_SRV_CTRL_LD_SEL_USER	BIT(6)
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 3a1ea638a16830adf1e9e049b086ae9fdaf2a357 Mon Sep 17 00:00:00 2001
+From fd1903f4ae0eb18824bb5ea7e8b279c32f880f0e Mon Sep 17 00:00:00 2001
 From: Stefan Chulski <stefanc@marvell.com>
 Date: Tue, 18 Feb 2020 19:06:14 +0200
-Subject: [PATCH 1099/1239] net: phy: marvell: Fix PHY 221 2.5G speed detection
+Subject: [PATCH] net: phy: marvell: Fix PHY 221 2.5G speed detection
 
 Add missed break in speed detection procedure and remove
 nested switch.
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/23443
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Yan Markman <ymarkman@marvell.com>
+
 ---
  drivers/net/phy/marvell.c | 31 ++++++++++---------------------
  1 file changed, 10 insertions(+), 21 deletions(-)
@@ -77,6 +78,3 @@ index 4b6dd3bbb1..e340537cc1 100644
  	case MIIM_88E2110_PHYSTAT_GBIT:
  		phydev->speed = SPEED_1000;
  		break;
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From ad37ed60b226fd3777dd2a3988bb9eb61e18d3a6 Mon Sep 17 00:00:00 2001
+From e5f1a12b6aaeed78066a82299709fec6fb7c7bdc Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 24 Jan 2019 13:04:33 -0800
-Subject: [PATCH 0874/1239] drivers: spi: add x4 bus width support
+Subject: [PATCH] drivers: spi: add x4 bus width support
 
 Add support for x4 bus width and use WIDE_BUF capability
 to perform large chunks of data. Also, cleanup the driver
@@ -13,6 +13,7 @@ Change-Id: I2b5bad6a86b3a35575d7da05a15ce44947bb105c
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/2711
 Tested-by: sa_ip-sw-jenkins
+
 ---
  drivers/spi/octeontx_spi.c | 315 ++++++++++++++++++++++++-------------
  1 file changed, 210 insertions(+), 105 deletions(-)
@@ -504,6 +505,3 @@ index 8061473fab..0bdf906855 100755
  	debug("SPI bus %s %d at %p\n",dev->name, dev->seq, priv->baseaddr);
  
  	return 0;
--- 
-2.29.0
-

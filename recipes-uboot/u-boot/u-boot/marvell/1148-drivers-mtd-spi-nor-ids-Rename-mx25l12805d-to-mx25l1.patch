@@ -1,8 +1,7 @@
-From 216863f0b59043feeeb67e52e528ede0016b0af3 Mon Sep 17 00:00:00 2001
+From bac08969827f2f82618b8f966f86d23c2e2732db Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Mon, 11 May 2020 22:57:21 -0700
-Subject: [PATCH 1148/1239] drivers: mtd: spi-nor-ids: Rename mx25l12805d to
- mx25l12845g
+Subject: [PATCH] drivers: mtd: spi-nor-ids: Rename mx25l12805d to mx25l12845g
 
 EOL device mx25l12805d is replaced by mx25l12845g using the same
 JEDEC ID so update with appropriate flags.
@@ -12,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28252
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mtd/spi/spi-nor-ids.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
@@ -30,6 +30,3 @@ index 0e7b6ec9c6..95672677ef 100644
  	{ INFO("mx25l12855e", 0xc22618, 0, 64 * 1024, 256, 0) },
  	{ INFO("mx25l25635e", 0xc22019, 0, 64 * 1024, 512, SPI_NOR_DUAL_READ | SPI_NOR_QUAD_READ | SPI_NOR_4B_OPCODES) },
  	{ INFO("mx25u25635f", 0xc22539, 0, 64 * 1024, 512, SECT_4K | SPI_NOR_4B_OPCODES) },
--- 
-2.29.0
-

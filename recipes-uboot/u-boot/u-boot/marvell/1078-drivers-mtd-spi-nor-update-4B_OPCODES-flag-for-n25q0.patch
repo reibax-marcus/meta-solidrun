@@ -1,14 +1,15 @@
-From ba4ea10e822c944d12b1a968ac3f2a57f1f440e5 Mon Sep 17 00:00:00 2001
+From 02dbc9fbae64c5920a2acae09b253220d7c29f71 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 31 Jan 2020 13:11:55 -0800
-Subject: [PATCH 1078/1239] drivers: mtd: spi-nor: update 4B_OPCODES flag for
- n25q00a mx25l25635e
+Subject: [PATCH] drivers: mtd: spi-nor: update 4B_OPCODES flag for n25q00a
+ mx25l25635e
 
 Change-Id: If3b05bde2d5924382a752b65f2249e17c27321fc
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/22704
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mtd/spi/spi-nor-ids.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -35,6 +36,3 @@ index a8e5c30769..6f18519ef4 100644
  	{ INFO("mt25qu02g",   0x20bb22, 0, 64 * 1024, 4096, SECT_4K | USE_FSR | SPI_NOR_QUAD_READ | NO_CHIP_ERASE) },
  	{ INFO("mt25ql02g",   0x20ba22, 0, 64 * 1024, 4096, SECT_4K | USE_FSR | SPI_NOR_QUAD_READ | NO_CHIP_ERASE | SPI_NOR_4B_OPCODES) },
  	{ INFO("mt35xu512aba", 0x2c5b1a, 0,  128 * 1024,  512, USE_FSR | SPI_NOR_4B_OPCODES) },
--- 
-2.29.0
-

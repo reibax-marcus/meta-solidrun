@@ -1,7 +1,7 @@
-From 3ec27b7519e93edbdf2cd9d8a4d2252558ea3199 Mon Sep 17 00:00:00 2001
+From fc85dd1274c6473a21a6db8f5db882dc4264eb6c Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Wed, 10 Feb 2016 18:00:56 -0800
-Subject: [PATCH 0382/1239] Read the board type from DT passed by BDK
+Subject: [PATCH] Read the board type from DT passed by BDK
 
 Changed the u-boot implementation of reading the board
 name from device tree passed by BDK instead of env_ptr.
@@ -9,6 +9,7 @@ Recently env_ptr has been changed in ATF and this
 causes crash in u-boot.
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/atf.c      | 10 +++++++
  board/cavium/thunderx/thunderx.c | 50 +++++++++++++++++++++++++++++++-
@@ -171,6 +172,3 @@ index de36d66230..a75b968a13 100644
 +#define THUNDERX_FDT_GET                0x43000701
 +
  #endif /* __THUNDERX_SVC_H__ */
--- 
-2.29.0
-

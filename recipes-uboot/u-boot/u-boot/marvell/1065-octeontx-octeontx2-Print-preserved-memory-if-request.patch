@@ -1,8 +1,7 @@
-From e5c51647f95a400c7b2752a702829db38c4c317f Mon Sep 17 00:00:00 2001
+From 446e7bfe1db52eb86e0b9511329db429b4d20a70 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Wed, 22 Jan 2020 19:58:33 -0800
-Subject: [PATCH 1065/1239] octeontx: octeontx2: Print preserved memory if
- requested
+Subject: [PATCH] octeontx: octeontx2: Print preserved memory if requested
 
 Change-Id: I5d3a47e8fbfd04a70bf3d36dccaf82e6436fb30d
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
@@ -10,6 +9,7 @@ Reviewed-on: https://sj1git1.cavium.com/22088
 Reviewed-by: Lukasz Majczak <lukaszm@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  board/Marvell/octeontx/board-fdt.c  | 3 ++-
  board/Marvell/octeontx2/board-fdt.c | 3 ++-
@@ -43,6 +43,3 @@ index 9b3028204c..ff1cb4af6b 100644
  	return preserved_mem_size;
  }
  
--- 
-2.29.0
-

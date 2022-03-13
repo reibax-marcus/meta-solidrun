@@ -1,8 +1,7 @@
-From d61a451cfac3ab088c3993241b545425ac9196a4 Mon Sep 17 00:00:00 2001
+From c8862558047190b59a906d156dd69ffbe42a5c00 Mon Sep 17 00:00:00 2001
 From: Wilson Ding <dingwei@marvell.com>
 Date: Tue, 2 May 2017 17:49:28 +0800
-Subject: [PATCH 0214/1239] arm64: mvbeu: dts: espressobin: enable sd card
- support
+Subject: [PATCH] arm64: mvbeu: dts: espressobin: enable sd card support
 
 Enabled SDIO slot 0 (south bridge) for SD card on
 Espressobin board.
@@ -10,6 +9,7 @@ Espressobin board.
 Change-Id: Ief917f0701fa395feec0aa4fcc519997cb735d8c
 Signed-off-by: Wilson Ding <dingwei@marvell.com>
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-3720-espressobin.dts | 19 +++++++++++++++++++
  1 file changed, 19 insertions(+)
@@ -51,6 +51,3 @@ index 669edbb106..348291fe79 100644
  &spi0 {
  	status = "okay";
  	pinctrl-names = "default";
--- 
-2.29.0
-

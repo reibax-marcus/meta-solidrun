@@ -1,7 +1,7 @@
-From 06f6daf6fd02019ac105db1e96c0765a712e1dc3 Mon Sep 17 00:00:00 2001
+From d93555eddd6d83aefce1cd16c6ac7a2bf1fe524c Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Tue, 3 Apr 2018 17:27:23 +0800
-Subject: [PATCH 0172/1239] arm64: dts: a8k: add spi direct access mapping
+Subject: [PATCH] arm64: dts: a8k: add spi direct access mapping
 
 In ATF, spi direct mapping window of [0xf9000000, 0xf9ffffff] is added
 for a70x0/a70x0_cust/a80x0/a80x0_mcbin, this patch adds the spi direct
@@ -9,6 +9,7 @@ access mapping for corresponding boards in u-boot.
 
 Change-Id: I90dbb76d4ae01794857e36093e3acd4515a4b732
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-db-B.dts  | 5 +++++
  arch/arm/dts/armada-7040-db-C.dts  | 5 +++++
@@ -218,6 +219,3 @@ index b2160e5a93..b48596a4e0 100644
  	};
 +#undef CP110_NUM
  };
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 0fdf34b6d27d1f489cb7a2f572cb336cd76d861e Mon Sep 17 00:00:00 2001
+From b132546e54f03c961a290b654aa271237a697f72 Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Wed, 23 May 2018 12:10:36 +0300
-Subject: [PATCH 0033/1239] phy: marvell: fix handling of unconnected comphy
+Subject: [PATCH] phy: marvell: fix handling of unconnected comphy
 
 - the default value of comphy pipe selector is set to PCIe (x4)
   in case of unconnected comphy the default value remains 0x4
@@ -14,6 +14,7 @@ Change-Id: I196b2916518dd8df3b159ffa85e2989b8e483087
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Signed-off-by: Igal Liberman <igall@marvell.com>
 Reviewed-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 4 ++++
  1 file changed, 4 insertions(+)
@@ -33,6 +34,3 @@ index c59e76a1f7..39d173087b 100644
  		case COMPHY_TYPE_IGNORE:
  			continue;
  			break;
--- 
-2.29.0
-

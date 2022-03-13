@@ -1,8 +1,7 @@
-From 154993f9d39af115469dba4bb58fc3b0506e9a57 Mon Sep 17 00:00:00 2001
+From 095ddc6a14d86e485a1206ca2d829621eb9e8a64 Mon Sep 17 00:00:00 2001
 From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
 Date: Mon, 17 Jul 2017 07:19:55 -0700
-Subject: [PATCH 0650/1239] Revert FDT Workaround to pass FDT base address to
- U-Boot
+Subject: [PATCH] Revert FDT Workaround to pass FDT base address to U-Boot
 
 This reverts two commits:
  - cc2f854cdeac5681f4a0e0f563f35a40c4603f76
@@ -11,6 +10,7 @@ This reverts two commits:
 which were the workaround to achieve proper FDT base address.
 
 Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+
 ---
  arch/arm/config.mk |  6 ------
  lib/fdtdec.c       | 24 ------------------------
@@ -68,6 +68,3 @@ index 27266102ae..9de0152753 100644
  	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
  	    fdt_check_header(gd->fdt_blob)) {
  #ifdef CONFIG_SPL_BUILD
--- 
-2.29.0
-

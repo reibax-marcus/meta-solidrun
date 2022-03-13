@@ -1,12 +1,13 @@
-From 3e8cc3ca528b18f33fa0cb0e41a0c6c1fff40e4a Mon Sep 17 00:00:00 2001
+From 719a8d84e0caf18a1decd2c393ea99137a9beb6f Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 27 Mar 2018 17:48:33 -0700
-Subject: [PATCH 0772/1239] drivers: net: octeontx2: add initial code for cgx
+Subject: [PATCH] drivers: net: octeontx2: add initial code for cgx
 
 Adds initial cgx interface code and puts in place driver
 for cgx, also to support shutdown call before OS loads.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  configs/octeontx2_93xx_defconfig        |   3 +
  drivers/net/Makefile                    |   2 +-
@@ -666,6 +667,3 @@ index 0000000000..63246b5837
 +};
 +
 +#endif
--- 
-2.29.0
-

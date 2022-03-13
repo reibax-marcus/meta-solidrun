@@ -1,8 +1,7 @@
-From 8de9a5162b80411c45516aa46a47627b8ed506d5 Mon Sep 17 00:00:00 2001
+From ccc57d2f450577191a8702ff93c51db1ae9dd628 Mon Sep 17 00:00:00 2001
 From: Evan Wang <xswang@marvell.com>
 Date: Tue, 28 Mar 2017 17:00:51 +0800
-Subject: [PATCH 0090/1239] mmc: xenon_sdhci: set signal voltage and max base
- clock
+Subject: [PATCH] mmc: xenon_sdhci: set signal voltage and max base clock
 
 - The SDIO signal voltage and max base clock frequency
   setting are missing in driver, which causes SDIO
@@ -13,6 +12,7 @@ Subject: [PATCH 0090/1239] mmc: xenon_sdhci: set signal voltage and max base
 
 Change-Id: I5604dd373dd1467895828255a82fb6f7085307e6
 Signed-off-by: Evan Wang <xswang@marvell.com>
+
 ---
  drivers/mmc/xenon_sdhci.c | 78 +++++++++++++++++++++++++++++++++++++++
  1 file changed, 78 insertions(+)
@@ -155,6 +155,3 @@ index 829b75683b..87f7f39a1e 100644
  
  	host->max_clk = XENON_MMC_MAX_CLK;
  	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
--- 
-2.29.0
-

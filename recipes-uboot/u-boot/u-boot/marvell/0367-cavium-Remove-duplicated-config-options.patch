@@ -1,7 +1,7 @@
-From f2a43bec61421bdb585c8ea50e84d82e074f3eba Mon Sep 17 00:00:00 2001
+From 6304e2edeac25345c7fc43fa7d8f3dd442e4e40a Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 9 Nov 2015 16:14:39 -0800
-Subject: [PATCH 0367/1239] cavium: Remove duplicated config options
+Subject: [PATCH] cavium: Remove duplicated config options
 
 ---
  include/configs/thunderx_88xx.h | 15 +--------------
@@ -51,6 +51,3 @@ index 24bc7d4954..a1447fbe3d 100644
  #define CONFIG_CMD_SAVES
  
  /* Partition systems */
--- 
-2.29.0
-

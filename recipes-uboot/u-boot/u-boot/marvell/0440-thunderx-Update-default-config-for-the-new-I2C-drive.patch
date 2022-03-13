@@ -1,12 +1,12 @@
-From 9ae993a25eddb46c3f7c590afe5792d3f02a5a22 Mon Sep 17 00:00:00 2001
+From e4253a8e9cfce8879810fd033ecb71a691ab47d8 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 14 May 2016 17:43:26 -0400
-Subject: [PATCH 0440/1239] thunderx: Update default config for the new I2C
- driver
+Subject: [PATCH] thunderx: Update default config for the new I2C driver
 
 The new I2C driver is DM-based, so it needs the I2C uclass
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  configs/thunderx_81xx_defconfig | 2 ++
  1 file changed, 2 insertions(+)
@@ -30,6 +30,3 @@ index dc3694408a..78eaad168e 100644
  CONFIG_PCI_THUNDERX_ECAM=y
  CONFIG_DEBUG_UART=y
  CONFIG_DEBUG_UART_PL011=y
--- 
-2.29.0
-

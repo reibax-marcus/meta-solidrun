@@ -1,7 +1,7 @@
-From a84949777a9039454d9be170b358d6d1b2785585 Mon Sep 17 00:00:00 2001
+From d61b72f0ba0f09bd9b547e8b413ba153168de044 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 22:04:19 -0400
-Subject: [PATCH 0463/1239] pci: Change dm_pci_map_bar() semantics
+Subject: [PATCH] pci: Change dm_pci_map_bar() semantics
 
 Specifying direct config space BAR offsets works fine with
 legacy-compliant devices but nowadays there are more ways to
@@ -12,6 +12,7 @@ int BAR number which can be treated the same way as in Linux
 kernel
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci-uclass.c | 7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)
@@ -36,6 +37,3 @@ index 576f4e4362..4d8e952c16 100644
  		pci_bus_start = (pci_addr_t)(bar_response & ~0xf);
  
  		if ((bar_response & PCI_BASE_ADDRESS_MEM_TYPE_MASK) ==
--- 
-2.29.0
-

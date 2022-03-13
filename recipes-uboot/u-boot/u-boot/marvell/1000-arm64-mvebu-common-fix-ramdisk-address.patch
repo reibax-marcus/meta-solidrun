@@ -1,7 +1,7 @@
-From b6b91e908c7f508e82392ecfbffe520c8f0751b2 Mon Sep 17 00:00:00 2001
+From 05cc7c7ac54f5635b55d121be884a4f46031deea Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Thu, 21 Nov 2019 11:11:44 +0100
-Subject: [PATCH 1000/1239] arm64: mvebu: common: fix ramdisk address
+Subject: [PATCH] arm64: mvebu: common: fix ramdisk address
 
 The ramdisk address was overlapping the space for the kernel Image,
 so shift it to 0x9000000. Also improve the get_ramfs variable,
@@ -12,6 +12,7 @@ Signed-off-by: Marcin Wojtas <mw@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/19052
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  include/configs/mvebu_armada-common.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -38,6 +39,3 @@ index 4796fdd1c2..3d3174cb98 100644
  						"tftpboot $ramdisk_addr_r " \
  						"$ramfs_name; else setenv " \
  						"ramdisk_addr_r -;fi\0"	\
--- 
-2.29.0
-

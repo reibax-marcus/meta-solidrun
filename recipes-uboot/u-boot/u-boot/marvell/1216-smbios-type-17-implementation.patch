@@ -1,7 +1,7 @@
-From 878d9de4cd257648dd08398ab0b7c3cf62562de0 Mon Sep 17 00:00:00 2001
+From 9022274f56aaeecbb208c5f3a64f48d83dab504b Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Mon, 27 Jul 2020 10:50:38 -0700
-Subject: [PATCH 1216/1239] smbios: type 17 implementation
+Subject: [PATCH] smbios: type 17 implementation
 
 This structure describes a single memory device that
 is part of a larger Physical Memory Array structure.
@@ -11,6 +11,7 @@ Change-Id: Ie6e184679c5c84f5585a64dcffec7bb67c0787b8
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35168
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Tested-by: Jia Ma <jiam@marvell.com>
+
 ---
  include/smbios.h | 45 +++++++++++++++++++++++++++++++++++++++++++++
  lib/smbios.c     | 38 ++++++++++++++++++++++++++++++++++++++
@@ -135,6 +136,3 @@ index 3a3adaab3a..7acb7cbbb7 100644
  	smbios_write_type32,
  	smbios_write_type127
  };
--- 
-2.29.0
-

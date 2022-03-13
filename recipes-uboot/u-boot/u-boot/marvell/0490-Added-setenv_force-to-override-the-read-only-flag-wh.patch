@@ -1,10 +1,11 @@
-From 0dcafe6607b427d392bc4203292dea7c0e46b936 Mon Sep 17 00:00:00 2001
+From 7311fedeabda67fa70adcb685f9c92047f9c8d4f Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 1 Jun 2016 21:50:26 -0700
-Subject: [PATCH 0490/1239] Added setenv_force to override the read only flag
- when setting an environment variable.
+Subject: [PATCH] Added setenv_force to override the read only flag when
+ setting an environment variable.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  cmd/nvedit.c | 14 ++++++++++++++
  1 file changed, 14 insertions(+)
@@ -34,6 +35,3 @@ index 1cb0bc1460..b8024da168 100644
  /**
   * Set an environment variable to an integer value
   *
--- 
-2.29.0
-

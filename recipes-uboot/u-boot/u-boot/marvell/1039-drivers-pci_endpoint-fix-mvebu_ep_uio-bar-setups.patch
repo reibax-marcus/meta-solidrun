@@ -1,7 +1,7 @@
-From 1663ae0139040b5d9daaa67a0592b75def489e5b Mon Sep 17 00:00:00 2001
+From 4dd7635fd6cc151864be3f05a753a1cb7604191e Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 17 Dec 2019 15:56:20 +0200
-Subject: [PATCH 1039/1239] drivers/pci_endpoint: fix mvebu_ep_uio bar setups
+Subject: [PATCH] drivers/pci_endpoint: fix mvebu_ep_uio bar setups
 
 - take the bar physical address into account
 - fix the bar mask for disabling unused regions
@@ -11,6 +11,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20450
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/pci_endpoint/pcie_mvebu_ep_uio.c | 13 ++++++++-----
  1 file changed, 8 insertions(+), 5 deletions(-)
@@ -53,6 +54,3 @@ index 4330ce9db7..bd06317d75 100644
  	}
  
  	/* remap host RAM to local memory space  using shift mapping.
--- 
-2.29.0
-

@@ -1,10 +1,11 @@
-From 78fabfee8c1c1289012949a688aaac60d37fb04b Mon Sep 17 00:00:00 2001
+From 193ba9ec2ec0fd125cd8873757bb509bd8c471f8 Mon Sep 17 00:00:00 2001
 From: zachary zhang <zhangzg@marvell.com>
 Date: Mon, 4 Jun 2018 15:54:08 +0800
-Subject: [PATCH 0110/1239] arm64: dts: a8k: add thermal device tree nodes
+Subject: [PATCH] arm64: dts: a8k: add thermal device tree nodes
 
 Change-Id: I8559d7c89e84e8ac0ad9b9d97eef1f30d2810a68
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/dts/armada-ap806.dtsi | 9 +++++++++
  arch/arm/dts/armada-cp110.dtsi | 9 +++++++++
@@ -50,6 +51,3 @@ index dda2feb9a0..dfa7a1c6fa 100644
  			CP110_LABEL(gpio1): gpio@440140 {
  				compatible = "marvell,orion-gpio";
  				reg = <0x440140 0x40>;
--- 
-2.29.0
-

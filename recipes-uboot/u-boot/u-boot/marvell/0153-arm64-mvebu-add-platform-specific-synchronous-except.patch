@@ -1,8 +1,8 @@
-From c318707ff021e8c0e231324cbe966579bdff55bc Mon Sep 17 00:00:00 2001
+From f82682e7651306f41a55f56c90ebd15cf690b497 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Mon, 11 Jun 2018 17:49:35 +0200
-Subject: [PATCH 0153/1239] arm64: mvebu: add platform specific synchronous
- exception handler
+Subject: [PATCH] arm64: mvebu: add platform specific synchronous exception
+ handler
 
 When the attempt to access ATF RT services region
 is made (0x4000000-0x5400000) print some helpful
@@ -10,6 +10,7 @@ information.
 
 Change-Id: Ie82850f4030dbd6ab32cc28a98e4a21ae0dd981f
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  arch/arm/mach-mvebu/arm64-common.c | 22 ++++++++++++++++++++++
  1 file changed, 22 insertions(+)
@@ -51,6 +52,3 @@ index 5c6e26fa54..41765b86a9 100644
 +		       ATF_REGION_START, ATF_REGION_END);
 +	}
 +}
--- 
-2.29.0
-

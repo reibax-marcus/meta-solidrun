@@ -1,7 +1,7 @@
-From 12219043daafa19646f19a1c638906c7f32e81d0 Mon Sep 17 00:00:00 2001
+From a0824565cdaa061947598f93c95240939f090659 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 Nov 2015 14:33:10 -0800
-Subject: [PATCH 0356/1239] cavium: Add 2s FDT source
+Subject: [PATCH] cavium: Add 2s FDT source
 
 ---
  arch/arm/dts/thunder-88xx-2n.dts  |    2 +-
@@ -3224,6 +3224,3 @@ index da612c3c48..6160b80e6a 100644
  		};
  	};
  };
--- 
-2.29.0
-

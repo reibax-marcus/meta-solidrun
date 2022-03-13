@@ -1,13 +1,14 @@
-From 38014fe5857e37177f3887b9aafc70772ae3fb99 Mon Sep 17 00:00:00 2001
+From 726afed75c72f634d358c57c488720aecbff0395 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 8 Sep 2017 16:52:58 -0700
-Subject: [PATCH 0704/1239] drivers: rtc: fix ds1337 century base to 2000
+Subject: [PATCH] drivers: rtc: fix ds1337 century base to 2000
 
 Linux puts up century base as 2000 instead of 1900, resulting
 in mismatch when either u-boot or linux sets date. Fix u-boot
 to use century base as 2000 which clears the mismatch.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/rtc/ds1337.c | 8 ++++++--
  1 file changed, 6 insertions(+), 2 deletions(-)
@@ -40,6 +41,3 @@ index 8e220dfc54..903c78e86b 100644
  	dm_rtc_write (dev, RTC_MON_REG_ADDR, bin2bcd (tmp->tm_mon) | century);
  
  	dm_rtc_write (dev, RTC_DAY_REG_ADDR, bin2bcd (tmp->tm_wday + 1));
--- 
-2.29.0
-

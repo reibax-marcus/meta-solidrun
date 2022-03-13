@@ -1,7 +1,7 @@
-From c7c5a463b209ba0fe51840a14026cb205370501e Mon Sep 17 00:00:00 2001
+From ee0917ccdc5759939589f5674775154bfd1ecf6b Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 20:30:08 -0800
-Subject: [PATCH 0343/1239] cavum: vnic: Print generated MAC address (when it's
+Subject: [PATCH] cavum: vnic: Print generated MAC address (when it's
  generated)
 
 ---
@@ -20,6 +20,3 @@ index 72f9121ae9..f20cb395f3 100644
  		eth_setenv_enetaddr("ethaddr", ethaddr);
  	}
  #endif
--- 
-2.29.0
-

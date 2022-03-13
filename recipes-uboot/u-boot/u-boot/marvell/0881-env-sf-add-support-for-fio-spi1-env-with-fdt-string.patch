@@ -1,8 +1,7 @@
-From 018c94763eff51e7c7a52a10d622c28f744fd486 Mon Sep 17 00:00:00 2001
+From 433a32771352d6c39709766c7f04d9ccdfafc11f Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 12 Feb 2019 15:45:40 -0800
-Subject: [PATCH 0881/1239] env: sf: add support for fio spi1 env with fdt
- string
+Subject: [PATCH] env: sf: add support for fio spi1 env with fdt string
 
 Use fdt string "u-boot,env" in spi flash nodes, nodes with
 compatible "spi-flash", to make user requested device
@@ -21,6 +20,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/3923
 Tested-by: sa_ip-sw-jenkins
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx2/octeontx2.c | 33 +++++++++++++++++++++++++++++
  env/sf.c                            | 23 +++++++++++++++++++-
@@ -112,6 +112,3 @@ index 590d0cedd8..f679236ffa 100644
  	env_flash = dev_get_uclass_priv(new);
  #else
  
--- 
-2.29.0
-

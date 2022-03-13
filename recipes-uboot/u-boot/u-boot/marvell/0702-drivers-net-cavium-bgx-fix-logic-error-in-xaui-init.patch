@@ -1,13 +1,13 @@
-From 928ac42263139bb5249aa4f62fe3f97790dda7af Mon Sep 17 00:00:00 2001
+From aa20227cc93f2343a88d0fa402fcde5eb3e9a0c9 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 5 Sep 2017 15:46:35 -0700
-Subject: [PATCH 0702/1239] drivers: net: cavium bgx: fix logic error in xaui
- init
+Subject: [PATCH] drivers: net: cavium bgx: fix logic error in xaui init
 
 This helps in proper setting of mode ability bits in SPUX_AN_ADV
 register, which helps fixing link up issue with 10G-KR.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
@@ -39,6 +39,3 @@ index 98a61dd9af..f06e878093 100644
  	if (lmac->use_training) {
  		cfg = bgx_reg_read(bgx, lmacid, BGX_SPUX_INT);
  		if (!(cfg & (1ull << 13))) {
--- 
-2.29.0
-

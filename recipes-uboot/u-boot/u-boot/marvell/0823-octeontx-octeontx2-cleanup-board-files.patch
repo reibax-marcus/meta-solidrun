@@ -1,12 +1,13 @@
-From 0c90b701691cf46c5ec572b1096ec38b502bc4cd Mon Sep 17 00:00:00 2001
+From a28428aab3d23c1a0f89495ad1d61eb4a1e60900 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 14 Sep 2018 10:32:52 -0700
-Subject: [PATCH 0823/1239] octeontx/octeontx2: cleanup board files
+Subject: [PATCH] octeontx/octeontx2: cleanup board files
 
 use DISPLAY_BOARDINFO and cleanup board functions.
 discard usage of cavm_bdt outside board files.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/octeontx.h |   6 +-
  .../include/asm/arch-octeontx2/octeontx2.h    |  10 +-
@@ -1003,6 +1004,3 @@ index bbb17b80e6..e911378dc2 100644
  		if ((qlm[0] == -1) && (qlm[2] == -1))
  			return -ENODEV;
  
--- 
-2.29.0
-

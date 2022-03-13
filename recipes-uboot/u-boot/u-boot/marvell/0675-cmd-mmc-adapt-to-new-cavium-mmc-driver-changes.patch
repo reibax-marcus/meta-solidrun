@@ -1,9 +1,10 @@
-From 351bd57fea1d075d1633938a1b17e092f1811e1c Mon Sep 17 00:00:00 2001
+From c93da44cdb8454c2a5ee88e4dec796eb6ba16b2c Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 1 Aug 2017 12:54:16 -0700
-Subject: [PATCH 0675/1239] cmd: mmc: adapt to new cavium mmc driver changes
+Subject: [PATCH] cmd: mmc: adapt to new cavium mmc driver changes
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/mmc.c | 19 +++++++++----------
  1 file changed, 9 insertions(+), 10 deletions(-)
@@ -75,6 +76,3 @@ index f0df6ce6c7..fb85c974fa 100644
  
  	return CMD_RET_SUCCESS;
  }
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From aa902e68c12ca9eba02c3deded0685a7c1ee6db3 Mon Sep 17 00:00:00 2001
+From 253959705630af4c137529fa6e8ba20185af4220 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Sat, 27 Jul 2019 01:11:50 -0700
-Subject: [PATCH 0945/1239] mmc: octeontx2: Fix numerous issues
+Subject: [PATCH] mmc: octeontx2: Fix numerous issues
 
 This patch removes the work-around code for resetting
 the eMMC subsystem when adjusting the timing since this
@@ -33,6 +33,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/13141
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 370 +++++++++++++++++++++--------------
  1 file changed, 224 insertions(+), 146 deletions(-)
@@ -670,6 +671,3 @@ index b438f52413..99f189f784 100644
  	}
  #endif
  	host_probed = true;
--- 
-2.29.0
-

@@ -1,13 +1,14 @@
-From 6bd5da966eff2c38979753f0274131f43c4ee095 Mon Sep 17 00:00:00 2001
+From 70fbf59265c821685523865bb5125480a5e39800 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 23 Nov 2016 14:43:13 -0800
-Subject: [PATCH 0571/1239] bgx: Merged T81 and T83 changes.
+Subject: [PATCH] bgx: Merged T81 and T83 changes.
 
 Verified XAUI/XLAUI/XFI/SGMII after the integration.
 QSGMII might have issues.
 Not verified RXAUI at all.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/fdt.c      |   2 +-
  drivers/net/cavium/thunder_bgx.c | 368 +++++++++++++++++++------------
@@ -689,6 +690,3 @@ index ad9925478a..37e7d928c8 100644
  #ifdef CONFIG_THUNDERX_XCV
  skip_qlm_config:
  #endif
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From c8e0d03e21b48e0f6a76d951218d37b6ba9a59f4 Mon Sep 17 00:00:00 2001
+From 2ba716911e305793e517ed6ab8e12e90771f40fa Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Mon, 2 Mar 2015 18:28:29 +0300
-Subject: [PATCH 0300/1239] Move FDT patching routines to the ft_board_setup()
- stage
+Subject: [PATCH] Move FDT patching routines to the ft_board_setup() stage
 
 ---
  board/cavium/thunderx/fdt.c      | 131 ++++++++++++++++++++++++++++++-
@@ -291,6 +290,3 @@ index df8f3c2df5..361b8816a1 100644
  			bgx->qlm_mode = QLM_MODE_40G_KR4_1X4;
  			printf("BGX%d QLM mode: 40G_KR4\n", bgx->bgx_id);
  		}
--- 
-2.29.0
-

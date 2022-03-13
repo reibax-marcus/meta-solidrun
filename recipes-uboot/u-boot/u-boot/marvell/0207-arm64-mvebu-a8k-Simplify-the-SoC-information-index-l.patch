@@ -1,14 +1,14 @@
-From 279a797fb765056867a115846ccf1548747457e4 Mon Sep 17 00:00:00 2001
+From 139e4ae16842b67f19367a4527f37eae3f00a5d1 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Thu, 8 Nov 2018 11:23:19 +0200
-Subject: [PATCH 0207/1239] arm64: mvebu: a8k: Simplify the SoC information
- index lookup
+Subject: [PATCH] arm64: mvebu: a8k: Simplify the SoC information index lookup
 
 Simplify the logic of get_soc_table_index() function code
 for easier extension in the future.
 
 Change-Id: Iee2f3ab5cb43073d80402fe781a1d963b2ac986f
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/soc.c | 29 ++++++++++++-----------------
  1 file changed, 12 insertions(+), 17 deletions(-)
@@ -53,6 +53,3 @@ index f4b6913690..223e5873bb 100644
  	}
  
  	if (ret)
--- 
-2.29.0
-

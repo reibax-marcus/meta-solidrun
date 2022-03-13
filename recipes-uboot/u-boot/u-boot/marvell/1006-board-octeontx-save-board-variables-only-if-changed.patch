@@ -1,8 +1,7 @@
-From 5317e7be969045fb509592a83ec6213c356b68ee Mon Sep 17 00:00:00 2001
+From 32e0b5687f26191afcc73d136c1fcf061f4e33b0 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 12 Nov 2019 16:55:38 -0800
-Subject: [PATCH 1006/1239] board: octeontx: save board variables only if
- changed
+Subject: [PATCH] board: octeontx: save board variables only if changed
 
 Save boardrev and serial# variables in environment only
 if different or don't exist in environment.
@@ -16,6 +15,7 @@ Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19360
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx/board.c  | 21 ++++++++++++++-------
  board/Marvell/octeontx2/board.c | 21 ++++++++++++++-------
@@ -118,6 +118,3 @@ index e854cad9d4..2d1f577d99 100644
  
  	return 0;
  }
--- 
-2.29.0
-

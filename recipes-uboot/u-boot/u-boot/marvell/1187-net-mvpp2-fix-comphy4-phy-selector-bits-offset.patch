@@ -1,7 +1,7 @@
-From 65ed09f5c8f6e326304322ce8fde90d703e64421 Mon Sep 17 00:00:00 2001
+From 31767bca2657f500c944e00ec77c3f80d53930c5 Mon Sep 17 00:00:00 2001
 From: Alex Evraev <alexev@marvell.com>
 Date: Sun, 28 Jun 2020 11:21:25 +0300
-Subject: [PATCH 1187/1239] net: mvpp2: fix comphy4 phy selector bits offset
+Subject: [PATCH] net: mvpp2: fix comphy4 phy selector bits offset
 
 Fixed "comphy4 phy selector" bits offset in
 Common PHYs PHY Selectors register
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/31006
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -29,6 +30,3 @@ index 7c00c88787..f1180ae2e2 100644
  #define COMPHY2_MODE_CHECK(val)						      \
  			(((val) & COMPHY2_SEL_MASK) >> COMPHY2_SEL_BIT_OFFS)
  #define COMPHY4_MODE_CHECK(val)						      \
--- 
-2.29.0
-

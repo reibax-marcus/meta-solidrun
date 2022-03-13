@@ -1,8 +1,8 @@
-From 0ef03093541e009a922d476ad278d28911053544 Mon Sep 17 00:00:00 2001
+From 830004ce1b60c4aba1196bcfd91463c36830c7c1 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Wed, 4 Apr 2018 16:26:36 +0200
-Subject: [PATCH 0028/1239] phy: marvell: cp110: remove both phy and pipe
- selector configuration
+Subject: [PATCH] phy: marvell: cp110: remove both phy and pipe selector
+ configuration
 
 Now the comphy configuration is handled in atf, therefore there is no
 need to configure phy or pipe selector in u-boot, it is configured by
@@ -11,6 +11,7 @@ atf for each particular pair: lane and mode.
 Change-Id: I0bebf8d5ff66dbeb6bf9ef90876195938a8eb705
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 95 ------------------------------
  1 file changed, 95 deletions(-)
@@ -135,6 +136,3 @@ index 8f671c73a5..92dde3bcca 100644
  	/* Check if the first 4 lanes configured as By-4 */
  	for (lane = 0, ptr_comphy_map = serdes_map; lane < 4;
  	     lane++, ptr_comphy_map++) {
--- 
-2.29.0
-

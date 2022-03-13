@@ -1,8 +1,8 @@
-From 504c1ad53295feed6028b299670c4e64710742ae Mon Sep 17 00:00:00 2001
+From e9cee1d535a7fbf895691b629a62e04ded0d36a2 Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Sun, 25 Jun 2017 20:34:08 +0300
-Subject: [PATCH 0042/1239] arm64: dts: a70x0: a80x0: create a shared dtsi file
- for all common nodes in DB device-trees
+Subject: [PATCH] arm64: dts: a70x0: a80x0: create a shared dtsi file for all
+ common nodes in DB device-trees
 
 This patch adds a shared dtsi file for the coming common HW
 configurations of all DB boards.
@@ -13,6 +13,7 @@ Soon the common HW configurations such as USB VBUS will be added.
 Change-Id: I3c5a1ff8a05783ea5f6127923e0092994233aedd
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-db-nand.dts |  2 +-
  arch/arm/dts/armada-7040-db.dts      |  2 +-
@@ -201,6 +202,3 @@ index 0000000000..00027e10d0
 +	compatible = "marvell,armada-80x0-db", "marvell,armada-8040";
 +	model = "DB-ARMADA-80x0";
 +};
--- 
-2.29.0
-

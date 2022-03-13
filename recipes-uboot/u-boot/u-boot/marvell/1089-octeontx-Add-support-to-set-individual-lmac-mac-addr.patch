@@ -1,8 +1,7 @@
-From 83ac1c92c9c30efc6f8d657dae0627769042104f Mon Sep 17 00:00:00 2001
+From 56ef353a57a28252709fc28bacf0403d91f996d8 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Mon, 3 Feb 2020 15:18:12 -0800
-Subject: [PATCH 1089/1239] octeontx: Add support to set individual lmac mac
- address
+Subject: [PATCH] octeontx: Add support to set individual lmac mac address
 
 Enable support to update devicetree with user provided MAC
 address for the specific BGX LMAC based on selected ethXaddr
@@ -15,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/22959
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/board.h |  4 ++-
  board/Marvell/octeontx/board-fdt.c         | 33 ++++++++++++++++++++++
@@ -127,6 +127,3 @@ index 775bbc515f..a0d7b38921 100644
  	return 0;
  }
  
--- 
-2.29.0
-

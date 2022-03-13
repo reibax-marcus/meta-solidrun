@@ -1,9 +1,10 @@
-From cc91c397b50056eddaf0c5a2f08ed55bb7885e11 Mon Sep 17 00:00:00 2001
+From 44c745d0f1d7c7906fde89fc97a560ce7763fc70 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 22 Mar 2017 09:31:55 -0700
-Subject: [PATCH 0625/1239] USB 2.0 Added additional delay.
+Subject: [PATCH] USB 2.0 Added additional delay.
 
 Signed-off-by: James Peacock <jpeacock@caviumnetworks.com>
+
 ---
  common/usb_hub.c        | 1 +
  drivers/usb/host/xhci.c | 2 ++
@@ -34,6 +35,3 @@ index 413f819c61..575ba5cbd2 100644
  	if (usb_pipetype(pipe) != PIPE_CONTROL) {
  		printf("non-control pipe (type=%lu)", usb_pipetype(pipe));
  		return -EINVAL;
--- 
-2.29.0
-

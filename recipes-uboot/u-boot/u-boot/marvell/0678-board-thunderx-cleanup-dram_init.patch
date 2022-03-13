@@ -1,9 +1,10 @@
-From 5fd95af3e3bbe06b765a89bb416d6f07cbc6ba87 Mon Sep 17 00:00:00 2001
+From 8e0f124abff9a4841f424a7daa78d7fb6cfe9fe6 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 2 Aug 2017 11:41:00 -0700
-Subject: [PATCH 0678/1239] board: thunderx: cleanup dram_init
+Subject: [PATCH] board: thunderx: cleanup dram_init
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/thunderx.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
@@ -37,6 +38,3 @@ index 64cebcf9c8..172119f376 100644
  	return 0;
  }
  
--- 
-2.29.0
-

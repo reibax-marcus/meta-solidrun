@@ -1,8 +1,8 @@
-From 2008ae96e51f9800e0db6569858e3e4374d4153e Mon Sep 17 00:00:00 2001
+From d1a4695d13d640f2b1e94ed7ae4b4efeba6beb86 Mon Sep 17 00:00:00 2001
 From: zachary zhang <zhangzg@marvell.com>
 Date: Tue, 2 Jan 2018 18:42:26 +0800
-Subject: [PATCH 0041/1239] arm64: dts: a70x0: a80x0: update board model's name
- to align with PCB printing
+Subject: [PATCH] arm64: dts: a70x0: a80x0: update board model's name to align
+ with PCB printing
 
 Currently, a7k/8k dts board name is very brief.
 This patch update dts model's name to align with PCB printing information.
@@ -10,6 +10,7 @@ This patch update dts model's name to align with PCB printing information.
 Change-Id: I5a34bc21694b04f64af98724de7f444f0e1ae4ef
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-db-nand.dts | 2 +-
  arch/arm/dts/armada-7040-db.dts      | 2 +-
@@ -69,6 +70,3 @@ index c38601edfb..22e0b5cb87 100644
  	compatible = "marvell,armada8040-mcbin",
  		     "marvell,armada8040";
  
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From d6d4d8a72b476bfabc4d92cddbe2b24fab5bc969 Mon Sep 17 00:00:00 2001
+From 0247262bd774279dacdaeb706070bf24f453c2fa Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Wed, 6 Jan 2016 10:13:34 -0800
-Subject: [PATCH 0379/1239] Thunderx : Fix for mac address set in u-boot not
- reflected in kernel
+Subject: [PATCH] Thunderx : Fix for mac address set in u-boot not reflected in
+ kernel
 
 Base patch provided by Corey. Incorporated changes on top of it
 to be in par with latest device tree structure and fix to take care
 of mac addresses set in BGX1 node also to be reflected in kernel.
+
 ---
  board/cavium/thunderx/fdt.c | 127 ++++++++++++++++++++++++++----------
  1 file changed, 92 insertions(+), 35 deletions(-)
@@ -169,6 +170,3 @@ index 8b2acb6f2c..8c289b3828 100644
  	}
  #endif
  	ft_setup_uaa_clk(blob);
--- 
-2.29.0
-

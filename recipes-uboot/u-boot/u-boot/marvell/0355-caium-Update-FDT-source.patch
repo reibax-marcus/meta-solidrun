@@ -1,7 +1,7 @@
-From 8515daff734ee220890994c3935258a6bdbf92ac Mon Sep 17 00:00:00 2001
+From a1516c2c84d72173d0b40ccecc575c2662978832 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 Nov 2015 13:02:44 -0800
-Subject: [PATCH 0355/1239] caium: Update FDT source
+Subject: [PATCH] caium: Update FDT source
 
 ---
  arch/arm/dts/thunder-88xx-2n.dts |   17 +-
@@ -1165,6 +1165,3 @@ index 2deaf4a0ff..7f17227d91 100644
 -		};
  	};
  };
--- 
-2.29.0
-

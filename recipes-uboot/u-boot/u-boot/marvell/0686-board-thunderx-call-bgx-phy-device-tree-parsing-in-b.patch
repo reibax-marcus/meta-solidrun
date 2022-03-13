@@ -1,8 +1,8 @@
-From de273b3a4f27c173213fee4783c5a9ecb1aa092e Mon Sep 17 00:00:00 2001
+From 118ab8d1a367ef89f1ed4c3dd5f054186b7578b7 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 10 Aug 2017 20:24:40 -0700
-Subject: [PATCH 0686/1239] board: thunderx: call bgx/phy device tree parsing
- in board_init
+Subject: [PATCH] board: thunderx: call bgx/phy device tree parsing in
+ board_init
 
 use board_early_init_r to call pci_init as all are pci devices.
 parse device tree for bgx/phy info before pci_init is invoked
@@ -10,6 +10,7 @@ using board_init.
 update configs to use env in spi flash instead of atf.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/thunderx.c | 7 ++++---
  include/configs/thunderx_81xx.h  | 5 ++---
@@ -97,6 +98,3 @@ index 647104a54b..cad22dcc96 100644
  #define CONFIG_ENV_IS_IN_SPI_FLASH
  #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
  #define CONFIG_ENV_SPI_MAX_HZ		12500000
--- 
-2.29.0
-

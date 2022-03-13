@@ -1,13 +1,13 @@
-From 40ef3a7a977fb87ddc07450cacff440d968aba09 Mon Sep 17 00:00:00 2001
+From dd79a2c3e0be4db85e72fda136ff3d48e7e7d92c Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 23 Feb 2018 15:26:49 -0800
-Subject: [PATCH 0760/1239] configs: replace kernel_addr with loadaddr env
- variable
+Subject: [PATCH] configs: replace kernel_addr with loadaddr env variable
 
 kernel_addr is relevant for flash location, kernel_addr_r should
 be defined for ram location. loadaddr is relevant for tftp commands.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  include/configs/thunderx_81xx.h | 2 +-
  include/configs/thunderx_83xx.h | 2 +-
@@ -53,6 +53,3 @@ index 0a4f723206..8bbfe3f8fc 100644
  					"autoload=0\0"
  
  /** Environment defines */
--- 
-2.29.0
-

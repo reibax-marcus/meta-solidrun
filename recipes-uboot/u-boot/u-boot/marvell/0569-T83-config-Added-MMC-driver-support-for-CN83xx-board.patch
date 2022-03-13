@@ -1,8 +1,7 @@
-From e927683d81ff873dd4f3b73a809492a1a412f589 Mon Sep 17 00:00:00 2001
+From f6f53494f3b5d3a95acb2e58e5990cb4be61b4ac Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Mon, 14 Nov 2016 17:54:28 -0800
-Subject: [PATCH 0569/1239] T83 config : Added MMC driver support for CN83xx
- boards
+Subject: [PATCH] T83 config : Added MMC driver support for CN83xx boards
 
 ---
  include/configs/thunderx_83xx.h | 10 ++++++++++
@@ -34,6 +33,3 @@ index aa83f55abd..c61220a9db 100644
 +#define CONFIG_CMD_TIME
 +
  #endif /* __THUNDERX_83XX_H__ */
--- 
-2.29.0
-

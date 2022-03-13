@@ -1,9 +1,10 @@
-From 1fd97ca1eff9508f64df69ff60be528cd2b53c53 Mon Sep 17 00:00:00 2001
+From 176242e0fb03435e26401a69dcead0af60589cfa Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 8 Nov 2016 20:01:24 -0800
-Subject: [PATCH 0556/1239] Added clock.c to Makefile.
+Subject: [PATCH] Added clock.c to Makefile.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  arch/arm/mach-thunderx/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -21,6 +22,3 @@ index cebcddb5f9..5b9b4af219 100644
  
  obj-$(CONFIG_THUNDERX_CN81XX)	+= cn81xx/
  obj-$(CONFIG_THUNDERX_CN88XX)	+= cn88xx/
--- 
-2.29.0
-

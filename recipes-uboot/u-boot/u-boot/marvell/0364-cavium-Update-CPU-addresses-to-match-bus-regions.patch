@@ -1,7 +1,7 @@
-From d291e4d7cb05055e519d7306b9867f1e23d4ac8c Mon Sep 17 00:00:00 2001
+From 5d1ebe8239fd2e11d2e06c3b912b74f79cbb6be5 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 9 Nov 2015 11:24:20 -0800
-Subject: [PATCH 0364/1239] cavium: Update CPU addresses to match bus regions
+Subject: [PATCH] cavium: Update CPU addresses to match bus regions
 
 ---
  include/configs/thunderx_88xx.h | 6 +++---
@@ -25,6 +25,3 @@ index 6165611b57..42b1f69d6c 100644
  				 0x892080000000UL, 0x896080000000UL, 0x89a080000000UL}
  
  #define CONFIG_SYS_PCI_IO_CPU	{0x883000000000UL, 0x887000000000UL, 0x88b000000000UL,\
--- 
-2.29.0
-

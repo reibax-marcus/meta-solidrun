@@ -1,7 +1,7 @@
-From 280c9a3e92da5765b6f2be08bd4622d2fc0b8c54 Mon Sep 17 00:00:00 2001
+From 5e804e9c241f6a5351f16bcd4e0cab89f71ebae8 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Mon, 23 Mar 2015 20:23:17 +0300
-Subject: [PATCH 0310/1239] SATA AHCI cleanup
+Subject: [PATCH] SATA AHCI cleanup
 
 ---
  drivers/block/sata_ahci.c | 33 +++++++++++++++++++++++++--------
@@ -116,6 +116,3 @@ index 1ea4f80e91..26afa1a88b 100644
  
  	/* Serial number */
  	ata_id_c_string(id, serial, ATA_ID_SERNO, sizeof(serial));
--- 
-2.29.0
-

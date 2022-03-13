@@ -1,12 +1,13 @@
-From 46ca4a9ddeaaa7036c02a75d4706ce56c0c8495c Mon Sep 17 00:00:00 2001
+From e22df26a98cd6cc2400688a0cc5b211e7ff84735 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 10 Aug 2016 14:03:11 -0700
-Subject: [PATCH 0517/1239] net:thunderx: Added model_id new field
+Subject: [PATCH] net:thunderx: Added model_id new field
 
 Fixed pass1_silicon() and pass2_silicon() macros to return true
 or false as the checks apply to T88.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/nic.h          | 9 +++++----
  drivers/net/cavium/nic_main.c     | 9 ++++++---
@@ -112,6 +113,3 @@ index 4ec67fa849..5b34bca4a4 100644
  		cq->thresh = CMP_QUEUE_CQE_THRESH;
  	else
  		cq->thresh = 0;
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From f79ffd24d993b9409715abb0431acf3863ffcb10 Mon Sep 17 00:00:00 2001
+From 547589a1fb49eb7d96067663619446a51f6c09f9 Mon Sep 17 00:00:00 2001
 From: Alex Evraev <alexev@marvell.com>
 Date: Thu, 18 Jun 2020 15:41:19 +0300
-Subject: [PATCH 1182/1239] net: mvpp2: add rx training on 10G port
+Subject: [PATCH] net: mvpp2: add rx training on 10G port
 
 This patch forces rx training on 10G ports
 as part of port_init stage.
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/30319
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-cp110.dtsi |  4 ++-
  drivers/net/mvpp2.c            | 52 +++++++++++++++++++++++++++++++++-
@@ -123,6 +124,3 @@ index 3f7c6bb305..7c00c88787 100644
  	}
  
  	if (priv->hw_version == MVPP21)
--- 
-2.29.0
-

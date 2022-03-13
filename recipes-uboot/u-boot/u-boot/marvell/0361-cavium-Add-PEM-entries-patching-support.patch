@@ -1,7 +1,7 @@
-From 618965e946c4873cfa79fa0ae99e73257efca362 Mon Sep 17 00:00:00 2001
+From 5dd48607cb880eba98eff07f0d838b648b8ea158 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 Nov 2015 22:29:03 -0800
-Subject: [PATCH 0361/1239] cavium: Add PEM entries patching support
+Subject: [PATCH] cavium: Add PEM entries patching support
 
 ---
  board/cavium/thunderx/fdt.c | 53 ++++++++++++++++++++++++++++++++++---
@@ -94,6 +94,3 @@ index 844431f9f2..7d0cfb56c0 100644
  	return 0;
  }
  
--- 
-2.29.0
-

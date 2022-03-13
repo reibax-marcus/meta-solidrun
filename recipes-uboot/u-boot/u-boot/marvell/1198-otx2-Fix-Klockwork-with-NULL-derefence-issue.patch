@@ -1,13 +1,14 @@
-From ca81b14d12b8f758cdb2a2294a08f8c890c397f5 Mon Sep 17 00:00:00 2001
+From ef70abbf99c357139bb49a56a8a68c3a7e3f9f3e Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Fri, 24 Jul 2020 09:31:00 -0700
-Subject: [PATCH 1198/1239] otx2: Fix Klockwork with NULL derefence issue
+Subject: [PATCH] otx2: Fix Klockwork with NULL derefence issue
 
 Change-Id: I9c93023d7d1f60441bdd50268381ab3dfd5610a1
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32653
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx2/board.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
@@ -38,6 +39,3 @@ index 39eca2349f..66682aa973 100644
  			save_env = true;
  		env_set("serial#", boardserial);
  	}
--- 
-2.29.0
-

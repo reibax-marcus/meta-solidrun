@@ -1,7 +1,7 @@
-From 01f3e20689aac94c3d07cde5c37b93a90ec8ee4d Mon Sep 17 00:00:00 2001
+From 4a37dd3da5a8df2a2e550b3f1d4404df1daabfa4 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 6 Sep 2018 16:22:07 -0700
-Subject: [PATCH 0822/1239] drivers: mmc: make changes for new config defines
+Subject: [PATCH] drivers: mmc: make changes for new config defines
 
 MMC_WRITE and MMC_HW_PARTITIONING depend on MMC, remove the
 dependency, as cavium mmc host driver doesn't use it.
@@ -11,6 +11,7 @@ Otherwise, related member variables in struct mmc will not be
 included.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/mmc/Kconfig        | 8 +++++++-
  drivers/mmc/Makefile       | 3 ++-
@@ -92,6 +93,3 @@ index d6608737d6..fd0463f0f2 100644
  int mmc_set_clock(struct mmc *mmc, uint clock, bool disable);
  
  #define MMC_CLK_ENABLE		false
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From 82d4306e122cfea50694b0967242553021db981c Mon Sep 17 00:00:00 2001
+From b818a8264d594b9713e2c85204bb70bc4f1febf0 Mon Sep 17 00:00:00 2001
 From: Rick Farrington <Ricardo.Farrington@cavium.com>
 Date: Mon, 28 Oct 2019 15:10:22 -0400
-Subject: [PATCH 0977/1239] smc: attest: add conditional guard around SMC
- attestation code
+Subject: [PATCH] smc: attest: add conditional guard around SMC attestation
+ code
 
 Change-Id: Ie5a4560178098256e6a4a6c0604193f557d1efe3
 Signed-off-by: Rick Farrington <Ricardo.Farrington@cavium.com>
@@ -10,6 +10,7 @@ Reviewed-on: https://sj1git1.cavium.com/17948
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
 Reviewed-by: Aaron Williams <awilliams@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/smc.h | 2 ++
  board/Marvell/octeontx2/smc.c             | 2 ++
@@ -45,6 +46,3 @@ index b15f08b1e4..3ae428d726 100644
  	return regs.regs[0];
  }
 +#endif // CONFIG_CMD_ATTEST
--- 
-2.29.0
-

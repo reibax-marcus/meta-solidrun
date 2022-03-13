@@ -1,14 +1,14 @@
-From d38fd3771e5dcf77c2c44e048fa2dc3ade84f454 Mon Sep 17 00:00:00 2001
+From c0f153e383b9ca962cf61924b0704285c9266562 Mon Sep 17 00:00:00 2001
 From: Ben Peled <bpeled@marvell.com>
 Date: Mon, 3 Dec 2018 12:18:35 +0200
-Subject: [PATCH 0225/1239] arm64: mvebu: dts: mcbin: add support Single Shot
- variant
+Subject: [PATCH] arm64: mvebu: dts: mcbin: add support Single Shot variant
 
 MacchiatoBin single shot board doesn't have
 two 3310 PHY's connected to port 0 on each CP
 
 Change-Id: I48327a1b6e4909cf26a325d4c9d9703723995f81
 Signed-off-by: Ben Peled <bpeled@marvell.com>
+
 ---
  arch/arm/dts/Makefile                         |  1 +
  .../arm/dts/armada-8040-mcbin-single-shot.dts | 28 +++++++++++++++++++
@@ -74,6 +74,3 @@ index 2ba7d013d3..97cb642d2b 100644
  CONFIG_ENV_IS_IN_SPI_FLASH=y
  CONFIG_NET_RANDOM_ETHADDR=y
  CONFIG_AHCI_MVEBU=y
--- 
-2.29.0
-

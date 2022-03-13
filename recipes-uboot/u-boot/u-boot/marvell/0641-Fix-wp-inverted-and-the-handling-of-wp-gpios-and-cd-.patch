@@ -1,8 +1,8 @@
-From 547d40e83c6eeae11ba5ad9ad349f733b920cb69 Mon Sep 17 00:00:00 2001
+From 71d3b65d39c95b22f9bcc6186ee985d30ff29743 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 28 Jun 2017 00:04:47 -0700
-Subject: [PATCH 0641/1239] Fix wp-inverted and the handling of wp-gpios and
- cd-gpios and slot->initialized
+Subject: [PATCH] Fix wp-inverted and the handling of wp-gpios and cd-gpios and
+ slot->initialized
 
 The driver was using cd-inverted for wp-inverted in the device tree.
 Additionally, slot->initialized was redundant compared to mmc->has_init and
@@ -12,6 +12,7 @@ always be inverted.
 Some minor debugging changes were also made.
 
 Bug# 27367
+
 ---
  .../include/asm/arch-thunderx/cavium_mmc.h    |  3 +-
  drivers/mmc/cavium_mmc.c                      | 42 +++++++++++--------
@@ -181,6 +182,3 @@ index 7d45f4975d..888527f492 100644
  		/* Disable 1.8v here */
  		if (fdtdec_get_bool(blob, slot_node, "no-1-8-v"))
  			slot->cfg.voltages &= ~MMC_VDD_165_195;
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From d6e74c63290b71a3d8be6d119af19f6a4a66e610 Mon Sep 17 00:00:00 2001
+From 71fc1b2e019a94d1a0cea3e4fbb254a940fd4c6d Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 6 Mar 2018 22:07:03 -0800
-Subject: [PATCH 0799/1239] Initial commit of nix registers.
+Subject: [PATCH] Initial commit of nix registers.
 
 Note that this file will likely be redone after the scripts that generate
 the csr files is modified to create files suitable for U-Boot and Linux.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/net/cavium/octeontx2/nix_reg.h | 8890 ++++++++++++++++++++++++
  1 file changed, 8890 insertions(+)
@@ -8908,6 +8909,3 @@ index 0000000000..567c6672c4
 +};
 +
 +#endif /* __NIX_REG_H__ */
--- 
-2.29.0
-

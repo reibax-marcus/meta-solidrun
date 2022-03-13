@@ -1,11 +1,12 @@
-From 93da6688ec1d041b424b6237868515400fe85219 Mon Sep 17 00:00:00 2001
+From 0529962d9af54f9488fc0fa42370bb7d97082c05 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Tue, 10 Jan 2017 12:30:44 -0800
-Subject: [PATCH 0594/1239] board: thunderx: remove atf commands from uboot
+Subject: [PATCH] board: thunderx: remove atf commands from uboot
 
 This removes support for atf commands from uboot prompt.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  board/cavium/thunderx/atf.c | 152 ------------------------------------
  1 file changed, 152 deletions(-)
@@ -170,6 +171,3 @@ index d9de91de84..44b178da20 100644
 -);
 -
 -#endif
--- 
-2.29.0
-

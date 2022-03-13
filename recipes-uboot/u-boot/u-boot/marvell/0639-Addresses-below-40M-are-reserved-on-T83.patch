@@ -1,9 +1,10 @@
-From 2550cda165bb67e36abd49ecf5f946f74d67d8d7 Mon Sep 17 00:00:00 2001
+From 64b5139bea7b70ba39ef14d2ea37e63d824cf718 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 20 Jun 2017 23:07:22 -0700
-Subject: [PATCH 0639/1239] Addresses below 40M are reserved on T83
+Subject: [PATCH] Addresses below 40M are reserved on T83
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  include/configs/thunderx_83xx.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -21,6 +22,3 @@ index 491283e71f..b96465f2c1 100644
  
  /** Stack starting address */
  #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0xffff0)
--- 
-2.29.0
-

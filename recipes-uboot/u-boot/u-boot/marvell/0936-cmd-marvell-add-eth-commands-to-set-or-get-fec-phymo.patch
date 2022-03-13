@@ -1,8 +1,7 @@
-From 26adf424a7d5186ae32b8dba146495e91cecd368 Mon Sep 17 00:00:00 2001
+From 61f83db5d4638c36b894eb7d16e4bfad1e34ad64 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 25 Jun 2019 02:08:31 -0700
-Subject: [PATCH 0936/1239] cmd: marvell: add eth commands to set or get fec &
- phymod
+Subject: [PATCH] cmd: marvell: add eth commands to set or get fec & phymod
 
 Add command support including interface to ATF to set or get
 FEC and PHYMOD types for RVU PF network intefaces.
@@ -12,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/11676
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  cmd/marvell/Kconfig              |  10 ++-
  cmd/marvell/Makefile             |   3 +-
@@ -572,6 +572,3 @@ index 448889e115..581e048821 100644
 +	       lmac_type_to_str[lmac->lmac_type]);
 +}
 +
--- 
-2.29.0
-

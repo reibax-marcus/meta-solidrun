@@ -1,8 +1,8 @@
-From b2036ff467925086d7f9db2c08b15095b23c5a9a Mon Sep 17 00:00:00 2001
+From 02c965718ba3568fdd361de542ecb40fa796ddd1 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 9 Nov 2016 23:39:47 -0800
-Subject: [PATCH 0560/1239] Check if device is present on PCI bus for probe and
- minor changes
+Subject: [PATCH] Check if device is present on PCI bus for probe and minor
+ changes
 
 - Fixes a minor warning about an unitialized variable that only
   affects debugging.
@@ -10,6 +10,7 @@ Subject: [PATCH 0560/1239] Check if device is present on PCI bus for probe and
   50MHz.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 25 ++++++++++++++++++-------
  1 file changed, 18 insertions(+), 7 deletions(-)
@@ -77,6 +78,3 @@ index e524f39ac6..168ae13e24 100644
  	if (dev->of_offset >= 0)
  		rc = process_node(dev, gd->fdt_blob, dev->of_offset);
  	else
--- 
-2.29.0
-

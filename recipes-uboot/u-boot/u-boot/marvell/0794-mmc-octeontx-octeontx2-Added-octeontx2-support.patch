@@ -1,7 +1,7 @@
-From a4f8b07c3edaa1fcb5ba750f07d48e7d29951ef0 Mon Sep 17 00:00:00 2001
+From dd3aaf06bceaa56192361ddeb99f8eaf84974633 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Fri, 7 Sep 2018 23:20:08 -0700
-Subject: [PATCH 0794/1239] mmc: octeontx: octeontx2: Added octeontx2 support
+Subject: [PATCH] mmc: octeontx: octeontx2: Added octeontx2 support
 
 This patch breaks out setting the bus timing parameters to use a separate
 function rather than have duplicate code in different places.  Note that
@@ -11,6 +11,7 @@ OcteonTX2, however, these specify the delay in picoseconds due to the
 improved method in which the sample delays are set.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  .../include/asm/arch-octeontx/octeontx_mmc.h  |   6 +-
  drivers/mmc/octeontx_mmc.c                    | 188 ++++++++++++++++--
@@ -323,6 +324,3 @@ index d7e528ae9e..57db77c4e0 100644
  
  	/* Enable the bus */
  	emm_cfg.u = mmc_read_csr(mmc, CAVM_MIO_EMM_CFG());
--- 
-2.29.0
-

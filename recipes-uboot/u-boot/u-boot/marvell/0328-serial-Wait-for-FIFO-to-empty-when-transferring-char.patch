@@ -1,10 +1,10 @@
-From edb907508d27d6f63e101bab8d34740fc4dc67d5 Mon Sep 17 00:00:00 2001
+From aad688e452125b94f68edb582ec945b5b2d8e843 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 Nov 2015 19:11:18 -0800
-Subject: [PATCH 0328/1239] serial: Wait for FIFO to empty when transferring
- characters
+Subject: [PATCH] serial: Wait for FIFO to empty when transferring characters
 
 This ensures that all characters are sent on the wire.
+
 ---
  drivers/serial/serial_pl01x.c | 3 +++
  1 file changed, 3 insertions(+)
@@ -23,6 +23,3 @@ index 2a5f256184..92c85b2da6 100644
  	return 0;
  }
  
--- 
-2.29.0
-

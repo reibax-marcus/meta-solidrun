@@ -1,13 +1,14 @@
-From c1c793b570e94b8913d0a97bf3c09d842605cce1 Mon Sep 17 00:00:00 2001
+From e3c2a47c67d94b867ec1d7b74c9d6c6cf779c924 Mon Sep 17 00:00:00 2001
 From: Stefan Chulski <stefanc@marvell.com>
 Date: Mon, 3 Dec 2018 19:09:11 +0200
-Subject: [PATCH 0226/1239] arm64: mvebu: dts: a37xx: add DDR4 db-C rev 3.x dts
+Subject: [PATCH] arm64: mvebu: dts: a37xx: add DDR4 db-C rev 3.x dts
 
 This patch added dts support for DDR4 with rev 3.x ECO.
 Config "C" dts configurates comphy0 with sgmii1-sfp2.5g.
 
 Change-Id: I7766739b112f0fe09735157b419670758c298e0c
 Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  arch/arm/dts/Makefile                     |  1 +
  arch/arm/dts/armada-3720-ddr4-db-v3-C.dts | 63 +++++++++++++++++++++++
@@ -95,6 +96,3 @@ index 0000000000..e4ae11c6a4
 +	};
 +
 +};
--- 
-2.29.0
-

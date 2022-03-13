@@ -1,12 +1,13 @@
-From 512ebb7a97e844de8fe3ba2fd8200a07b858d40d Mon Sep 17 00:00:00 2001
+From 72b2fbef651e434f33128d9957a1c2deefff558c Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 9 Aug 2018 09:05:55 -0700
-Subject: [PATCH 0787/1239] cmd: bootimgup: validate args before update and fix
- help message
+Subject: [PATCH] cmd: bootimgup: validate args before update and fix help
+ message
 
 add more error messages
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/bootimgup.c | 89 +++++++++++++++++++++++++++++++++++--------------
  1 file changed, 64 insertions(+), 25 deletions(-)
@@ -183,6 +184,3 @@ index a4aea17dbb..a83805f21c 100644
 +	" If not given, then $loadaddr and $filesize values in \n"
 +	" environment are used, otherwise fail to update. \n"
  );
--- 
-2.29.0
-

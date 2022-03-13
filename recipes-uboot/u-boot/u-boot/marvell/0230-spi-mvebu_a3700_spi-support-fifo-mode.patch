@@ -1,7 +1,7 @@
-From 2f4847633152daddcd3c2d5999a01b743ec2170f Mon Sep 17 00:00:00 2001
+From a369893468a2d688ae9e6a967a0953eb6db51c0f Mon Sep 17 00:00:00 2001
 From: zachary <zhangzg@marvell.com>
 Date: Thu, 12 Jan 2017 22:52:08 +0800
-Subject: [PATCH 0230/1239] spi: mvebu_a3700_spi: support fifo mode
+Subject: [PATCH] spi: mvebu_a3700_spi: support fifo mode
 
 This patch adds the fifo mode support in order to
 improve the SPI performance. It introduced the new
@@ -9,6 +9,7 @@ property "fifo-mode" in device tree.
 
 Change-Id: Idd80961f02685fcc9fd0f7548193cb8d62697205
 Signed-off-by: zachary <zhangzg@marvell.com>
+
 ---
  drivers/spi/mvebu_a3700_spi.c | 332 +++++++++++++++++++++++++---------
  1 file changed, 247 insertions(+), 85 deletions(-)
@@ -432,6 +433,3 @@ index 99ad505f24..db4a73378c 100644
  	return 0;
  }
  
--- 
-2.29.0
-

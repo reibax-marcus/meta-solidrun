@@ -1,7 +1,7 @@
-From cd844b8cf094ebbd43594c6ad58b8b4f6da58a38 Mon Sep 17 00:00:00 2001
+From 3f8d8c33bc874584c235a967c98512a52046e63c Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 14 Sep 2016 17:17:06 -0700
-Subject: [PATCH 0067/1239] net: phy: fix 88E1510 PHY initialization
+Subject: [PATCH] net: phy: fix 88E1510 PHY initialization
 
 The initialization of the 88e1510 was wrong in that
 it performed the 88e1518 configuration which then calls
@@ -20,6 +20,7 @@ configuration function should be changed.
 
 Change-Id: I0687d94563bd0c8038d0abae04735dcae249bb7d
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/net/phy/marvell.c | 69 +++++++++++++++++++++++++++++++++++++--
  1 file changed, 67 insertions(+), 2 deletions(-)
@@ -119,6 +120,3 @@ index efbbd31ff7..efaa027823 100644
  }
  
  /* Marvell 88E1118 */
--- 
-2.29.0
-

@@ -1,13 +1,14 @@
-From ae88573089586131534cb18c4374b5b238fa124c Mon Sep 17 00:00:00 2001
+From 5c40de01e372d49c212fcb548d9a50ba36332670 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 14 Sep 2017 11:31:37 -0700
-Subject: [PATCH 0709/1239] drivers: net: bgx: add remove function code
+Subject: [PATCH] drivers: net: bgx: add remove function code
 
 apply OS_PREPARE flag which helps to invoke remove function
 before starting os, remove function disables all lmacs in
 all active bgx instances.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 27 +++++++++++++++++++++++++++
  1 file changed, 27 insertions(+)
@@ -59,6 +60,3 @@ index f06e878093..e31e8c75c1 100644
 +	.flags  = DM_FLAG_OS_PREPARE,
  };
  
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From dd2ce5ff2d18b5a89ad6558133c0552ed47e8bc1 Mon Sep 17 00:00:00 2001
+From 9769b83d57502d67ca572c051ca40a1941d849af Mon Sep 17 00:00:00 2001
 From: allen yan <yanwei@marvell.com>
 Date: Wed, 26 Apr 2017 10:35:48 +0800
-Subject: [PATCH 0100/1239] arm64: dts: armada-3720-db: add dts for more
- devel-board flavors
+Subject: [PATCH] arm64: dts: armada-3720-db: add dts for more devel-board
+ flavors
 
 This patch added dts support for both rev1.x, rev2.x and rev 3.x ECO;
 This patch added dts support for boards of different ddr types.
@@ -12,6 +12,7 @@ Suffix "C" dts configurates comphy0 with sgmii1-sfp2.5g.
 
 Change-Id: Ie57dd8ff9c3066efcbed7a0fc9651f7fd9a6400b
 Signed-off-by: allen yan <yanwei@marvell.com>
+
 ---
  arch/arm/dts/Makefile                     |  9 ++++
  arch/arm/dts/armada-3720-ddr3-db-v1-A.dts | 43 ++++++++++++++++
@@ -577,6 +578,3 @@ index 0000000000..882151a96a
 +	};
 +
 +};
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 7a271af0a1e3e4d679ec3059ca955bdf52a49f95 Mon Sep 17 00:00:00 2001
+From 2f13b442d03be15067ce7050682be48d1d2ac037 Mon Sep 17 00:00:00 2001
 From: Felix Manlunas <fmanlunas@marvell.com>
 Date: Mon, 26 Aug 2019 14:46:49 -0700
-Subject: [PATCH 0951/1239] drivers: net: octeontx2: cgx: Accept broadcast
- packets
+Subject: [PATCH] drivers: net: octeontx2: cgx: Accept broadcast packets
 
 U-Boot does not respond to ARP requests when a network operation (like TFTP
 download) is done via CGX LMAC because the DMAC filter is configured to
@@ -22,6 +21,7 @@ Signed-off-by: Felix Manlunas <fmanlunas@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/14916
 Reviewed-by: Aaron Williams <awilliams@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/net/octeontx2/cgx.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -45,6 +45,3 @@ index 3aa00d1e07..4059c41e64 100644
  	dmac_ctl0.s.mcst_mode = 0;
  	dmac_ctl0.s.cam_accept = 1;
  	reg_addr = lmac->cgx->reg_base +
--- 
-2.29.0
-

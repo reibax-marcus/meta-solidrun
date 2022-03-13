@@ -1,8 +1,7 @@
-From c38724663cbb15547af776fa35230f3a791a8d36 Mon Sep 17 00:00:00 2001
+From 04fe196c1028a512e476712a6a1ecbe2c507f92f Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Thu, 11 Jul 2019 16:55:24 -0700
-Subject: [PATCH 0940/1239] usb: xhci: octeontx2: Fix RX issue with short
- packets
+Subject: [PATCH] usb: xhci: octeontx2: Fix RX issue with short packets
 
 There appears to be an issue in OcteonTX2 where
 if the receive buffer crosses a 64K boundary
@@ -33,6 +32,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/12524
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Aaron Williams <Aaron.Williams@cavium.com>
+
 ---
  drivers/usb/host/xhci-mem.c  | 10 ++++++++++
  drivers/usb/host/xhci-ring.c | 15 +++++++++++++++
@@ -128,6 +128,3 @@ index 6017504488..65f44fb637 100644
  };
  
  unsigned long trb_addr(struct xhci_segment *seg, union xhci_trb *trb);
--- 
-2.29.0
-

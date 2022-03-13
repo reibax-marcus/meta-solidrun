@@ -1,10 +1,11 @@
-From 2673b8cbd759c1fa49e3f7a8ec3ab75f3da7cc43 Mon Sep 17 00:00:00 2001
+From 2aff27bebd906f3da4921442549e56491f0aa8c7 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Wed, 26 Apr 2017 18:05:29 +0300
-Subject: [PATCH 0030/1239] doc: dt-bindings: add Marvell comphy binding
+Subject: [PATCH] doc: dt-bindings: add Marvell comphy binding
 
 Change-Id: I29094afb646744afe78ad09bb7479894d1a65e96
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  doc/device-tree-bindings/phy/mvebu_comphy.txt | 69 +++++++++++++++++++
  1 file changed, 69 insertions(+)
@@ -85,6 +86,3 @@ index 0000000000..36ad0137c6
 +		};
 +	};
 +
--- 
-2.29.0
-

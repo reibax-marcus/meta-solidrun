@@ -1,7 +1,7 @@
-From 469fb2284363ae2bed42605bb47427c78adbfdd6 Mon Sep 17 00:00:00 2001
+From 5c3d8fd769b453b5f7e91ba6f9e1fb53652e2907 Mon Sep 17 00:00:00 2001
 From: aaronw <aaron.w2@gmail.com>
 Date: Thu, 6 Jun 2019 18:54:17 -0700
-Subject: [PATCH 0932/1239] mmc: octeontx: Remove debug message
+Subject: [PATCH] mmc: octeontx: Remove debug message
 
 A debug message was improperly marked as an error message.
 
@@ -10,6 +10,7 @@ Signed-off-by: aaronw <aaron.w2@gmail.com>
 Reviewed-on: https://sj1git1.cavium.com/10625
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
@@ -35,6 +36,3 @@ index 6ce7d36018..9bb7735798 100644
  				break;
  			}
  		}
--- 
-2.29.0
-

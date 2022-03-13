@@ -1,9 +1,10 @@
-From eeee4fba8a891747d3f6908bb147f92cfd72f37a Mon Sep 17 00:00:00 2001
+From ee251c4a7a741d526fc09e8f3bd1480b31da88ae Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 5 May 2016 20:44:38 -0700
-Subject: [PATCH 0409/1239] Fix compilation errors.
+Subject: [PATCH] Fix compilation errors.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
@@ -38,6 +39,3 @@ index e455e4510f..bcb15a6576 100644
  
  	for (lmacid = 0; lmacid < MAX_LMAC_PER_BGX; lmacid++) {
  		lmac = &bgx->lmac[lmacid];
--- 
-2.29.0
-

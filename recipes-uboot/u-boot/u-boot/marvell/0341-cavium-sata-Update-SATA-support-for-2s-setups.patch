@@ -1,7 +1,7 @@
-From 77b59f17e6e4f541a9c7e0660fa87b43c4ef7de9 Mon Sep 17 00:00:00 2001
+From 0cd8d3a5ac61aa1957d8359f7b8f572c4e074f40 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 18:12:19 -0800
-Subject: [PATCH 0341/1239] cavium: sata: Update SATA support for 2s setups
+Subject: [PATCH] cavium: sata: Update SATA support for 2s setups
 
 ---
  board/cavium/thunderx/sata.c | 5 +++++
@@ -28,6 +28,3 @@ index 0d20ea25a3..478cce08fc 100644
  	if (!uctl_ctl.s.sata_uahc_rst &&
  		!uctl_ctl.s.sata_uctl_rst &&
  		uctl_ctl.s.a_clk_en) {
--- 
-2.29.0
-

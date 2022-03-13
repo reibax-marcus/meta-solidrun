@@ -1,7 +1,7 @@
-From 5de58be78f131a6068dfc68156f2aa2329f1ff68 Mon Sep 17 00:00:00 2001
+From 88212047c86e16afd7737de269366d4c5f53d770 Mon Sep 17 00:00:00 2001
 From: aaronw <aaron.williams@cavium.com>
 Date: Thu, 7 Mar 2019 22:07:53 -0800
-Subject: [PATCH 0891/1239] octeontx2: mmc: Add new octeontx2 mmc driver
+Subject: [PATCH] octeontx2: mmc: Add new octeontx2 mmc driver
 
 This driver replaces the existing OcteonTX/OcteonTX2 MMC driver.
 The old driver had many problems, one of which being it did not
@@ -21,6 +21,7 @@ Signed-off-by: aaronw <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5426
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/octeontx.h |    5 +-
  drivers/mmc/octeontx_hsmmc.c                  | 2572 +++++++++++++++++
@@ -2815,6 +2816,3 @@ index 0000000000..abb1324024
 +				R1_OVERRUN
 +
 +#endif /* __OCTEONTX_HSMMC_H__ */
--- 
-2.29.0
-

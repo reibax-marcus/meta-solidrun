@@ -1,13 +1,14 @@
-From 5d8ff3cfb8d7f1c8ca18fa201737cd04f95a4e10 Mon Sep 17 00:00:00 2001
+From d34aecca3d4044c3e369a5e9474b0ff5d46c1185 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Mon, 5 Feb 2018 17:33:45 +0200
-Subject: [PATCH 0134/1239] arm64: mvebu: a8k: add llc info print
+Subject: [PATCH] arm64: mvebu: a8k: add llc info print
 
 Enable displaying LLC print during A8K
 SoCs boot.
 
 Change-Id: I43c42e417823825294678840e25884e2c313383a
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/include/asm/arch-armada8k/cache_llc.h |  5 +++++
  arch/arm/mach-mvebu/armada8k/cpu.c             |  1 +
@@ -88,6 +89,3 @@ index 4a17c8a8c3..cd7fc8f79d 100644
 +void soc_print_system_cache_info(void);
  #endif /* __ASSEMBLY__ */
  #endif /* _MVEBU_SOC_H */
--- 
-2.29.0
-

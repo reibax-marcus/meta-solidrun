@@ -1,8 +1,7 @@
-From 4c1adbcb4d9bcf63ca3e12fbf1c556365c6691a2 Mon Sep 17 00:00:00 2001
+From 051a2a432bcca7210693b3204322b8da46f3187e Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 26 Nov 2018 16:05:13 +0200
-Subject: [PATCH 0219/1239] arm64: mvebu: a37xx: fix the boot from eMMC
- handling
+Subject: [PATCH] arm64: mvebu: a37xx: fix the boot from eMMC handling
 
 Update environment device and partition IDs according to target.
 For Armada-37xx the boot is supported only from eMMC, not SD.
@@ -15,6 +14,7 @@ Xenon SDHCI driver to MMC boot selection.
 
 Change-Id: Ifd72e32e2502faec6b517091158088cbc9ff8749
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  cmd/mvebu/Kconfig                     |  2 +-
  cmd/mvebu/bubt.c                      |  6 +++++-
@@ -117,6 +117,3 @@ index 7ac966cc03..b9605bf7d5 100644
  
  /*
   * SATA/SCSI/AHCI configuration
--- 
-2.29.0
-

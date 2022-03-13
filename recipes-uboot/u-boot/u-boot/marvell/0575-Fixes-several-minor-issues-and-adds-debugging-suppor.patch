@@ -1,13 +1,13 @@
-From d4f69fd0e4f15d17f4cbd78550fd0e97c2d894b8 Mon Sep 17 00:00:00 2001
+From 556acf914e177a9d18cb269b41de6e4608a2c7fd Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 28 Nov 2016 18:10:34 -0800
-Subject: [PATCH 0575/1239] Fixes several minor issues and adds debugging
- support
+Subject: [PATCH] Fixes several minor issues and adds debugging support
 
 This checkin fixes a couple of minor issues that have not been hit.
 - GPIO_BIT macro missing parenthesis around argument
 - octeontx_gpio_xlate does not check the argument count before using an argument
 - debugging support added to see what is going on when enabled.
+
 ---
  drivers/gpio/thunderx_gpio.c | 18 +++++++++++++-----
  1 file changed, 13 insertions(+), 5 deletions(-)
@@ -76,6 +76,3 @@ index 5fc10090c0..c732e7d80f 100644
  	return 0;
  }
  
--- 
-2.29.0
-

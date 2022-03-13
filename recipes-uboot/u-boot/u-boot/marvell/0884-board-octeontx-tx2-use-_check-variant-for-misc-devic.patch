@@ -1,8 +1,7 @@
-From 814378555d3150fdd379962c444e8325751e539d Mon Sep 17 00:00:00 2001
+From 683b8dc217e9c05f8199762afb58efbc011cf082 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Sat, 16 Feb 2019 20:19:18 -0800
-Subject: [PATCH 0884/1239] board: octeontx/tx2: use _check variant for misc
- devices
+Subject: [PATCH] board: octeontx/tx2: use _check variant for misc devices
 
 Do not stop probing misc uclass devices if one fails,
 iterate over all devices in list with use of _check variants
@@ -14,6 +13,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/4189
 Tested-by: sa_ip-sw-jenkins
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx/octeontx.c   | 4 ++--
  board/Marvell/octeontx2/octeontx2.c | 4 ++--
@@ -51,6 +51,3 @@ index 37baa11f38..20ed369bae 100644
  		;
  	}
  	return 0;
--- 
-2.29.0
-

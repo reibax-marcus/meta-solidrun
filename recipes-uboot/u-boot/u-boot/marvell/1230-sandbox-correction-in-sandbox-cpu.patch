@@ -1,7 +1,7 @@
-From be30da7429640cbc3a3766b66b126c0ed5792126 Mon Sep 17 00:00:00 2001
+From 778741da674faae57277ddb1fb012ff3af61702f Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Fri, 2 Oct 2020 14:35:32 -0700
-Subject: [PATCH 1230/1239] sandbox: correction in sandbox cpu
+Subject: [PATCH] sandbox: correction in sandbox cpu
 
 Sandbox cpu needs to be set at sandbox testing.
 
@@ -11,6 +11,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/37254
 Reviewed-by: Sujeet Kumar Baranwal <Sujeet.Baranwal@cavium.com>
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Tested-by: Jia Ma <jiam@marvell.com>
+
 ---
  drivers/cpu/cpu_sandbox.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -28,6 +29,3 @@ index 946c8d09b0..ff87e8adca 100644
  	{ }
  };
  
--- 
-2.29.0
-

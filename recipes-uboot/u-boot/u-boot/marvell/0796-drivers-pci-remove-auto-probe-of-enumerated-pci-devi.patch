@@ -1,10 +1,10 @@
-From 6f3c5a58c352f06d492ea1407a5763f7eda06f22 Mon Sep 17 00:00:00 2001
+From ba1c7451c24f197f9104ac60ccd846768605255c Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 7 Sep 2018 16:22:54 -0700
-Subject: [PATCH 0796/1239] drivers: pci: remove auto probe of enumerated pci
- devices
+Subject: [PATCH] drivers: pci: remove auto probe of enumerated pci devices
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/pci/pci_auto.c | 1 -
  1 file changed, 1 deletion(-)
@@ -21,6 +21,3 @@ index 0adae0ec17..167883a29c 100644
  		break;
  	}
  
--- 
-2.29.0
-

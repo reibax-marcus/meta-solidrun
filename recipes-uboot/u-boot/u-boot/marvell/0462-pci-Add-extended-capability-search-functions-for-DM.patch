@@ -1,12 +1,12 @@
-From 95c320d8e4efd8a808cc613ee1699fa2e62e6ca2 Mon Sep 17 00:00:00 2001
+From ed42e0c7c34f0073e1361478b89e1b660cae5112 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 22:01:25 -0400
-Subject: [PATCH 0462/1239] pci: Add extended capability search functions for
- DM
+Subject: [PATCH] pci: Add extended capability search functions for DM
 
 DM code is missing those functions, add them
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci-uclass.c | 104 +++++++++++++++++++++++++++++++++++++++
  include/pci.h            |  11 ++++-
@@ -156,6 +156,3 @@ index 12cb4243b7..4c8c8808db 100644
  
  /**
   * dm_pci_find_device() - find a device by vendor/device ID
--- 
-2.29.0
-

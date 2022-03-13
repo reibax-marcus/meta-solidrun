@@ -1,11 +1,12 @@
-From 6f9e2a433e1c7368295e940a8af91101ec225966 Mon Sep 17 00:00:00 2001
+From e7d47b49ebfec4acc7eeaabd82e06b25b0671581 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 May 2016 19:27:44 -0700
-Subject: [PATCH 0403/1239] cavium: Drop non-OF code
+Subject: [PATCH] cavium: Drop non-OF code
 
 Non-OF code has been obsoleted for some time. Drop it.
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  board/cavium/thunderx/thunderx.c | 28 +++-------------------------
  1 file changed, 3 insertions(+), 25 deletions(-)
@@ -69,6 +70,3 @@ index 35bb72854b..67f6c2015a 100644
  	printf("Board type: %s\n", getenv("board"));
  
  	return 0;
--- 
-2.29.0
-

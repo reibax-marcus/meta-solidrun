@@ -1,7 +1,7 @@
-From 8c7cb4e61e18bcdc05106ec026248045020b8549 Mon Sep 17 00:00:00 2001
+From 5dbc32e457063b64b91af6e7ad4f4ab961b5b3ae Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Thu, 14 Nov 2019 19:20:48 -0800
-Subject: [PATCH 1009/1239] octeontx: pcie-console: Fix shutdown code
+Subject: [PATCH] octeontx: pcie-console: Fix shutdown code
 
 The shutdown code was calling __atomic_fetch_nand and the behavior
 is not what was expected.  This was replaced with __atomic_fetch_and
@@ -18,6 +18,7 @@ Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19363
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/serial/serial_octeontx_pcie_console.c | 16 ++--------------
  1 file changed, 2 insertions(+), 14 deletions(-)
@@ -61,6 +62,3 @@ index ee7e8166a8..fe3ce4088e 100644
  	return 0;
  }
  
--- 
-2.29.0
-

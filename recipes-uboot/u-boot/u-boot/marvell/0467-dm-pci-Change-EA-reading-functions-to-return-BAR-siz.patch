@@ -1,12 +1,12 @@
-From 87713689ed67a1b26564adcee795c9808244f4df Mon Sep 17 00:00:00 2001
+From d607c3f261c5c280e4bb08459b1f7c6c171845cd Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 23:18:56 -0400
-Subject: [PATCH 0467/1239] dm: pci: Change EA reading functions to return BAR
- sizes
+Subject: [PATCH] dm: pci: Change EA reading functions to return BAR sizes
 
 Return BAR sizes which are much more useful
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci-uclass.c | 19 +++++++++----------
  1 file changed, 9 insertions(+), 10 deletions(-)
@@ -85,6 +85,3 @@ index ef8762b385..e4e0be9ebe 100644
  	}
  
  	return (bar == bei);
--- 
-2.29.0
-

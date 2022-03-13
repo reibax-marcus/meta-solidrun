@@ -1,7 +1,7 @@
-From e32ec4df59a5bc3d520015880e2d1aac441b3736 Mon Sep 17 00:00:00 2001
+From 7035f1589155ed9df9bc926e08e4478c20861667 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 Nov 2015 19:10:02 -0800
-Subject: [PATCH 0326/1239] cavium: Add CPU-specific reset function
+Subject: [PATCH] cavium: Add CPU-specific reset function
 
 ---
  board/cavium/thunderx/thunderx.c | 5 +++++
@@ -30,6 +30,3 @@ index 6c4268e859..4e81159982 100644
  }
  
  /*
--- 
-2.29.0
-

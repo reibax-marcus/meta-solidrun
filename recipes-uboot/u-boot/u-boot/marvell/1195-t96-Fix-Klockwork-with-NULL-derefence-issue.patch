@@ -1,13 +1,14 @@
-From 053d92ca72d463400c813179c60cd5ecb9c87707 Mon Sep 17 00:00:00 2001
+From b3a05d46efa0b6ae7f1de3775369b53923c66f63 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Wed, 22 Jul 2020 12:51:02 -0700
-Subject: [PATCH 1195/1239] t96: Fix Klockwork with NULL derefence issue
+Subject: [PATCH] t96: Fix Klockwork with NULL derefence issue
 
 Change-Id: Iffdbb9a4355ab735086949832110b50c89ff9d1b
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32509
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  board/Marvell/octeontx2/board.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
@@ -38,6 +39,3 @@ index 39eca2349f..bad21aacdc 100644
  			save_env = true;
  		env_set("serial#", boardserial);
  	}
--- 
-2.29.0
-

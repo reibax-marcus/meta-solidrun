@@ -1,14 +1,14 @@
-From 2364a6abf5d1134ceb3c38e3612e6120922f0d9b Mon Sep 17 00:00:00 2001
+From 4bcf884942bba3dadf45409b8d50d7380b3dde41 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Tue, 28 Apr 2020 15:14:44 -0700
-Subject: [PATCH 1143/1239] cmd:marvell: Update PRBS APIs to start/stop per QLM
- lane
+Subject: [PATCH] cmd:marvell: Update PRBS APIs to start/stop per QLM lane
 
 Change-Id: I12689a4f1767ca752ba635ae33e88dfda4051e5a
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27633
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  cmd/marvell/octeontx2_qlm_cmds.c | 29 +++++++++++++++++++----------
  drivers/net/octeontx2/cgx.h      |  2 +-
@@ -123,6 +123,3 @@ index e0d9750461..0b2bf696fe 100644
  };
  
  struct cgx_display_eye_args {
--- 
-2.29.0
-

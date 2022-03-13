@@ -1,7 +1,7 @@
-From 54b128b61293a95fd981ba2f9c726cb2e5ae53d7 Mon Sep 17 00:00:00 2001
+From b349bcb1c7a9dd6a889f44d3ab38180bf79029a9 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 Nov 2015 22:28:29 -0800
-Subject: [PATCH 0360/1239] cavium: Add PEM definitions to the FDT
+Subject: [PATCH] cavium: Add PEM definitions to the FDT
 
 ---
  arch/arm/dts/thunder-88xx.dtsi | 137 ++++++++++++++++++++++++++++++++-
@@ -170,6 +170,3 @@ index 7f17227d91..2225a31585 100644
 +		};
  	};
  };
--- 
-2.29.0
-

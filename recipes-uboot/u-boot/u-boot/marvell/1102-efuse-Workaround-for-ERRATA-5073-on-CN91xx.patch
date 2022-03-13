@@ -1,7 +1,7 @@
-From 880454d9f8723aeeb75fb5bdcb3b014fe138e42e Mon Sep 17 00:00:00 2001
+From 159c5a684a927ae357c8ce45c6a9c30ee0b13924 Mon Sep 17 00:00:00 2001
 From: Srikanth Pidugu <spidugu@marvell.com>
 Date: Thu, 30 Jan 2020 16:31:36 -0800
-Subject: [PATCH 1102/1239] efuse: Workaround for ERRATA-5073 on CN91xx
+Subject: [PATCH] efuse: Workaround for ERRATA-5073 on CN91xx
 
 HD efuse programming will fail on first write to any row due to
 this errata. The workaround is to detect failure and retry the
@@ -12,6 +12,7 @@ Signed-off-by: Srikanth Pidugu <spidugu@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/22618
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Yi Guo <yi.guo@cavium.com>
+
 ---
  drivers/fuse/fuse-mvebu-hd.c | 80 +++++++++++++++++++++++++++++-------
  1 file changed, 66 insertions(+), 14 deletions(-)
@@ -123,6 +124,3 @@ index 1a338fba0d..6f692c6906 100644
  	return 0;
  }
  
--- 
-2.29.0
-

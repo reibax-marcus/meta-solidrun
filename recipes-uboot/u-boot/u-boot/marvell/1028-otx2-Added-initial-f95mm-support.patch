@@ -1,13 +1,14 @@
-From c9da528d6be6cd520f0168e068dae18c218f5a13 Mon Sep 17 00:00:00 2001
+From 037a47ec810bcde87b5cb4f5260f4382e1b19be1 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Tue, 3 Dec 2019 17:35:56 -0800
-Subject: [PATCH 1028/1239] otx2: Added initial f95mm support
+Subject: [PATCH] otx2: Added initial f95mm support
 
 Change-Id: I93e70e4ede2275bb2093ce508e8724b4f9926f5d
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/19772
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/soc.h |   1 +
  arch/arm/mach-octeontx2/Kconfig           |   3 +
@@ -289,6 +290,3 @@ index 0000000000..4377d27a75
 +#endif
 +
 +#endif /* __OCTEONTX2_95MM_H__ */
--- 
-2.29.0
-

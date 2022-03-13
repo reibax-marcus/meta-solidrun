@@ -1,7 +1,7 @@
-From 7a4d8763a79f6a38e0c10f83dce033347429f92c Mon Sep 17 00:00:00 2001
+From 1ef17a2dc1bde20b8659630b9fdcb3259a78fbf2 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 24 Apr 2019 14:02:21 -0700
-Subject: [PATCH 0900/1239] octeontx2: fix u-boot config check errors
+Subject: [PATCH] octeontx2: fix u-boot config check errors
 
 SDK builds only target u-boot-nodtb.bin but few kconfig
 errors appear with full make, so fix them.
@@ -11,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/8033
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx2/Kconfig |  4 ++--
  drivers/mmc/Kconfig             |  8 ++++++++
@@ -90,6 +91,3 @@ index 68cecf75a2..9f712845c3 100644
 +	default "U-Boot"
 +
  endif   # if NET
--- 
-2.29.0
-

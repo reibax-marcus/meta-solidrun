@@ -1,8 +1,7 @@
-From 7e51196ffc92ed9ab81f360628eab8bafd3f67f1 Mon Sep 17 00:00:00 2001
+From 5c8a0dcd8fce4c5adcd8e472dffba8a36f34e23b Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Wed, 1 Feb 2017 12:02:13 -0800
-Subject: [PATCH 0605/1239] bgx : update the driver to read the PHY info from
- OS DT
+Subject: [PATCH] bgx : update the driver to read the PHY info from OS DT
 
 This patch removes obtaining phy info from bdk DT and instead
 uses OS DT and applies it.
@@ -11,6 +10,7 @@ This patch also reverts the changes from commit : 747122ed
 and handles interfaces without phy (like qsgmii on router board)
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  .../include/asm/arch-thunderx/thunderx_fdt.h  |   1 +
  .../include/asm/arch-thunderx/thunderx_vnic.h |   4 +-
@@ -325,6 +325,3 @@ index c62a5f3123..d21aea9c8b 100644
  };
  
  enum LMAC_TYPE {
--- 
-2.29.0
-

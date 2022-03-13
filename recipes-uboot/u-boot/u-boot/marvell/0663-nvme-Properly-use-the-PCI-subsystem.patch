@@ -1,12 +1,13 @@
-From 518ea84481fc361bac98613571c6a5787c0a4c7c Mon Sep 17 00:00:00 2001
+From c7f815aca72c829b577cdd9dac138da8888555ef Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 26 Jul 2017 17:13:56 +0300
-Subject: [PATCH 0663/1239] nvme: Properly use the PCI subsystem
+Subject: [PATCH] nvme: Properly use the PCI subsystem
 
 - Use the proper struct udevice pointer to access PCI registers
 - Use the changed dm_pci_map_bar semantics to access the BARs
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/block/nvme.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
@@ -33,6 +34,3 @@ index 510ecc811a..a5b23cadc6 100644
  	if (readl(&ndev->bar->csts) == -1) {
  		ret = -ENODEV;
  		printf("Error: %s: Out of Memory!\n", udev->name);
--- 
-2.29.0
-

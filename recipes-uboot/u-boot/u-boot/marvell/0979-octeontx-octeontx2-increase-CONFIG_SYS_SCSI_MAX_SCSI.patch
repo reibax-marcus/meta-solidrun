@@ -1,8 +1,8 @@
-From 153c55b9649db73b341027019200116757e3a9a3 Mon Sep 17 00:00:00 2001
+From 82d01c61dd7a48d0de8ebb8664e6d76a25db8408 Mon Sep 17 00:00:00 2001
 From: Roy Franz <rfranz@marvell.com>
 Date: Mon, 28 Oct 2019 16:43:41 -0700
-Subject: [PATCH 0979/1239] octeontx: octeontx2: increase
- CONFIG_SYS_SCSI_MAX_SCSI_ID to 16
+Subject: [PATCH] octeontx: octeontx2: increase CONFIG_SYS_SCSI_MAX_SCSI_ID to
+ 16
 
 Increase CONFIG_SYS_SCSI_MAX_SCSI_ID to 16 to allow up to 16 ports of
 add-in PCIe SATA controllers to work.  This should allow all ports to
@@ -16,6 +16,7 @@ Signed-off-by: Roy Franz <rfranz@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/18001
 Reviewed-by: Aaron Williams <awilliams@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  include/configs/octeontx2_96xx.h  | 2 +-
  include/configs/octeontx2_98xx.h  | 2 +-
@@ -61,6 +62,3 @@ index 3e91a027b1..6164858f4e 100644
  /** Enable 48-bit SATA addressing */
  # define CONFIG_LBA48
  /** Enable 64-bit addressing */
--- 
-2.29.0
-

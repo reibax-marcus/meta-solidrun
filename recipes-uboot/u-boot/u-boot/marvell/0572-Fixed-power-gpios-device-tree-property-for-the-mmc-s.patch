@@ -1,14 +1,14 @@
-From 2006ef8eb18c915db3fb82282428faa19ab4c2f4 Mon Sep 17 00:00:00 2001
+From ba796a6600caa479e88e4d1be7ff5b102c0d80a6 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 22 Nov 2016 16:41:01 -0800
-Subject: [PATCH 0572/1239] Fixed power-gpios device tree property for the mmc
- slot.
+Subject: [PATCH] Fixed power-gpios device tree property for the mmc slot.
 
 Getting the power-gpios field from the slot info in the device tree
 used the wrong offset.  It was using the device node, not the slot
 node.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 11 +++++++----
  1 file changed, 7 insertions(+), 4 deletions(-)
@@ -55,6 +55,3 @@ index 7cfdd269a3..6a2b002eda 100644
  		gpio_request_by_name_nodev(blob, slot_node, "cd-gpios", 0,
  					   &slot->cd_gpio, GPIOD_IS_IN);
  		if (fdtdec_get_bool(blob, slot_node, "cd-inverted"))
--- 
-2.29.0
-

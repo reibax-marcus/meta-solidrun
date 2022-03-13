@@ -1,8 +1,7 @@
-From 22524708a4e2a5f0815c4cb458bf9343d4053964 Mon Sep 17 00:00:00 2001
+From fe4c2d1aa031f686c2e3969f656531eb7ecee9cc Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 5 Feb 2019 12:10:13 -0800
-Subject: [PATCH 0876/1239] board: octeontx2: add missing kconfig entry for
- 95xx
+Subject: [PATCH] board: octeontx2: add missing kconfig entry for 95xx
 
 Without this change, header config file octeontx2_95xx.h will
 not be picked. Also, remove redundant definitions in this header.
@@ -10,6 +9,7 @@ not be picked. Also, remove redundant definitions in this header.
 Change-Id: I02fd808ad7e37aa5d4e21c5f53191e4eb335b443
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/3534
+
 ---
  board/Marvell/octeontx2/Kconfig  | 4 ++++
  include/configs/octeontx2_95xx.h | 7 -------
@@ -51,6 +51,3 @@ index f79c57f29e..7c1149a221 100644
  #define CONFIG_SYS_MAXARGS		64	/** max command args */
  
  #define CONFIG_SYS_MMC_MAX_BLK_COUNT	8191
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From d57ef3fa5b95e3f040134bddb131ca6483a76486 Mon Sep 17 00:00:00 2001
+From 97603516ebfabe9b356287c509675ae80696a7c9 Mon Sep 17 00:00:00 2001
 From: Janne Kajovuori <janne.kajovuori@nokia.com>
 Date: Mon, 27 May 2019 06:23:04 +0000
-Subject: [PATCH 0915/1239] octeontx2: decouple arch and board configurations
+Subject: [PATCH] octeontx2: decouple arch and board configurations
 
 Enable target board selection for mach-octeontx2 instead of using one
 architecture specific configuration for all boards. This allows U-Boot
@@ -16,6 +16,7 @@ Signed-off-by: Janne Kajovuori <janne.kajovuori@nokia.com>
 Reviewed-on: https://sj1git1.cavium.com/10366
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/mach-octeontx2/Kconfig | 18 +++++++++++-------
  board/Marvell/octeontx2/Kconfig | 17 +++++++----------
@@ -78,6 +79,3 @@ index 793340b6af..e298b4cc85 100644
  
  config SYS_CONFIG_NAME
  	default "octeontx2_96xx" if TARGET_OCTEONTX2_96XX
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 00976d03b23b0e07c4250a195e7b04096280ab76 Mon Sep 17 00:00:00 2001
+From 79a297e7a07072cf7d7821c6f88f408d163f2f2c Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 Nov 2015 22:31:09 -0800
-Subject: [PATCH 0362/1239] pci: Add PCIe capability register definitions
+Subject: [PATCH] pci: Add PCIe capability register definitions
 
 ---
  include/pci.h | 182 ++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -200,6 +200,3 @@ index f4f8c2f947..65309c1668 100644
  /* PCI Enhanced Allocation registers */
  
  #define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
--- 
-2.29.0
-

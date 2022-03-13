@@ -1,13 +1,14 @@
-From be6e6ace6140ed57fcbd8326ac0dc86770afffec Mon Sep 17 00:00:00 2001
+From 055f50f344fcfb97107c3ee6786848fc90f5adeb Mon Sep 17 00:00:00 2001
 From: Alexey Kovalev <alexey.kovalev@cavium.com>
 Date: Tue, 28 May 2019 23:46:51 +0300
-Subject: [PATCH 0941/1239] marvell: octeontx2: Reenable failsafe feature
+Subject: [PATCH] marvell: octeontx2: Reenable failsafe feature
 
 Change-Id: I0625c2878a17f0c2f1e2516ddf4abfa15bb6caf6
 Signed-off-by: Alexey Kovalev <alexey.kovalev@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10126
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h | 6 +++---
  cmd/marvell/octeontx2_cmds.c                        | 7 ++++---
@@ -125,6 +126,3 @@ index 3a75b8980d..3829f7e464 100644
  
  /**
   * Only allow the Ethernet MAC address environment variable to be
--- 
-2.29.0
-

@@ -1,9 +1,10 @@
-From d93b2fcd24cb7972e722d8431d1583bd75fbfe6a Mon Sep 17 00:00:00 2001
+From 0f4fbe700d49d6a9f6eb11ff1e02e832cc97965f Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 27 Apr 2017 11:40:32 -0700
-Subject: [PATCH 0634/1239] drivers: sync with compatibles in dts files
+Subject: [PATCH] drivers: sync with compatibles in dts files
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/i2c/thunderx_i2c.c        | 2 +-
  drivers/net/cavium/thunder_bgx.c  | 2 +-
@@ -63,6 +64,3 @@ index 026a8f8e14..c6dca0ee3e 100755
  	{ }
  };
  
--- 
-2.29.0
-

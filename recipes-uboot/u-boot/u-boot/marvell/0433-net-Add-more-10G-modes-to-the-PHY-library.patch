@@ -1,12 +1,13 @@
-From 090d2de987b37c882badeeab17678eb33a099bee Mon Sep 17 00:00:00 2001
+From e07acbe7204d2d8fa57a666a71f3c314f76eaef1 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 14 May 2016 11:42:22 -0400
-Subject: [PATCH 0433/1239] net: Add more 10G modes to the PHY library
+Subject: [PATCH] net: Add more 10G modes to the PHY library
 
 There are lots of 10G interfaces defined in the 802.3 family.
 This commit adds definitions for some of them
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  include/phy.h | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
@@ -35,6 +36,3 @@ index 312896a1b4..2e3d4de487 100644
  }
  
  #endif
--- 
-2.29.0
-

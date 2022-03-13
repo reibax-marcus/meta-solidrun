@@ -1,9 +1,10 @@
-From f5b0c55b87e3ba70b03c988080d10ed4b6ee2863 Mon Sep 17 00:00:00 2001
+From f76fac7c68c305986e61f90b57b514c89fea7c4d Mon Sep 17 00:00:00 2001
 From: Alon Rotman <alon.rotman@solid-run.com>
 Date: Thu, 29 Oct 2020 17:24:33 +0200
-Subject: [PATCH 3/6] config: cn913x com express type 7 defonfig
+Subject: [PATCH] config: cn913x com express type 7 defonfig
 
 Signed-off-by: Alon Rotman <alon.rotman@solid-run.com>
+
 ---
  configs/sr_cn913x_cex7_defconfig | 103 +++++++++++++++++++++++++++++++
  1 file changed, 103 insertions(+)
@@ -118,6 +119,3 @@ index 0000000000..090db028c6
 +CONFIG_USB_ETHER_SMSC95XX=y
 +CONFIG_SMBIOS_MANUFACTURER=""
 +CONFIG_OF_BOARD_FIXUP=y
--- 
-2.25.1
-

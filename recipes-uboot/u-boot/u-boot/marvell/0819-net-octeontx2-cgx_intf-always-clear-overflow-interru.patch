@@ -1,8 +1,7 @@
-From e87a9c0cb35c7f9e772c2544505842b88368fdd7 Mon Sep 17 00:00:00 2001
+From 7728e9c98b54c02b36ca6257c128a8ec942ecdda Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 17 Aug 2018 09:48:53 -0700
-Subject: [PATCH 0819/1239] net: octeontx2: cgx_intf: always clear overflow
- interrupt
+Subject: [PATCH] net: octeontx2: cgx_intf: always clear overflow interrupt
 
 Clear the overflow interrupt which is used as communication
 mechanism between ATF and kernel.
@@ -11,6 +10,7 @@ overflow interrupt bit for any commands processed.
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx2/cgx_intf.c | 6 ++++++
  drivers/net/cavium/octeontx2/cgx_intf.h | 1 +
@@ -52,6 +52,3 @@ index a46ea03b24..01994c53ed 100644
  #define CGX_CMR_SCRATCH0	0x87e0e0001050
  #define CGX_CMR_SCRATCH1	0x87e0e0001058
  
--- 
-2.29.0
-

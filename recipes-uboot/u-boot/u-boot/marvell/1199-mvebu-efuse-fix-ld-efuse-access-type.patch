@@ -1,7 +1,7 @@
-From b81939ba0d1049adf0e8f998ab53fb079847e397 Mon Sep 17 00:00:00 2001
+From 24563a1ef7ff8d7b2b0edefa048fdd959cd7ff84 Mon Sep 17 00:00:00 2001
 From: Guo Yi <yi.guo@cavium.com>
 Date: Mon, 20 Jul 2020 14:12:16 -0700
-Subject: [PATCH 1199/1239] mvebu: efuse: fix ld efuse access type
+Subject: [PATCH] mvebu: efuse: fix ld efuse access type
 
 ld0 should be defined as mvebu-fuse-ld-prop
 ld1 should be defined as mvebu-fuse-ld-user
@@ -14,6 +14,7 @@ Signed-off-by: Guo Yi <yi.guo@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32317
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-ap80x.dtsi | 4 ++--
  arch/arm/dts/armada-cp110.dtsi | 4 ++--
@@ -90,6 +91,3 @@ index 7f42678c92..c11341407d 100644
  		printf("This efuse row is LD0 and read-only\n");
  		return -EINVAL;
  	}
--- 
-2.29.0
-

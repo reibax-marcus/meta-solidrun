@@ -1,7 +1,7 @@
-From 1c7d629f2f0d1f9d926c880491bf001e24287404 Mon Sep 17 00:00:00 2001
+From d42081f3c6bfc2ef32e42cd500959e9dbd39adf1 Mon Sep 17 00:00:00 2001
 From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
 Date: Thu, 21 Jun 2018 11:21:12 +0200
-Subject: [PATCH 0781/1239] drivers: usb eth: Fix displaying the interface name
+Subject: [PATCH] drivers: usb eth: Fix displaying the interface name
 
 Interface name is concatenated with next string,
 which causes confusion in proper interface name.
@@ -9,6 +9,7 @@ which causes confusion in proper interface name.
 Add space to prevent above behavior.
 
 Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+
 ---
  drivers/usb/eth/usb_ether.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -26,6 +27,3 @@ index 4a41899e86..8821f7bcc6 100644
  			break;
  			}
  		}
--- 
-2.29.0
-

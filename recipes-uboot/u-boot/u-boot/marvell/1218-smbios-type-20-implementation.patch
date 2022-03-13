@@ -1,7 +1,7 @@
-From 23c5c618f32e870138650e7fa32c7594824f3eb2 Mon Sep 17 00:00:00 2001
+From d15f7af3798c5d8b091f0808b9bccd7c3976f474 Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Mon, 27 Jul 2020 11:00:17 -0700
-Subject: [PATCH 1218/1239] smbios: type 20 implementation
+Subject: [PATCH] smbios: type 20 implementation
 
 This structure maps memory address space usually
 to a device-level granularity.
@@ -11,6 +11,7 @@ Change-Id: I0ad202c9f68f0291c80b6b290e56bce48c813a24
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35170
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Tested-by: Jia Ma <jiam@marvell.com>
+
 ---
  include/smbios.h | 18 ++++++++++++++++++
  lib/smbios.c     | 33 +++++++++++++++++++++++++++++++++
@@ -110,6 +111,3 @@ index c5778fa438..1e237e9aaa 100644
  	smbios_write_type32,
  	smbios_write_type127
  };
--- 
-2.29.0
-

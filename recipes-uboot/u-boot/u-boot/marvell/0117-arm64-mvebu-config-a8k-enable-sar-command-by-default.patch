@@ -1,11 +1,11 @@
-From bafef2c3fbf3cde6946223123d7ef14701828ec5 Mon Sep 17 00:00:00 2001
+From 74c27f0e1bb141cfe89e3909f2b3d84bd8175744 Mon Sep 17 00:00:00 2001
 From: zachary zhang <zhangzg@marvell.com>
 Date: Tue, 22 May 2018 15:43:20 +0800
-Subject: [PATCH 0117/1239] arm64: mvebu: config: a8k: enable sar command by
- default
+Subject: [PATCH] arm64: mvebu: config: a8k: enable sar command by default
 
 Change-Id: I7a9caa0f8b444a4c0b2ffc78eaad3d9ca03c896a
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  configs/mvebu_db_armada8k_defconfig | 2 ++
  1 file changed, 2 insertions(+)
@@ -30,6 +30,3 @@ index 591ec6982c..b47b6c3dfb 100644
  # CONFIG_CMD_FLASH is not set
  CONFIG_CMD_GPIO=y
  CONFIG_CMD_I2C=y
--- 
-2.29.0
-

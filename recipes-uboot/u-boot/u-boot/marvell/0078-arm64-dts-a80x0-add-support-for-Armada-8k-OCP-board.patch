@@ -1,8 +1,7 @@
-From 0f3787a61c3005538b9f328c198f8a21da1af4a0 Mon Sep 17 00:00:00 2001
+From edc9e6a4da2b2130b06b904d1edf9f31a5345679 Mon Sep 17 00:00:00 2001
 From: Ofir Fedida <ofedida@marvell.com>
 Date: Thu, 13 Jul 2017 17:40:35 +0300
-Subject: [PATCH 0078/1239] arm64: dts: a80x0: add support for Armada 8k OCP
- board
+Subject: [PATCH] arm64: dts: a80x0: add support for Armada 8k OCP board
 
 This patch adds a new device tree for new Armada 8k OCP board.
 
@@ -14,6 +13,7 @@ UART
 
 Change-Id: Id7f65afedfa6fa6dd48df35128b8ef0aba4fd3ff
 Signed-off-by: Ofir Fedida <ofedida@marvell.com>
+
 ---
  arch/arm/dts/Makefile            |   1 +
  arch/arm/dts/armada-8040-ocp.dts | 284 +++++++++++++++++++++++++++++++
@@ -322,6 +322,3 @@ index 0000000000..93f586c9ac
 +	phy-mode = "sfi";
 +	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 10 GPIO_ACTIVE_HIGH>;
 +};
--- 
-2.29.0
-

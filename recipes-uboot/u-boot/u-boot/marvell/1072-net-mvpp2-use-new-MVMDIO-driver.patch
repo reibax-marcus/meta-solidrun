@@ -1,7 +1,7 @@
-From 9258b9e37e55134dda4eadaba7cc8645907cf9da Mon Sep 17 00:00:00 2001
+From 16140a3d45b1b4c6d4858130c66ae7bd402ca3ba Mon Sep 17 00:00:00 2001
 From: Nevo Hed <nhed+github@starry.com>
 Date: Thu, 15 Aug 2019 18:08:44 -0400
-Subject: [PATCH 1072/1239] net: mvpp2: use new MVMDIO driver
+Subject: [PATCH] net: mvpp2: use new MVMDIO driver
 
 This commit ports mvpp2 to use the recently introduced Marvell MDIO
 (MVMDIO) driver.  It removes direct interaction with the SMI & XSMI
@@ -25,6 +25,7 @@ Reviewed-on: https://sj1git1.cavium.com/22336
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 194 ++++----------------------------------------
  1 file changed, 18 insertions(+), 176 deletions(-)
@@ -347,6 +348,3 @@ index edbbf107fa..59dfb366bc 100644
  			mvpp22_smi_phy_addr_cfg(port);
  
  		/* GoP Init */
--- 
-2.29.0
-

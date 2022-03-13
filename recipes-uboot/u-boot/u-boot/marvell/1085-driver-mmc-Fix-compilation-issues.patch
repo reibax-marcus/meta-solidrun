@@ -1,13 +1,14 @@
-From 3a71d2c5f7fa8b61b47766a8be0f34f35f9cb460 Mon Sep 17 00:00:00 2001
+From b13ce7353788a5aecd2ea19069ab8bbe75cef487 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Mon, 3 Feb 2020 10:18:18 -0800
-Subject: [PATCH 1085/1239] driver: mmc: Fix compilation issues
+Subject: [PATCH] driver: mmc: Fix compilation issues
 
 Change-Id: Ia8e0113fbf369263b76d39878ea365e1b9ee12a9
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/22816
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 2 ++
  1 file changed, 2 insertions(+)
@@ -29,6 +30,3 @@ index 31d4b0c026..853df3b7fc 100644
  
  	return err;
  }
--- 
-2.29.0
-

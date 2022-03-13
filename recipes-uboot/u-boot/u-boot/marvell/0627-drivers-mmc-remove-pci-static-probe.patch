@@ -1,11 +1,12 @@
-From 00d138e878125a8ef54f194b489e519a3e29bec5 Mon Sep 17 00:00:00 2001
+From 50391fee0f6bacfb108b25c1cf7715bfc5cd3bbc Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarpati@caviumnetworks.com>
 Date: Tue, 4 Apr 2017 15:45:38 -0700
-Subject: [PATCH 0627/1239] drivers: mmc: remove pci static probe
+Subject: [PATCH] drivers: mmc: remove pci static probe
 
 move to driver-model probe method based on compatible.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 11 -----------
  1 file changed, 11 deletions(-)
@@ -36,6 +37,3 @@ index 9a9cc75d6a..3e3e2d7258 100644
 -
 -U_BOOT_PCI_DEVICE(cavium_pci_mmc, cavium_pci_mmc_supported);
 -#endif
--- 
-2.29.0
-

@@ -1,10 +1,10 @@
-From e09151966a0e9410e894996fc9e6b7a985ee5ce9 Mon Sep 17 00:00:00 2001
+From 206b25c366ee9c816a4ea156a6b477ab29ff9fd7 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Sat, 12 Aug 2017 01:56:09 -0700
-Subject: [PATCH 0690/1239] Fixes calls to mmc_get_blk_desc to include the
- device number.
+Subject: [PATCH] Fixes calls to mmc_get_blk_desc to include the device number.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  env/mmc.c | 7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)
@@ -41,6 +41,3 @@ index 9f1878def1..25eac2abd7 100644
  
  	blk_start	= ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
  	blk_cnt		= ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
--- 
-2.29.0
-

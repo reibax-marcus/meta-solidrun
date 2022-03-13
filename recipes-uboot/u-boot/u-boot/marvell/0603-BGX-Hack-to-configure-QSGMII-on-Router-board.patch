@@ -1,9 +1,10 @@
-From 7e508921ed9c074b105ad920e23cadbbef316e30 Mon Sep 17 00:00:00 2001
+From c12efcc40626fb4715dea28ad449e7e8220b7d13 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 19 Jan 2017 17:03:52 -0800
-Subject: [PATCH 0603/1239] BGX: Hack to configure QSGMII on Router board.
+Subject: [PATCH] BGX: Hack to configure QSGMII on Router board.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 20 +++++++++++++++++++-
  1 file changed, 19 insertions(+), 1 deletion(-)
@@ -53,6 +54,3 @@ index 7f52fe12fd..ce113a01d4 100644
  		snprintf(mii_name, sizeof(mii_name), "txsmi%d",
  			 bgx_board_info[bgx_idx].mdio_bus);
  
--- 
-2.29.0
-

@@ -1,13 +1,13 @@
-From de936418e209ab3420c47be01c16b956508711d7 Mon Sep 17 00:00:00 2001
+From 87486bc7fd9e36a0e0d3c523e84aafc72d4ca926 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Tue, 20 Dec 2016 17:14:05 -0800
-Subject: [PATCH 0587/1239] drivers: spi: add support for thunderx spi
- controller
+Subject: [PATCH] drivers: spi: add support for thunderx spi controller
 
 adds driver to support SPI controller found on thunderx soc's.
 Tested the flash using this driver on EBB/SFF 8104 boards.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  drivers/spi/Kconfig      |   6 +
  drivers/spi/Makefile     |   1 +
@@ -504,6 +504,3 @@ index 0000000000..7e487f9d0e
 +};
 +
 +U_BOOT_PCI_DEVICE(thunderx_pci_spi, thunderx_pci_spi_supported);
--- 
-2.29.0
-

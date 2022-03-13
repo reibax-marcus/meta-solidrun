@@ -1,12 +1,13 @@
-From 95ae586b631fad4bcbd0011ac28fe8229089fcad Mon Sep 17 00:00:00 2001
+From a67bbc1ccd07cca7e0663c9ddaf12fae454bdd62 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 19 Feb 2018 18:01:06 +0200
-Subject: [PATCH 0105/1239] arm64: mvebu: cmd: introduce AVS command
+Subject: [PATCH] arm64: mvebu: cmd: introduce AVS command
 
 Support set/get AVS value from u-boot command prompt.
 
 Change-Id: Ibf453d9862d4c1eb6ec51df6f84805f8feba0c87
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/soc.c     |  11 +++
  arch/arm/mach-mvebu/include/mach/soc.h |   7 ++
@@ -195,6 +196,3 @@ index 0000000000..c19c4f98d6
 +	"\t-value         AVS value in mV. Valid only for \"set\" operation\n"
 +	"\t               Valid AVS range is 600mV - 1000mV\n"
 +);
--- 
-2.29.0
-

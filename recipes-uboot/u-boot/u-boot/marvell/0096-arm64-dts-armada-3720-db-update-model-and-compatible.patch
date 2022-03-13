@@ -1,8 +1,8 @@
-From b2f32edd4df954b4f61bb42efb89f10bc2e0e402 Mon Sep 17 00:00:00 2001
+From cb9ec7c3f4ef5462864094a701d7af15ffabea7b Mon Sep 17 00:00:00 2001
 From: allen yan <yanwei@marvell.com>
 Date: Wed, 19 Apr 2017 17:22:13 +0800
-Subject: [PATCH 0096/1239] arm64: dts: armada-3720-db: update model and
- compatible string
+Subject: [PATCH] arm64: dts: armada-3720-db: update model and compatible
+ string
 
 This patch updates devel-board dts file's model and compatible string
 to make it work for Armada 3720 DDR3 DB v2 board:
@@ -14,6 +14,7 @@ patches.
 
 Change-Id: I22898868af41b8fe6f40ea72837dd6e868b51674
 Signed-off-by: allen yan <yanwei@marvell.com>
+
 ---
  arch/arm/dts/armada-3720-db.dts | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
@@ -35,6 +36,3 @@ index a96164a2af..0f8b8c59b3 100644
  
  	chosen {
  		stdout-path = "serial0:115200n8";
--- 
-2.29.0
-

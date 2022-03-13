@@ -1,8 +1,7 @@
-From 32563735910237a29d06329c63431c399c50375f Mon Sep 17 00:00:00 2001
+From a7480abc0378b9d4d651060d720abbb1858edf30 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 9 May 2016 16:42:44 -0700
-Subject: [PATCH 0415/1239] net: thunderx: Fix TL4 configuration for secondary
- Qsets
+Subject: [PATCH] net: thunderx: Fix TL4 configuration for secondary Qsets
 
 TL4 calculation for a given SQ of secondary Qsets is incorrect
 and goes out of bounds and also for some SQ's TL4 chosen will
@@ -13,6 +12,7 @@ This patch fixes this issue.
 
 Signed-off-by: Sunil Goutham <sgoutham@cavium.com>
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic.h      | 63 +++++++++++++++++++----------------
  drivers/net/cavium/nic_main.c | 15 ++++++++-
@@ -139,6 +139,3 @@ index 520d074302..f822d116fe 100644
  	tl4 += sq_idx;
  
  	tl3 = tl4 / (NIC_MAX_TL4 / NIC_MAX_TL3);
--- 
-2.29.0
-

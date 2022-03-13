@@ -1,13 +1,14 @@
-From 3a1684d1aff6e972bbe03b0e7ac35f2c4e10e73a Mon Sep 17 00:00:00 2001
+From 2f29e15fa91bfdeaa7926335569b32b50c44080a Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 8 Nov 2019 19:36:15 -0800
-Subject: [PATCH 0986/1239] arch: octeontx/tx2: move dram region map to dynamic
+Subject: [PATCH] arch: octeontx/tx2: move dram region map to dynamic
 
 Use mem_map_fill call from board file to add mm_region
 for DRAM.
 
 Change-Id: I78927a18f7d085e6a8586c5f8918987ba46f5f2a
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/board.h  |  1 +
  arch/arm/include/asm/arch-octeontx2/board.h |  1 +
@@ -205,6 +206,3 @@ index f6570eba0f..54e023d0d7 100644
  	return 0;
  }
  
--- 
-2.29.0
-

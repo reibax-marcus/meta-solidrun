@@ -1,14 +1,14 @@
-From 19afaf41aa2298e22fbfad1884230e1910de1809 Mon Sep 17 00:00:00 2001
+From aa3304debc080fa1506fea95f3b88c35d1282e85 Mon Sep 17 00:00:00 2001
 From: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
 Date: Mon, 8 Aug 2016 11:17:09 -0700
-Subject: [PATCH 0515/1239] usb: xhci: avoid double free'ing device's priv
- structure
+Subject: [PATCH] usb: xhci: avoid double free'ing device's priv structure
 
 When xhci_reset fails there is a free(ctrl) but this one will also be
 free'd by device_probe when driver probe returns failure
 
 Signed-off-by: Stanislaw Kardach <kda@semihalf.com>
 Signed-off-by: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
+
 ---
  drivers/usb/host/xhci.c | 1 -
  1 file changed, 1 deletion(-)
@@ -25,6 +25,3 @@ index b3e4dcd66f..413f819c61 100644
  	debug("%s: failed, ret=%d\n", __func__, ret);
  	return ret;
  }
--- 
-2.29.0
-

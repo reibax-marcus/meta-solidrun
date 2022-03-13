@@ -1,8 +1,7 @@
-From aa28284a9499f6ff5c68bd762bb6c43053096a3a Mon Sep 17 00:00:00 2001
+From 875c5263120c0861cdfe84e4b472da912b04e319 Mon Sep 17 00:00:00 2001
 From: sergey temerkhanov-CA <stemerkhanov@ln-stemerkhanov.caveonetworks.com>
 Date: Tue, 10 May 2016 17:20:55 -0400
-Subject: [PATCH 0419/1239] net: thunderx: CQE_RX2_S is always enabled on
- future chips
+Subject: [PATCH] net: thunderx: CQE_RX2_S is always enabled on future chips
 
 Unline 88xx CQE_RX descriptor's tunnelling extension CQE_RX2_S
 is always enabled and HW does add this data into CQE_RX. As a
@@ -15,6 +14,7 @@ all silicons will have this enabled.
 
 Signed-off-by: Sunil Goutham <sgoutham@cavium.com>
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic.h          | 28 ++++++++++++++++++++--------
  drivers/net/cavium/nic_main.c     |  7 +++++++
@@ -149,6 +149,3 @@ index b414b81e29..6d4725b41d 100644
  
  	for (frag = 0; frag < cqe_rx->rb_cnt; frag++) {
  		payload_len = rb_lens[frag_num(frag)];
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From f671ab016d16f22ecb7805f6e8a5e4a0fe0a036f Mon Sep 17 00:00:00 2001
+From 734c4a99edaca0d86bead4167349f81b58d38e94 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 20 Dec 2018 14:20:16 -0800
-Subject: [PATCH 0854/1239] pci: octeontx2: Workaround for PEM config space
- writes
+Subject: [PATCH] pci: octeontx2: Workaround for PEM config space writes
 
 This patch adds workaround for miscalculation of byte enables
 for config space write's in the PEM generated TLPs.
@@ -20,6 +19,7 @@ Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/1469
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/pci/pci_octeontx_ecam.c | 172 +++++++++++++++++++++++++++++---
  1 file changed, 159 insertions(+), 13 deletions(-)
@@ -273,6 +273,3 @@ index b662d110dd..8eb640d66c 100644
  
  	return 0;
  }
--- 
-2.29.0
-

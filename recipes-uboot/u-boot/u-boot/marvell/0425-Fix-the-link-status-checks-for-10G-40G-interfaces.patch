@@ -1,13 +1,14 @@
-From b51e183c51ef1585e244db37d441cce1e4ca66a7 Mon Sep 17 00:00:00 2001
+From 8f57c86ddae9365e37538c0085900201bafe0b61 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 12 May 2016 06:49:30 -0700
-Subject: [PATCH 0425/1239] Fix the link status checks for 10G/40G interfaces.
+Subject: [PATCH] Fix the link status checks for 10G/40G interfaces.
 
 Writing BGXX_SPUX_STATUS1.rcv_lnk forces the link to be up. Instead read
 appropriate bits to check if link is up or not. If link is not up,
 keep checking for link to be up.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 12 +++++++++---
  1 file changed, 9 insertions(+), 3 deletions(-)
@@ -49,6 +50,3 @@ index 361d5c6b18..305cf4db14 100644
  			lmac->link_up = 1;
  			if (lmac->lmac_type == 4)
  				lmac->last_speed = 40000;
--- 
-2.29.0
-

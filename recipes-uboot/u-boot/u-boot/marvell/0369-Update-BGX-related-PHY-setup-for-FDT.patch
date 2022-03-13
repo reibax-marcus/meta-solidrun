@@ -1,9 +1,10 @@
-From 0a8c507df2ed1c9fa7d8ab6789d713e21053a4c3 Mon Sep 17 00:00:00 2001
+From 21ce34cacf477022f094af99a9567e70d60fd48e Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 19 Nov 2015 05:39:13 -0800
-Subject: [PATCH 0369/1239] Update BGX-related PHY setup for FDT
+Subject: [PATCH] Update BGX-related PHY setup for FDT
 
 Signed-off-by: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
+
 ---
  board/cavium/thunderx/fdt.c | 80 +++++++++++++++++++++++--------------
  1 file changed, 50 insertions(+), 30 deletions(-)
@@ -130,6 +131,3 @@ index 7d0cfb56c0..436a5ad852 100644
  		}
  	}
  }
--- 
-2.29.0
-

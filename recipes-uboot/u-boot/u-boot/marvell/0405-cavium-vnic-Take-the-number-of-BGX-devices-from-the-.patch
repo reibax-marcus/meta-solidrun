@@ -1,13 +1,14 @@
-From 55eea8258de143d8a96e71a5ee6242c3a32d260d Mon Sep 17 00:00:00 2001
+From 900a5dec23d9a8b03152bd1d6f34b8faeeb30274 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 May 2016 14:35:22 -0700
-Subject: [PATCH 0405/1239] cavium: vnic: Take the number of BGX devices from
- the board config
+Subject: [PATCH] cavium: vnic: Take the number of BGX devices from the board
+ config
 
 This commit facilitates support for different ThunderX SoC types
 by parametrizing the code
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic.h         |  2 +-
  drivers/net/cavium/nic_main.c    |  2 +-
@@ -145,6 +146,3 @@ index 9a2f2eaed6..24601bd4d7 100644
  
  #define    NODE_ID_MASK				0x300000000000
  #define    NODE_ID(x)				((x & NODE_ID_MASK) >> 44)
--- 
-2.29.0
-

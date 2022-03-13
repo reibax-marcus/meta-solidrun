@@ -1,12 +1,13 @@
-From 99137e7095e80d9db24f6c8acac7b024ebe26d25 Mon Sep 17 00:00:00 2001
+From 64b1b657d256303195273e5ea81465933e11538d Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 23:29:46 -0400
-Subject: [PATCH 0472/1239] net: thunderx: Use ECAM-based enumeration for VNIC
+Subject: [PATCH] net: thunderx: Use ECAM-based enumeration for VNIC
 
 Use ECAM-based enumeration and registers to get the configuration
 This make the driver code future-proof
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic.h          |  26 +++----
  drivers/net/cavium/nic_main.c     |  90 ++++++++++++++++--------
@@ -464,6 +465,3 @@ index 66238319c3..e79284c8c5 100644
  int thunderx_bgx_initialize(unsigned int bgx_idx, unsigned int node);
  void bgx_get_count(int node, int *bgx_count);
  int bgx_get_lmac_count(int node, int bgx_idx);
--- 
-2.29.0
-

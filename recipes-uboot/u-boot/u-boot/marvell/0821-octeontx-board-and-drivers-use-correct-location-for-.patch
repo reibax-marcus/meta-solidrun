@@ -1,13 +1,14 @@
-From ee483f763e1d7480d75056cd909a7fc7b8f9644b Mon Sep 17 00:00:00 2001
+From 6bee28f5d8788399097c59a677e99eba39a32068 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 6 Sep 2018 12:29:56 -0700
-Subject: [PATCH 0821/1239] octeontx: board and drivers: use correct location
- for header files
+Subject: [PATCH] octeontx: board and drivers: use correct location for header
+ files
 
 This is due to change in location of header file in upstream
 code for errno.h and libfdt.h.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/octeontx/fdt.c        | 2 +-
  board/cavium/octeontx/octeontx.c   | 2 +-
@@ -173,6 +174,3 @@ index ff299b84cf..d9c166f42e 100644
   #include <fdt_support.h>
  #endif
  
--- 
-2.29.0
-

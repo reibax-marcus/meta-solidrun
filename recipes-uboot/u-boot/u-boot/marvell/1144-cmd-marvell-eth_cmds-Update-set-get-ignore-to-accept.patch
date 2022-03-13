@@ -1,8 +1,8 @@
-From b9e93a366573db36ec71f997a017971fc87aa312 Mon Sep 17 00:00:00 2001
+From 316e9fa5bb94bd5354908e676918a10763e2a93f Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Thu, 30 Apr 2020 16:45:30 -0700
-Subject: [PATCH 1144/1239] cmd: marvell: eth_cmds: Update set/get ignore to
- accept cgx lmac index
+Subject: [PATCH] cmd: marvell: eth_cmds: Update set/get ignore to accept cgx
+ lmac index
 
 Update (set/get)_ignore to accept cgx,lmac pair apart from eth device
 to help setting for non-NIX interfaces.
@@ -12,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27752
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  cmd/marvell/eth_cmds.c           | 74 +++++++++++++++++++++++---------
  drivers/net/octeontx2/cgx_intf.c | 57 +++++++++++++++++-------
@@ -230,6 +231,3 @@ index 499f4c781a..dac437770d 100644
  		return -1;
  	}
  
--- 
-2.29.0
-

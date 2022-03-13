@@ -1,8 +1,8 @@
-From 3935fbc79ecfc101b8239d9111614dfe85387ec8 Mon Sep 17 00:00:00 2001
+From 950b36c9e44ebb174b1b041fc3c768669ba7ab2b Mon Sep 17 00:00:00 2001
 From: Rick Farrington <Ricardo.Farrington@cavium.com>
 Date: Fri, 22 Nov 2019 00:32:38 -0500
-Subject: [PATCH 1012/1239] octeontx: pcie-console: rework commit 5c90bf5; fix
- nexus hdr version
+Subject: [PATCH] octeontx: pcie-console: rework commit 5c90bf5; fix nexus hdr
+ version
 
 This is a rework of commit 5c90bf5 so as to be consistent with
 endian usage.
@@ -16,6 +16,7 @@ Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19369
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/serial/serial_octeontx_pcie_console.c | 11 +++++------
  1 file changed, 5 insertions(+), 6 deletions(-)
@@ -42,6 +43,3 @@ index 48665eced8..a358a79c1d 100644
  
  	debug("%s: Writing %#llx %#llx to %p\n", __func__, new_hi, new_lo, pcd);
  	/* Now fill in the header atomically */
--- 
-2.29.0
-

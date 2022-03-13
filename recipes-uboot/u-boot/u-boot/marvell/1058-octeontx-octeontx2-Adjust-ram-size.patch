@@ -1,7 +1,7 @@
-From 970a50728566e7062df3ce770cfd370e4c42ef74 Mon Sep 17 00:00:00 2001
+From 1b8d76430d2eba5e977fec8dcd4a1fff38c9d987 Mon Sep 17 00:00:00 2001
 From: Lukasz Majczak <lukaszm@marvell.com>
 Date: Fri, 10 Jan 2020 14:12:43 +0100
-Subject: [PATCH 1058/1239] octeontx: octeontx2: Adjust ram size
+Subject: [PATCH] octeontx: octeontx2: Adjust ram size
 
 Adjust total ram size used by u-boot with respect to preserved memory
 regions set by the BDK.
@@ -11,6 +11,7 @@ Signed-off-by: Lukasz Majczak <lukaszm@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/21410
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/board.h  |  2 +-
  arch/arm/include/asm/arch-octeontx2/board.h |  2 +-
@@ -141,6 +142,3 @@ index 9e34860f38..47c5fd69a5 100644
  
  	mem_map_fill();
  
--- 
-2.29.0
-

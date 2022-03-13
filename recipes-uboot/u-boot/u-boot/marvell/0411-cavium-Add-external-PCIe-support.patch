@@ -1,11 +1,12 @@
-From d2a7baa6e61c7c3ca7d3a8a7343adcb6a6bf7c39 Mon Sep 17 00:00:00 2001
+From c75dd93d86b1223c0f8d711a6f83a7c74f6f7e09 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 May 2016 21:16:23 -0700
-Subject: [PATCH 0411/1239] cavium: Add external PCIe support
+Subject: [PATCH] cavium: Add external PCIe support
 
 This commit adds support for external PCIe module core, PEM
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci_thunderx_ecam.c | 112 +++++++++++++++++++++++++++-----
  1 file changed, 96 insertions(+), 16 deletions(-)
@@ -184,6 +185,3 @@ index c8e1433f35..3b10d13606 100644
 +	.probe	= pci_thunderx_ecam_probe,
 +	.priv_auto_alloc_size = sizeof(struct thunderx_pci),
 +};
--- 
-2.29.0
-

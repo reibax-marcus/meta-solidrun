@@ -1,8 +1,7 @@
-From 7efcace188c79bff93481d33558338576f99136e Mon Sep 17 00:00:00 2001
+From e4bf60d26b1b876a75fa14fea38024212af0ecb0 Mon Sep 17 00:00:00 2001
 From: Alex Leibovich <alexl@marvell.com>
 Date: Tue, 9 Jun 2020 16:06:33 +0300
-Subject: [PATCH 1174/1239] Revert "configs/mvebu: remove
- mvebu_db_ep_cn91xx_defconfig"
+Subject: [PATCH] Revert "configs/mvebu: remove mvebu_db_ep_cn91xx_defconfig"
 
 This reverts commit 53bf6a597864ffa6789c1299af6e85edcb51979b.
 
@@ -10,6 +9,7 @@ Change-Id: I1919a765740c135ed6a5bf238b76116e1983b882
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29706
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
 Tested-by: Nadav Haklai <nadavh@marvell.com>
+
 ---
  configs/mvebu_db_ep_cn91xx_defconfig | 101 +++++++++++++++++++++++++++
  1 file changed, 101 insertions(+)
@@ -122,6 +122,3 @@ index 0000000000..9a6cd1fd40
 +CONFIG_USB_ETHER_RTL8152=y
 +CONFIG_USB_ETHER_SMSC95XX=y
 +CONFIG_SMBIOS_MANUFACTURER=""
--- 
-2.29.0
-

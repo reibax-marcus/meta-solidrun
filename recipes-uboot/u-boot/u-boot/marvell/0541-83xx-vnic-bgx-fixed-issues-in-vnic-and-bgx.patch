@@ -1,13 +1,14 @@
-From df3e995f7f894c0301eee689e505b593f97ef985 Mon Sep 17 00:00:00 2001
+From 0113a8d74b4c5d5904af9835be28b73910223cbb Mon Sep 17 00:00:00 2001
 From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
 Date: Fri, 11 Nov 2016 09:14:56 +0530
-Subject: [PATCH 0541/1239] 83xx, vnic,bgx: fixed issues in vnic and bgx
+Subject: [PATCH] 83xx, vnic,bgx: fixed issues in vnic and bgx
 
 - removed hard coding specific to 81xx
 - added function pci_sriov_get_totalvfs
 - using MAX_SQS_PER_VF_SINGLE_NODE
 
 Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+
 ---
  drivers/net/cavium/nic_main.c    | 18 ++++++------------
  drivers/net/cavium/nicvf_main.c  |  2 +-
@@ -151,6 +152,3 @@ index f60a6cc637..2bfea83e01 100644
  int pci_bind_bus_devices(struct udevice *bus)
  {
  	ulong vendor, device;
--- 
-2.29.0
-

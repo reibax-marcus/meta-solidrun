@@ -1,7 +1,7 @@
-From 2ddfe9786c6ac6c3dee7a11ec5a827e364b7fa8b Mon Sep 17 00:00:00 2001
+From f530ef561a8a48fcb9f11f1fc65d6609c8fbca50 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 4 Feb 2016 12:34:02 -0800
-Subject: [PATCH 0377/1239] Fix rebase residue
+Subject: [PATCH] Fix rebase residue
 
 ---
  board/cavium/thunderx/thunderx.c | 5 ++---
@@ -32,6 +32,3 @@ index f20cb395f3..ab722ea3a3 100644
   #include <cavium/thunderx_smi.h>
   #include <cavium/thunderx_vnic.h>
  #endif
--- 
-2.29.0
-

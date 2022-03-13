@@ -1,7 +1,7 @@
-From 2916afe84b50d093ece3335c3f5ef36826a20fe1 Mon Sep 17 00:00:00 2001
+From 98c80c41f86fdc7d3f6a24a1304c9bf93f5ac824 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 1 Oct 2019 23:03:20 -0700
-Subject: [PATCH 0964/1239] octeontx: octeontx2: cleanup pci code for upstream
+Subject: [PATCH] octeontx: octeontx2: cleanup pci code for upstream
 
 - cleanup pci sriov and ea code
 - cleanup config files
@@ -12,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/17190
 Reviewed-by: Aaron Williams <awilliams@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  board/Marvell/octeontx/octeontx.c    |  39 +-
  board/Marvell/octeontx2/octeontx2.c  |   6 +-
@@ -2223,6 +2224,3 @@ index 91c2428db3..3bd98b01ad 100644
  	/*
  	 * Devices need to write the hwaddr even if not started so that Linux
  	 * will have access to the hwaddr that u-boot stored for the device.
--- 
-2.29.0
-

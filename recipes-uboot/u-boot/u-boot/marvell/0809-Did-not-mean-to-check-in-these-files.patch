@@ -1,9 +1,10 @@
-From a98803aa55bc721214a412485f9419c9665d57bb Mon Sep 17 00:00:00 2001
+From c95c92a59910fb055c959f64689a47fa399a9fd6 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 7 May 2018 22:21:19 -0700
-Subject: [PATCH 0809/1239] Did not mean to check in these files.
+Subject: [PATCH] Did not mean to check in these files.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  npc.c         |    1 -
  npc_profile.h | 3356 -------------------------------------------------
@@ -3380,6 +3381,3 @@ index 77e3a31065..0000000000
 -};
 -
 -#endif /* NPC_PROFILE_H */
--- 
-2.29.0
-

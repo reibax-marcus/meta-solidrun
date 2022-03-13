@@ -1,10 +1,11 @@
-From a4067b07344a797e96726f5ba476f7522e9be776 Mon Sep 17 00:00:00 2001
+From 2dbc744dfeae646c5d4775ddd7430f07b80c2313 Mon Sep 17 00:00:00 2001
 From: Yelena Krivosheev <yelena@marvell.com>
 Date: Mon, 23 Oct 2017 10:36:18 +0200
-Subject: [PATCH 0138/1239] net: mvneta: handle bad RX descriptor
+Subject: [PATCH] net: mvneta: handle bad RX descriptor
 
 Change-Id: I70fbdf908afa1c6598328096ad19c88fb1a1fcfb
 Signed-off-by: Yelena Krivosheev <yelena@marvell.com>
+
 ---
  drivers/net/mvneta.c | 17 ++++++++++++++++-
  1 file changed, 16 insertions(+), 1 deletion(-)
@@ -57,6 +58,3 @@ index 333be8ff28..c1961bc562 100644
  	}
  
  	return rx_bytes;
--- 
-2.29.0
-

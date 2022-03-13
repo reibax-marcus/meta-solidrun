@@ -1,7 +1,7 @@
-From 4f64977e69c4d998921f835e4019085950011a2f Mon Sep 17 00:00:00 2001
+From a51f8e34c2d280cb7e9ab9ce7a5698b23a43e296 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 12 Dec 2018 19:27:05 -0800
-Subject: [PATCH 0852/1239] drivers: pci: add support for pem in 9xx
+Subject: [PATCH] drivers: pci: add support for pem in 9xx
 
 PEM controllers on 9xx are programmed in BDK. Based on this
 configuration, figure out ranges to support io/config/mem space
@@ -15,6 +15,7 @@ Reviewed-on: https://sj1git1.cavium.com/1467
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/pci/pci_octeontx_ecam.c | 134 +++++++++++++++++++++++++++++++-
  1 file changed, 133 insertions(+), 1 deletion(-)
@@ -199,6 +200,3 @@ index 6539a0f635..b662d110dd 100644
  U_BOOT_DRIVER(pci_octeontx_pcie) = {
  	.name	= "pci_octeontx_pem",
  	.id	= UCLASS_PCI,
--- 
-2.29.0
-

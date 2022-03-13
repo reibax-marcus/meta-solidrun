@@ -1,7 +1,7 @@
-From bf698c50d6d01b5097d85f74da4e81ef7cf40f0e Mon Sep 17 00:00:00 2001
+From 0a8e5fb6d5bd5c0cee3e0f40cb05baf4f2a53a99 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 26 Jul 2020 14:32:41 +0300
-Subject: [PATCH 1200/1239] arch/arm/mach-mvebu: enable TF-A boot and secure FW
+Subject: [PATCH] arch/arm/mach-mvebu: enable TF-A boot and secure FW
 
 Enable Secure Firmware support and TF-A boot for all
 Marvell Armada Armv8 SoC familires.
@@ -11,6 +11,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32678
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/mach-mvebu/Kconfig                 | 4 ++++
  configs/mvebu_comexpress-88f7020_defconfig  | 1 +
@@ -191,6 +192,3 @@ index d3669ff022..f778c39fda 100644
 +#define CONFIG_SYS_MEM_RESERVE_SECURE	0x200000
 +
  #endif /* _CONFIG_MVEBU_ARMADA_H */
--- 
-2.29.0
-

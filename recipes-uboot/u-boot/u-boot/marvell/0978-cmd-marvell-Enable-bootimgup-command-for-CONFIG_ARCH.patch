@@ -1,7 +1,7 @@
-From f4fe2e96b8a26ccb4eb85d1824524d64034dfcf7 Mon Sep 17 00:00:00 2001
+From 63a6124e1489c4b43d791af94a1a9296fb1af759 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Tue, 29 Oct 2019 13:50:17 -0700
-Subject: [PATCH 0978/1239] cmd: marvell: Enable bootimgup command for
+Subject: [PATCH] cmd: marvell: Enable bootimgup command for
  CONFIG_ARCH_OCTEONTX
 
 Change-Id: Ibd3b182d4cc135fdca5f01dff2f03830ec4211fb
@@ -10,6 +10,7 @@ Reviewed-on: https://sj1git1.cavium.com/17996
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  cmd/Makefile        | 1 +
  cmd/marvell/Kconfig | 4 +++-
@@ -56,6 +57,3 @@ index 9ce9a0a469..27d1293d6c 100644
  	bool "Command for supporting Software Attestation"
  	help
  	   Support for Software Attestation on Marvell's OcteonTX2 platforms.
--- 
-2.29.0
-

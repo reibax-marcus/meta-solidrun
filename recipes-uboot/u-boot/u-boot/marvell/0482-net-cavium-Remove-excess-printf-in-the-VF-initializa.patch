@@ -1,8 +1,8 @@
-From 96a693cf5a4fcf089faa9987df6fdd219535d6a6 Mon Sep 17 00:00:00 2001
+From 74a3aead3a500c9c6ffc7833985ecbe8f6e5207c Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 20 May 2016 13:36:55 -0400
-Subject: [PATCH 0482/1239] net: cavium: Remove excess printf() in the VF
- initialization Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Subject: [PATCH] net: cavium: Remove excess printf() in the VF initialization
+ Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 
 ---
  drivers/net/cavium/nicvf_main.c | 8 ++++----
@@ -29,6 +29,3 @@ index 4dbaaf6df9..30fde0e046 100644
  
  	return 0;
  }
--- 
-2.29.0
-

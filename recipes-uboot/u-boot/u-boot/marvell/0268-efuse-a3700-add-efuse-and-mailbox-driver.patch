@@ -1,10 +1,11 @@
-From 796d683d8331974480c060567baa1e29dde58aa6 Mon Sep 17 00:00:00 2001
+From 4522606ec022bd2cd83c51a746d466116263d1c1 Mon Sep 17 00:00:00 2001
 From: zachary <zhangzg@marvell.com>
 Date: Wed, 10 May 2017 10:29:15 +0800
-Subject: [PATCH 0268/1239] efuse: a3700: add efuse and mailbox driver
+Subject: [PATCH] efuse: a3700: add efuse and mailbox driver
 
 Change-Id: I53c18d122dad3a0892e337c43408d070285282c6
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/include/asm/arch-armada3700/efuse.h | 137 ++++++
  arch/arm/include/asm/arch-armada3700/mbox.h  |  92 ++++
@@ -919,6 +920,3 @@ index 0000000000..e7071e7d5a
 +
 +	return 0;
 +}
--- 
-2.29.0
-

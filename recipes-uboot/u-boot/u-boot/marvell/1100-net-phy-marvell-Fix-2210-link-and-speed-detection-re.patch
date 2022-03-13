@@ -1,8 +1,8 @@
-From acc8ff5b8c182fed6921b30602ef17282f02cfd0 Mon Sep 17 00:00:00 2001
+From ae97823a0d513745b1b01658da37ba8f8b017415 Mon Sep 17 00:00:00 2001
 From: Stefan Chulski <stefanc@marvell.com>
 Date: Tue, 18 Feb 2020 19:10:25 +0200
-Subject: [PATCH 1100/1239] net: phy: marvell: Fix 2210 link and speed
- detection resolution
+Subject: [PATCH] net: phy: marvell: Fix 2210 link and speed detection
+ resolution
 
 Patch fix couple of link and speed detection resolution bugs:
 1. Waiting for PHY real time link condition.
@@ -18,6 +18,7 @@ Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Yan Markman <ymarkman@marvell.com>
 Reviewed-by: Marcin Wojtas <marcin@marvell.com>
+
 ---
  drivers/net/phy/marvell.c | 15 +++++++--------
  1 file changed, 7 insertions(+), 8 deletions(-)
@@ -60,6 +61,3 @@ index e340537cc1..144ff228b8 100644
  	if (mii_reg & MIIM_88E2110_PHYSTAT_DUPLEX)
  		phydev->duplex = DUPLEX_FULL;
  	else
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 84b425e10b337a23672511d0b7b8dd714bb4251b Mon Sep 17 00:00:00 2001
+From 9530fcd5e8a7618385e2181f1e16f64ac763c007 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 29 Jan 2016 15:09:32 -0800
-Subject: [PATCH 0376/1239] PCI: Check PEM link status
+Subject: [PATCH] PCI: Check PEM link status
 
 ---
  board/cavium/thunderx/pcie.c | 2 +-
@@ -20,6 +20,3 @@ index dc79836462..c897a3f472 100644
  			continue;
  
  		thunderx_read_rc_u32(pem, PCI_PRIMARY_BUS, &reg);
--- 
-2.29.0
-

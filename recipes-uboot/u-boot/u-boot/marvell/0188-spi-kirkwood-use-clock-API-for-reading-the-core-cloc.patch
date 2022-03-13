@@ -1,8 +1,7 @@
-From 6384241cf65b23fcd4ebca79659deeaed6ed5ec2 Mon Sep 17 00:00:00 2001
+From 79156c7e1a4a18e02dcd653a48416bda7020f8f8 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 27 Aug 2018 15:34:19 +0300
-Subject: [PATCH 0188/1239] spi: kirkwood: use clock API for reading the core
- clock
+Subject: [PATCH] spi: kirkwood: use clock API for reading the core clock
 
 Use clock API instead of pre-defined core clock value for
 SPI baudrate calculations in KW SPI driver.
@@ -12,6 +11,7 @@ clocks API and using pre-defined core clock value
 
 Change-Id: If768047ac3333ab86dc8da4a8707eeb08a41e93a
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  drivers/spi/kirkwood_spi.c | 14 ++++++++++++--
  1 file changed, 12 insertions(+), 2 deletions(-)
@@ -55,6 +55,3 @@ index f27ebf50e8..f64c693f20 100644
  
  	return 0;
  }
--- 
-2.29.0
-

@@ -1,9 +1,10 @@
-From 07a2196d3c51e833c667532cf7adb7affa3983bd Mon Sep 17 00:00:00 2001
+From c13c38f0cda7b75f28c96c7b237b9dbbdaae6ea0 Mon Sep 17 00:00:00 2001
 From: Alon Rotman <alon.rotman@solid-run.com>
 Date: Wed, 27 Jan 2021 17:28:48 +0200
 Subject: [PATCH] u-boot: update device tree of cn9130 cex7
 
 Signed-off-by: Alon Rotman <alon.rotman@solid-run.com>
+
 ---
  arch/arm/dts/cn9130-cex7-A.dts | 13 ++++++-------
  1 file changed, 6 insertions(+), 7 deletions(-)
@@ -41,6 +42,3 @@ index ee31a54d89..e8c6dc8a1b 100644
  
  &uart0 {
          status = "okay";
--- 
-2.25.1
-

@@ -1,8 +1,7 @@
-From 9fe43cf8c33d952bc2ae72bb85c4b2aa89c98009 Mon Sep 17 00:00:00 2001
+From 4cd5c279a387438a8df1b00d99994ec5eae68e40 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Wed, 5 Jun 2019 11:04:28 +0200
-Subject: [PATCH 0264/1239] arm64: mvebu: dts: remove references to PCIe IO
- space.
+Subject: [PATCH] arm64: mvebu: dts: remove references to PCIe IO space.
 
 Hitherto the PCIe IO spaces were pointing to not-mapped or not valid
 addresses.  E.g. in case of a80x0, the PCIe IO 0xf900000 in fact is
@@ -11,6 +10,7 @@ Therefore remove all PCIe IO space related entries.
 
 Change-Id: Ie1eeb5abe7ebd2ac397746c4b89e1acce047910e
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  arch/arm/dts/armada-8020.dtsi  |  4 ----
  arch/arm/dts/armada-8k.dtsi    |  4 ----
@@ -110,6 +110,3 @@ index f3488b404e..052de7aef6 100644
  				U64_TO_U32_L(CP110_PCIEx_BUS_MEM_BASE(2)) U64_TO_U32_H(CP110_PCIEx_CPU_MEM_BASE(2))
  				U64_TO_U32_L(CP110_PCIEx_CPU_MEM_BASE(2)) U64_TO_U32_H(CP110_PCIE_MEM_SIZE)
  				U64_TO_U32_L(CP110_PCIE_MEM_SIZE)>;
--- 
-2.29.0
-

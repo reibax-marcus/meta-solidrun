@@ -1,7 +1,7 @@
-From 90376cbc6787edfd5f7ef64a95269f952beccd76 Mon Sep 17 00:00:00 2001
+From 83eae99bb095b9bb9c5c6dedd59c1261693db9a3 Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Fri, 11 May 2018 16:10:57 +0800
-Subject: [PATCH 0007/1239] arm64: mvebu: config: Enable CONFIG_ENV_OVERWRITE
+Subject: [PATCH] arm64: mvebu: config: Enable CONFIG_ENV_OVERWRITE
 
 This patch enables CONFIG_ENV_OVERWRITE for A3k and A8k thus
 environment variables can be updated during console init.
@@ -9,6 +9,7 @@ environment variables can be updated during console init.
 Change-Id: I54b0cfc5e02bc818c804c354e0659bca55544d90
 Signed-off-by: Ken Ma <make@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  configs/mvebu_db-88f3720_defconfig          | 1 +
  configs/mvebu_db_armada8k_defconfig         | 1 +
@@ -64,6 +65,3 @@ index db391dd2c0..41cc5477ed 100644
  CONFIG_SYS_CONSOLE_INFO_QUIET=y
  # CONFIG_DISPLAY_CPUINFO is not set
  # CONFIG_DISPLAY_BOARDINFO is not set
--- 
-2.29.0
-

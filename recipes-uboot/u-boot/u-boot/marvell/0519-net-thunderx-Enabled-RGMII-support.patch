@@ -1,7 +1,7 @@
-From 861785afb3af05fcfc844255338867e2497c5bf9 Mon Sep 17 00:00:00 2001
+From 3e5a44d3c045a35413712d928e586e7b00d9e025 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 6 Sep 2016 14:56:06 -0700
-Subject: [PATCH 0519/1239] net:thunderx: Enabled RGMII support
+Subject: [PATCH] net:thunderx: Enabled RGMII support
 
 - Followed RGMII (XCV) initialization sequence from HRM, now RGMII is working.
 - Config MICREL phy, use by RGMII interface on ebb81XX boards.
@@ -9,6 +9,7 @@ Subject: [PATCH 0519/1239] net:thunderx: Enabled RGMII support
 - Revert changes committed to nic_main.c, no longer required, and some minor cleanup.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/nic_main.c    |  42 ++++------
  drivers/net/cavium/thunder_bgx.c |   7 +-
@@ -382,6 +383,3 @@ index b72bac2422..fe16163ff4 100644
  
  
  /** Command line configuration */
--- 
-2.29.0
-

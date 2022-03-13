@@ -1,13 +1,14 @@
-From b71c9554bb6a73dba99f764281a102fb3df8186c Mon Sep 17 00:00:00 2001
+From 304d4d305a7f15d8d61a3e3715a31f38067e7cd8 Mon Sep 17 00:00:00 2001
 From: Wilson Ding <dingwei@marvell.com>
 Date: Tue, 2 May 2017 13:47:24 +0800
-Subject: [PATCH 0103/1239] cmd: mem: add 'ir' command support
+Subject: [PATCH] cmd: mem: add 'ir' command support
 
 This patch added 'ir' command to generic mem commands.
 It supports to access the MVEBUv8 SOC internal regs.
 
 Change-Id: Ie87ac9eaa4409376478097e139bf98d8ac004d85
 Signed-off-by: Wilson Ding <dingwei@marvell.com>
+
 ---
  cmd/mem.c | 91 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 91 insertions(+)
@@ -118,6 +119,3 @@ index c6b8038fc9..ec64bb62d7 100644
 +	"\tor by writing 0 or 1 in the required place.\n"
 +	"\tPressing enter without any value keeps the value unchanged.\n"
 +);
--- 
-2.29.0
-

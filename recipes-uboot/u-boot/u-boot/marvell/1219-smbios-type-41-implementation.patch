@@ -1,7 +1,7 @@
-From 697bff73a9ef84a00f4de41a901bc69c1ce3abf7 Mon Sep 17 00:00:00 2001
+From cd6e7a8b082ecee2236b212c284a0bf4328c091c Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Mon, 27 Jul 2020 11:05:31 -0700
-Subject: [PATCH 1219/1239] smbios: type 41 implementation
+Subject: [PATCH] smbios: type 41 implementation
 
 The information in this structure defines the
 attributes of devices that are onboard
@@ -13,6 +13,7 @@ Change-Id: Iecfcbb8ce4448d2451332397b52788ec3de9b682
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35171
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Tested-by: Jia Ma <jiam@marvell.com>
+
 ---
  include/smbios.h | 14 ++++++++++++++
  lib/smbios.c     | 33 +++++++++++++++++++++++++++++++++
@@ -101,6 +102,3 @@ index 1e237e9aaa..0e6324c36f 100644
  	smbios_write_type32,
  	smbios_write_type127
  };
--- 
-2.29.0
-

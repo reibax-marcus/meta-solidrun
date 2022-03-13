@@ -1,9 +1,10 @@
-From 5a89cfc9f961d9fc80a71e32c24cb46d5a059cd2 Mon Sep 17 00:00:00 2001
+From 9af6359ee58a049d22f6d82c6f24e030494bc95f Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 14 Nov 2017 17:23:43 -0800
-Subject: [PATCH 0734/1239] nvme: sync with code in v2018.01
+Subject: [PATCH] nvme: sync with code in v2018.01
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  disk/part.c            | 6 ------
  drivers/nvme/nvme.c    | 3 ++-
@@ -57,6 +58,3 @@ index 35bdf79c79..a8d6976be7 100644
  	UCLASS_SERIAL,		/* Serial UART */
  	UCLASS_SIMPLE_BUS,	/* Bus with child devices */
  	UCLASS_SMEM,		/* Shared memory interface */
--- 
-2.29.0
-

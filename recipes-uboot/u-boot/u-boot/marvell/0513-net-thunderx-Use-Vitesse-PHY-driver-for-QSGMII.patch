@@ -1,13 +1,14 @@
-From 99e0d490b1d0afbffb47e7eb46eb1f46c522453b Mon Sep 17 00:00:00 2001
+From 17d1abf0461b7f18199e568af54c8165c307413e Mon Sep 17 00:00:00 2001
 From: Sunil Goutham <sgoutham@cavium.com>
 Date: Fri, 15 Jul 2016 17:57:38 +0530
-Subject: [PATCH 0513/1239] net: thunderx: Use Vitesse PHY driver for QSGMII
+Subject: [PATCH] net: thunderx: Use Vitesse PHY driver for QSGMII
 
 Instead of generic driver use vitesse PHY driver for
 QSGMII interface which configures PHY with right
 mode e.t.c
 
 Signed-off-by: Sunil Goutham <sgoutham@cavium.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 2 +-
  include/configs/thunderx_81xx.h  | 1 +
@@ -38,6 +39,3 @@ index feb2e59ba7..b72bac2422 100644
  
  
  /** Command line configuration */
--- 
-2.29.0
-

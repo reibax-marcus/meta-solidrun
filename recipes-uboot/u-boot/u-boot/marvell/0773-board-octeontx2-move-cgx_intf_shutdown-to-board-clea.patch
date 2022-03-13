@@ -1,14 +1,14 @@
-From 80af401a7277a748d29e603ba6c3bdfabf158dd7 Mon Sep 17 00:00:00 2001
+From abf558ab17645a38a51ef16faf16d23b86baca9c Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 3 Apr 2018 16:25:42 -0700
-Subject: [PATCH 0773/1239] board: octeontx2: move cgx_intf_shutdown to board
- cleanup
+Subject: [PATCH] board: octeontx2: move cgx_intf_shutdown to board cleanup
 
 Invoke cgx_intf_shutdown from board_quiesce_devices.
 Also, remove of_match_ids as the cgx nodes are not trimmed like
 earlier. Enable cgx for f95 platform.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/octeontx2/octeontx2.c | 6 ++++++
  configs/octeontx2_95xx_defconfig   | 3 +++
@@ -74,6 +74,3 @@ index 82caf173c8..bf679cda2f 100644
  };
  
  static struct pci_device_id cgx_supported[] = {
--- 
-2.29.0
-

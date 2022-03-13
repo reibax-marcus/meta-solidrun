@@ -1,11 +1,12 @@
-From eb6e75c00432de621eed43537b68b9fd45cc0e7d Mon Sep 17 00:00:00 2001
+From 362ea67dffe0a2dde91d3395a46e9b9a69f02ed7 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Mon, 6 Mar 2017 16:59:44 -0800
-Subject: [PATCH 0621/1239] board: cavium: increment env index properly
+Subject: [PATCH] board: cavium: increment env index properly
 
 Increment env index for subnodes to not lose correct mapping.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  board/cavium/thunderx/fdt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -29,6 +30,3 @@ index 4b42e38630..47959c6104 100644
  				lmacid++;
  			}
  
--- 
-2.29.0
-

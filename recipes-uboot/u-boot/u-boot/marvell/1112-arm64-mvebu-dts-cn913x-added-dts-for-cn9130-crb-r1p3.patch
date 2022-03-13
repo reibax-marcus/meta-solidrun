@@ -1,8 +1,7 @@
-From d42d49f19c5ee6f71f16123f6ab3203ee299c39a Mon Sep 17 00:00:00 2001
+From 6d01791b53a9546140ad998227c0c16822fa4cdb Mon Sep 17 00:00:00 2001
 From: Guo Yi <yi.guo@cavium.com>
 Date: Wed, 19 Feb 2020 18:06:34 -0800
-Subject: [PATCH 1112/1239] arm64: mvebu: dts: cn913x: added dts for cn9130-crb
- r1p3
+Subject: [PATCH] arm64: mvebu: dts: cn913x: added dts for cn9130-crb r1p3
 
 This patch adds the device tree files for cn9130-r1p3-A/B/C
 based on cn9130-crb-A/B/C.
@@ -15,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/24045
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/dts/Makefile              |  3 ++
  arch/arm/dts/cn9130-crb-r1p3-A.dts | 15 ++++++++++
@@ -154,6 +154,3 @@ index 0000000000..8922c0d7e8
 +&cp0_spi1 {
 +	pinctrl-0 = <&cp0_spi0_pins>;
 +};
--- 
-2.29.0
-

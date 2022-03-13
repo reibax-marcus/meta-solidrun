@@ -1,8 +1,7 @@
-From 7eab586d5247afa8605729438cee7031511d020e Mon Sep 17 00:00:00 2001
+From 27ecfe31ce4124401abd0e84e8cbfb30af8c7705 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Wed, 15 Jan 2020 19:35:55 +0200
-Subject: [PATCH 1062/1239] arch/arm: mvebu: pci-bootcmd support on PCIe EP
- platfrorms
+Subject: [PATCH] arch/arm: mvebu: pci-bootcmd support on PCIe EP platfrorms
 
 Enable pci-bootcmd memory buffer and IOMUX support on
 PCIe EP platforms.
@@ -12,6 +11,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/21666
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-ocp.dts       |  4 ++
  arch/arm/dts/armada-cp110.dtsi         |  8 ++++
@@ -306,6 +306,3 @@ index 62f9be785b..56e8553675 100644
  	depends on DM_SERIAL
  	select SYS_IS_IN_ENV
  	select CONSOLE_MUX
--- 
-2.29.0
-

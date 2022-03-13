@@ -1,8 +1,7 @@
-From 379cee263cd3d27fa969d1240fa53b8e792254e2 Mon Sep 17 00:00:00 2001
+From 5ac037bbd2f677ef3a46f32568f305a0887a9b8f Mon Sep 17 00:00:00 2001
 From: Alex Marginean <alexm.osslist@gmail.com>
 Date: Fri, 7 Jun 2019 11:24:23 +0300
-Subject: [PATCH 0965/1239] drivers: pci: add map_bar support for Enhanced
- Allocation
+Subject: [PATCH] drivers: pci: add map_bar support for Enhanced Allocation
 
 Makes dm_pci_map_bar API available for integrated PCI devices that
 support Enhanced Allocation instead of the original PCI BAR mechanism.
@@ -13,6 +12,7 @@ Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
 Reviewed-on: https://sj1git1.cavium.com/17191
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Aaron Williams <awilliams@marvell.com>
+
 ---
  drivers/pci/pci-uclass.c | 210 +++++++++++++--------------------------
  include/pci.h            | 105 ++++++--------------
@@ -391,6 +391,3 @@ index c6863219d0..cf5fe93515 100644
  /* Include the ID list */
  
  #include <pci_ids.h>
--- 
-2.29.0
-

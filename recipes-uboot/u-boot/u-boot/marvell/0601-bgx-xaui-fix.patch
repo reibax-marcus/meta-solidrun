@@ -1,11 +1,12 @@
-From 5305ce95430d656db63a46097fdb9d1993f85f83 Mon Sep 17 00:00:00 2001
+From 43137e67c6fdf7a7692874142c522fd56a17d7bf Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Thu, 19 Jan 2017 13:51:17 -0800
-Subject: [PATCH 0601/1239] bgx: xaui fix
+Subject: [PATCH] bgx: xaui fix
 
 This patch fixes typo in xaui init code
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -23,6 +24,3 @@ index c57b04db2c..7f52fe12fd 100644
  		bgx_reg_modify(bgx, lmacid, BGX_SPUX_STATUS1, SPU_STATUS1_RCV_LNK);
  	if (bgx_poll_reg(bgx, lmacid, BGX_SPUX_STATUS1,
  			 SPU_STATUS1_RCV_LNK, false)) {
--- 
-2.29.0
-

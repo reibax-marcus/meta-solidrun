@@ -1,12 +1,12 @@
-From abfde4bbc402dfd96aab196ad2ed1ae61bd77b06 Mon Sep 17 00:00:00 2001
+From c6b2474f93bb67dd4bf6606cf720dd1528a8d89d Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 15 Sep 2016 18:47:20 -0700
-Subject: [PATCH 0544/1239] CSR: Fix the CSR_READ/CSR_WRITE to match the new
- csrs.
+Subject: [PATCH] CSR: Fix the CSR_READ/CSR_WRITE to match the new csrs.
 
 Not functionality change.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/thunderx.c | 10 ++---
  drivers/net/cavium/thunder_xcv.c | 64 ++++++++++++++++----------------
@@ -190,6 +190,3 @@ index 942bd4a35a..cbcbf22fb1 100644
  	}
  }
  
--- 
-2.29.0
-

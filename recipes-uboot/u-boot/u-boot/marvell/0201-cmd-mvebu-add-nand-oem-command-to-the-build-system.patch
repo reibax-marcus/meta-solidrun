@@ -1,11 +1,11 @@
-From aa2c2b1cc993e1770078e89e63d14aa435c5a4c9 Mon Sep 17 00:00:00 2001
+From 3f3f84e0177c8c32f4fe8056cb2aaf7d8aafa81a Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 2 Oct 2018 16:32:48 +0200
-Subject: [PATCH 0201/1239] cmd: mvebu: add nand oem command to the build
- system
+Subject: [PATCH] cmd: mvebu: add nand oem command to the build system
 
 Change-Id: I543064140d8cabd835e913975bc833cc3546bc44
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  cmd/mvebu/Kconfig  | 36 ++++++++++++++++++++++++++++++++++++
  cmd/mvebu/Makefile |  2 ++
@@ -74,6 +74,3 @@ index 7644152f49..71a0cd13cd 100644
  obj-$(CONFIG_CMD_MVEBU_TSEN) += thermal.o
  obj-$(CONFIG_CMD_MVEBU_HW_INFO) += hw_info.o
  obj-$(CONFIG_CMD_MVEBU_SAR) += sar.o
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From b13c96750ec344503d0a874fed70053240c0acc7 Mon Sep 17 00:00:00 2001
+From 8cb6dd30073bb5809f4236280ec5323a677f3b10 Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Wed, 6 Nov 2019 11:29:48 -0800
-Subject: [PATCH 0995/1239] fdt: replace cavium,bdk node with another one
+Subject: [PATCH] fdt: replace cavium,bdk node with another one
 
 Some of the board properties are extracted from existing
 cavium,bdk node and added in a newly created node which
@@ -22,6 +22,7 @@ Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/18572
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx2/board-fdt.c | 82 +++++++++++++++++++++++++----
  1 file changed, 73 insertions(+), 9 deletions(-)
@@ -135,6 +136,3 @@ index 1f0ddca08c..d2bb8abaf3 100644
  	return 0;
  }
  
--- 
-2.29.0
-

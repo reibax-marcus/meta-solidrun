@@ -1,7 +1,7 @@
-From 314dc5a134362914c08b9769a61c052ea5d28270 Mon Sep 17 00:00:00 2001
+From d8776e5d81f585e99919b9ae167b882c75329010 Mon Sep 17 00:00:00 2001
 From: Ben Peled <bpeled@marvell.com>
 Date: Tue, 21 Apr 2020 20:14:45 +0300
-Subject: [PATCH 1141/1239] cmd: marvell: add mv88e6xxx switch util
+Subject: [PATCH] cmd: marvell: add mv88e6xxx switch util
 
 adds cmd which helps with switch init,
 info, link status
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27167
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  cmd/mvebu/Kconfig          |   9 +
  cmd/mvebu/Makefile         |   3 +-
@@ -1097,6 +1098,3 @@ index 0000000000..0065b0e73f
 +
 +#endif /* _MV88E6XXX_H__*/
 +
--- 
-2.29.0
-

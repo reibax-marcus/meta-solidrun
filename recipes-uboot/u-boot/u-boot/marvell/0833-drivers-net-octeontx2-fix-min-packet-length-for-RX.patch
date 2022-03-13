@@ -1,14 +1,14 @@
-From eb4f6aebda046abf93254967aff8fdfa6d5bbd0e Mon Sep 17 00:00:00 2001
+From 0059255fc27042db69547769703f8759964fc0f7 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 20 Sep 2018 12:26:46 -0700
-Subject: [PATCH 0833/1239] drivers: net: octeontx2: fix min packet length for
- RX
+Subject: [PATCH] drivers: net: octeontx2: fix min packet length for RX
 
 With HW minlen value of 60byte, HW will treat ARP pkts
 received as undersize and report them to SW as error pkts,
 hence set it to 40 bytes.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/octeontx2/nix.h    | 2 +-
  drivers/net/octeontx2/nix_af.c | 2 +-
@@ -40,6 +40,3 @@ index 7cb2c19b8e..8506e2ee38 100644
  			 link_cfg.u);
  
  	return 0;
--- 
-2.29.0
-

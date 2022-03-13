@@ -1,7 +1,7 @@
-From 793d83f185a5e7e99577a1c3c4c98054ef4ceab3 Mon Sep 17 00:00:00 2001
+From 4fa6a8d1f4f344522fd31821d5a21449894e98ba Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 14 May 2016 17:30:14 -0400
-Subject: [PATCH 0435/1239] pci: Do device probing right after its discovery
+Subject: [PATCH] pci: Do device probing right after its discovery
 
 Current DM PCI driver doesn't perform device probing which
 is confusing since it leaves some devices uninitialized.
@@ -9,6 +9,7 @@ Change this behavior to get the probe() method called for
 each discovered device
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci_auto.c | 1 +
  1 file changed, 1 insertion(+)
@@ -25,6 +26,3 @@ index 48ffa4f949..43c3c6357d 100644
  		break;
  	}
  
--- 
-2.29.0
-

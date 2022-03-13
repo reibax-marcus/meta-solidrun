@@ -1,8 +1,7 @@
-From ad1b24c582fb39d4838b746ba464b00030c729bb Mon Sep 17 00:00:00 2001
+From 9d868d9e893ed424881b17f4529d3e9ee07d965c Mon Sep 17 00:00:00 2001
 From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
 Date: Mon, 3 Jul 2017 11:01:56 +0200
-Subject: [PATCH 0645/1239] fdt: Workaround FDT base address passing from ATF
- to U-Boot
+Subject: [PATCH] fdt: Workaround FDT base address passing from ATF to U-Boot
 
 Set fdt_blob to be aligned to 16B for secure-boot purposes.
 U-Boot should be fixed to take the fdt_blob address from
@@ -11,6 +10,7 @@ do this, fdt_blob is then the same as uboot-size stored at uboot
 binary header.
 
 Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+
 ---
  lib/fdtdec.c | 24 ++++++++++++++++++++++++
  1 file changed, 24 insertions(+)
@@ -50,6 +50,3 @@ index 9de0152753..27266102ae 100644
  	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
  	    fdt_check_header(gd->fdt_blob)) {
  #ifdef CONFIG_SPL_BUILD
--- 
-2.29.0
-

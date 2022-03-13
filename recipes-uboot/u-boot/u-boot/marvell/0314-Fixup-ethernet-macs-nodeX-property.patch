@@ -1,7 +1,7 @@
-From 091c86cc13287a7dadf8c679f83ab54f9f10a12d Mon Sep 17 00:00:00 2001
+From 1a5031609d35c4a8248c1ad93ef7f2e24dd7d6c0 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Tue, 24 Mar 2015 15:42:04 +0300
-Subject: [PATCH 0314/1239] Fixup /ethernet-macs/nodeX property
+Subject: [PATCH] Fixup /ethernet-macs/nodeX property
 
 ---
  board/cavium/thunderx/fdt.c | 54 +++++++++++++++++++++++++++++++++++++
@@ -86,6 +86,3 @@ index 394522b601..5cee3a6e37 100644
  	}
  #endif
  
--- 
-2.29.0
-

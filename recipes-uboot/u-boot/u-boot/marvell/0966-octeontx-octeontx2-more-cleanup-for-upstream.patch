@@ -1,7 +1,7 @@
-From e805c398087d9712ee855ec1857e7d7ce08828d1 Mon Sep 17 00:00:00 2001
+From 9600a884462b7c2efde8c349af465c76492a8822 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 8 Oct 2019 17:19:56 -0700
-Subject: [PATCH 0966/1239] octeontx: octeontx2: more cleanup for upstream
+Subject: [PATCH] octeontx: octeontx2: more cleanup for upstream
 
  - cleanup board headers and files
  - cleanup miscellaneous defines
@@ -12,6 +12,7 @@ Change-Id: I8236307eb46a1ff8d1796be4e896d307dd5febf6
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/17193
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/atf.h      |   12 -
  arch/arm/include/asm/arch-octeontx/board.h    |  194 +++
@@ -5324,6 +5325,3 @@ index 830d94c2a8..fd112de950 100644
  #define USE_TBI_CLK
  #endif
  
--- 
-2.29.0
-

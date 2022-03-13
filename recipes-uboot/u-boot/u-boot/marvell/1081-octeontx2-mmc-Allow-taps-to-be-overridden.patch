@@ -1,7 +1,7 @@
-From 1769f914e5b97ec63797fc5b9f873cac8d1a6e56 Mon Sep 17 00:00:00 2001
+From 60a3e308f5cf10d3d5e607dddc7d42cdb9585a9a Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Tue, 28 Jan 2020 19:51:19 -0800
-Subject: [PATCH 1081/1239] octeontx2: mmc: Allow taps to be overridden
+Subject: [PATCH] octeontx2: mmc: Allow taps to be overridden
 
 This patch allows for the tuning taps to be specified from the
 environment or an offset specified by the device tree.
@@ -31,6 +31,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/22460
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 76 ++++++++++++++++++++++++++++++++++++
  drivers/mmc/octeontx_hsmmc.h |  4 +-
@@ -198,6 +199,3 @@ index 67dd67dd24..ecb80f4d12 100644
  };
  
  struct octeontx_mmc_cr_mods {
--- 
-2.29.0
-

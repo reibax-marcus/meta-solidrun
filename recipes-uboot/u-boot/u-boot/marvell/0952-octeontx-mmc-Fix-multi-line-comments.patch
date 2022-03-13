@@ -1,7 +1,7 @@
-From 46b223d267b9ffb281d4192113647cad8159979c Mon Sep 17 00:00:00 2001
+From efad2f04b5b1b45f0c80b3840c65627b844eaf91 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Sat, 24 Aug 2019 00:12:09 -0700
-Subject: [PATCH 0952/1239] octeontx: mmc: Fix multi-line comments
+Subject: [PATCH] octeontx: mmc: Fix multi-line comments
 
 This updates the multi-line comments to match the coding standard
 for U-Boot
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/14864
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 21 ++++++++++++++-------
  1 file changed, 14 insertions(+), 7 deletions(-)
@@ -89,6 +90,3 @@ index 42c86b3654..3c8d1dfee9 100644
  			 * failed, note the start of a new run.
  			 */
  			debug("  prev_ok: %d\n", prev_ok);
--- 
-2.29.0
-

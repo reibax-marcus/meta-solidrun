@@ -1,12 +1,13 @@
-From cc01356fe2d5a590900a4f5b389e9e721358ffd1 Mon Sep 17 00:00:00 2001
+From 691c79095ffb1f8be0cf7f2a93ff978dfe05d065 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Thu, 2 Mar 2017 12:40:37 -0800
-Subject: [PATCH 0619/1239] board: cavium: fix ethaddr environment variables
+Subject: [PATCH] board: cavium: fix ethaddr environment variables
 
 assign ethXaddr environment variables based on values
 of local-mac-address property from devicetree.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  board/cavium/thunderx/fdt.c | 61 ++++++++++++++++++++++++-------------
  1 file changed, 39 insertions(+), 22 deletions(-)
@@ -107,6 +108,3 @@ index 8ffb811545..4b42e38630 100644
  				lmacid++;
  			}
  
--- 
-2.29.0
-

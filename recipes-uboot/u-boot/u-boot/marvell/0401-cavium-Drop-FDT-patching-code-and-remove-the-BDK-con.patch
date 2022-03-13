@@ -1,8 +1,7 @@
-From 953b1b1f8f89245615c0780995d47939a0e6bef8 Mon Sep 17 00:00:00 2001
+From 603685e95473f8c378dd7e6c9b07d731276b571a Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 May 2016 17:47:13 -0700
-Subject: [PATCH 0401/1239] cavium: Drop FDT patching code and remove the BDK
- config
+Subject: [PATCH] cavium: Drop FDT patching code and remove the BDK config
 
 Since (almost) all patching is now performed by BDK, drop the obsolete
 ugly code.
@@ -11,6 +10,7 @@ Remove the BDK config node before passing the FDT to Linux
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/fdt.c | 503 ++----------------------------------
  1 file changed, 20 insertions(+), 483 deletions(-)
@@ -579,6 +579,3 @@ index 1f477712da..2f85fd193e 100644
  );
  
 -#endif
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From 42a6e7e55335520d7d75efc69518126a6555cf4b Mon Sep 17 00:00:00 2001
+From cd061573f92f5c0f590a10e33633a6d9d7f929bf Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Sun, 7 May 2017 10:51:35 +0300
-Subject: [PATCH 0049/1239] usb: a8k: remove board specific code for vbus
- regulator support
+Subject: [PATCH] usb: a8k: remove board specific code for vbus regulator
+ support
 
 This patch removes the functions board_xhci_enable and
 board_xhci_config, because the xhci_usb_probe in mvebu XHCI driver
@@ -11,6 +11,7 @@ will turn on the vbus, so it doesn't need to do it again.
 Change-Id: Ic4414d133f0d7ac8d595dc5cbfcdcc2268b525e7
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  board/Marvell/mvebu_armada-8k/board.c | 126 --------------------------
  1 file changed, 126 deletions(-)
@@ -159,6 +160,3 @@ index e927e338ea..a1a4996f64 100644
  
  	return 0;
  }
--- 
-2.29.0
-

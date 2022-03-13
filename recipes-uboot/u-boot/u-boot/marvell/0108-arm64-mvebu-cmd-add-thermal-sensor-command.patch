@@ -1,12 +1,13 @@
-From 055a5c7e10a8eebf5775cb50f7847a931a05d283 Mon Sep 17 00:00:00 2001
+From 8e7845243d8b8a3572debcc3b44a47e46272eb92 Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Mon, 19 Jun 2017 11:29:59 +0300
-Subject: [PATCH 0108/1239] arm64: mvebu: cmd: add thermal sensor command
+Subject: [PATCH] arm64: mvebu: cmd: add thermal sensor command
 
 Add "tsen" command to display temperature of the device.
 
 Change-Id: Ife970a3cf482212ef2e23daed5b78a984062229b
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  cmd/mvebu/Kconfig   |  8 ++++++++
  cmd/mvebu/Makefile  |  1 +
@@ -95,6 +96,3 @@ index 0000000000..f2d38da3de
 +	"tsen - Display the SoC temperature.\n",
 +	"\n\tDisplay the SoC temperature as read from the on chip thermal sensor.\n"
 +);
--- 
-2.29.0
-

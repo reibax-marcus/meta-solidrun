@@ -1,8 +1,7 @@
-From 078e18d12a1df3c2216db65482f5152c24df0bda Mon Sep 17 00:00:00 2001
+From 9da1e8a054193ccbe0c573136b694a67b2ed7fcf Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 17 Nov 2017 14:27:20 -0800
-Subject: [PATCH 0722/1239] drivers: pci: clear bar_response before fetch of
- upper 32bits
+Subject: [PATCH] drivers: pci: clear bar_response before fetch of upper 32bits
 
 In dm_pci_map_bar, upper32 bar address bits should be updated
 only if its non-zero. Otherwise, lower32 is used for upper32
@@ -11,6 +10,7 @@ Fix by clearing bar_response of lower32 and update pci_bus_start
 only if upper32 is non-zero. Fix fo bug #30874.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/pci/pci-uclass.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
@@ -32,6 +32,3 @@ index 2bfea83e01..2a47b503bb 100644
  	}
  
  	if (!pdata->is_phys) {
--- 
-2.29.0
-

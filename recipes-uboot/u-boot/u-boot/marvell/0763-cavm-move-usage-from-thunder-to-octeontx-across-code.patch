@@ -1,10 +1,10 @@
-From bf42a33e53695c96fd459cf703ae61bfe3a2a1d8 Mon Sep 17 00:00:00 2001
+From cb6b74d5fffcdd378d305d339538ef223a05c52a Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 1 Mar 2018 16:01:26 -0800
-Subject: [PATCH 0763/1239] cavm: move usage from thunder to octeontx across
- code/configs
+Subject: [PATCH] cavm: move usage from thunder to octeontx across code/configs
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/Kconfig                              |  14 +-
  arch/arm/Makefile                             |   4 +-
@@ -2681,6 +2681,3 @@ index 74740e25f0..baf47f71dc 100644
  
 -#endif /* __THUNDERX_88XX_H__ */
 +#endif /* __OCTEONTX_88XX_H__ */
--- 
-2.29.0
-

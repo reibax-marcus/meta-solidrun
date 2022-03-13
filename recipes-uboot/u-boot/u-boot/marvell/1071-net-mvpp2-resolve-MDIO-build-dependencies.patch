@@ -1,7 +1,7 @@
-From 0ac2f342d701f40298d02e6b50c4d933f3471276 Mon Sep 17 00:00:00 2001
+From ecc02f03887c1ca04514dab77d35309e9d7f88b6 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Mon, 27 Jan 2020 11:17:55 +0100
-Subject: [PATCH 1071/1239] net: mvpp2: resolve MDIO build dependencies
+Subject: [PATCH] net: mvpp2: resolve MDIO build dependencies
 
 Now as the mvpp2 depends on the updated DM_MDIO
 reflect that in Kconfig file. As the vast majority
@@ -14,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/22360
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/net/Kconfig | 2 ++
  1 file changed, 2 insertions(+)
@@ -31,6 +32,3 @@ index 95552546d2..5ffac849d8 100644
  	select PHYLIB
  	help
  	  This driver supports the network interface units in the
--- 
-2.29.0
-

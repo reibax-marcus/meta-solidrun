@@ -1,8 +1,8 @@
-From 041e0306e0f2a396719e4778865d9cf874291868 Mon Sep 17 00:00:00 2001
+From 6f960ab71a3446b14252297652dedbeb0a400537 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Sun, 22 Jul 2018 17:19:55 +0300
-Subject: [PATCH 0146/1239] arm64: dts: a8k: remove phy-speed property for some
- comphy types
+Subject: [PATCH] arm64: dts: a8k: remove phy-speed property for some comphy
+ types
 
 For some comphy types (SATA, USB, PEX) the speed is not relevant, therefore
 there is no need to set them.
@@ -14,6 +14,7 @@ this patch some dts'es defined the speed and some didn't.
 Change-Id: Icb39cd4c704955e0678e61c1308c8fd931c7977d
 Signed-off-by: Igal Liberman <igall@marvell.com>
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  arch/arm/dts/armada-7020-amc.dts  | 5 -----
  arch/arm/dts/armada-7040-db-B.dts | 6 ------
@@ -225,6 +226,3 @@ index 1864f4d4ad..a6d2f8892b 100644
  	};
  	phy2 {
  		phy-type = <COMPHY_TYPE_SGMII0>;
--- 
-2.29.0
-

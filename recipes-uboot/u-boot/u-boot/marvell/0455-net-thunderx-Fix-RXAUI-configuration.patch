@@ -1,12 +1,13 @@
-From 301a715272b3a306bae2b976ff8985bde244c364 Mon Sep 17 00:00:00 2001
+From 8bd74c25dd4657c2a9d00360adb7a8072a6b3c27 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 17 May 2016 08:20:02 -0700
-Subject: [PATCH 0455/1239] net: thunderx: Fix RXAUI configuration
+Subject: [PATCH] net: thunderx: Fix RXAUI configuration
 
 RXAUI has 2 lmacs, each lmac uses 2 lanes. lmac0 uses lanes 0-1, and lmac1 uses
 lanes 2-3, adjust the qlm according.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 24 +++++++++++++-----------
  1 file changed, 13 insertions(+), 11 deletions(-)
@@ -87,6 +88,3 @@ index 89161f54bd..c0cea068e4 100644
  			}
  			break;
  		case 3:
--- 
-2.29.0
-

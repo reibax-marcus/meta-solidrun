@@ -1,14 +1,15 @@
-From c787366b80d240e79253759882b0eff315997730 Mon Sep 17 00:00:00 2001
+From d063f2ee7500bdeb5ad5e6ebccab77d367dc6c84 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 14 Aug 2018 15:25:56 -0700
-Subject: [PATCH 0816/1239] net: octeontx2: cgx_intf: skip error check for
- shutdown command
+Subject: [PATCH] net: octeontx2: cgx_intf: skip error check for shutdown
+ command
 
 For CGX_CMD_INTF_SHUTDOWN, skip check on errors and clear
 the scratch registers.
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx2/cgx_intf.c | 12 ++++++------
  1 file changed, 6 insertions(+), 6 deletions(-)
@@ -48,6 +49,3 @@ index 13bcb3d66f..6dcf6a90e2 100644
  
  	return err;
  }
--- 
-2.29.0
-

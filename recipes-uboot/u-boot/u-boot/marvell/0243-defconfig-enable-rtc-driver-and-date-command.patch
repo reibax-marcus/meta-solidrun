@@ -1,12 +1,13 @@
-From 1b9f1d4cb49dc0ffe0b0e93fdc4828335c519825 Mon Sep 17 00:00:00 2001
+From 5b6ad071000ee496a9e0c03fc8c12937e4203e6b Mon Sep 17 00:00:00 2001
 From: Alex Leibovich <alexl@marvell.com>
 Date: Sun, 10 Mar 2019 11:53:19 +0200
-Subject: [PATCH 0243/1239] defconfig: enable rtc driver and date command
+Subject: [PATCH] defconfig: enable rtc driver and date command
 
 Added rtc to mcbin, armada and 91xx defconfigs
 
 Change-Id: I52c6c0e077fe5ea1ca01a2bb49166b9218caa96e
 Signed-off-by: Alex Leibovich <alexl@marvell.com>
+
 ---
  configs/mvebu_db_armada8k_defconfig   | 2 ++
  configs/mvebu_mcbin-88f8040_defconfig | 2 ++
@@ -38,6 +39,3 @@ index 97cb642d2b..e9491efdbf 100644
  CONFIG_DEBUG_UART_SHIFT=2
  CONFIG_DEBUG_UART_ANNOUNCE=y
  CONFIG_SYS_NS16550=y
--- 
-2.29.0
-

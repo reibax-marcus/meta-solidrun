@@ -1,8 +1,7 @@
-From ce5287d0ce4a5fcf9ab096922e23d4aa6f0ff483 Mon Sep 17 00:00:00 2001
+From dc527f866011b7cde368cfb35d979b93e5a7e32f Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Mon, 11 Nov 2019 16:55:36 -0800
-Subject: [PATCH 1005/1239] drivers: net: octeontx2: add get_mode command
- support
+Subject: [PATCH] drivers: net: octeontx2: add get_mode command support
 
 Add get_mode command support with additional parameter
 mode based on cgx_mode_t enum using interface command
@@ -19,6 +18,7 @@ Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19359
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/marvell/eth_cmds.c           |  9 +++++++
  drivers/net/octeontx2/cgx_intf.c | 45 ++++++++++++++++++++++++++++++++
@@ -129,6 +129,3 @@ index 3a5ae227b2..bea4726c6b 100644
  };
  
  struct sh_fwd_base_s {
--- 
-2.29.0
-

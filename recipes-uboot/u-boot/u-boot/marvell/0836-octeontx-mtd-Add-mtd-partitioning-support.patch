@@ -1,7 +1,7 @@
-From dbadc6a78d66f94966cf5f9012c3f1983140cb85 Mon Sep 17 00:00:00 2001
+From ba34e78c0276777cffaea2e3ba0a42fc0f0f48ee Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 16 Oct 2018 03:28:34 -0700
-Subject: [PATCH 0836/1239] octeontx: mtd: Add mtd partitioning support
+Subject: [PATCH] octeontx: mtd: Add mtd partitioning support
 
 This patch enables MTD partitioning support.  A default partition table
 has also been added which defines 6MB for the boot partition, 9MB for
@@ -13,6 +13,7 @@ device tree so it can be passed on to Linux but this is not enabled
 at this time.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  configs/octeontx_81xx_defconfig | 5 +++++
  include/configs/octeontx_81xx.h | 8 ++++----
@@ -54,6 +55,3 @@ index 4549e974ce..18bf0fa1a6 100644
  #endif
  
  /** Extra environment settings */
--- 
-2.29.0
-

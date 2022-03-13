@@ -1,7 +1,7 @@
-From 7b7750feb3e0385f048a44c1420621a3a8b65e1e Mon Sep 17 00:00:00 2001
+From c48969b4922f3ce6eff7ea97fb31861b3932d141 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 14:39:33 -0800
-Subject: [PATCH 0332/1239] net: e1000: Fix PHY reset check on 8257x
+Subject: [PATCH] net: e1000: Fix PHY reset check on 8257x
 
 ---
  drivers/net/e1000.c | 12 ++++--------
@@ -73,6 +73,3 @@ index f7bf2a4151..d5818d188e 100644
  	/* Packet received, make sure the data are re-loaded from RAM. */
  	len = le16_to_cpu(rd->length);
  	invalidate_dcache_range((unsigned long)packet,
--- 
-2.29.0
-

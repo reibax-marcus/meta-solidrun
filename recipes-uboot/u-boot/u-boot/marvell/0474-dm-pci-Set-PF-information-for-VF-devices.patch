@@ -1,11 +1,12 @@
-From f40a36dde0ff26f1a2f5d8900e9fc2f438148b65 Mon Sep 17 00:00:00 2001
+From 1bf93135f1cec16a3734f8e4965613e2ed7c40bd Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 19 May 2016 13:54:36 -0400
-Subject: [PATCH 0474/1239] dm: pci: Set PF information for VF devices
+Subject: [PATCH] dm: pci: Set PF information for VF devices
 
 Set the PF reference to allow information retrieval from PF
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci-uclass.c | 2 ++
  include/pci.h            | 2 ++
@@ -37,6 +38,3 @@ index d37809dcd4..7850a16344 100644
  };
  
  /* PCI bus operations */
--- 
-2.29.0
-

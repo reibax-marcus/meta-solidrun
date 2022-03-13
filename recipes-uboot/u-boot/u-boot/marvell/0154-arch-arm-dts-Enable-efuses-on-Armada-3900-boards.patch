@@ -1,7 +1,7 @@
-From eacccbd9dabbf8e5e7226e9970105fff1aa62981 Mon Sep 17 00:00:00 2001
+From a717447f9afee33aa2b83a102c331758fcd5ac8d Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 19 May 2019 15:04:17 +0300
-Subject: [PATCH 0154/1239] arch/arm/dts: Enable efuses on Armada-3900 boards
+Subject: [PATCH] arch/arm/dts: Enable efuses on Armada-3900 boards
 
 Add aliases and enable AP and CP efuses on A3900 boards
 
@@ -11,6 +11,7 @@ Reviewed-on: https://sj1git1.cavium.com/9221
 Reviewed-by: Stefan Chulski <Stefan.Chulski@cavium.com>
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/dts/armada-3900-db.dtsi | 25 +++++++++++++++++++++++++
  1 file changed, 25 insertions(+)
@@ -61,6 +62,3 @@ index 4470dcfa33..0ddfa65ea3 100644
  &cp0_nand {
  	nand-ecc-strength = <8>;
  };
--- 
-2.29.0
-

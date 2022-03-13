@@ -1,7 +1,7 @@
-From eaee8368f6c9b929c1ab7764e2c689c0802d88f3 Mon Sep 17 00:00:00 2001
+From 4e97c123cd56c84dd8cc29fbb6c9ad907376351b Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 25 Jun 2019 02:28:58 -0700
-Subject: [PATCH 0935/1239] octeontx: serial: Added pci-bootcmd input driver
+Subject: [PATCH] octeontx: serial: Added pci-bootcmd input driver
 
 This adds a pseudo serial driver and console driver
 using shared memory accessed across the PCIe bus.
@@ -18,6 +18,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/11573
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  board/Marvell/octeontx2/octeontx2.c      |  22 ++
  configs/octeontx2_96xx_defconfig         |   3 +
@@ -432,6 +433,3 @@ index 0000000000..3a59c57002
 +	.priv_auto_alloc_size = sizeof(struct octeontx_bootcmd_data),
 +	.flags = DM_FLAG_PRE_RELOC,
 +};
--- 
-2.29.0
-

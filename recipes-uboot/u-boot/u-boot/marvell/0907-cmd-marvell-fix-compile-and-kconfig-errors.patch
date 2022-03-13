@@ -1,13 +1,14 @@
-From 5d19bea4508789bcd59b8778caa417734b771cc5 Mon Sep 17 00:00:00 2001
+From bca7ed62fd3684015d0da49edc794efc462de43c Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Mon, 13 May 2019 15:53:34 -0700
-Subject: [PATCH 0907/1239] cmd: marvell: fix compile and kconfig errors
+Subject: [PATCH] cmd: marvell: fix compile and kconfig errors
 
 Change-Id: I7c3816d9d1c869b3fbd8ddcd278243f97a60a748
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/8934
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/Kconfig                  | 1 +
  cmd/marvell/Kconfig          | 1 +
@@ -49,6 +50,3 @@ index 79c7f00870..2d4abc4b4d 100644
  	cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
  {
  	return atf_flsf_clr_force_2ndry();
--- 
-2.29.0
-

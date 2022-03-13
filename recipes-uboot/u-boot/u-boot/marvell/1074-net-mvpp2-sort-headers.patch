@@ -1,7 +1,7 @@
-From c3ebc9085cb5288de24f287ba9dc29d876363fe1 Mon Sep 17 00:00:00 2001
+From 3246ae670a2c97e8249771f0105f7c84f4ae7ca3 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Mon, 27 Jan 2020 12:04:06 +0100
-Subject: [PATCH 1074/1239] net: mvpp2: sort headers
+Subject: [PATCH] net: mvpp2: sort headers
 
 This patch adds an alphabetical sorting of the included
 headers. No functional change.
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/22361
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 24 ++++++++++++------------
  1 file changed, 12 insertions(+), 12 deletions(-)
@@ -59,6 +60,3 @@ index 59dfb366bc..41afb7ed22 100644
  
  DECLARE_GLOBAL_DATA_PTR;
  
--- 
-2.29.0
-

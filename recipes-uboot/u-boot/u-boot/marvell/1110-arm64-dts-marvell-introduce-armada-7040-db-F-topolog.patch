@@ -1,8 +1,7 @@
-From 4100417a7ee25bc3a261a38cc1752b464e8fd455 Mon Sep 17 00:00:00 2001
+From 2f7582cd40fd6e8a6b6f018511471ab3a30d5f6c Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Wed, 26 Feb 2020 18:25:42 +0100
-Subject: [PATCH 1110/1239] arm64: dts: marvell: introduce armada-7040-db-F
- topology
+Subject: [PATCH] arm64: dts: marvell: introduce armada-7040-db-F topology
 
 The F topology of Armada-7040-DB setup enables using the
 module with Peridot switch, working in unmanaged mode via
@@ -16,6 +15,7 @@ Signed-off-by: Marcin Wojtas <mw@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/24004
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+
 ---
  arch/arm/dts/Makefile                     |   1 +
  arch/arm/dts/armada-7040-db-F.dts         | 235 ++++++++++++++++++++
@@ -571,6 +571,3 @@ index fc306fa5f3..af11435cc5 100644
 +	- Setup F network via switch not operational in U-Boot.
  
  
--- 
-2.29.0
-

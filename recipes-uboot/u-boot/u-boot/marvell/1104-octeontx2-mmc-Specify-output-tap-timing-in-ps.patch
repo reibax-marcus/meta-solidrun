@@ -1,7 +1,7 @@
-From 9472233767c97abbeee9f55da056bf63d2205da3 Mon Sep 17 00:00:00 2001
+From 0c496a445d6ad1f21c119ea6c5fbc4c99077ecfb Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Thu, 13 Feb 2020 19:36:36 -0800
-Subject: [PATCH 1104/1239] octeontx2: mmc: Specify output tap timing in ps
+Subject: [PATCH] octeontx2: mmc: Specify output tap timing in ps
 
 This patch allows the output timing to be specified in picoseconds instead
 of using hard-coded tap values.  The output timing may also be specified
@@ -12,6 +12,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/23320
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 68 ++++++++++++++++++++++++++++--------
  drivers/mmc/octeontx_hsmmc.h |  3 ++
@@ -182,6 +183,3 @@ index 30e04e1c85..1be63de7bb 100644
  	bool		is_asim:1;
  	bool		is_emul:1;
  	bool		calibrate_glitch:1;
--- 
-2.29.0
-

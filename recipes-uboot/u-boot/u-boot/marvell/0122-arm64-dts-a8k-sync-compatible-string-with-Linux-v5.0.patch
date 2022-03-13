@@ -1,11 +1,11 @@
-From 2848be733ca076e71a5590f195271a748bb9443b Mon Sep 17 00:00:00 2001
+From e10e46e248169cccd982cd552a0058eafd407d3c Mon Sep 17 00:00:00 2001
 From: Evan Wang <xswang@marvell.com>
 Date: Thu, 24 May 2018 11:19:55 +0800
-Subject: [PATCH 0122/1239] arm64: dts: a8k: sync compatible string with Linux
- v5.0
+Subject: [PATCH] arm64: dts: a8k: sync compatible string with Linux v5.0
 
 Change-Id: Ia44664ce8bd620a7d330a81845bfab0ef103f09c
 Signed-off-by: Evan Wang <xswang@marvell.com>
+
 ---
  arch/arm/dts/armada-70x0.dtsi | 2 +-
  arch/arm/dts/armada-8020.dtsi | 4 ++--
@@ -69,6 +69,3 @@ index faa124d84c..3035b42430 100644
  	bank-name ="cp1-110";
  
  	cp1_ge1_rgmii_pins: cp1-ge-rgmii-pins-0 {
--- 
-2.29.0
-

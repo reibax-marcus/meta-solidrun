@@ -1,13 +1,14 @@
-From e522ec37599b096c90bb61db3d5f2b1c4614b7b6 Mon Sep 17 00:00:00 2001
+From 042951db743cc02d26a15b4c8714b698e50a93cd Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Tue, 24 Mar 2020 15:19:18 -0700
-Subject: [PATCH 1119/1239] config: loki: Enable e1000 driver
+Subject: [PATCH] config: loki: Enable e1000 driver
 
 Change-Id: I3f3185e049ddc41ecd4d3ee5ad6f5883319ecffd
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/25477
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  configs/octeontx2_loki_defconfig | 4 ++++
  1 file changed, 4 insertions(+)
@@ -28,6 +29,3 @@ index d7866e6250..4b58a89803 100644
  CONFIG_PCI=y
  CONFIG_DM_PCI=y
  CONFIG_DM_PCI_COMPAT=y
--- 
-2.29.0
-

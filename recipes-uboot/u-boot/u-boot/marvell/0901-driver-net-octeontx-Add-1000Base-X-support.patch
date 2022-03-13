@@ -1,7 +1,7 @@
-From 72190ac3a66bb9dbc2110955d98f31cb3ce205f7 Mon Sep 17 00:00:00 2001
+From f9b617a7c95f463281ea67e05139ba0a9f29e0a0 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Wed, 24 Apr 2019 23:21:31 -0700
-Subject: [PATCH 0901/1239] driver: net: octeontx: Add 1000Base-X support
+Subject: [PATCH] driver: net: octeontx: Add 1000Base-X support
 
 Based on GMP PCS CSR configure SGMII in 1000Base-X mode.
 
@@ -10,6 +10,7 @@ Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/8043
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/net/octeontx/octeontx_bgx.c | 19 +++++++++++++++----
  drivers/net/octeontx/octeontx_bgx.h |  1 +
@@ -85,6 +86,3 @@ index 80568f471c..d64fad112f 100644
  #define BGX_GMP_GMI_PRTX_CFG		0x38020
  #define GMI_PORT_CFG_SPEED			(1ull << 1)
  #define GMI_PORT_CFG_DUPLEX			(1ull << 2)
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From c6a55e1a4c47b29d7276950d793f1ac5d38f7950 Mon Sep 17 00:00:00 2001
+From b3b8f9545dae9956e8ca25c953a13c75d9b562b0 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 21 Feb 2020 18:57:42 -0800
-Subject: [PATCH 1106/1239] drivers: net: octeontx2: support to update
- sh_fwdata mac address
+Subject: [PATCH] drivers: net: octeontx2: support to update sh_fwdata mac
+ address
 
 Enable support to update sh_fwdata in ATF with user provided MAC
 address for the specific CGX LMAC based on selected ethXaddr
@@ -14,6 +14,7 @@ Depends-On: https://sj1git1.cavium.com/c/IP/SW/boot/atf/+/23693
 Reviewed-on: https://sj1git1.cavium.com/23692
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/net/octeontx2/cgx.h      |  1 +
  drivers/net/octeontx2/cgx_intf.c | 25 +++++++++++++++++++++++++
@@ -118,6 +119,3 @@ index 6250b45a49..bc5e835e8c 100644
  		debug("%s: lMAC %pM\n", __func__, nix->lmac->mac_addr);
  		debug("%s: pMAC %pM\n", __func__, pdata->enetaddr);
  	}
--- 
-2.29.0
-

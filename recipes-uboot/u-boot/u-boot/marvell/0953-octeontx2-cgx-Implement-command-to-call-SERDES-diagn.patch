@@ -1,14 +1,15 @@
-From a21d4599cde5dff59183c1270fed56d3acd27dfc Mon Sep 17 00:00:00 2001
+From 4006e4fbc0c89f9b0f944e4ceb6cb8247f1e1d3f Mon Sep 17 00:00:00 2001
 From: Tomasz Michalec <tomasz@marvell.com>
 Date: Thu, 7 Mar 2019 19:54:56 +0100
-Subject: [PATCH 0953/1239] octeontx2: cgx: Implement command to call SERDES
- diagnostic commands in ATF
+Subject: [PATCH] octeontx2: cgx: Implement command to call SERDES diagnostic
+ commands in ATF
 
 Change-Id: I8d5efc979438b4bdc56540f3250cd89823456ab4
 Signed-off-by: Tomasz Michalec <tomasz@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/11186
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/marvell/Makefile             |   1 +
  cmd/marvell/octeontx2_qlm_cmds.c |  61 ++++++++++++++++++
@@ -379,6 +380,3 @@ index ac02fe8270..46371b3986 100644
  };
  
  union cgx_scratchx1 {
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From c66d4e5ce5f4956d3065fcd22f5c20908e2d9357 Mon Sep 17 00:00:00 2001
+From 77c7374de61f43eb17d7bcc7ef7a0afaba4ba2e8 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 27 Mar 2018 12:52:24 +0200
-Subject: [PATCH 0023/1239] phy: marvell: cp110: let the firmware configure
- comphy for PCIe
+Subject: [PATCH] phy: marvell: cp110: let the firmware configure comphy for
+ PCIe
 
 Replace the comphy initialization for PCIe with appropriate SMC call, so
 the firmware will perform appropriate comphy initialization.
@@ -11,6 +11,7 @@ Change-Id: I895e31a828b77161c86a9eca2df8962cc182836b
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Signed-off-by: Ken Ma <make@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 451 +----------------------------
  1 file changed, 12 insertions(+), 439 deletions(-)
@@ -491,6 +492,3 @@ index a3e03bd26d..bd2626e071 100644
  			break;
  		case COMPHY_TYPE_SATA0:
  		case COMPHY_TYPE_SATA1:
--- 
-2.29.0
-

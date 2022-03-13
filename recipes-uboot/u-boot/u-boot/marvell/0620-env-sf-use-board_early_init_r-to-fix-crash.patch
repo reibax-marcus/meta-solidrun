@@ -1,13 +1,14 @@
-From 4cbb22938ca295d552d297e66df61699bd68b417 Mon Sep 17 00:00:00 2001
+From 1bf7647bc9071dff79f0f589941cf790faed7a76 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Wed, 1 Mar 2017 17:08:27 -0800
-Subject: [PATCH 0620/1239] env: sf: use board_early_init_r to fix crash
+Subject: [PATCH] env: sf: use board_early_init_r to fix crash
 
 ENV in SPI Flash crash is fixed using board_early_init_r to
 call eth_common_init, which helps in success of
 probe of all pci devices during early initr_env call.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  board/cavium/thunderx/thunderx.c |  9 +++++++++
  common/board_r.c                 | 10 ----------
@@ -106,6 +107,3 @@ index 41f5263526..a28032823e 100644
  	/*
  	 * If board-specific initialization exists, call it.
  	 * If not, call a CPU-specific one
--- 
-2.29.0
-

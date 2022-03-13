@@ -1,8 +1,8 @@
-From e49b3bf9fa57f5a019b6cd370b1fc758d321f263 Mon Sep 17 00:00:00 2001
+From 2e6a8edb55b54d30f50159f545fc061367df6884 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Mon, 24 Feb 2020 18:43:30 -0800
-Subject: [PATCH 1109/1239] octeontx: octeontx2: Remove parse and display of
- preserved memory
+Subject: [PATCH] octeontx: octeontx2: Remove parse and display of preserved
+ memory
 
 Display of regions is moved to ATF and also DRAM size SMC call is
 updated to deduct the preserved regions.
@@ -14,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/23843
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Tomasz Michalec <tomasz@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/board.h  |  1 -
  arch/arm/include/asm/arch-octeontx2/board.h |  1 -
@@ -155,6 +156,3 @@ index 47c5fd69a5..9e34860f38 100644
  
  	mem_map_fill();
  
--- 
-2.29.0
-

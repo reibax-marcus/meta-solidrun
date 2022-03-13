@@ -1,7 +1,7 @@
-From cdb1187ecbcd39402e381bdb8470252d623610b9 Mon Sep 17 00:00:00 2001
+From 8a672d07829e350eb9bbae05e845aa5720c486f7 Mon Sep 17 00:00:00 2001
 From: Evan Wang <xswang@marvell.com>
 Date: Fri, 14 Apr 2017 16:36:48 +0800
-Subject: [PATCH 0112/1239] arm64: mvebu: cmd: add hardware information command
+Subject: [PATCH] arm64: mvebu: cmd: add hardware information command
 
 Add support for hw_info command to save/load hardware
 board information on EEPROM
@@ -20,6 +20,7 @@ The patch include:
 
 Change-Id: I6022feeb192f0e0c9dc7043b32f4a7edbe8c6c55
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/Kconfig                        |   1 +
  board/Marvell/common/Kconfig            |  13 +
@@ -959,6 +960,3 @@ index 0000000000..d4fb8f9f08
 +int cfg_eeprom_validate_name(char *name);
 +
 +#endif /* _MVEBU_CFG_EEPROM_H_ */
--- 
-2.29.0
-

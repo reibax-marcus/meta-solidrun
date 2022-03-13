@@ -1,7 +1,7 @@
-From 5f9a55a743aca382b24cde8257b958c23c7f7760 Mon Sep 17 00:00:00 2001
+From b9f5dc0640a4e89d58e4070254b13fccb87a17b9 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Fri, 13 Mar 2015 18:08:18 +0300
-Subject: [PATCH 0289/1239] armv8: cavium: net: Add VNIC and SMI support
+Subject: [PATCH] armv8: cavium: net: Add VNIC and SMI support
 
 ---
  drivers/net/Makefile              |    1 +
@@ -5413,6 +5413,3 @@ index 0000000000..9839681114
 +
 +
 +#endif /* VNIC_H_ */
--- 
-2.29.0
-

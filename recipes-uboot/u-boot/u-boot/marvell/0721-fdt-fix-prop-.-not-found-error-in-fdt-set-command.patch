@@ -1,8 +1,7 @@
-From ec9f999b1e9539b5e70b50704f617ef98201adb6 Mon Sep 17 00:00:00 2001
+From 598c0f2dd8aede3b16974473ce0ac867eb69f41d Mon Sep 17 00:00:00 2001
 From: Hannes Schmelzer <oe5hpm@oevsv.at>
 Date: Fri, 18 Aug 2017 14:41:14 +0200
-Subject: [PATCH 0721/1239] fdt: fix 'prop (...) not found!' error in 'fdt set'
- command
+Subject: [PATCH] fdt: fix 'prop (...) not found!' error in 'fdt set' command
 
 This commit brings things back to the well known working state of the
 command.
@@ -25,6 +24,7 @@ before, it makes it impossible to insert a property.
 
 Signed-off-by: Hannes Schmelzer <oe5hpm@oevsv.at>
 Acked-by: Simon Glass <sjg@chromium.org>
+
 ---
  cmd/fdt.c | 4 ----
  1 file changed, 4 deletions(-)
@@ -44,6 +44,3 @@ index 788e0868b6..bf6c670234 100644
  			if (len > SCRATCHPAD) {
  				printf("prop (%d) doesn't fit in scratchpad!\n",
  				       len);
--- 
-2.29.0
-

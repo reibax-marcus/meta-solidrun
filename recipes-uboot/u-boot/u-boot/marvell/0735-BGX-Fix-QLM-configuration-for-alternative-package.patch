@@ -1,9 +1,10 @@
-From 1e1993f75b7f4dc94c563540acdca75eec9d09f2 Mon Sep 17 00:00:00 2001
+From abdea7f01f7ecf2e460a29d3714c362a9c87bbeb Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 25 Jan 2018 15:12:12 -0800
-Subject: [PATCH 0735/1239] BGX: Fix QLM configuration for alternative package
+Subject: [PATCH] BGX: Fix QLM configuration for alternative package
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 50 +++++++++++++-------------------
  1 file changed, 20 insertions(+), 30 deletions(-)
@@ -111,6 +112,3 @@ index fe7ae13cb6..5ba58ed444 100644
  					continue;
  			}
  			if (((lmacid < 2) && (train_en & (1 << lmacid)))
--- 
-2.29.0
-

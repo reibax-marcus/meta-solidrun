@@ -1,11 +1,12 @@
-From 33564847a20626b514deb37810f096b521009951 Mon Sep 17 00:00:00 2001
+From e52815e47d582fae777faa4475dac4e567f4a7d1 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 7 May 2018 22:17:06 -0700
-Subject: [PATCH 0808/1239] OcteonTX2: net: nix: Initial checkin.
+Subject: [PATCH] OcteonTX2: net: nix: Initial checkin.
 
 Note that it does not work and significant changes will be made.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  .../include/asm/arch-octeontx2/octeontx2.h    |    3 +-
  drivers/net/cavium/octeontx2/Makefile         |    2 +-
@@ -25703,6 +25704,3 @@ index 0000000000..77e3a31065
 +};
 +
 +#endif /* NPC_PROFILE_H */
--- 
-2.29.0
-

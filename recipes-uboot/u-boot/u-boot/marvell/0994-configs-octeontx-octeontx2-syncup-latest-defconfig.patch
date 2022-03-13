@@ -1,11 +1,11 @@
-From 9698d7c5cada4b6969de2f92c391b86c9f4ef321 Mon Sep 17 00:00:00 2001
+From e58180281c2baf5a4e549edb9ef97a258d2948ab Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 8 Nov 2019 13:06:20 -0800
-Subject: [PATCH 0994/1239] configs: octeontx: octeontx2: syncup latest
- defconfig
+Subject: [PATCH] configs: octeontx: octeontx2: syncup latest defconfig
 
 Change-Id: Ice242bf3504453d19a69f02d2731bf92254a009a
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  cmd/Kconfig                       |  9 ++++++++
  configs/octeontx2_95xx_defconfig  | 31 +++++++++++++++++++-------
@@ -968,6 +968,3 @@ index 6164858f4e..c8aece1ba6 100644
  /** EMMC specific defines */
  #define CONFIG_SUPPORT_EMMC_BOOT
  #define CONFIG_SUPPORT_EMMC_RPMB
--- 
-2.29.0
-

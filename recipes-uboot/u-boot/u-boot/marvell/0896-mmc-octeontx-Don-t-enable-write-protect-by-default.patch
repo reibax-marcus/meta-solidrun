@@ -1,13 +1,13 @@
-From c058745898e6e6b911ebe217a73f69ebffedad8f Mon Sep 17 00:00:00 2001
+From 28b3357d18d0ed468d9522465d91bcd3e4cbd702 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Mon, 11 Mar 2019 13:42:23 -0700
-Subject: [PATCH 0896/1239] mmc: octeontx: Don't enable write protect by
- default
+Subject: [PATCH] mmc: octeontx: Don't enable write protect by default
 
 Change-Id: I2be41d6d136ec3c558f772bb157a5931f63d0774
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5498
 Tested-by: sa_ip-sw-jenkins
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -25,6 +25,3 @@ index e8308e8fff..25a184f6e4 100644
  
  	if (dm_gpio_is_valid(&slot->wp_gpio)) {
  		val = dm_gpio_get_value(&slot->wp_gpio);
--- 
-2.29.0
-

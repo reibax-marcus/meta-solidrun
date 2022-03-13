@@ -1,9 +1,10 @@
-From 606d697d1a6e2a5cc1594f4c1b78a1abf987e00e Mon Sep 17 00:00:00 2001
+From 151d7cd1c93177dda19556713067406b205d4a62 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Fri, 10 Feb 2017 11:54:35 -0800
-Subject: [PATCH 0610/1239] cmd: bootimgup: update description
+Subject: [PATCH] cmd: bootimgup: update description
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  cmd/bootimgup.c | 33 +++++++++------------------------
  1 file changed, 9 insertions(+), 24 deletions(-)
@@ -50,6 +51,3 @@ index ddf0e9c535..ac9a65b014 100644
 +	" If image_address, image_size are not specified, \n"
 +	" then $kernel_addr and $filesize values are used \n"
  );
--- 
-2.29.0
-

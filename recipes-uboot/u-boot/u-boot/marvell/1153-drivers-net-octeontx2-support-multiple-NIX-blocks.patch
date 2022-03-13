@@ -1,8 +1,7 @@
-From 9e45efaa0f7f0fa831360d84105551c1c379f70b Mon Sep 17 00:00:00 2001
+From 3b201f927fc943f02964881dc4825bd792cdf211 Mon Sep 17 00:00:00 2001
 From: Rick Farrington <rfarrington@marvell.com>
 Date: Wed, 13 May 2020 18:36:35 -0400
-Subject: [PATCH 1153/1239] drivers: net: octeontx2: support multiple NIX
- blocks
+Subject: [PATCH] drivers: net: octeontx2: support multiple NIX blocks
 
 Support up to 2 NIX blocks (MAX_RVU_NIX) by instanciating a
 'struct nix_af' for each in 'struct rvu_af.nix_af[]'.
@@ -20,6 +19,7 @@ Signed-off-by: Rick Farrington <rfarrington@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28578
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/net/octeontx2/cgx.c    |   1 +
  drivers/net/octeontx2/cgx.h    |   6 ++
@@ -428,6 +428,3 @@ index 36755f75ed..02241d9a5e 100644
  	if (err)
  		printf("%s: Error %d adding nix\n", __func__, err);
  
--- 
-2.29.0
-

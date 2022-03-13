@@ -1,8 +1,8 @@
-From 9b2d42031490f4176f59cde8ca539364ccf4edb5 Mon Sep 17 00:00:00 2001
+From bcd91c402cf082873773bbbe08d26c1e856aa4c8 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 26 Dec 2018 13:59:19 -0800
-Subject: [PATCH 0862/1239] net: octeontx2: clear async events before next cgx
- interface command
+Subject: [PATCH] net: octeontx2: clear async events before next cgx interface
+ command
 
 Clear async events in status register before issue of next command
 to ATF, otherwise response will be invalid.
@@ -12,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/1477
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/net/octeontx2/cgx_intf.c | 18 +++++++++++++++++-
  1 file changed, 17 insertions(+), 1 deletion(-)
@@ -58,6 +59,3 @@ index 118a10a015..258103c6f9 100644
  	/* send command */
  	scr1.u = cgx_rd_scr1(cgx, lmac);
  	scr1.s.cmd.id = cmd;
--- 
-2.29.0
-

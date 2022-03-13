@@ -1,7 +1,7 @@
-From 1e17d930f1fecdd4bb5eb3c1f139b0ecd80fb3b5 Mon Sep 17 00:00:00 2001
+From 5d78cbbe5f206369ec0792f870854094d71b9a6f Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Mon, 21 Aug 2017 17:03:23 +0300
-Subject: [PATCH 0018/1239] phy: marvell: add RX training command
+Subject: [PATCH] phy: marvell: add RX training command
 
 This patch adds support for running RX training using new command called
 "rx_training"
@@ -15,6 +15,7 @@ this allows to reach better link quality then using static configuration.
 Change-Id: I818fe67ccaf19a87af50d4c34a9db7d6802049a5
 Signed-off-by: Igal Liberman <igall@marvell.com>
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  cmd/mvebu/Kconfig                   |   7 +
  cmd/mvebu/Makefile                  |   1 +
@@ -539,6 +540,3 @@ index cde7a022af..4d1b70393b 100644
  
  #endif /* _MVEBU_COMPHY_H_ */
 -
--- 
-2.29.0
-

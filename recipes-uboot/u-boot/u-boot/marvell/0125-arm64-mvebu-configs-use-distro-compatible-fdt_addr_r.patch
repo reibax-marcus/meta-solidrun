@@ -1,11 +1,11 @@
-From 58d1ecb9236623ab985621f7ae22549ff54c7ce9 Mon Sep 17 00:00:00 2001
+From 81a9d4583c1a20f94029c966f4e28be29e3d5e25 Mon Sep 17 00:00:00 2001
 From: Andre Heider <a.heider@gmail.com>
 Date: Fri, 1 Dec 2017 07:52:18 +0100
-Subject: [PATCH 0125/1239] arm64: mvebu: configs: use distro compatible
- 'fdt_addr_r'
+Subject: [PATCH] arm64: mvebu: configs: use distro compatible 'fdt_addr_r'
 
 Change-Id: I1ba4bdc9d1162682bf41effd1efdecac39c03065
 Signed-off-by: Andre Heider <a.heider@gmail.com>
+
 ---
  include/configs/mvebu_armada-common.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -32,6 +32,3 @@ index b2d2cb162e..d598eeb84d 100644
  						"run get_ramfs\0"	\
  					"console=" CONFIG_DEFAULT_CONSOLE "\0"\
  					"root=root=/dev/nfs rw\0"	\
--- 
-2.29.0
-

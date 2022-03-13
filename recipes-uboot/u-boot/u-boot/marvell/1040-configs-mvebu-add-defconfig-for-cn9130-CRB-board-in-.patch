@@ -1,8 +1,8 @@
-From 0e4442374c4a523b10c5b48377c5913d9c492074 Mon Sep 17 00:00:00 2001
+From ddc5487e6ec7dbef53ef927ed81351740ef0a48b Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 17 Dec 2019 15:59:17 +0200
-Subject: [PATCH 1040/1239] configs/mvebu: add defconfig for cn9130 CRB board
- in PCIe EP mode
+Subject: [PATCH] configs/mvebu: add defconfig for cn9130 CRB board in PCIe EP
+ mode
 
 The config file is based on the one for CRB board with the
 following changes:
@@ -16,6 +16,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20451
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  configs/mvebu_crb_ep_cn9130_defconfig | 98 +++++++++++++++++++++++++++
  1 file changed, 98 insertions(+)
@@ -125,6 +126,3 @@ index 0000000000..8aced0638a
 +CONFIG_USB_ETHER_RTL8152=y
 +CONFIG_USB_ETHER_SMSC95XX=y
 +CONFIG_SMBIOS_MANUFACTURER=""
--- 
-2.29.0
-

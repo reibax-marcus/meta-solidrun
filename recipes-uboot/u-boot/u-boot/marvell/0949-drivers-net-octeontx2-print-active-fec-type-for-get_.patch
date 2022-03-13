@@ -1,8 +1,8 @@
-From 27d17dcf28f3e8dad742095666d293c089caf030 Mon Sep 17 00:00:00 2001
+From 45289c2acd7224168242978a1489a56bcc8ad52d Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Thu, 1 Aug 2019 15:14:57 -0700
-Subject: [PATCH 0949/1239] drivers: net: octeontx2: print active fec type for
- get_fec command
+Subject: [PATCH] drivers: net: octeontx2: print active fec type for get_fec
+ command
 
 Use CMD_GET_LINK_STS to fetch current active fec type set for
 LMAC interface whenever user requests GET_FEC command.
@@ -13,6 +13,7 @@ Reviewed-on: https://sj1git1.cavium.com/13513
 Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/net/octeontx2/cgx_intf.c | 20 +++++++++++++++++++-
  1 file changed, 19 insertions(+), 1 deletion(-)
@@ -55,6 +56,3 @@ index 0a6d109c78..c87d7c7321 100644
  	return 0;
  }
  
--- 
-2.29.0
-

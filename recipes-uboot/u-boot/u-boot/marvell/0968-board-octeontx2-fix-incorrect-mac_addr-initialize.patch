@@ -1,7 +1,7 @@
-From 0673033d71f4290662206feb75398f12cfd834e2 Mon Sep 17 00:00:00 2001
+From 1f8667ee023eeed87097d0097697d2c00e1e6ca9 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 11 Oct 2019 13:35:09 -0700
-Subject: [PATCH 0968/1239] board: octeontx2: fix incorrect mac_addr initialize
+Subject: [PATCH] board: octeontx2: fix incorrect mac_addr initialize
 
 Board file cleanup slipped in incorrect init of mac
 address in octeontx2_board_get_mac_addr, so fix it.
@@ -9,6 +9,7 @@ address in octeontx2_board_get_mac_addr, so fix it.
 Change-Id: I78c893380547b497c84152c1a0c3cad0e2fc55fa
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/17246
+
 ---
  board/Marvell/octeontx2/board.c | 1 +
  1 file changed, 1 insertion(+)
@@ -25,6 +26,3 @@ index 89d58deeb9..f199549630 100644
  		tmp_mac += index;
  		tmp_mac = swab64(tmp_mac) >> 16;
  		memcpy(mac_addr, (u8 *)&tmp_mac, ARP_HLEN);
--- 
-2.29.0
-

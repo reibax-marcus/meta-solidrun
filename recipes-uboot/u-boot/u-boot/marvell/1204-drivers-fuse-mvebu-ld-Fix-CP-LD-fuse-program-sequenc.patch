@@ -1,8 +1,7 @@
-From eb4faf71905413c358e4ebcf8646523e51cfb6fc Mon Sep 17 00:00:00 2001
+From 3d0b4fdb8a7443c85d15129a391d6b0a37367f6d Mon Sep 17 00:00:00 2001
 From: Guo Yi <yi.guo@cavium.com>
 Date: Fri, 14 Aug 2020 10:32:38 -0700
-Subject: [PATCH 1204/1239] drivers: fuse: mvebu-ld: Fix CP LD fuse program
- sequence
+Subject: [PATCH] drivers: fuse: mvebu-ld: Fix CP LD fuse program sequence
 
 There's one extra bit every 63 bit when reading back LD fuse content,
 same as described in the functional spec on LD efuse reading. The AP
@@ -16,6 +15,7 @@ Signed-off-by: Guo Yi <yi.guo@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/34010
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-cp110.dtsi |  2 ++
  drivers/fuse/fuse-mvebu-ld.c   | 23 ++++++++++++++++++++---
@@ -126,6 +126,3 @@ index fbb483f9b1..b55e54f6ea 100644
  	char	block_name[64];
  };
  
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From adb0372d8ac591edc0ff2bce39de23879b62813e Mon Sep 17 00:00:00 2001
+From d53e5e0a260e52e00e12541eab40e82ef3f5ad46 Mon Sep 17 00:00:00 2001
 From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
 Date: Thu, 6 Jul 2017 15:01:56 -0700
-Subject: [PATCH 0646/1239] arm: config: Enable alignment of FDT base address
+Subject: [PATCH] arm: config: Enable alignment of FDT base address
 
 This commit enables build-time dependency whether if the build was
 performed with encryption support or not.
@@ -9,6 +9,7 @@ Note that this commit is part of workaround performed on FDT.
 This should be reverted as soon as the solution will be performed in U-Boot.
 
 Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+
 ---
  arch/arm/config.mk | 6 ++++++
  1 file changed, 6 insertions(+)
@@ -30,6 +31,3 @@ index f25603109e..bafebbfcee 100644
  # Only test once
  ifeq ($(CONFIG_$(SPL_)SYS_THUMB_BUILD),y)
  archprepare: checkthumb checkgcc6
--- 
-2.29.0
-

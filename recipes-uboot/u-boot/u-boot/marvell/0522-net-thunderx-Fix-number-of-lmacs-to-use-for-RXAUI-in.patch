@@ -1,10 +1,10 @@
-From 2a396ac7a3277f05dc64cfa89f7763ab31424005 Mon Sep 17 00:00:00 2001
+From e2d48098398d02429f77931514504ec7ffa93ec3 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 12 Sep 2016 19:05:31 -0700
-Subject: [PATCH 0522/1239] net:thunderx: Fix number of lmacs to use for RXAUI
- interface
+Subject: [PATCH] net:thunderx: Fix number of lmacs to use for RXAUI interface
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 26 ++++++++++++++++++++------
  1 file changed, 20 insertions(+), 6 deletions(-)
@@ -64,6 +64,3 @@ index b5b8a593e4..181971c7b3 100644
  			}
  			break;
  		case 3:
--- 
-2.29.0
-

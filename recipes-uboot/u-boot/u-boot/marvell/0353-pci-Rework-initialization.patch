@@ -1,7 +1,7 @@
-From df0b563e304b750948fabc1959595b2f666f6d44 Mon Sep 17 00:00:00 2001
+From e5e0ff3db281ed09d704f80d9694c9e7a2362c0c Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 Nov 2015 20:40:08 -0800
-Subject: [PATCH 0353/1239] pci: Rework initialization
+Subject: [PATCH] pci: Rework initialization
 
 ---
  board/cavium/thunderx/pcie.c | 70 +++++++++++++++++++++++-------------
@@ -153,6 +153,3 @@ index 7723c5f17d..8384f5dec3 100644
  
  	}
  }
--- 
-2.29.0
-

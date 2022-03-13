@@ -1,7 +1,7 @@
-From 972e4706d764e77dcf6965c36b3895e66cbcd85a Mon Sep 17 00:00:00 2001
+From da8591ff941ea459ddb1606be562f567f90b66de Mon Sep 17 00:00:00 2001
 From: Stefan Chulski <stefanc@marvell.com>
 Date: Thu, 13 Jul 2017 17:43:56 +0300
-Subject: [PATCH 0055/1239] net: mvpp2: fix traffic stuck after PHY start error
+Subject: [PATCH] net: mvpp2: fix traffic stuck after PHY start error
 
 Issue:
 - Network stuck if autonegotion fails
@@ -24,6 +24,7 @@ Fix:
 
 Change-Id: I8656d8f36d002b18ffa88568a65f4a0416d22686
 Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 27 ++++++++++++++-------------
  1 file changed, 14 insertions(+), 13 deletions(-)
@@ -106,6 +107,3 @@ index bd89725e77..f36c8236b1 100644
  	txq = port->txqs[0];
  	aggr_txq = &port->priv->aggr_txqs[smp_processor_id()];
  
--- 
-2.29.0
-

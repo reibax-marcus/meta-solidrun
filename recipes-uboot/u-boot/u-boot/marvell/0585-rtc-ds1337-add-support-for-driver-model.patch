@@ -1,9 +1,10 @@
-From 5073db65f61988cefcbecdef1332381494d819e7 Mon Sep 17 00:00:00 2001
+From 7b30f1a39232bb671339090d7e4edbe36106aa8e Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Tue, 13 Dec 2016 17:32:53 -0800
-Subject: [PATCH 0585/1239] rtc: ds1337: add support for driver model
+Subject: [PATCH] rtc: ds1337: add support for driver model
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  drivers/rtc/ds1337.c | 191 +++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 191 insertions(+)
@@ -221,6 +222,3 @@ index 9b31048e97..35342a6953 100644
  }
 +
 +#endif /* !CONFIG_DM_RTC */
--- 
-2.29.0
-

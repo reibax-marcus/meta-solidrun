@@ -1,8 +1,8 @@
-From 941f26e9e0beffbb95e29161fd549ec52d590fda Mon Sep 17 00:00:00 2001
+From 884525079ba6ee5833d173fc878462183175f945 Mon Sep 17 00:00:00 2001
 From: aaronw <awilliams@marvell.com>
 Date: Wed, 6 Nov 2019 20:25:06 -0800
-Subject: [PATCH 0983/1239] octeontx2: pci-console: pci-bootcmd: Don't keep
- adding to stdin, etc.
+Subject: [PATCH] octeontx2: pci-console: pci-bootcmd: Don't keep adding to
+ stdin, etc.
 
 Currently every time U-Boot is booted up the console and bootcmd
 drivers are added to stdin, stdout and stderr even if they are
@@ -13,6 +13,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/18297
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  board/Marvell/octeontx2/board.c | 119 +++++++++++++++++++++-----------
  1 file changed, 80 insertions(+), 39 deletions(-)
@@ -185,6 +186,3 @@ index b9480922f9..f6570eba0f 100644
  	return ret;
  }
  #endif
--- 
-2.29.0
-

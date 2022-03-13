@@ -1,7 +1,7 @@
-From e2c138991ac8ad18f3490bf634c9c95ca3e66dbf Mon Sep 17 00:00:00 2001
+From 26269c0cb40053b4403e9d7b58ca5163b1a577b4 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Sun, 16 Feb 2020 23:28:14 +0100
-Subject: [PATCH 1124/1239] arm64: mvebu: soc: extend dfx smc handler
+Subject: [PATCH] arm64: mvebu: soc: extend dfx smc handler
 
 Since the dfx register set is going to be marked as secure, more drivers
 are going to use smc for accessing some dfx registers. Therefore the dfx
@@ -19,6 +19,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/25050
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/soc.c       |  9 +++++++--
  arch/arm/mach-mvebu/include/mach/soc.h   | 12 +++++++++++-
@@ -114,6 +115,3 @@ index 97fa5977b1..62801d7ba0 100644
  	if (ret == SMCCC_RET_SUCCESS)
  		return mvebu_thermal_ext_fw_validation(tsen);
  
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From 39d5ecfa447a475cbca194bcfd0513b8a9a84cb0 Mon Sep 17 00:00:00 2001
+From 0ecc01ff184d1ccddd6cc3e139ac00f42ce97717 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 Nov 2015 19:13:14 -0800
-Subject: [PATCH 0329/1239] armv8: add utility functions
+Subject: [PATCH] armv8: add utility functions
 
 This commit adds read_{spsr,far}() functions
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/include/asm/system.h | 35 +++++++++++++++++++++++++++++++++++
  1 file changed, 35 insertions(+)
@@ -57,6 +58,3 @@ index a1a5e35ef6..b2bf856c3b 100644
  #define BSP_COREID	0
  
  void __asm_flush_dcache_all(void);
--- 
-2.29.0
-

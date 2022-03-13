@@ -1,7 +1,7 @@
-From f3a0b6e886f64612b9dd695ddd0b7e2c3b32c927 Mon Sep 17 00:00:00 2001
+From aa2a43f57a9a7cb38c7a51c882cc01d825a42321 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 22 Oct 2019 18:17:54 -0700
-Subject: [PATCH 0975/1239] cmd: eth_cmds: add support for mode change
+Subject: [PATCH] cmd: eth_cmds: add support for mode change
 
 Add command set_mode to support changing mode of
 interface.
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/17695
 Reviewed-by: Felix Manlunas <Felix.Manlunas@cavium.com>
 Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  cmd/marvell/eth_cmds.c           |  26 ++++++-
  drivers/net/octeontx2/cgx_intf.c | 116 ++++++++++++++++++++++++++++++-
@@ -300,6 +301,3 @@ index f4f2676749..3a5ae227b2 100644
  	struct cgx_set_fec_args fec_args;
  	struct cgx_set_phy_mod_args phy_mod_args;
  	/* any other arg for command id * like : mtu, dmac filtering control */
--- 
-2.29.0
-

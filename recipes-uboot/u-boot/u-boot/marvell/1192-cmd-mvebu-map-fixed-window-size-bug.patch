@@ -1,7 +1,7 @@
-From 50e7d22ff0d8d40ece4a9d1054ee31c26b08220c Mon Sep 17 00:00:00 2001
+From d3cd5008e600daecc735ca07e66e274f1b2721f9 Mon Sep 17 00:00:00 2001
 From: Alex Leibovich <alexl@marvell.com>
 Date: Mon, 13 Jul 2020 12:35:32 +0300
-Subject: [PATCH 1192/1239] cmd/mvebu: map: fixed window size bug
+Subject: [PATCH] cmd/mvebu: map: fixed window size bug
 
 According to spec window size is a 16 bit field.
 It was defined as 8 bit, which caused showing
@@ -13,6 +13,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/31809
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  cmd/mvebu/map.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -30,6 +31,3 @@ index 4ffa2e3974..43e855c0b1 100644
  
  #define AMB_WIN_BASE_OFFSET(ap, cp, win) (MVEBU_AMB_ADEC_BASE(ap, cp) + \
  						0x4 + 0x8 * (win))
--- 
-2.29.0
-

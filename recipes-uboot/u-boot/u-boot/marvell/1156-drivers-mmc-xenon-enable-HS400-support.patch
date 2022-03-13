@@ -1,7 +1,7 @@
-From bab1d0f207e15ac83e18c5b7e2c87eed93e08a88 Mon Sep 17 00:00:00 2001
+From 0ef234dbd2af99bb2303ad00a4bf322b95928fda Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 19 May 2020 16:01:37 +0300
-Subject: [PATCH 1156/1239] drivers/mmc/xenon: enable HS400 support
+Subject: [PATCH] drivers/mmc/xenon: enable HS400 support
 
 Rework the driver for supporting HS400 speed mode.
 Patch includes some minor driver code cleanups.
@@ -9,6 +9,7 @@ Patch includes some minor driver code cleanups.
 Change-Id: I3d3dcac5307f3cfad0d773892bb2c376dc9827ed
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28703
+
 ---
  drivers/mmc/xenon_sdhci.c | 231 ++++++++++++++++++++------------------
  1 file changed, 124 insertions(+), 107 deletions(-)
@@ -424,6 +425,3 @@ index c1f08a5dde..431d367904 100644
  	return ret;
  }
  
--- 
-2.29.0
-

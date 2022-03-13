@@ -1,8 +1,8 @@
-From 78fd30ae1daef3020a6c234e37d8e1ae6bca58f7 Mon Sep 17 00:00:00 2001
+From eacf57d2858400587f62fb808d0e656cff8207f5 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 11 Jun 2020 00:51:03 -0700
-Subject: [PATCH 1168/1239] Revert "drivers: net: octeontx: otx3: add initial
- support for t106 RVU AF"
+Subject: [PATCH] Revert "drivers: net: octeontx: otx3: add initial support for
+ t106 RVU AF"
 
 This reverts commit a91085a47fccbbcbfccd050c2bf9aa4d82c4ee6e.
 
@@ -13,6 +13,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29834
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx3/board.c    |   18 -
  cmd/marvell/Kconfig                |    4 +-
@@ -2073,6 +2074,3 @@ index 02ad27bebe..0000000000
 -	qmem_free(&aq->res);
 -	memset(aq, 0, sizeof(*aq));
 -}
--- 
-2.29.0
-

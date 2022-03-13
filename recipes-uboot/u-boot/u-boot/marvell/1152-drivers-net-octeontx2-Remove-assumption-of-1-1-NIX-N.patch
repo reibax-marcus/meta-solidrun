@@ -1,8 +1,8 @@
-From a383a920c4e7d5cbf302471ba71f5e72767aa28c Mon Sep 17 00:00:00 2001
+From 8d7270168a7de4c53db5307f30804bf696274f49 Mon Sep 17 00:00:00 2001
 From: Rick Farrington <rfarrington@marvell.com>
 Date: Tue, 12 May 2020 23:18:41 -0400
-Subject: [PATCH 1152/1239] drivers: net: octeontx2: Remove assumption of 1:1
- NIX->NPA LF mapping
+Subject: [PATCH] drivers: net: octeontx2: Remove assumption of 1:1 NIX->NPA LF
+ mapping
 
 Don't assume that the NPA LF IDs are identical to the NIX LF IDs.
 In the presence of multiple NIX blocks, they will be different.
@@ -12,6 +12,7 @@ Signed-off-by: Rick Farrington <rfarrington@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/28577
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/net/octeontx2/nix.c | 15 ++++++++-------
  drivers/net/octeontx2/nix.h |  3 ++-
@@ -108,6 +109,3 @@ index e26ac2789b..a742b3cb3d 100644
  int npa_lf_shutdown(struct nix *nix);
  int npa_lf_admin_setup(struct npa *npa, int lf, dma_addr_t aura_base);
  int npa_lf_admin_shutdown(struct nix_af *nix_af, int lf, u32 pool_count);
--- 
-2.29.0
-

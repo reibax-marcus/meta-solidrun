@@ -1,7 +1,7 @@
-From f1f8249e60058c020c8ed0e72a5841a89a2bb887 Mon Sep 17 00:00:00 2001
+From 03530eb7948c94b603b4c5c15d02ac394e192da2 Mon Sep 17 00:00:00 2001
 From: aaronw <aaron.williams@cavium.com>
 Date: Wed, 6 Mar 2019 16:59:42 -0800
-Subject: [PATCH 0889/1239] octeontx: octeontx2: Enable md5sum and sha1sum
+Subject: [PATCH] octeontx: octeontx2: Enable md5sum and sha1sum
 
 This enables the md5sum and sha1sum commands.
 
@@ -10,6 +10,7 @@ Signed-off-by: aaronw <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5422
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  configs/octeontx2_95xx_defconfig | 4 ++++
  configs/octeontx2_96xx_defconfig | 4 ++++
@@ -65,6 +66,3 @@ index d7c06fc456..0c84c44a97 100644
 +CONFIG_SHA1SUM_VERIFY=y
 +CONFIG_CMD_MD5SUM=y
 +CONFIG_MD5SUM_VERIFY=y
--- 
-2.29.0
-

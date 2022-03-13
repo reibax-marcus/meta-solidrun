@@ -1,10 +1,10 @@
-From 4ef626fc8bea0f3f295238b275c5b8dfdfb15b50 Mon Sep 17 00:00:00 2001
+From b0c4d9209089dc22020c5db1a59d74fa483f4d29 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 17 Apr 2018 08:31:54 -0700
-Subject: [PATCH 0805/1239] drivers: net: octeontx2: few more changes to code
- for cgx
+Subject: [PATCH] drivers: net: octeontx2: few more changes to code for cgx
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx2/cgx.c            |   8 +-
  drivers/net/cavium/octeontx2/cgx.h            |  34 +++
@@ -423,6 +423,3 @@ index 4fa139f83c..0000000000
 -};
 -
 -#endif
--- 
-2.29.0
-

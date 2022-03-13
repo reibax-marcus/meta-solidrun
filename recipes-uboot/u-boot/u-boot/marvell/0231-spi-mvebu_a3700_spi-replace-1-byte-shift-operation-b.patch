@@ -1,8 +1,8 @@
-From 7d74b4322ce3431b95ec9ebd6fa1dfff9e9b27ea Mon Sep 17 00:00:00 2001
+From 5226e7c4979c79fcdb4a4719ca94383a2cc56a47 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Mon, 10 Dec 2018 15:34:51 +0100
-Subject: [PATCH 0231/1239] spi: mvebu_a3700_spi: replace 1 byte shift
- operation by 4 bytes
+Subject: [PATCH] spi: mvebu_a3700_spi: replace 1 byte shift operation by 4
+ bytes
 
 - In order to improve SPI flash write and read performance, this patch
   replaces 1 bytes shift with 4 byte shift.
@@ -20,6 +20,7 @@ Subject: [PATCH 0231/1239] spi: mvebu_a3700_spi: replace 1 byte shift
 
 Change-Id: Ie7cbb7118176eae3e2aa9b00e249d9c01bcd8ce3
 Signed-off-by: zachary <zhangzg@marvell.com>
+
 ---
  drivers/spi/mvebu_a3700_spi.c | 104 +++++++++++++++++++++++++---------
  1 file changed, 78 insertions(+), 26 deletions(-)
@@ -197,6 +198,3 @@ index db4a73378c..1b6db6064d 100644
  	return 0;
  }
  
--- 
-2.29.0
-

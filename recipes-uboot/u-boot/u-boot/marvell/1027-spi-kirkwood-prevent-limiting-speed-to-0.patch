@@ -1,7 +1,7 @@
-From 8d988c7db129c3fc2d8c8df6f90e2c9e3cd3cad3 Mon Sep 17 00:00:00 2001
+From 663287815e241f3b49fc835ebe8f82cab3292b95 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 26 Nov 2019 18:44:20 +0100
-Subject: [PATCH 1027/1239] spi: kirkwood: prevent limiting speed to 0
+Subject: [PATCH] spi: kirkwood: prevent limiting speed to 0
 
 After commit 1fe929ed497bcc8975be8d37383ebafd22b99dd2
 ("spi: kirkwood: prevent configuring speed exceeding max controller freq")
@@ -15,6 +15,7 @@ Reviewed-on: https://sj1git1.cavium.com/19345
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Marcin Wojtas <marcin@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  drivers/spi/kirkwood_spi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -32,6 +33,3 @@ index 8d151cc171..55feda274f 100644
  		debug("%s: limit speed to the max_hz of the bus %d\n",
  		      __func__, spi->max_hz);
  		hz = spi->max_hz;
--- 
-2.29.0
-

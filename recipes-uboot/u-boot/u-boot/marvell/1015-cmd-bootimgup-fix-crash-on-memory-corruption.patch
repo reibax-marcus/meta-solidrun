@@ -1,7 +1,7 @@
-From 8e4e1cca21a0a1717b4527ad3e3d9b3c1fc844ae Mon Sep 17 00:00:00 2001
+From ed4c818605d0a8a55586b2c443abeec3e7f1d459 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 26 Nov 2019 17:05:55 -0800
-Subject: [PATCH 1015/1239] cmd: bootimgup: fix crash on memory corruption
+Subject: [PATCH] cmd: bootimgup: fix crash on memory corruption
 
 Skip allocation of compare buffer for each block in update
 to SPI flash. Instead in caller for block update use memalign
@@ -15,6 +15,7 @@ Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19372
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/marvell/bootimgup.c | 23 ++++++++++++-----------
  1 file changed, 12 insertions(+), 11 deletions(-)
@@ -88,6 +89,3 @@ index e221b4ceeb..874eb16ee5 100644
  		if (err_oper)
  			break;
  	}
--- 
-2.29.0
-

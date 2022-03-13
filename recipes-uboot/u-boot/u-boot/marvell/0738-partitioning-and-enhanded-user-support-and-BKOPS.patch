@@ -1,7 +1,7 @@
-From 1cbaf8ca6864e69af09db959dfdc09a57bbf31b0 Mon Sep 17 00:00:00 2001
+From 4811cfd4be801ab9d11d2a26d4853b91d6a4cb79 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 7 Feb 2018 20:13:40 -0800
-Subject: [PATCH 0738/1239] partitioning and enhanded user support and BKOPS
+Subject: [PATCH] partitioning and enhanded user support and BKOPS
 
 This patch fixes several issues:
 
@@ -11,6 +11,7 @@ This patch fixes several issues:
 
 Bug# 32261
 Bug# 32262
+
 ---
  drivers/mmc/cavium_mmc.c | 81 +++++++++++++++++++++++++++++++++++++++-
  1 file changed, 80 insertions(+), 1 deletion(-)
@@ -129,6 +130,3 @@ index 061b8b56e7..649c70e1b8 100644
  static int cavium_pci_mmc_probe(struct udevice *dev)
  {
  	int rc = -1;
--- 
-2.29.0
-

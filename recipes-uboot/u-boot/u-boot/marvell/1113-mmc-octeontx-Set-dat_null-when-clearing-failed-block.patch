@@ -1,8 +1,8 @@
-From bcfe021a2ee78056fbb873d26c0622fd932e1627 Mon Sep 17 00:00:00 2001
+From 3be30d4b2371a6dc44e7900a19991ee1b1431079 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Thu, 5 Mar 2020 16:14:53 -0800
-Subject: [PATCH 1113/1239] mmc: octeontx: Set dat_null when clearing failed
- block operation
+Subject: [PATCH] mmc: octeontx: Set dat_null when clearing failed block
+ operation
 
 When a DMA transaction fails the dat_null should be set when clearing
 the operation.
@@ -12,6 +12,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/24564
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 1 +
  1 file changed, 1 insertion(+)
@@ -28,6 +29,3 @@ index 9c16833b24..3e470ce358 100644
  			write_csr(mmc, MIO_EMM_DMA(), emm_dma.u);
  		} else if (!rsp_sts.s.dma_val && emm_dma_int.s.done) {
  			break;
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 4b35b5db5d4d8614df2b5184c45045bc30018e16 Mon Sep 17 00:00:00 2001
+From 68ec757bb9b56ace16da2ffefe889316b252ec2a Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Thu, 5 Dec 2019 14:02:17 +0200
-Subject: [PATCH 1031/1239] pcie-ep: Add snic EP SRIOV VF ID configuration
+Subject: [PATCH] pcie-ep: Add snic EP SRIOV VF ID configuration
 
 Change-Id: I1d784fe263cf8b9f57e4432797f6d64c93f96929
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
@@ -9,6 +9,7 @@ Reviewed-on: https://sj1git1.cavium.com/19871
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/dts/armada-cp110.dtsi           | 1 +
  drivers/pci_endpoint/pcie_dw_mvebu_ep.c  | 1 +
@@ -92,6 +93,3 @@ index 00e8c6d8ab..ddde08ba4f 100644
  	u8	revid;
  	u8	progif_code;
  	u8	subclass_code;
--- 
-2.29.0
-

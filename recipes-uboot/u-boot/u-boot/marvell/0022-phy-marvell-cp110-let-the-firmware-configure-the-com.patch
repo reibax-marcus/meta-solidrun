@@ -1,8 +1,7 @@
-From e8f84584d6e1496b491979e5aeb70d770815ff1d Mon Sep 17 00:00:00 2001
+From 23baac22607016726c0dea1f752d1e8f79af6b69 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Thu, 21 Dec 2017 16:21:06 +0100
-Subject: [PATCH 0022/1239] phy: marvell: cp110: let the firmware configure the
- comphy
+Subject: [PATCH] phy: marvell: cp110: let the firmware configure the comphy
 
 Replace all comphy initialization with appropriate smc calls. It will
 result with triggering synchronous exception that is handled by Secure
@@ -16,6 +15,7 @@ interfaces. The next interfaces will be addressed in upcoming commit.
 Change-Id: I0167553f8dc942db19c097a943087f6c830fbecb
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 819 ++++-------------------------
  1 file changed, 91 insertions(+), 728 deletions(-)
@@ -917,6 +917,3 @@ index 2e3ef6f359..a3e03bd26d 100644
  			break;
  		case COMPHY_TYPE_RXAUI0:
  		case COMPHY_TYPE_RXAUI1:
--- 
-2.29.0
-

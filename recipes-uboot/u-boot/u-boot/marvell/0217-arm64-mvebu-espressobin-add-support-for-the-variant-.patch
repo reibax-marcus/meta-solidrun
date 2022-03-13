@@ -1,8 +1,8 @@
-From adc3b0502218d7469b7020b85cc54241a22be274 Mon Sep 17 00:00:00 2001
+From 7a1eaec437779d5964740f1e29e9335e0ce5eb90 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 25 Nov 2018 18:23:53 +0200
-Subject: [PATCH 0217/1239] arm64: mvebu: espressobin: add support for the
- variant with eMMC
+Subject: [PATCH] arm64: mvebu: espressobin: add support for the variant with
+ eMMC
 
 Add support for additional EspressoBIN board with installed
 eMMC device (U11).
@@ -18,6 +18,7 @@ Update build documentation accordingly.
 
 Change-Id: Idc6b79852316fdfc099c3e79e5ae9a27e4a80a42
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/Makefile                         |  1 +
  arch/arm/dts/armada-3720-espressobin-emmc.dts | 19 +++++++++++++++++++
@@ -95,6 +96,3 @@ index 67031593e8..6aefa391bb 100644
  CONFIG_ENV_IS_IN_SPI_FLASH=y
  CONFIG_AHCI_MVEBU=y
  CONFIG_CLK=y
--- 
-2.29.0
-

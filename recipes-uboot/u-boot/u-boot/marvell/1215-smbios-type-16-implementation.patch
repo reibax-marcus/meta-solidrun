@@ -1,7 +1,7 @@
-From aebd0026b00dd8a84c0befad1a2986053cb07601 Mon Sep 17 00:00:00 2001
+From 1f993edcce58949a0ef22781511a491faa9c602a Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Mon, 27 Jul 2020 10:42:09 -0700
-Subject: [PATCH 1215/1239] smbios: type 16 implementation
+Subject: [PATCH] smbios: type 16 implementation
 
 This structure describes a collection of memory
 devices that operate together to form a memory
@@ -12,6 +12,7 @@ Change-Id: I42f703f165cf1b921c974bafc0be46bfccd2e3b3
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35167
 Tested-by: Jia Ma <jiam@marvell.com>
 Reviewed-by: Jia Ma <jiam@marvell.com>
+
 ---
  include/smbios.h | 32 ++++++++++++++++++++++++++++++++
  lib/smbios.c     | 46 ++++++++++++++++++++++++++++++++++++++++++++++
@@ -131,6 +132,3 @@ index 822800fbdb..3a3adaab3a 100644
  	smbios_write_type32,
  	smbios_write_type127
  };
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From f097756a08b052c9c82d8b4f93af93a0fce95311 Mon Sep 17 00:00:00 2001
+From bd2cd88f2e9dd7e2fd030ccddd457a1509abc221 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 17 Dec 2019 16:47:17 +0100
-Subject: [PATCH 1046/1239] thermal: a80x0: a70x0: change thermal sensor API
+Subject: [PATCH] thermal: a80x0: a70x0: change thermal sensor API
 
 Pass temperature value via pointer and return error code in sensor read
 functions.
@@ -14,6 +14,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/20587
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/include/asm/arch-mvebu/thermal.h | 11 +++++++----
  drivers/thermal/mvebu_ext_thermal_28nm.c  |  7 +++++--
@@ -117,6 +118,3 @@ index 15c686522c..8b8190babf 100644
  }
  
  static const struct dm_thermal_ops mvebu_thermal_ops = {
--- 
-2.29.0
-

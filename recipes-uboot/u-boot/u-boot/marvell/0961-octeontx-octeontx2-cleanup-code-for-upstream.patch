@@ -1,7 +1,7 @@
-From a464f455a35c3f0d8a6ce34f9b0b249bd5553a11 Mon Sep 17 00:00:00 2001
+From b64b5f87b4657a0a0300ea37f947bae5f993d301 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 12 Sep 2019 19:39:53 -0700
-Subject: [PATCH 0961/1239] octeontx: octeontx2: cleanup code for upstream
+Subject: [PATCH] octeontx: octeontx2: cleanup code for upstream
 
 - clean checkpatch errors across all driver and board files
 - remove redundant files
@@ -12,6 +12,7 @@ Change-Id: I03c163353448ae64d710c796994814c1b3cb174b
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/16215
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/atf.h      |    6 +-
  arch/arm/include/asm/arch-octeontx/atf_part.h |   27 -
@@ -46538,6 +46539,3 @@ index 06452a8536..449c9ba555 100644
 +	.priv_auto_alloc_size	= sizeof(struct octeontx_spi),
  	.ops			= &octeontx_spi_ops,
  };
--- 
-2.29.0
-

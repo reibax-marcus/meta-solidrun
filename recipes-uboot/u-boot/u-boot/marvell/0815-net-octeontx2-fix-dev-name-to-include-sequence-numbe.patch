@@ -1,13 +1,13 @@
-From 7e804800ead11d4a1a44482597b364ac3fb1b15a Mon Sep 17 00:00:00 2001
+From 874f9c795460fa0486d3514adffed283464dfbbc Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 13 Aug 2018 16:00:48 -0700
-Subject: [PATCH 0815/1239] net: octeontx2: fix dev name to include sequence
- number
+Subject: [PATCH] net: octeontx2: fix dev name to include sequence number
 
 helps in better readability while executing commands on
 different interfaces, as against same name for all interfaces.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx2/rvu_pf.c | 10 +++++++++-
  1 file changed, 9 insertions(+), 1 deletion(-)
@@ -44,6 +44,3 @@ index de4fd0c75a..15ff6a0d19 100644
  	return err;
  }
  
--- 
-2.29.0
-

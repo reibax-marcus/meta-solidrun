@@ -1,11 +1,12 @@
-From 0b50315e39a02524a1daae2a7233de31e2a0dafa Mon Sep 17 00:00:00 2001
+From 03971ec5b510b4eaf429b5ab9e2cd92e2814f02a Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 22 Jun 2016 13:55:38 -0700
-Subject: [PATCH 0509/1239] Fixed i2c support and added some comments as well.
- Note that the i2c support is still not complete and it will likely fail when
- multiple masters are active.
+Subject: [PATCH] Fixed i2c support and added some comments as well. Note that
+ the i2c support is still not complete and it will likely fail when multiple
+ masters are active.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/i2c/thunderx_i2c.c      | 734 +++++++++++++++++++++++++++++---
  include/configs/thunderx_81xx.h | 199 ++++++++-
@@ -1394,6 +1395,3 @@ index 5021d01d69..56910f6ae7 100644
  #define NS_PER_REF_CLK_TICK		(1000000000/PLL_REF_CLK)
  
  #endif /* __THUNDERX_81XX_H__ */
--- 
-2.29.0
-

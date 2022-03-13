@@ -1,9 +1,10 @@
-From 9b0c4df8bc549e91632dc6e395369878e61495c5 Mon Sep 17 00:00:00 2001
+From 40745ec5399fb6fc843a52d43296e2a9be18b233 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 14 Nov 2017 17:22:49 -0800
-Subject: [PATCH 0733/1239] env: rename old env api to new in all files
+Subject: [PATCH] env: rename old env api to new in all files
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/fdt.c      | 14 +++++++-------
  board/cavium/thunderx/thunderx.c | 24 ++++++++++++------------
@@ -226,6 +227,3 @@ index ff2e298aba..bddbd12c94 100644
  
  /** Enable long help support */
  #define CONFIG_SYS_LONGHELP
--- 
-2.29.0
-

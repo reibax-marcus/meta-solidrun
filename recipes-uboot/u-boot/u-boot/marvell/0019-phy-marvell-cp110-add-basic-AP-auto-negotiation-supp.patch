@@ -1,8 +1,7 @@
-From 7b83e7771318cee7d5db1fb1295b3d8c8f45ef40 Mon Sep 17 00:00:00 2001
+From 6c5a84e0203c1cd53074f8f355bed75da6c23156 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 19 May 2017 10:52:22 +0200
-Subject: [PATCH 0019/1239] phy: marvell: cp110: add basic AP
- (auto-negotiation) support
+Subject: [PATCH] phy: marvell: cp110: add basic AP (auto-negotiation) support
 
 During AP the proper mode is auto-negotiated and the mac, pcs and serdes
 configuration are done by the firmware loaded to the MG's CM3 for appropriate
@@ -16,6 +15,7 @@ the network registers like: MG, AP, MAC, PCS, Serdes etc.)
 Change-Id: I8498a2a452d95c8993c483272556838b902dabf1
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_core.c        |  2 +-
  drivers/phy/marvell/comphy_cp110.c       | 31 +++++++++++++++++++++++-
@@ -107,6 +107,3 @@ index 7d62dcf7fa..e6b4bfca3c 100644
  #define COMPHY_TYPE_INVALID		0xff
  
  #define COMPHY_POLARITY_NO_INVERT	0
--- 
-2.29.0
-

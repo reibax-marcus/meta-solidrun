@@ -1,7 +1,7 @@
-From baaeccfa3d4fafee01630e28f77978d93f5a1901 Mon Sep 17 00:00:00 2001
+From 1ef0c18fa4e7d421df7560358ef5c0a182b0b9cc Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 8 Nov 2016 19:42:31 -0800
-Subject: [PATCH 0553/1239] Added Cavium eMMC/SD driver support to U-Boot.
+Subject: [PATCH] Added Cavium eMMC/SD driver support to U-Boot.
 
 This driver completely replaces the functionality in drivers/mmc/mmc.c
 at this time due to architectural issues which differ significantly
@@ -19,6 +19,7 @@ tested.
 Some additional fields were also added to mmc.h
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  .../include/asm/arch-thunderx/cavium_mmc.h    | 1840 ++++++
  drivers/mmc/Makefile                          |    1 +
@@ -7747,6 +7748,3 @@ index 686ba00656..6a70be7575 100644
  #define EXT_CSD_CARD_TYPE_DDR_52	(EXT_CSD_CARD_TYPE_DDR_1_8V \
  					| EXT_CSD_CARD_TYPE_DDR_1_2V)
  
--- 
-2.29.0
-

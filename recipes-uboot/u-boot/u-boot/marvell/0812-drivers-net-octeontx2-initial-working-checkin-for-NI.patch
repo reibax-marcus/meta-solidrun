@@ -1,8 +1,7 @@
-From 7bde881dc9e9e049b6bbb98511cd09811b0ec185 Mon Sep 17 00:00:00 2001
+From fa119b4a979ae294cd3272c23f57de80dff7e24f Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 30 Jul 2018 12:56:19 -0700
-Subject: [PATCH 0812/1239] drivers: net: octeontx2: initial working checkin
- for NIX
+Subject: [PATCH] drivers: net: octeontx2: initial working checkin for NIX
 
 Changes to nix driver code to make it work on asim for
 static ping and also in LAN for dhcp and tftp commands to work.
@@ -37,6 +36,7 @@ TODO
 - revisit buffer count on rx/tx for each pf
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/octeontx2/fdt.c                 |    2 +-
  board/cavium/octeontx2/octeontx2.c           |   43 +-
@@ -11566,6 +11566,3 @@ index 8b40eb4ad8..bfc99f7778 100644
  					"autoload=0\0"
  
  /** Environment defines */
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From aa08adc5c7b199f93ff2738c2d258d1ce4a48eb6 Mon Sep 17 00:00:00 2001
+From d560ffa1b02dc379dfa55965daeaee1a884a06aa Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 Nov 2015 16:23:20 -0800
-Subject: [PATCH 0358/1239] cavium: Suppress excess debug output
+Subject: [PATCH] cavium: Suppress excess debug output
 
 ---
  board/cavium/thunderx/pcie.c | 5 ++---
@@ -30,6 +30,3 @@ index 07af5b3d73..fe95ee3a84 100644
  		       __FUNCTION__, __LINE__, bar_start, bar_size);
  	}
  
--- 
-2.29.0
-

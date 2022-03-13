@@ -1,8 +1,7 @@
-From 4c7eecda94fcd6bb7b41dfca7f4ce5480aedc790 Mon Sep 17 00:00:00 2001
+From 239879dce6d5119d6f8bd6cd074d71a738baeaba Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Tue, 15 May 2018 16:53:04 +0300
-Subject: [PATCH 0142/1239] arm64: dts: a3900: add Armada3900 device tree with
- setup B
+Subject: [PATCH] arm64: dts: a3900: add Armada3900 device tree with setup B
 
 This configuration is for Armada3900-A0/1
 
@@ -18,6 +17,7 @@ CP0-SerDes:
 Change-Id: Icaea1d2750a2493689c5720734a5453127d2972a
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/Makefile             |  1 +
  arch/arm/dts/armada-3900-vd-B.dts | 90 +++++++++++++++++++++++++++++++
@@ -132,6 +132,3 @@ index 0000000000..7aa5f19126
 +&cp0_eth1 {
 +	phy-mode = "sgmii";
 +};
--- 
-2.29.0
-

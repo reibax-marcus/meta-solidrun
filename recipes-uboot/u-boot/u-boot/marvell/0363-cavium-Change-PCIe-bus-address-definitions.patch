@@ -1,7 +1,7 @@
-From 4126a7aa53c42fbebc6b50aa63fc1bdd81c1d015 Mon Sep 17 00:00:00 2001
+From e69dd5438d4b6eb7b262721c1087f8fe07f4b62b Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 6 Nov 2015 22:32:14 -0800
-Subject: [PATCH 0363/1239] cavium: Change PCIe bus address definitions
+Subject: [PATCH] cavium: Change PCIe bus address definitions
 
 ---
  include/configs/thunderx_88xx.h | 8 ++++----
@@ -28,6 +28,3 @@ index 32ae12458c..6165611b57 100644
  #define CONFIG_SYS_PCI_IO_SIZE   0x10000
  
  #define CONFIG_SLT
--- 
-2.29.0
-

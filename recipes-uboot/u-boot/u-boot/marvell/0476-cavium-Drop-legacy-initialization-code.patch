@@ -1,12 +1,13 @@
-From 9e5cb291edb8884ac260150bdf459261b6e0ac4c Mon Sep 17 00:00:00 2001
+From 4b8dbd30565ea711e416dfd97e753a63a6b2018e Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 19 May 2016 13:59:41 -0400
-Subject: [PATCH 0476/1239] cavium: Drop legacy initialization code
+Subject: [PATCH] cavium: Drop legacy initialization code
 
 This code is not relevant anymore since all network drivers are now
 initialized by the means of DM/ECAM
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  board/cavium/thunderx/thunderx.c | 11 -----------
  1 file changed, 11 deletions(-)
@@ -40,6 +41,3 @@ index 14492caa20..df9b50d7e7 100644
  
  	rc = pci_eth_init(bis);
  
--- 
-2.29.0
-

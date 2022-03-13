@@ -1,14 +1,14 @@
-From acab65fbb322578726f2b71c653e415218ea85a2 Mon Sep 17 00:00:00 2001
+From 967d77ecaca1ce203f1cb10c9f8bd5d700e7eb75 Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Mon, 25 Jun 2018 11:16:49 +0300
-Subject: [PATCH 0136/1239] arm64: mvebu: soc: a8k: add DEVICE_ID for new
- platforms
+Subject: [PATCH] arm64: mvebu: soc: a8k: add DEVICE_ID for new platforms
 
 Introduce obtaining the device IDs for A39xx SoCs.
 
 Change-Id: I91b60f529e312d2dbbb2c45d25c75682bb197ada
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/soc.c | 42 +++++++++++++++++++++++++++---
  1 file changed, 39 insertions(+), 3 deletions(-)
@@ -103,6 +103,3 @@ index fbe3d7b716..f1863eaa32 100644
  		}
  	}
  
--- 
-2.29.0
-

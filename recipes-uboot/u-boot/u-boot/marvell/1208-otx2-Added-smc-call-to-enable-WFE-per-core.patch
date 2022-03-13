@@ -1,7 +1,7 @@
-From 179dbd64ebc40c43489a56e6fe55d320799cc9a3 Mon Sep 17 00:00:00 2001
+From 33cdad5113bb8b6ebefd48483931cff5a30ecd2f Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Thu, 6 Aug 2020 23:12:52 -0700
-Subject: [PATCH 1208/1239] otx2: Added smc call to enable WFE per core
+Subject: [PATCH] otx2: Added smc call to enable WFE per core
 
 Pass value passed to enable_wfe to enable WFE via smc call
 
@@ -10,6 +10,7 @@ Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/33569
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/smc-id.h |  1 +
  board/Marvell/octeontx2/board.c              |  3 +++
@@ -64,6 +65,3 @@ index 3ae428d726..129ee28ee8 100644
  ssize_t smc_flsf_fw_booted(void)
  {
  	struct pt_regs regs;
--- 
-2.29.0
-

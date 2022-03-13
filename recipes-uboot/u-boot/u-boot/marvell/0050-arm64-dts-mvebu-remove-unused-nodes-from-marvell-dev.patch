@@ -1,8 +1,8 @@
-From 1892a4fa624fbe1d08a0fa8f6a0208b3830a3543 Mon Sep 17 00:00:00 2001
+From eb16c69d34e6b6b45cc3f280e78ea5ade8d5ca6f Mon Sep 17 00:00:00 2001
 From: Hanna Hawa <hannah@marvell.com>
 Date: Mon, 6 Nov 2017 18:02:15 +0200
-Subject: [PATCH 0050/1239] arm64: dts: mvebu: remove unused nodes from marvell
- device tree
+Subject: [PATCH] arm64: dts: mvebu: remove unused nodes from marvell device
+ tree
 
 This patch remove the unused nodes from ap806/cp110 device tree
 as preperation for merge cp-110 master & slave files
@@ -10,6 +10,7 @@ as preperation for merge cp-110 master & slave files
 Change-Id: I46342cf18804f03563b717c3669271485ad35a1d
 Signed-off-by: Hanna Hawa <hannah@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-ap806.dtsi        | 117 --------------------------
  arch/arm/dts/armada-cp110-master.dtsi |  57 -------------
@@ -647,6 +648,3 @@ index 2fbd7b5514..dbe150fde9 100644
  			status = "disabled";
  		};
  	};
--- 
-2.29.0
-

@@ -1,9 +1,10 @@
-From 518db72feb0af5b596f83070563adc8eff3ac43a Mon Sep 17 00:00:00 2001
+From 08fe091dd67179cb32c89a9a95bee7c513d1bf7b Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Sat, 11 Mar 2017 00:05:13 -0800
-Subject: [PATCH 0622/1239] BGX: Fix RGMII interface.
+Subject: [PATCH] BGX: Fix RGMII interface.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 10 ++--------
  1 file changed, 2 insertions(+), 8 deletions(-)
@@ -37,6 +38,3 @@ index 8f124d0515..0eccaefbd3 100644
  			} else
  				continue;
  			break;
--- 
-2.29.0
-

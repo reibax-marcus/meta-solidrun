@@ -1,10 +1,11 @@
-From 5176fa0f487fc26f6e7398b0f6b92ff2814aae8b Mon Sep 17 00:00:00 2001
+From 2c33c5a666abbbb033cb3100845343c20523ee4c Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 6 Jul 2017 18:54:21 -0700
-Subject: [PATCH 0644/1239] driver: net: Configure only one interface in each
- bgx on xplaint-83xx board.
+Subject: [PATCH] driver: net: Configure only one interface in each bgx on
+ xplaint-83xx board.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 31 ++++++++++++++++++++++++++++++-
  1 file changed, 30 insertions(+), 1 deletion(-)
@@ -87,6 +88,3 @@ index 55bb5f9955..94eb28b5e0 100644
  				lmac->qlm_mode = QLM_MODE_XFI;
  				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
  					bgx->bgx_id, lmac->qlm, lmacid);
--- 
-2.29.0
-

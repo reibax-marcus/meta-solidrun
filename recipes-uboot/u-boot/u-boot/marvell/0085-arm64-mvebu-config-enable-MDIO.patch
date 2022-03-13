@@ -1,13 +1,14 @@
-From b8637cccf1c683f4cac5be2f6a0807e67d20afc9 Mon Sep 17 00:00:00 2001
+From 7634785d7755033713959880e6e5d555e0aa377b Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Wed, 16 Oct 2019 11:34:22 +0200
-Subject: [PATCH 0085/1239] arm64: mvebu: config: enable MDIO
+Subject: [PATCH] arm64: mvebu: config: enable MDIO
 
 For each supported board enable usage of the MVMDIO,
 by picking the necessary config options.
 
 Change-Id: I67ffae55b8ae1c505c6a3f521ab932a73552d95f
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  configs/mvebu_db-88f3720_defconfig          | 2 ++
  configs/mvebu_db_armada8k_defconfig         | 2 ++
@@ -79,6 +80,3 @@ index 6ffe091d9c..032a07ae35 100644
  CONFIG_NVME=y
  CONFIG_PCI=y
  CONFIG_DM_PCI=y
--- 
-2.29.0
-

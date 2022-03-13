@@ -1,11 +1,12 @@
-From f32c827bca1587c4ea2eb1e17ff9432be5bdfb82 Mon Sep 17 00:00:00 2001
+From 22c0e668f6dd3f7b9b105c17a49b957f9eb33f4b Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Wed, 7 Mar 2018 14:45:22 +0800
-Subject: [PATCH 0002/1239] arm64: a37xx: defconfigs: enable CONFIG_MVNETA
+Subject: [PATCH] arm64: a37xx: defconfigs: enable CONFIG_MVNETA
 
 Change-Id: I0cd7d8c9d89e183d0de61a41613f1c35361a0e7f
 Signed-off-by: Ken Ma <make@marvell.com>
 Reviewed-by: Hua Jing <jinghua@marvell.com>
+
 ---
  configs/mvebu_db-88f3720_defconfig          | 2 +-
  configs/mvebu_espressobin-88f3720_defconfig | 2 +-
@@ -43,6 +44,3 @@ index 314a5c8029..2a17d46f00 100644
  CONFIG_PCI=y
  CONFIG_DM_PCI=y
  CONFIG_PCI_AARDVARK=y
--- 
-2.29.0
-

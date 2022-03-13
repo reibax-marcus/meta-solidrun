@@ -1,13 +1,14 @@
-From 7b465d3f1e11811b4b3fd873514a939e249f247f Mon Sep 17 00:00:00 2001
+From 4ef894c8b76fc9963f857a9302a2a7306d895e98 Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Mon, 9 May 2016 12:03:17 -0700
-Subject: [PATCH 0414/1239] Fix the 81xx config for crash during sata init
+Subject: [PATCH] Fix the 81xx config for crash during sata init
 
 SATA and USB devices are enumerated using PCI
 and required configuration was not enabled for
 81xx. Fixed the config.
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  configs/thunderx_81xx_defconfig | 3 +--
  include/configs/thunderx_81xx.h | 3 +--
@@ -47,6 +48,3 @@ index 150c6d43b4..ad488d200d 100644
    #define CONFIG_LBA48
    #define CONFIG_LIBATA
    #define CONFIG_SYS_64BIT_LBA
--- 
-2.29.0
-

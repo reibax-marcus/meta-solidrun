@@ -1,7 +1,7 @@
-From 2264f2e6f43e7de4ea4d1dcc266012e9674bdb63 Mon Sep 17 00:00:00 2001
+From e462916715adbca3dfaa23213c49e73c636e989f Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Mon, 26 Oct 2020 17:32:17 -0700
-Subject: [PATCH 1236/1239] otx2: Add inject optional parameter to prbs command
+Subject: [PATCH] otx2: Add inject optional parameter to prbs command
 
 If inject is passed to prbs command, then ATF will inject TX errors
 on every RX errors.
@@ -11,6 +11,7 @@ Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/38624
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  cmd/marvell/octeontx2_qlm_cmds.c | 18 ++++++++++++++----
  1 file changed, 14 insertions(+), 4 deletions(-)
@@ -64,6 +65,3 @@ index aa2aa080f7..7641ca1885 100644
  );
  
  static int do_eye(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
--- 
-2.29.0
-

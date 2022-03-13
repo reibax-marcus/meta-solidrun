@@ -1,7 +1,7 @@
-From 6717121b5eec8fc5beac9c783a3db3e0422d69c7 Mon Sep 17 00:00:00 2001
+From 522bdea489441fb3993b258e2931685708b5db63 Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Fri, 24 Jul 2020 15:20:40 -0700
-Subject: [PATCH 1214/1239] smbios: type 9 implementation
+Subject: [PATCH] smbios: type 9 implementation
 
 All system slots are described in SMBIOS type 9 as added
 in this patch.
@@ -11,6 +11,7 @@ Change-Id: Iac31be47931df50e486c6c052cf8adbed3b44f3f
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35166
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Tested-by: Jia Ma <jiam@marvell.com>
+
 ---
  include/smbios.h | 40 ++++++++++++++++++++++++++++++++++++++++
  lib/smbios.c     | 42 ++++++++++++++++++++++++++++++++++++++++++
@@ -141,6 +142,3 @@ index 50969a130c..822800fbdb 100644
  	smbios_write_type32,
  	smbios_write_type127
  };
--- 
-2.29.0
-

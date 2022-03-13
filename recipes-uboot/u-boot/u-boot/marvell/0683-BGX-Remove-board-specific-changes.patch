@@ -1,13 +1,14 @@
-From 77fc6ca987e86761ddad07fd0605789a9b22b4d1 Mon Sep 17 00:00:00 2001
+From 6e3111517465a26e06daa1ee45d34451759b45fb Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Wed, 2 Aug 2017 22:37:18 -0700
-Subject: [PATCH 0683/1239] BGX : Remove board specific changes
+Subject: [PATCH] BGX : Remove board specific changes
 
 This patch removes board specific changes for LMAC
 configuration. Instead uses the info from DT
 
 Signed-off-by: Chandra <cchavva@caviumnetworks.com>
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  .../include/asm/arch-thunderx/thunderx_vnic.h |   2 +-
  board/cavium/thunderx/fdt.c                   |  13 +-
@@ -375,6 +376,3 @@ index d21aea9c8b..a3cde5a773 100644
  };
  
  enum LMAC_TYPE {
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 9e105c741005fd29dfdc7128b847617718a566cf Mon Sep 17 00:00:00 2001
+From 63bdbb1545e8912bcb27d11243db124e39a8a9fb Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 Nov 2015 19:10:45 -0800
-Subject: [PATCH 0327/1239] cavium: Add hardware watchdog support
+Subject: [PATCH] cavium: Add hardware watchdog support
 
 ---
  board/cavium/thunderx/thunderx.c | 21 +++++++++++++++++++++
@@ -39,6 +39,3 @@ index 4e81159982..9a7543d7b7 100644
 +			writeq(0ULL, CSR_PA(node, GTI_CWD_WDOG(core)));
 +}
 +#endif
--- 
-2.29.0
-

@@ -1,11 +1,11 @@
-From 7388cc287d5775517852158547dc963815b2682b Mon Sep 17 00:00:00 2001
+From a1c33de0f402f06920c552da539d27a2c60d8f78 Mon Sep 17 00:00:00 2001
 From: Stefan Chulski <stefanc@marvell.com>
 Date: Wed, 24 Jul 2019 17:00:56 +0300
-Subject: [PATCH 0064/1239] net: mvpp2: add 1000BaseX and 2500BaseX ppv2
- support
+Subject: [PATCH] net: mvpp2: add 1000BaseX and 2500BaseX ppv2 support
 
 Change-Id: Ide546af76e0b22f96251eed0f6cf8612c4f7ce73
 Signed-off-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 117 ++++++++++++++++++++++++++++++++++++++++++--
  1 file changed, 112 insertions(+), 5 deletions(-)
@@ -210,6 +210,3 @@ index a4a992a57e..4d1e327711 100644
  		mvpp2_port_power_up(port);
  	default:
  		break;
--- 
-2.29.0
-

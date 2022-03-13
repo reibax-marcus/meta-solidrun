@@ -1,14 +1,14 @@
-From b4cb38794b0f3ae8e89d8bc8fc5967d01c982d2c Mon Sep 17 00:00:00 2001
+From a5a34f1037c62887fc620954a1e78693ae789389 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 7 Nov 2018 16:16:07 -0800
-Subject: [PATCH 0837/1239] drivers: mmc: octeontx: add errata on calibration
- delay
+Subject: [PATCH] drivers: mmc: octeontx: add errata on calibration delay
 
 Pass 1.x will not support calibration of tap delay. Use fixed
 value of 4 for MIO_EMM_TAP as workaround.
 Also, reduce the number of taps to 512, doc errata.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/mmc/octeontx_mmc.c | 33 ++++++++++++++++++++++-----------
  1 file changed, 22 insertions(+), 11 deletions(-)
@@ -76,6 +76,3 @@ index dde7b27b5b..e6f2033966 100644
  
  	return 0;
  }
--- 
-2.29.0
-

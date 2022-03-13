@@ -1,7 +1,7 @@
-From ed36a063becc81651dddd0807fb43ec759209d8c Mon Sep 17 00:00:00 2001
+From da1d2e93aa460b0f0a8984a351018a11eb048a80 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 26 Nov 2019 19:35:04 +0100
-Subject: [PATCH 1025/1239] mvebu: spl: add boot from nand option
+Subject: [PATCH] mvebu: spl: add boot from nand option
 
 After switching from per board kwbimage.cfg to more generic solution done
 in ca1a4c863232ddc6bc2463569dedfefe992ff418
@@ -15,6 +15,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/19343
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/mach-mvebu/Kconfig  | 3 +++
  arch/arm/mach-mvebu/Makefile | 3 +++
@@ -48,6 +49,3 @@ index 30ea111b5b..1bf147440b 100644
  ifneq ($(CONFIG_MVEBU_SPL_BOOT_DEVICE_MMC),)
  	KWB_CFG_BOOT_FROM=sdio
  endif
--- 
-2.29.0
-

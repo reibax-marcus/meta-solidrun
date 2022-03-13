@@ -1,10 +1,11 @@
-From b57c1989f26b151d4a88231981354df2315def19 Mon Sep 17 00:00:00 2001
+From e408004d734defaef7223f26c184b3f7fa658ce1 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 9 Nov 2016 17:45:24 -0800
-Subject: [PATCH 0559/1239] Added missing configuration parameter
- cap-mmc-highspeed support.
+Subject: [PATCH] Added missing configuration parameter cap-mmc-highspeed
+ support.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 2 ++
  1 file changed, 2 insertions(+)
@@ -22,6 +23,3 @@ index 5231c9a0b9..e524f39ac6 100644
  		if (fdtdec_get_bool(blob, slot_node, "sd-uhs-sdr25"))
  			slot->cfg.host_caps |= MMC_MODE_HS;
  		if (fdtdec_get_bool(blob, slot_node, "sd-uhs-sdr50"))
--- 
-2.29.0
-

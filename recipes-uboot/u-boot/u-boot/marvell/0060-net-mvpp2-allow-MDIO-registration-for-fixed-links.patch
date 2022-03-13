@@ -1,7 +1,7 @@
-From 28de4fdc1e80199ac524ec686e807118065aabb4 Mon Sep 17 00:00:00 2001
+From 8a55a7d97037e869507d54aaeb6858dbef3e90f9 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Wed, 7 Nov 2018 11:39:36 +0200
-Subject: [PATCH 0060/1239] net: mvpp2: allow MDIO registration for fixed links
+Subject: [PATCH] net: mvpp2: allow MDIO registration for fixed links
 
 Currently, there are 2 valid cases for interface, PHY
 and mdio relation:
@@ -23,6 +23,7 @@ not try to access the PHY later on.
 Change-Id: I6f362f2dd8358777f0e7f220134e70181eb69ae6
 Signed-off-by: Igal Liberman <igall@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 17 +++++++++++++----
  1 file changed, 13 insertions(+), 4 deletions(-)
@@ -67,6 +68,3 @@ index c7abebf83d..fba1cca850 100644
  		}
  
  		phy_ofnode = ofnode_get_parent(offset_to_ofnode(phy_node));
--- 
-2.29.0
-

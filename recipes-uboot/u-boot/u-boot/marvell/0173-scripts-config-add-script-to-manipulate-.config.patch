@@ -1,12 +1,13 @@
-From 4717e6a0b4723e6b54b10366e7a8e5366950e9c9 Mon Sep 17 00:00:00 2001
+From d44415871777880d0a2b5d04c08d38aa5315dcc5 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Tue, 31 Jul 2018 17:48:18 +0300
-Subject: [PATCH 0173/1239] scripts: config: add script to manipulate .config
+Subject: [PATCH] scripts: config: add script to manipulate .config
 
 This script is ported from Linux Kernel.
 
 Change-Id: If721e5eb5845b8c3c08c954355ffaa893132c480
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  scripts/config | 225 +++++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 225 insertions(+)
@@ -243,6 +244,3 @@ index 0000000000..026aeb4f32
 +		;;
 +	esac
 +done
--- 
-2.29.0
-

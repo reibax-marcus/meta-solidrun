@@ -1,8 +1,7 @@
-From ebdbb5ffc5e35fbdc794b202cc80608e9a5feb43 Mon Sep 17 00:00:00 2001
+From 1845dc56d30a2393e1ff439861838c9842593ecb Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Wed, 27 Feb 2019 15:35:58 +0100
-Subject: [PATCH 0244/1239] phy: marvell: fix pll initialization for second
- utmi port
+Subject: [PATCH] phy: marvell: fix pll initialization for second utmi port
 
 According to Design Reference Specification the PHY PLL and Calibration
 register from PHY0 are shared for multi-port PHY. PLL control registers
@@ -18,6 +17,7 @@ resulted with lack of correct pll initialization.
 
 Change-Id: Icc520dfa719f43a09493ab31f671efbe88872097
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  arch/arm/dts/armada-cp110.dtsi     | 36 +++++++++++++++++-------------
  drivers/phy/marvell/comphy_cp110.c | 35 ++++++++++++++++++++++-------
@@ -231,6 +231,3 @@ index fa6bf3c914..d1cad07cf5 100644
  #define UTMI_CHGDTC_CTRL_VDAT_OFFSET		8
  #define UTMI_CHGDTC_CTRL_VDAT_MASK		\
  	(0x3 << UTMI_CHGDTC_CTRL_VDAT_OFFSET)
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From 4a3dba8f88011dd69b7ed11e940adcb7bc69091d Mon Sep 17 00:00:00 2001
+From 94e07d28115742a3cf6480f2673ad1b8be936cd8 Mon Sep 17 00:00:00 2001
 From: Peter Swain <pswain@cavium.com>
 Date: Tue, 6 Dec 2016 16:01:50 -0800
-Subject: [PATCH 0582/1239] cavium nic: zero malloc()'d memory
+Subject: [PATCH] cavium nic: zero malloc()'d memory
 
 Because there *are* free()s happening at device probe time,
 it's not safe to assume it's still zero'd
 
 Signed-off-by: Peter Swain <pswain@cavium.com>
+
 ---
  drivers/net/cavium/nic_main.c     |  2 +-
  drivers/net/cavium/nicvf_main.c   | 12 +++++-------
@@ -95,6 +96,3 @@ index 5b34bca4a4..6d0a3013f3 100644
  	if (!qs)
  		return -1;
  	nic->qs = qs;
--- 
-2.29.0
-

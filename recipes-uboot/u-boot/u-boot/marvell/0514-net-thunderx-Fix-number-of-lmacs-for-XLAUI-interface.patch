@@ -1,10 +1,10 @@
-From fd223d74c69131faef750446b847ab3795bbdf42 Mon Sep 17 00:00:00 2001
+From e9d690b5aab195ccf02240a7df27323ddc99dcb3 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 18 Jul 2016 10:50:11 -0700
-Subject: [PATCH 0514/1239] net:thunderx: Fix number of lmacs for XLAUI
- interface.
+Subject: [PATCH] net:thunderx: Fix number of lmacs for XLAUI interface.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 7 +++++--
  1 file changed, 5 insertions(+), 2 deletions(-)
@@ -32,6 +32,3 @@ index 00c017d2f4..9d43840255 100644
  				printf("BGX%d QLM%d LMAC%d mode: XLAUI\n",
  					bgx->bgx_id, lmac->qlm, lmacid);
  			}
--- 
-2.29.0
-

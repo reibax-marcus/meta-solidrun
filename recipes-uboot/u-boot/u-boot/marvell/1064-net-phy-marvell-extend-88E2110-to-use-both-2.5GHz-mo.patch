@@ -1,8 +1,7 @@
-From 1939fe0c705f085f2664313620f8cf7393e967f6 Mon Sep 17 00:00:00 2001
+From 5ee0d713d8f83567bd135c92211b1ac97adac4ad Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Wed, 22 Jan 2020 17:59:26 +0100
-Subject: [PATCH 1064/1239] net: phy: marvell: extend 88E2110 to use both
- 2.5GHz modes
+Subject: [PATCH] net: phy: marvell: extend 88E2110 to use both 2.5GHz modes
 
 Allow 88E2110 to configure advertisements for both
 SGMII @2.5Ghz and 2500BaseX modes.
@@ -14,6 +13,7 @@ Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
+
 ---
  drivers/net/phy/marvell.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
@@ -32,6 +32,3 @@ index 4b2921129f..c5e0d7ef26 100644
  			/* Disabled 10G/5G advertisements */
  			phy_write(phydev, 7, 0x20, 0xa1);
  		} else {
--- 
-2.29.0
-

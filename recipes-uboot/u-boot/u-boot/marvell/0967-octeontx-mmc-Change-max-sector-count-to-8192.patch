@@ -1,7 +1,7 @@
-From 38bf18846baaa163592796c4e9475a39bc6c758d Mon Sep 17 00:00:00 2001
+From 8a4cd1ed39843ade8673cd33c3577418c56f2fda Mon Sep 17 00:00:00 2001
 From: aaronw <awilliams@marvell.com>
 Date: Wed, 18 Sep 2019 20:27:44 -0700
-Subject: [PATCH 0967/1239] octeontx: mmc: Change max sector count to 8192
+Subject: [PATCH] octeontx: mmc: Change max sector count to 8192
 
 The maximum sector count is 8192, not 8191.
 
@@ -10,6 +10,7 @@ Signed-off-by: aaronw <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/17148
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  include/configs/octeontx2_95xx.h  | 2 +-
  include/configs/octeontx2_96xx.h  | 2 +-
@@ -83,6 +84,3 @@ index 07f5983847..3e91a027b1 100644
  
  #undef CONFIG_SYS_PROMPT
  #define CONFIG_SYS_PROMPT		env_get("prompt")
--- 
-2.29.0
-

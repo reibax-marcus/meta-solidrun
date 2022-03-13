@@ -1,8 +1,8 @@
-From c740184baab6b35f42c91f5cbab520ce7bba5b38 Mon Sep 17 00:00:00 2001
+From 6b553208fdaeedd573eb80b5396639aa359598a8 Mon Sep 17 00:00:00 2001
 From: Felix Manlunas <fmanlunas@marvell.com>
 Date: Wed, 15 Apr 2020 11:08:39 -0700
-Subject: [PATCH 1130/1239] octeontx: bgx: Pre-init BGX registers for
- 1000BASE-X or SGMII case
+Subject: [PATCH] octeontx: bgx: Pre-init BGX registers for 1000BASE-X or SGMII
+ case
 
 The Thunder BGX kernel driver relies on lower layer software (in this case
 U-Boot) to pre-init some BGX LMAC registers.  Among them are these two
@@ -19,6 +19,7 @@ Signed-off-by: Felix Manlunas <fmanlunas@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/26955
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/net/octeontx/bgx.c | 24 ++++++++++++++++++++++++
  1 file changed, 24 insertions(+)
@@ -58,6 +59,3 @@ index 15bb82e895..f2a50ee81a 100644
  			count += 1;
  		}
  	}
--- 
-2.29.0
-

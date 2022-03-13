@@ -1,7 +1,7 @@
-From 5f9e15596dadafaea24a3358850d4b10d954c7ae Mon Sep 17 00:00:00 2001
+From 66526e8520952a53ffd2975c0fad240d0e2ab3da Mon Sep 17 00:00:00 2001
 From: Konrad Adamczyk <konrad.adamczyk@cavium.com>
 Date: Mon, 17 Jul 2017 15:13:01 -0700
-Subject: [PATCH 0649/1239] board: cavium: Get FDT base address from ATF
+Subject: [PATCH] board: cavium: Get FDT base address from ATF
 
 This commit adds proper support for passing FDT base address from
 ATF to U-Boot.
@@ -11,6 +11,7 @@ point responsibility to read this value and use it as proper
 FDT base address.
 
 Signed-off-by: Konrad Adamczyk <konrad.adamczyk@cavium.com>
+
 ---
  arch/arm/mach-thunderx/lowlevel_init.S | 14 ++++++++++++++
  board/cavium/thunderx/fdt.c            | 11 +++++++++++
@@ -87,6 +88,3 @@ index 6f8a4b9429..c41668cf72 100644
  CONFIG_ENV_VARS_UBOOT_CONFIG=y
  CONFIG_OF_LIBFDT=y
 +CONFIG_OF_BOARD=y
--- 
-2.29.0
-

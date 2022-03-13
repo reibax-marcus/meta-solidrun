@@ -1,11 +1,12 @@
-From 5bf03da6d58006ccb1ca0cb7903ced447031b138 Mon Sep 17 00:00:00 2001
+From 806beed37ac8b60e94844333a9b5e12ac0fa4913 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 May 2016 23:01:21 -0700
-Subject: [PATCH 0398/1239] cavium: Update config for xhci-pci usage
+Subject: [PATCH] cavium: Update config for xhci-pci usage
 
 Since xhci-thunderx.c is gone, use xchi-pci.c
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  include/configs/thunderx_88xx.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -27,6 +28,3 @@ index 81b45fee83..d8642bff3a 100644
  
  
  /* PCIe network controller drivers */
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From d5f49da0680a81a481d786976cdf1d99d7684e39 Mon Sep 17 00:00:00 2001
+From 715755743173e8780ad18fa63dd8b2aa10aa5124 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 23 Feb 2018 14:59:31 -0800
-Subject: [PATCH 0759/1239] ahci: update cmd_tbl and rx_fis to 64-bit
+Subject: [PATCH] ahci: update cmd_tbl and rx_fis to 64-bit
 
 existing u32 datatypes may fail to use correct value
 when mem pointer crosses 32-bit boundary.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  include/ahci.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -26,6 +27,3 @@ index fb96dd8861..4b2762ac28 100644
  };
  
  /**
--- 
-2.29.0
-

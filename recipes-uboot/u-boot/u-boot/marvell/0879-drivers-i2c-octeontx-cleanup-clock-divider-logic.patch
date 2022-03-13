@@ -1,13 +1,14 @@
-From f2d6a0d44003f8e080ef0117d477cb9262323d66 Mon Sep 17 00:00:00 2001
+From 6de5275fe18776dc52aa633ec38fb5b9ad0b3ed9 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 6 Feb 2019 10:20:41 -0800
-Subject: [PATCH 0879/1239] drivers: i2c: octeontx: cleanup clock divider logic
+Subject: [PATCH] drivers: i2c: octeontx: cleanup clock divider logic
 
 Change-Id: I6988c00025ae8336962c65dfc08bc9d0860b59f4
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/3603
 Tested-by: sa_ip-sw-jenkins
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/i2c/octeontx_i2c.c | 102 +++++++++++++++++--------------------
  1 file changed, 47 insertions(+), 55 deletions(-)
@@ -156,6 +157,3 @@ index 79f0b84731..958c1daac6 100644
  	if (m_div >= 16)
  		return -1;
  
--- 
-2.29.0
-

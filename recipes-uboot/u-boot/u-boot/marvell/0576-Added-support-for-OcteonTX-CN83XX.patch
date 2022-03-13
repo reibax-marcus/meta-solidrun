@@ -1,7 +1,7 @@
-From 2a447c8ea132dc3b18ceaf439b8ee37578711a0d Mon Sep 17 00:00:00 2001
+From 653b48922ef5df22cff28fc6d0cc35adff013d71 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 28 Nov 2016 19:14:34 -0800
-Subject: [PATCH 0576/1239] Added support for OcteonTX CN83XX
+Subject: [PATCH] Added support for OcteonTX CN83XX
 
 The OcteonTX CN83XX has more than 64 GPIO pins where pins 64-79 use
 separate registers for reading the input and setting and clearing
@@ -17,6 +17,7 @@ clearing an output bit.
 NOTE: I do not have access to a CN83xx based board to test this.
 
 Signed-off-by Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/gpio/thunderx_gpio.c | 44 ++++++++++++++++++++----------------
  1 file changed, 25 insertions(+), 19 deletions(-)
@@ -115,6 +116,3 @@ index c732e7d80f..3f44b21906 100644
  
  	return 0;
  
--- 
-2.29.0
-

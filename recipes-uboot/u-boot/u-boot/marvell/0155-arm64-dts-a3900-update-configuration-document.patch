@@ -1,12 +1,13 @@
-From 7da7b7df8a1ccc4b5e7a91f9eb23172021ba87d9 Mon Sep 17 00:00:00 2001
+From b3dff173b4b37d2b72a6c03e492c2db2f6b1646b Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Sun, 8 Jul 2018 18:05:46 +0300
-Subject: [PATCH 0155/1239] arm64: dts: a3900: update configuration document
+Subject: [PATCH] arm64: dts: a3900: update configuration document
 
 Describe the only supported configurations - 'A' and 'B'.
 
 Change-Id: I267ad9ba50e3242481e277eb1467af1e4586d0f0
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  doc/mvebu/a7k-a8k/armada3900-db-setup.txt | 128 ++++++++++++++++++++++
  1 file changed, 128 insertions(+)
@@ -146,6 +147,3 @@ index 0000000000..d9c16eddba
 +	- eth0/1/2/3 may in fact be higher numbers, if prior eth_x interfaces already exist.
 +
 +
--- 
-2.29.0
-

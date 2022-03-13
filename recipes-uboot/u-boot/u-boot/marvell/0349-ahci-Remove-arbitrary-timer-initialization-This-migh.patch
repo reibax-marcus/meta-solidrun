@@ -1,8 +1,8 @@
-From 1dc2b9e630803c974bd2d35e7085f9d773f0fd81 Mon Sep 17 00:00:00 2001
+From e8ab1972209f7f931265cc8e2effa9dc3ae44e26 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 Nov 2015 20:35:05 -0800
-Subject: [PATCH 0349/1239] ahci: Remove arbitrary timer initialization This
- might be causing some nasty bugs
+Subject: [PATCH] ahci: Remove arbitrary timer initialization This might be
+ causing some nasty bugs
 
 ---
  drivers/block/sata_ahci.c | 4 ++--
@@ -30,6 +30,3 @@ index 26afa1a88b..23e8cbfa09 100644
  	ahci_setup_oobr(probe_ent, 0);
  
  	ahci_writel_with_flush(SATA_HOST_GHC_AE, &(host_mmio->ghc));
--- 
-2.29.0
-

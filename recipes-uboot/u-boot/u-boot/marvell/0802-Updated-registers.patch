@@ -1,7 +1,7 @@
-From 4659b2b53aca86f13d3c35daf75213a1a915a0a7 Mon Sep 17 00:00:00 2001
+From f91f3805d98f92f25bb928abaf9a9afc2ce75140 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 14 Mar 2018 21:15:47 -0700
-Subject: [PATCH 0802/1239] Updated registers
+Subject: [PATCH] Updated registers
 
 Register definitions updated, hopefully without any mistakes since much
 was done by hand.
@@ -9,6 +9,7 @@ was done by hand.
 Also renamed nix_reg.h to nix_regs.h.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/net/cavium/octeontx2/nix_reg.h  | 8890 -----------------------
  drivers/net/cavium/octeontx2/nix_regs.h |  800 +-
@@ -10680,6 +10681,3 @@ index 9a2736c8cb..b769e9be13 100644
  	} s;
  	/* struct cavm_npc_af_intfx_kex_cfg_s cn; */
  };
--- 
-2.29.0
-

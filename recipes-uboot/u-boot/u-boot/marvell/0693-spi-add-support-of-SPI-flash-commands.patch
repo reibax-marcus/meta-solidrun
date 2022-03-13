@@ -1,7 +1,7 @@
-From f9d884e90907f53baa3137888bd05290c502fdf6 Mon Sep 17 00:00:00 2001
+From 9f2cb8649dd4fba00ea58e9b8fc267b290619bc4 Mon Sep 17 00:00:00 2001
 From: Cyrille Pitchen <cyrille.pitchen@atmel.com>
 Date: Tue, 25 Jul 2017 15:00:55 +0800
-Subject: [PATCH 0693/1239] spi: add support of SPI flash commands
+Subject: [PATCH] spi: add support of SPI flash commands
 
 This patch introduces 'struct spi_flash_command' and functions
 spi_is_flash_command_supported() / spi_exec_flash_command().
@@ -51,6 +51,7 @@ controller.
 
 Signed-off-by: Cyrille Pitchen <cyrille.pitchen@atmel.com>
 Signed-off-by: Wenyou Yang <wenyou.yang@microchip.com>
+
 ---
  drivers/spi/spi-uclass.c |  28 ++++++++
  drivers/spi/spi.c        |   1 +
@@ -288,6 +289,3 @@ index 5eec0c4775..244ff014ca 100644
  /* Access the operations for a SPI device */
  #define spi_get_ops(dev)	((struct dm_spi_ops *)(dev)->driver->ops)
  #define spi_emul_get_ops(dev)	((struct dm_spi_emul_ops *)(dev)->driver->ops)
--- 
-2.29.0
-

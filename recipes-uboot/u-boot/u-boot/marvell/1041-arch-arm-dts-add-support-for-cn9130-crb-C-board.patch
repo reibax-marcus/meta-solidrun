@@ -1,7 +1,7 @@
-From 6b9c263aed21e388ed593231704e5c773ee92862 Mon Sep 17 00:00:00 2001
+From a10c9738c527bd5684c1a3da1abda7bbf189f693 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 17 Dec 2019 16:01:03 +0200
-Subject: [PATCH 1041/1239] arch/arm/dts: add support for cn9130-crb-C board
+Subject: [PATCH] arch/arm/dts: add support for cn9130-crb-C board
 
 The platform is based on CN9130-CRB board configured
 to work in PCIe EP mode on PCI0 x4 interface.
@@ -27,6 +27,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20452
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+
 ---
  arch/arm/dts/Makefile         |  1 +
  arch/arm/dts/cn9130-crb-C.dts | 74 +++++++++++++++++++++++++++++++++++
@@ -125,6 +126,3 @@ index 0000000000..ccb19c382b
 +&cp0_usb3_1 {
 +	status = "okay";
 +};
--- 
-2.29.0
-

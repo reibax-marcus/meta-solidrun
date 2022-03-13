@@ -1,7 +1,7 @@
-From fc69ebbcb5a05ff2cb5e8bca143c190d984f226c Mon Sep 17 00:00:00 2001
+From 893dbcdb6d0a274794ce3fb629c42dc683a3813e Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 13 Dec 2019 15:50:52 -0800
-Subject: [PATCH 1033/1239] 83xx: add pci-bootcmd support
+Subject: [PATCH] 83xx: add pci-bootcmd support
 
 Add serial-bootcmd driver config entry to defconfig
 and add code to probe for the same during boot.
@@ -12,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20411
 Reviewed-by: Aaron Williams <awilliams@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/mach-octeontx/cpu.c    |  2 ++
  board/Marvell/octeontx/board.c  | 52 +++++++++++++++++++++++++++++++++
@@ -133,6 +134,3 @@ index 0cc9faf88b..fe0f1873b2 100644
  CONFIG_ERRNO_STR=y
 +CONFIG_CONSOLE_MUX=y
 +CONFIG_SYS_CONSOLE_IS_IN_ENV=y
--- 
-2.29.0
-

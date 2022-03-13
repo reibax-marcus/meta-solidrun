@@ -1,8 +1,7 @@
-From f2dfd0be636d8a6c6fce1369fd23eb8196ed3378 Mon Sep 17 00:00:00 2001
+From 6cef11ecf305b9076eda4a4dc94a0e8b771e0d7d Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Mon, 8 May 2017 15:29:28 +0300
-Subject: [PATCH 0072/1239] arm64: dts: a80x0: add a8040-db device tree with
- setup B
+Subject: [PATCH] arm64: dts: a80x0: add a8040-db device tree with setup B
 
 Armada 8040 DB board is a modular board,
 which supports multiple possible configurations
@@ -32,6 +31,7 @@ CP1-MPPs:
 Change-Id: Iff22f3e36f4b4ab8eb1b3e9ebacefa10d2bedcca
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  arch/arm/dts/Makefile             |   1 +
  arch/arm/dts/armada-8040-db-B.dts | 309 ++++++++++++++++++++++++++++++
@@ -365,6 +365,3 @@ index 0000000000..dfdffab972
 +	phy = <&phy0>;
 +	phy-mode = "rgmii-id";
 +};
--- 
-2.29.0
-

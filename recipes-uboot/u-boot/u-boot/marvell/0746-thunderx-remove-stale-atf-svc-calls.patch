@@ -1,9 +1,10 @@
-From aff56a27f3e9b2f429b19bc4290106bc95947408 Mon Sep 17 00:00:00 2001
+From 1dff064f6e9b4e10ffdd3d038b8b317343eb507d Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 17 Jan 2018 15:12:40 -0800
-Subject: [PATCH 0746/1239] thunderx: remove stale atf svc calls
+Subject: [PATCH] thunderx: remove stale atf svc calls
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/include/asm/arch-thunderx/atf.h |  10 --
  board/cavium/thunderx/atf.c              | 129 +----------------------
@@ -174,6 +175,3 @@ index 44b178da20..fedcf9ec4d 100644
 -	return regs.regs[0];
 -}
 -
--- 
-2.29.0
-

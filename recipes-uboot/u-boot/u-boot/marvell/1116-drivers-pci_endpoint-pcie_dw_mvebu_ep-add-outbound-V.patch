@@ -1,8 +1,8 @@
-From 0d5ba54f152c26ed44a0a3569d99de04eb175520 Mon Sep 17 00:00:00 2001
+From baf67c79771cf20773919f80551acb1f5d746189 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Wed, 11 Mar 2020 14:19:35 +0200
-Subject: [PATCH 1116/1239] drivers/pci_endpoint/pcie_dw_mvebu_ep: add outbound
- VF mapping
+Subject: [PATCH] drivers/pci_endpoint/pcie_dw_mvebu_ep: add outbound VF
+ mapping
 
 Extend the pcie_dw_mvebu_ep_remap_host() function with additional
 VF maps inserted into outbound ATU regions.
@@ -15,6 +15,7 @@ Reviewed-on: https://sj1git1.cavium.com/24831
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/dts/armada-cp110.dtsi          |  2 +-
  drivers/pci_endpoint/pcie_dw_mvebu_ep.c | 44 +++++++++++++++++++++++--
@@ -123,6 +124,3 @@ index 33ea9b023b..5d191344e6 100644
  
  #define PCIE_SRIOV_DEVID_OFFSET		0x192
  
--- 
-2.29.0
-

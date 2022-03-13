@@ -1,9 +1,10 @@
-From 31f366d15eb67251ab55b15b420ff4fa37d0cacf Mon Sep 17 00:00:00 2001
+From 4f8e03e0149e83608403243fe4a844d113cad3d0 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Wed, 1 Mar 2017 13:45:33 -0800
-Subject: [PATCH 0618/1239] cmd: bootimgup: fix issues with arguments
+Subject: [PATCH] cmd: bootimgup: fix issues with arguments
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  cmd/bootimgup.c | 111 ++++++++++++++++++++----------------------------
  1 file changed, 47 insertions(+), 64 deletions(-)
@@ -164,6 +165,3 @@ index 77c6f97e84..79fe76d4bb 100644
  
  	if ((blk + 512 * len) > 0x1000000) {
  		printf("\nBoot Image size exceeding 16MB\n");
--- 
-2.29.0
-

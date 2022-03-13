@@ -1,9 +1,10 @@
-From a460b0e655951600988dd2b377f861e380b1a12a Mon Sep 17 00:00:00 2001
+From d03b974cb90b0e198f37e2c644bdbd0be7763b8d Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 17 Jan 2018 15:09:22 -0800
-Subject: [PATCH 0744/1239] Kconfig: more cleanup in thunderx arch/board files
+Subject: [PATCH] Kconfig: more cleanup in thunderx arch/board files
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/Kconfig               | 10 ++--
  arch/arm/cpu/armv8/Makefile    |  1 -
@@ -243,6 +244,3 @@ index 8e635ad63a..e426e01a1f 100644
 +	default "thunderx_81xx" if TARGET_THUNDERX_81XX
 +	default "thunderx_83xx" if TARGET_THUNDERX_83XX
 +	default "thunderx_93xx" if TARGET_THUNDERX_93XX
--- 
-2.29.0
-

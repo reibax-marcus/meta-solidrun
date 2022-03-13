@@ -1,7 +1,7 @@
-From 452c59b8013d7b2339f84162b55d51059955c808 Mon Sep 17 00:00:00 2001
+From 3a19a3e18f6164bce57bc6b3827f09a4b5f09cc9 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 23 Nov 2015 09:18:17 -0800
-Subject: [PATCH 0372/1239] cavium: vnic: Fix RX queue handling
+Subject: [PATCH] cavium: vnic: Fix RX queue handling
 
 ---
  drivers/net/cavium/nicvf_main.c   |  7 +++---
@@ -98,6 +98,3 @@ index 47cabea9f7..b414b81e29 100644
  /* TBD: how to handle full packets received in CQ
   * i.e conversion of buffers into SKBs
   */
--- 
-2.29.0
-

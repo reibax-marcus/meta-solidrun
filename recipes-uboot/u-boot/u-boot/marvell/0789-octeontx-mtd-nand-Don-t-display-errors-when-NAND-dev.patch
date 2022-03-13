@@ -1,10 +1,11 @@
-From a7a7958efaa9ff4374e7049e94176a2760ca00c1 Mon Sep 17 00:00:00 2001
+From 8bf2826cd897f0990e59e9bd926a2f21fdfafd17 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 22 Aug 2018 00:39:53 -0700
-Subject: [PATCH 0789/1239] octeontx: mtd: nand: Don't display errors when NAND
- devices are not present.
+Subject: [PATCH] octeontx: mtd: nand: Don't display errors when NAND devices
+ are not present.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mtd/nand/octeontx_nand.c | 7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)
@@ -41,6 +42,3 @@ index ffaf4bf61e..4ab205d4c0 100644
  			printf("%s: Error %d with deferred probe of %s\n",
  			       __func__, rc, pdev->dev->name);
  			break;
--- 
-2.29.0
-

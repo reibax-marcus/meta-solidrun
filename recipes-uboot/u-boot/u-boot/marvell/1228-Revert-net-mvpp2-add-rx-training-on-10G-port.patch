@@ -1,7 +1,7 @@
-From 9da9f654b1202d9a99821e020277a8bf1a1a2919 Mon Sep 17 00:00:00 2001
+From 73b8700ffbc1ff3ae97c5fca205ca0fdfdd2559c Mon Sep 17 00:00:00 2001
 From: Alex Evraev <alexev@marvell.com>
 Date: Tue, 22 Sep 2020 18:04:18 +0300
-Subject: [PATCH 1228/1239] Revert "net: mvpp2: add rx training on 10G port"
+Subject: [PATCH] Revert "net: mvpp2: add rx training on 10G port"
 
 This reverts commit f79ffd24d993b9409715abb0431acf3863ffcb10.
 This feature already implemented in ATF.
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/36625
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
 Tested-by: Nadav Haklai <nadavh@marvell.com>
+
 ---
  arch/arm/dts/armada-cp110.dtsi |  4 +--
  drivers/net/mvpp2.c            | 52 +---------------------------------
@@ -123,6 +124,3 @@ index 7c00c88787..3f7c6bb305 100644
  	}
  
  	if (priv->hw_version == MVPP21)
--- 
-2.29.0
-

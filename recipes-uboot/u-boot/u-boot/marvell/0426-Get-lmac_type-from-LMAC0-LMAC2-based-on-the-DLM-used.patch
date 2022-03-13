@@ -1,13 +1,13 @@
-From c4531d607053c0c7b61260e3e6f5d6394479f1e4 Mon Sep 17 00:00:00 2001
+From de6162f53d2ae4c1346c02849adfe0efb0d58a19 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 12 May 2016 11:52:14 -0700
-Subject: [PATCH 0426/1239] Get lmac_type from LMAC0/LMAC2 based on the DLM
- used.
+Subject: [PATCH] Get lmac_type from LMAC0/LMAC2 based on the DLM used.
 
 BDK has been updated to save lmac_type in BGXX_CMR{0,2}_CONFIG in CSR,
 fixed code to match BDK.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -25,6 +25,3 @@ index 305cf4db14..4f830210ce 100644
  
  		lmac = &bgx->lmac[lmacid];
  
--- 
-2.29.0
-

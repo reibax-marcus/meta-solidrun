@@ -1,9 +1,10 @@
-From 1887923e790e829231b199eff5dd656726e8dcfd Mon Sep 17 00:00:00 2001
+From 032baae1f032ca5fe4a31f50471afbef3bb34c2c Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 7 Jun 2016 14:30:26 -0700
-Subject: [PATCH 0499/1239] net: thunderx: Fix RXAUI probing.
+Subject: [PATCH] net: thunderx: Fix RXAUI probing.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  arch/arm/lib/bootm.c             |  9 +++++++++
  board/cavium/thunderx/psci.c     |  1 +
@@ -164,6 +165,3 @@ index cbdd6736bb..b315208e3a 100644
  
  
  
--- 
-2.29.0
-

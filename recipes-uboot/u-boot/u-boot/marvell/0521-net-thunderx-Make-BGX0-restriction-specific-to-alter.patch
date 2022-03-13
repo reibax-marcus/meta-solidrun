@@ -1,8 +1,8 @@
-From b5c6d44094abd1178fd9b82b2a8e65c711fc4581 Mon Sep 17 00:00:00 2001
+From 1ba2ec23d84713fd0250acf53bfc65f23be578c2 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 12 Sep 2016 18:57:02 -0700
-Subject: [PATCH 0521/1239] net:thunderx: Make BGX0 restriction specific to
- alternative package
+Subject: [PATCH] net:thunderx: Make BGX0 restriction specific to alternative
+ package
 
 The previous changes committed for EBB8004 should be checking for
 alternative package as these are specific to chip, not the board.
@@ -10,6 +10,7 @@ alternative package as these are specific to chip, not the board.
 Also fixed applying RX equalization properly to the lanes it applies to.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/thunderx.c |  9 +++
  drivers/net/cavium/thunder_bgx.c | 96 ++++++++++++++++++++++----------
@@ -222,6 +223,3 @@ index fd004c7817..b5b8a593e4 100644
  	}
  
  	/* A BGX can take 1 or 2 DLMs, if both the DLMs are not configured
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From 9b525f0d2fcacf090b44a53634a8fc5df58fe72c Mon Sep 17 00:00:00 2001
+From ff14e78e8b7a60775bb44fd6cc2ce97ae5599a8f Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Fri, 13 Mar 2015 18:45:19 +0300
-Subject: [PATCH 0301/1239] armv8: cavium: Add the "vnic" command for adding
- MAC address ranges to the "ethernet-macs" node
+Subject: [PATCH] armv8: cavium: Add the "vnic" command for adding MAC address
+ ranges to the "ethernet-macs" node
 
 ---
  board/cavium/thunderx/Makefile   |   7 ++
@@ -160,6 +160,3 @@ index 0000000000..504d1ccf05
 +	"\t addmac node mac size - add a MAC address range\n"
 +	"\t listmacs node        - list MAC address ranges\n"
 +);
--- 
-2.29.0
-

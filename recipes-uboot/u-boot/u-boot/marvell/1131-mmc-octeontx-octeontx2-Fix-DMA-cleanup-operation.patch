@@ -1,7 +1,7 @@
-From d5852f6c87815f4d421e059934783d045b038e39 Mon Sep 17 00:00:00 2001
+From eadeaf68f2d5a87024f3d6624791bb98473c1e91 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Tue, 31 Mar 2020 00:51:52 -0700
-Subject: [PATCH 1131/1239] mmc: octeontx: octeontx2: Fix DMA cleanup operation
+Subject: [PATCH] mmc: octeontx: octeontx2: Fix DMA cleanup operation
 
 It seems that the DMA cleanup code had a mistake in that it was
 checking both dma_val and dma_pend when it likely that dma_val will
@@ -14,6 +14,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/25938
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 38 ++++++++++++++++++++----------------
  1 file changed, 21 insertions(+), 17 deletions(-)
@@ -93,6 +94,3 @@ index 3e470ce358..8bfe9c5543 100644
  		} else if (!rsp_sts.s.dma_val && emm_dma_int.s.done) {
  			break;
  		}
--- 
-2.29.0
-

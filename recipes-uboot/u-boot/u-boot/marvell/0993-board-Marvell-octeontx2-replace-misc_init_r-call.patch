@@ -1,7 +1,7 @@
-From 332f059b18a44cb0f8e3abc176299632313526ba Mon Sep 17 00:00:00 2001
+From fbb4a8e1c9f623f095a9e7914daea7fc40d7a3ce Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Sat, 9 Nov 2019 01:16:29 -0800
-Subject: [PATCH 0993/1239] board: Marvell: octeontx2: replace misc_init_r call
+Subject: [PATCH] board: Marvell: octeontx2: replace misc_init_r call
 
 With probe of all UCLASS_MISC devices, pcie_console is also
 invoked causing crash. Instead call probe on only required
@@ -9,6 +9,7 @@ devices CGX and RVU AF based on PCI_VEND_DID from board_late_init.
 
 Change-Id: I85145a59346b003c81b97d973cc00403b444a3c3
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  board/Marvell/octeontx2/board.c | 36 +++++++++++++++++++--------------
  1 file changed, 21 insertions(+), 15 deletions(-)
@@ -70,6 +71,3 @@ index 1bb8a2f5c0..e854cad9d4 100644
  #if CONFIG_IS_ENABLED(OCTEONTX_SERIAL_BOOTCMD)
  	if (init_bootcmd_console())
  		printf("Failed to init bootcmd input\n");
--- 
-2.29.0
-

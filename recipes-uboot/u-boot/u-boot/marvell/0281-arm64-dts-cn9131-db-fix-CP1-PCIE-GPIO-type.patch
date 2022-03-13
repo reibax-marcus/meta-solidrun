@@ -1,7 +1,7 @@
-From f983306ca42be1d8f540f7e9f2a5edb5f8e7232c Mon Sep 17 00:00:00 2001
+From f0b0cabe0e2c5870f2590413ded3c62b5b30066a Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Sun, 3 Nov 2019 04:22:04 +0100
-Subject: [PATCH 0281/1239] arm64: dts: cn9131-db: fix CP1 PCIE GPIO type
+Subject: [PATCH] arm64: dts: cn9131-db: fix CP1 PCIE GPIO type
 
 According to schematics, the CP1 PCIE GPIO is active low.
 Reflect that in the device tree description.
@@ -11,6 +11,7 @@ Signed-off-by: Marcin Wojtas <mw@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/18138
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/cn9131-db.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -28,6 +29,3 @@ index 00f1f1ee13..8dbf61ac1f 100644
  	status = "okay";
  	num-lanes = <2>;
  		/* non-prefetchable memory */
--- 
-2.29.0
-

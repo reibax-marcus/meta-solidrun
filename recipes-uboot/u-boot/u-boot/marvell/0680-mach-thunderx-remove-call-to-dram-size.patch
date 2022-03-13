@@ -1,12 +1,13 @@
-From 43dade2e393f64e04259449b7ef3aa2cca489673 Mon Sep 17 00:00:00 2001
+From 29afa6aa241347b97f917acc288095fd345db766 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 2 Aug 2017 13:18:15 -0700
-Subject: [PATCH 0680/1239] mach: thunderx: remove call to dram size
+Subject: [PATCH] mach: thunderx: remove call to dram size
 
 remove call to dram size as atf call is used in board file.
 keep dummy entry for lowlevel init to avoid generic call.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/mach-thunderx/lowlevel_init.S | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
@@ -26,6 +27,3 @@ index 2933ece17c..3e59f595ef 100644
  
  	mov	lr, x29			/* Restore LR */
  	ret
--- 
-2.29.0
-

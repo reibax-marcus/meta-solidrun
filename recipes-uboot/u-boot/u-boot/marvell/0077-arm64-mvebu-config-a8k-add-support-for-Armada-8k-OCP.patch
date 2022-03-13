@@ -1,13 +1,14 @@
-From 5e877dd69d1403ef92bf30f5a7329340e022b200 Mon Sep 17 00:00:00 2001
+From f0228a54a0ce5a214df09856dff3eeb116eb975c Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Mon, 28 May 2018 15:31:17 +0800
-Subject: [PATCH 0077/1239] arm64: mvebu: config: a8k: add support for Armada
- 8k OCP board
+Subject: [PATCH] arm64: mvebu: config: a8k: add support for Armada 8k OCP
+ board
 
 This patch adds a new defconfig file for new Armada 8k OCP board.
 
 Change-Id: I0b41d0f5bfb305aaaa0252381d47b58c1038f3e2
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  configs/mvebu_ocp-88f8040_defconfig | 66 +++++++++++++++++++++++++++++
  1 file changed, 66 insertions(+)
@@ -85,6 +86,3 @@ index 0000000000..f448d8554d
 +CONFIG_USB_XHCI_HCD=y
 +CONFIG_USB_EHCI_HCD=y
 +CONFIG_SMBIOS_MANUFACTURER=""
--- 
-2.29.0
-

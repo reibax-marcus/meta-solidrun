@@ -1,9 +1,10 @@
-From 0490cd218e2fae2be5cfce8305ce962d23f7957a Mon Sep 17 00:00:00 2001
+From 5f5a7c1a9d3f6bb6814fef0bd2b3295bbd2460b5 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Sat, 26 Nov 2016 14:36:49 -0800
-Subject: [PATCH 0573/1239] Fix compiler warning messages.
+Subject: [PATCH] Fix compiler warning messages.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/common/env_atf.c | 2 +-
  cmd/mmc.c                     | 3 +++
@@ -71,6 +72,3 @@ index 47533595c6..6f8a4b9429 100644
  CONFIG_ERRNO_STR=y
  CONFIG_SYS_I2C_THUNDERX_SLAVE_ADDR=0x77
  CONFIG_ENV_VARS_UBOOT_CONFIG=y
--- 
-2.29.0
-

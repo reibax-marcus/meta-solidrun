@@ -1,14 +1,15 @@
-From fd8e58adf647c216040b1979663bbdc590eed682 Mon Sep 17 00:00:00 2001
+From 8c37646b4647ddf6e49ee7e7a5f7afee1c547aff Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 11 May 2016 16:27:08 -0400
-Subject: [PATCH 0421/1239] net: thunderx: Check link status at the start of
- network operation
+Subject: [PATCH] net: thunderx: Check link status at the start of network
+ operation
 
 This commit makes the driver chieck link status at the beginning
 of a network operation so if it changes its state between ops
 it will be detected.
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic.h         |   1 +
  drivers/net/cavium/nic_main.c    |   3 +
@@ -265,6 +266,3 @@ index fd4ffc6a91..257e432af6 100644
  	}
  }
  
--- 
-2.29.0
-

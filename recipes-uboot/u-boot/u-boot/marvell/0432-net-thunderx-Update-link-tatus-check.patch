@@ -1,12 +1,13 @@
-From ef21e19efda72f162d9f720af177634fb7899d43 Mon Sep 17 00:00:00 2001
+From ed72df46fae2a522d4184f83b19eea9213fff71d Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 14 May 2016 11:39:27 -0400
-Subject: [PATCH 0432/1239] net: thunderx: Update link tatus check
+Subject: [PATCH] net: thunderx: Update link tatus check
 
 Link status may be either < 0 or 0 depending on the BGX state.
 In both cases, wait for the link to come up.
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic.h         |  2 +-
  drivers/net/cavium/nic_main.c    |  9 +++--
@@ -213,6 +214,3 @@ index de982aa27b..d8fc229e09 100644
  #define BGX_SPUX_AN_ADV			0x100D8
  #define BGX_SPUX_MISC_CONTROL		0x10218
  #define SPU_MISC_CTL_INTLV_RDISP		(1ull << 10)
--- 
-2.29.0
-

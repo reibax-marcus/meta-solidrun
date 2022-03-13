@@ -1,13 +1,14 @@
-From 660b42740f6171d1268d56533643eae2a57b21a8 Mon Sep 17 00:00:00 2001
+From 3817d80caceda747e5bcb3033ded1aee3a5384f5 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Fri, 13 May 2016 19:03:18 -0400
-Subject: [PATCH 0431/1239] net: thunderx: Update and fix Clause45 support
+Subject: [PATCH] net: thunderx: Update and fix Clause45 support
 
 This commit fixes Clause45 support and allows tuning of
 MDIO interfaces for different sampling modes via environment
 variables
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/thunderx_smi.c | 95 +++++++++++++++++++++++--------
  1 file changed, 72 insertions(+), 23 deletions(-)
@@ -209,6 +210,3 @@ index 9fcd332571..674dab8d46 100644
 +}
 +
 +U_BOOT_ENV_CALLBACK(smimode, on_smimode);
--- 
-2.29.0
-

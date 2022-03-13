@@ -1,7 +1,7 @@
-From 47c9f84885459d28a37ca92632781adea86aeee3 Mon Sep 17 00:00:00 2001
+From e6b385535c61688ec9b589dcb0395661ebb6fe3c Mon Sep 17 00:00:00 2001
 From: Guo Yi <yi.guo@cavium.com>
 Date: Wed, 11 Mar 2020 16:33:22 -0700
-Subject: [PATCH 1114/1239] spi: Enable 4B opcode flag for several flash
+Subject: [PATCH] spi: Enable 4B opcode flag for several flash
 
 Spansion S25FL256SAGMFIG0 id: 0x010219, 0x4d01
 Winbond W25Q256JVFIQ id: 0xef4019, 0
@@ -11,6 +11,7 @@ Signed-off-by: Guo Yi <yi.guo@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/24877
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mtd/spi/spi-nor-ids.c | 7 +++++--
  1 file changed, 5 insertions(+), 2 deletions(-)
@@ -40,6 +41,3 @@ index d55fc79cca..bfd0ff639a 100644
  #endif
  #ifdef CONFIG_SPI_FLASH_XMC
  	/* XMC (Wuhan Xinxin Semiconductor Manufacturing Corp.) */
--- 
-2.29.0
-

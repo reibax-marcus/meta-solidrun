@@ -1,7 +1,7 @@
-From db31e5774042a8cdf70f8d7f2391730147f0a10d Mon Sep 17 00:00:00 2001
+From e58c2a5e6e0d8acabfed5e0172eae87f84bdff60 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 21 May 2019 22:43:55 -0700
-Subject: [PATCH 0922/1239] octeontx: mmc: Make driver honor status in devtree
+Subject: [PATCH] octeontx: mmc: Make driver honor status in devtree
 
 This patch makes the driver return an error during
 probing if the device status is present and not
@@ -12,6 +12,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/9419
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 37 ++++++++++++++++++++++++++++++++++++
  1 file changed, 37 insertions(+)
@@ -85,6 +86,3 @@ index 4e720cac37..250fbc613b 100644
  	memset(host, 0, sizeof(*host));
  	host->base_addr = dm_pci_map_bar(dev, 0, &size, PCI_REGION_MEM);
  	if (!host->base_addr) {
--- 
-2.29.0
-

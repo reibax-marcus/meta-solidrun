@@ -1,8 +1,8 @@
-From b2eb241c6c3dde5ff62f2fab1670dec232bc576d Mon Sep 17 00:00:00 2001
+From b7d4e1239aab0f6e65ce90f7256362060b990663 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 Nov 2015 19:20:50 -0800
-Subject: [PATCH 0331/1239] cavium: Modify clock-frequency property based on
- external clock change
+Subject: [PATCH] cavium: Modify clock-frequency property based on external
+ clock change
 
 The UAA is initialized by the Boot Stub firmware.
 The SCLK frequency can be changed and that affects the IBRD and FBRD
@@ -10,6 +10,7 @@ register values of the UAA. This eventually has a need to modify the
 "clock-frequency" property so that the Linux PL011 is happy.
 
 Signed-off-by: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
+
 ---
  board/cavium/thunderx/fdt.c | 28 ++++++++++++++++++++++++++++
  1 file changed, 28 insertions(+)
@@ -60,6 +61,3 @@ index 571d652772..90b2e2a985 100644
  
  	return 0;
  }
--- 
-2.29.0
-

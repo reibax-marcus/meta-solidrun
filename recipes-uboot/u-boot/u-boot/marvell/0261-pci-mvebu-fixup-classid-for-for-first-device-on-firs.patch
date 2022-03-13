@@ -1,8 +1,7 @@
-From 3c1d68f716122c40ec4325d25a57619d2ee83d15 Mon Sep 17 00:00:00 2001
+From dd4cc90b89b7b4967d189be3a7265c66f76d4921 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 24 May 2019 14:40:29 +0200
-Subject: [PATCH 0261/1239] pci: mvebu: fixup classid for for first device on
- first bus
+Subject: [PATCH] pci: mvebu: fixup classid for for first device on first bus
 
 Without this patch the mvebu pcie didn't work since the transaction to
 new PCI DM was done. With old DM model it worked since the whole pci
@@ -21,6 +20,7 @@ autoconfiguration.
 
 Change-Id: Ic5251c74c5ffb8f0c77de3ba23fd57cd9a3c1014
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/pci/pci_mvebu.c     | 16 ++++++++++++++++
  include/configs/mv-common.h |  5 +++++
@@ -74,6 +74,3 @@ index a041ddb79b..dceaa179aa 100644
 +#define CONFIG_PCIAUTO_SKIP_HOST_BRIDGE     1
 +
  #endif /* _MV_COMMON_H */
--- 
-2.29.0
-

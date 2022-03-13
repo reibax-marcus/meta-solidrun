@@ -1,10 +1,10 @@
-From 78db9f960ee193d351d517e89068055bd3928e84 Mon Sep 17 00:00:00 2001
+From 70d327b57061fccbf11090c21bc3884e45a44429 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Tue, 20 Dec 2016 17:24:37 -0800
-Subject: [PATCH 0588/1239] configs: thunderx_81xx: add spi related config
- items
+Subject: [PATCH] configs: thunderx_81xx: add spi related config items
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  include/configs/thunderx_81xx.h | 12 ++++++++++++
  1 file changed, 12 insertions(+)
@@ -32,6 +32,3 @@ index 0380f7a122..a59f7c67c8 100644
  #define CONFIG_CMD_SAVES
  
  /* BOOTP options */
--- 
-2.29.0
-

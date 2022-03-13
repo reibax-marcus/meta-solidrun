@@ -1,8 +1,7 @@
-From 1a6059dfd579e592a10d387223d3dffcef3066d4 Mon Sep 17 00:00:00 2001
+From f2e118f8c53dd5ae3a1d97fb1e63115282db06a3 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 15:10:18 -0800
-Subject: [PATCH 0335/1239] cavium: Initialize SMI only when enabled in the
- config file
+Subject: [PATCH] cavium: Initialize SMI only when enabled in the config file
 
 ---
  board/cavium/thunderx/thunderx.c | 2 ++
@@ -23,6 +22,3 @@ index 9a7543d7b7..c7a06a7c60 100644
  
  #if defined(CONFIG_THUNDERX_VNIC)
  #define VNIC_PER_NODE 8
--- 
-2.29.0
-

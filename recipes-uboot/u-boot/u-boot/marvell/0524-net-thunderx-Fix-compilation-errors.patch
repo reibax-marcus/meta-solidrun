@@ -1,7 +1,7 @@
-From 243a79525d2907f64788895297de12c4efc9ceca Mon Sep 17 00:00:00 2001
+From 71a38b8b02f40930064bc70af3dba214888b1ae2 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 12 Sep 2016 19:09:52 -0700
-Subject: [PATCH 0524/1239] net:thunderx: Fix compilation errors
+Subject: [PATCH] net:thunderx: Fix compilation errors
 
 ---
  drivers/net/cavium/thunder_bgx.c | 4 ++--
@@ -29,6 +29,3 @@ index 181971c7b3..297b988207 100644
  			qlm[lmac - 1] = get_qlm_for_bgx(node, bgx_idx, lmac);
  			debug("qlm[%d] = %d\n", lmac, qlm[lmac-1]);
  		} else {
--- 
-2.29.0
-

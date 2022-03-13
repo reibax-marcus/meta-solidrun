@@ -1,10 +1,11 @@
-From fe94e466c8dc27e476856d26ba4ba45b7a73742a Mon Sep 17 00:00:00 2001
+From d7e324862fb5f9e7ed999a491158afd63735eb56 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 5 Mar 2018 16:14:46 -0800
-Subject: [PATCH 0765/1239] board: octeontx/tx2: provide target choice based on
- arch selection
+Subject: [PATCH] board: octeontx/tx2: provide target choice based on arch
+ selection
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/octeontx/Kconfig  | 8 ++++----
  board/cavium/octeontx2/Kconfig | 6 +++++-
@@ -55,6 +56,3 @@ index 87f6393c33..a0ce7f4442 100644
  	default "octeontx2_93xx" if TARGET_OCTEONTX2_93XX
 +
 +endif
--- 
-2.29.0
-

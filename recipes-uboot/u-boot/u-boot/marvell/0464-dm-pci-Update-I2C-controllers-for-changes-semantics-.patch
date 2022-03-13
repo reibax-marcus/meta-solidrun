@@ -1,8 +1,8 @@
-From e0f68f16d8fc499fe008bd8f34c59a0847cc1a8a Mon Sep 17 00:00:00 2001
+From dd11bc366bbd6da92c33d90bbad7b6debe6cb285 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 22:16:57 -0400
-Subject: [PATCH 0464/1239] dm: pci: Update I2C controllers for changes
- semantics Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Subject: [PATCH] dm: pci: Update I2C controllers for changes semantics
+ Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 
 ---
  drivers/i2c/thunderx_i2c.c | 3 +--
@@ -22,6 +22,3 @@ index 961f962bbb..597ddcde54 100644
  
  	debug("TWSI bus %d at %p\n",dev->seq, twsi->baseaddr);
  
--- 
-2.29.0
-

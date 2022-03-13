@@ -1,7 +1,7 @@
-From e81941dbcf18980246dc410adbe2802d98a8e1ab Mon Sep 17 00:00:00 2001
+From f86578b1d6b36ae4fa3c9a80b334661f1debf4bb Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Wed, 14 Nov 2018 15:03:00 +0200
-Subject: [PATCH 0211/1239] dts: a3900: enable MDIO and network interfaces
+Subject: [PATCH] dts: a3900: enable MDIO and network interfaces
 
 Configure MDIO and network interfaces on setup A & B:
 Setup A:
@@ -14,6 +14,7 @@ Setup B (VD):
 
 Change-Id: Ib66cccd790908d6bb57044c3e51de15e505ee22f
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-3900-vd-A.dts | 18 ++++++++++++++++++
  arch/arm/dts/armada-3900-vd-B.dts | 18 ++++++++++++++++++
@@ -85,6 +86,3 @@ index 7aa5f19126..7c51076cbc 100644
  	phy-mode = "sgmii";
 +	phy = <&phy1>;
  };
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From dca6005cf69d8d11e04401c187a322e10b74b8fb Mon Sep 17 00:00:00 2001
+From aa7cc79a9b13e07a424b08f64fe77f6fb3bf9a00 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 5 May 2019 17:36:57 +0300
-Subject: [PATCH 0258/1239] arm64: mvebu: dts: fix efuse entries and OTP base
- addresses
+Subject: [PATCH] arm64: mvebu: dts: fix efuse entries and OTP base addresses
 
 Change the CP LD efuse names to avoid naming collisions when
 more than one CP is connected to AP.
@@ -12,6 +11,7 @@ Update A38x DTSI for reflecting OTP address changes
 
 Change-Id: Iad16301dba90e858b2e0c2613cd22275342c16f3
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-38x.dtsi   | 2 +-
  arch/arm/dts/armada-ap80x.dtsi | 6 +++---
@@ -86,6 +86,3 @@ index 7f94538843..f3488b404e 100644
  				status = "disabled";
  			};
  
--- 
-2.29.0
-

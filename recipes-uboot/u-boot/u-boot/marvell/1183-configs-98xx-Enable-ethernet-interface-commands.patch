@@ -1,7 +1,7 @@
-From ff1901dc81d6ce82a6fc4221ddeb7a2857268b36 Mon Sep 17 00:00:00 2001
+From de8ab4065b950d87d3d96e0930c46ab6d5f0c6dd Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 23 Jun 2020 07:12:46 -0700
-Subject: [PATCH 1183/1239] configs: 98xx: Enable ethernet interface commands
+Subject: [PATCH] configs: 98xx: Enable ethernet interface commands
 
 Currently ethlist is of use.
 
@@ -10,6 +10,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/30661
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  configs/octeontx2_98xx_defconfig | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
@@ -29,6 +30,3 @@ index 0f6bbc50c0..eeac2b1efc 100644
  CONFIG_CMD_EXT2=y
  CONFIG_CMD_EXT4=y
  CONFIG_CMD_EXT4_WRITE=y
--- 
-2.29.0
-

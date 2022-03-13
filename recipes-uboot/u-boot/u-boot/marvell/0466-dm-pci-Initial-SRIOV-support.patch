@@ -1,11 +1,12 @@
-From fe517f75d538dbf29ca944d95627cd40b1f7aa98 Mon Sep 17 00:00:00 2001
+From 1662837f4a7138a1b23332fb620998e93ff9aaa5 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 22:20:13 -0400
-Subject: [PATCH 0466/1239] dm: pci: Initial SRIOV support
+Subject: [PATCH] dm: pci: Initial SRIOV support
 
 Add functions to support the SRIOV capability
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci-uclass.c | 99 ++++++++++++++++++++++++++++++++++++++++
  include/pci.h            | 37 +++++++++++++++
@@ -190,6 +191,3 @@ index 4c8c8808db..9aba49751f 100644
  #ifdef CONFIG_DM_PCI_COMPAT
  /* Compatibility with old naming */
  static inline int pci_write_config_dword(pci_dev_t pcidev, int offset,
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From be9c63155c268228cc66fd77188415793915fb8a Mon Sep 17 00:00:00 2001
+From 779481fabf067c07856c4217fc7fdb39853f5da6 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 23 Apr 2015 12:54:01 -0700
-Subject: [PATCH 0324/1239] Merge fix
+Subject: [PATCH] Merge fix
 
 ---
  board/cavium/thunderx/Makefile   | 1 -
@@ -51,6 +51,3 @@ index 9839681114..6d31faa565 100644
  
  void bgx_get_count(int node, int *bgx_count);
  int bgx_get_lmac_count(int node, int bgx_idx);
--- 
-2.29.0
-

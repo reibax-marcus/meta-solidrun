@@ -1,7 +1,7 @@
-From 5f2aaae1f15810e381f916132cfc47439eca31f7 Mon Sep 17 00:00:00 2001
+From f3798b7d4c3acdd6317a9660a1bd78686452fbc6 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 19 May 2017 17:33:32 +0200
-Subject: [PATCH 0058/1239] net: mvpp2: Allow to support 802.3ap Backplane
+Subject: [PATCH] net: mvpp2: Allow to support 802.3ap Backplane
  Auto-Negotiation
 
 When this mode is chosen all mac/pcs/serdes related configuration should be
@@ -16,6 +16,7 @@ accessing mac related registers.
 Change-Id: Ia31aaa22607c31bd3ab24a078f0c60e1d95296a0
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 5 +++++
  1 file changed, 5 insertions(+)
@@ -43,6 +44,3 @@ index 21169efc29..0bbaa6e7e7 100644
  		break;
  	default:
  		netdev_err(NULL, "%s: Wrong port mode (%d)\n", __func__,
--- 
-2.29.0
-

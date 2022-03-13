@@ -1,11 +1,12 @@
-From 039a70d49c85545228925224e4c1aeba7ff01ee7 Mon Sep 17 00:00:00 2001
+From 4a21f9985873b0e4dcd65f305e92c11589ae64e5 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarpati@caviumnetworks.com>
 Date: Tue, 4 Apr 2017 15:42:28 -0700
-Subject: [PATCH 0626/1239] drivers: spi: remove static pci probe
+Subject: [PATCH] drivers: spi: remove static pci probe
 
 move to driver-model probe method based on compatible.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/spi/cavium_spi.c | 7 -------
  1 file changed, 7 deletions(-)
@@ -32,6 +33,3 @@ index 7e487f9d0e..026a8f8e14 100755
 -};
 -
 -U_BOOT_PCI_DEVICE(thunderx_pci_spi, thunderx_pci_spi_supported);
--- 
-2.29.0
-

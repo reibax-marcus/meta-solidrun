@@ -1,13 +1,14 @@
-From 91f67902a0447857f2afed5299bad5c24715225d Mon Sep 17 00:00:00 2001
+From 114883fd5a1802f0a1e140f2be066706d385d6c3 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Wed, 6 Mar 2019 15:39:04 +0100
-Subject: [PATCH 0247/1239] phy: mvebu: add more debug prints
+Subject: [PATCH] phy: mvebu: add more debug prints
 
 Extend debug prints for reporting more details about possible MDIO
 failures, which ease debugging of fw update issues.
 
 Change-Id: I2e254fdfd33a5d090c682f290c8b0bd5fcbd48e4
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/net/phy/mvebu_fw_download.c | 29 +++++++++++++++++++++--------
  1 file changed, 21 insertions(+), 8 deletions(-)
@@ -98,6 +99,3 @@ index c2fffb6281..5346a551d0 100644
  	/* handle all the full transfers */
  	for (trans_index = 0; trans_index < num_trans; trans_index++)
  		mvebu_flash_transfer(bus, port, data, max_buff_size,
--- 
-2.29.0
-

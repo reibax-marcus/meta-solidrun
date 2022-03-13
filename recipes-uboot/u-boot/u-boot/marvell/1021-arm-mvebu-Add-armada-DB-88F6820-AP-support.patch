@@ -1,7 +1,7 @@
-From 1feeb934d9657572bc3121137184c554db37a10a Mon Sep 17 00:00:00 2001
+From b4eb04bf0843e6a7ea7cb29e11155379653602c9 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 8 Nov 2019 17:13:48 +0100
-Subject: [PATCH 1021/1239] arm: mvebu: Add armada DB-88F6820-AP support
+Subject: [PATCH] arm: mvebu: Add armada DB-88F6820-AP support
 
 This patch adds basic support for DB-88F6820-AP development board.
 
@@ -19,6 +19,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/19340
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/Makefile                       |   1 +
  arch/arm/dts/armada-385-ap.dts              | 181 ++++++++++++++++++++
@@ -653,6 +654,3 @@ index 0000000000..9170ef7464
 +#include "mv-common.h"
 +
 +#endif /* _CONFIG_DB_88F6820_AP_H */
--- 
-2.29.0
-

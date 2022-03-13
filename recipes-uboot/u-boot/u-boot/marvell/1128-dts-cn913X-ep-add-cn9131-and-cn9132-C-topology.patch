@@ -1,13 +1,14 @@
-From 212bb224bc1016a3cc45a675ed19882f9105ddd7 Mon Sep 17 00:00:00 2001
+From cd48623915da422d274c04675b73c859f7fe9915 Mon Sep 17 00:00:00 2001
 From: Stefan Chulski <Stefan.Chulski@cavium.com>
 Date: Tue, 7 Apr 2020 03:57:17 -0700
-Subject: [PATCH 1128/1239] dts: cn913X-ep: add cn9131 and cn9132 C topology
+Subject: [PATCH] dts: cn913X-ep: add cn9131 and cn9132 C topology
 
 Change-Id: I5e515aea9ffacbd8bef2a17a96ac55a9acf5b4bc
 Signed-off-by: Stefan Chulski <Stefan.Chulski@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/26454
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/Makefile        |   4 +-
  arch/arm/dts/cn9131-db-C.dts |  51 +++++++++++++++++
@@ -199,6 +200,3 @@ index 0000000000..87bf79db5c
 +&cp2_usb3_1 {
 +	status = "okay";
 +};
--- 
-2.29.0
-

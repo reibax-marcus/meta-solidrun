@@ -1,9 +1,10 @@
-From 54b21b0af26e0e05457d32b3a27a718ccbc26b34 Mon Sep 17 00:00:00 2001
+From bb7bd5801f3fced195e99f213ed2d8589a8494d3 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 2 Aug 2017 15:01:55 -0700
-Subject: [PATCH 0681/1239] configs: fdt cleanup
+Subject: [PATCH] configs: fdt cleanup
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  configs/t81_defconfig           |  4 ++++
  configs/t93_defconfig           |  1 +
@@ -106,6 +107,3 @@ index c6abbb07a0..87b4d169a2 100644
  					"smi0mode=0.0.0\0"		\
  					"smi1mode=0.0.0\0"		\
  					"autoload=0\0"
--- 
-2.29.0
-

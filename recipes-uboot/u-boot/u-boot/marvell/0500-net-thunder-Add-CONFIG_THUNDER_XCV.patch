@@ -1,11 +1,12 @@
-From 6252da69b8dd49409c379e982fc3175b0b6c5039 Mon Sep 17 00:00:00 2001
+From faa04613020ae4d055c8a7fb29b83995b8d65c24 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 7 Jun 2016 14:38:41 -0700
-Subject: [PATCH 0500/1239] net: thunder: Add CONFIG_THUNDER_XCV
+Subject: [PATCH] net: thunder: Add CONFIG_THUNDER_XCV
 
 Added a new configuration to implement XCV (or RGX) interface.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/Makefile      | 3 ++-
  drivers/net/cavium/thunder_bgx.c | 8 ++++++++
@@ -88,6 +89,3 @@ index b315208e3a..9d2fc72c27 100644
  #define CONFIG_THUNDERX_SMI
  #define CONFIG_THUNDERX_VNIC
  #define CONFIG_RANDOM_MACADDR
--- 
-2.29.0
-

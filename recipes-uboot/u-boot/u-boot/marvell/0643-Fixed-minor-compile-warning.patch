@@ -1,9 +1,10 @@
-From d3b0439a3fa0694b781cee570a7dd1e33d5d2661 Mon Sep 17 00:00:00 2001
+From 791199f1bb724e4fa8e304ec6a30443e8883e98c Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 28 Jun 2017 19:05:11 -0700
-Subject: [PATCH 0643/1239] Fixed minor compile warning.
+Subject: [PATCH] Fixed minor compile warning.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 11 -----------
  1 file changed, 11 deletions(-)
@@ -30,6 +31,3 @@ index 888527f492..2962ad3b10 100644
  static const struct mmc_ops cavium_mmc_ops = {
  	.send_cmd = cavium_mmc_send_cmd,
  	.set_ios = cavium_mmc_set_ios,
--- 
-2.29.0
-

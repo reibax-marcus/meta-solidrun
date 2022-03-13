@@ -1,8 +1,7 @@
-From 15e400100a50f143db9e649c0084e0a902295ee8 Mon Sep 17 00:00:00 2001
+From 34dc5828f15cc4641fcfc3df8bc8c45a8d0fc536 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 23 Jan 2019 18:40:57 -0800
-Subject: [PATCH 0872/1239] drivers: net: fix issue with invalid mac address
- from ATF
+Subject: [PATCH] drivers: net: fix issue with invalid mac address from ATF
 
 If ATF sends null or invalid mac address, skip init of
 environment ethaddr variables in driver and let network stack
@@ -14,6 +13,7 @@ Change-Id: I01b8c3d43c8015f2e8718a5a4d89141bb1982d4e
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/2708
 Tested-by: sa_ip-sw-jenkins
+
 ---
  drivers/net/octeontx2/cgx.c    |  2 --
  drivers/net/octeontx2/nix.c    | 20 +++++++++++++++++++-
@@ -82,6 +82,3 @@ index 44ad529546..99d1a12411 100644
  
  	return 0;
  }
--- 
-2.29.0
-

@@ -1,10 +1,11 @@
-From b2a25e79feee6c23f7121e9bbd1b7bf136bc9aaa Mon Sep 17 00:00:00 2001
+From bf33ec53834e96c5794fa97c43fe97a744669ba8 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Wed, 8 Aug 2018 18:15:50 +0300
-Subject: [PATCH 0179/1239] scripts: update checkpatch configuration
+Subject: [PATCH] scripts: update checkpatch configuration
 
 Change-Id: I9178c0818a0082d27b982647f225fd0e1bd818b8
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  .checkpatch.conf | 26 ++++++++++++++++++++++----
  1 file changed, 22 insertions(+), 4 deletions(-)
@@ -51,6 +52,3 @@ index f044272b85..a0cc065d80 100644
  
 -# Ignore GERRIT_CHANGE_ID errors
 ---ignore GERRIT_CHANGE_ID
--- 
-2.29.0
-

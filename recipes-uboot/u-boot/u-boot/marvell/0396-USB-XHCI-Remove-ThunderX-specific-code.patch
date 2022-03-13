@@ -1,12 +1,13 @@
-From 6d8e9332e69ffc05d1e633c9ce82692444f2c9cc Mon Sep 17 00:00:00 2001
+From 385c4ae87c5458521a1791684d2b5d8a0f31cddc Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 May 2016 22:55:09 -0700
-Subject: [PATCH 0396/1239] USB: XHCI: Remove ThunderX-specific code
+Subject: [PATCH] USB: XHCI: Remove ThunderX-specific code
 
 This code is unused since moving to ECAM-based enumeration,
 remove it
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/usb/host/xhci-thunderx.c | 78 --------------------------------
  1 file changed, 78 deletions(-)
@@ -96,6 +97,3 @@ index 395eabd04e..0000000000
 -void xhci_hcd_stop(int index)
 -{
 -}
--- 
-2.29.0
-

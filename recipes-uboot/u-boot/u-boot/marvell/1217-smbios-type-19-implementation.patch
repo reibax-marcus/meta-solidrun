@@ -1,7 +1,7 @@
-From 78e74a3175d51f2d84a2b7525600ada30042ac2b Mon Sep 17 00:00:00 2001
+From c1189f0413e47d1bbd9a56ad7f9395643703c09c Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Mon, 27 Jul 2020 10:56:25 -0700
-Subject: [PATCH 1217/1239] smbios: type 19 implementation
+Subject: [PATCH] smbios: type 19 implementation
 
 This structure provides the address mapping for a
 Physical Memory Array.
@@ -11,6 +11,7 @@ Change-Id: I49c091e0d9617474737e2d9ce710168d77c6dfa7
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35169
 Tested-by: Jia Ma <jiam@marvell.com>
 Reviewed-by: Jia Ma <jiam@marvell.com>
+
 ---
  include/smbios.h | 14 ++++++++++++++
  lib/smbios.c     | 33 +++++++++++++++++++++++++++++++++
@@ -99,6 +100,3 @@ index 7acb7cbbb7..c5778fa438 100644
  	smbios_write_type32,
  	smbios_write_type127
  };
--- 
-2.29.0
-

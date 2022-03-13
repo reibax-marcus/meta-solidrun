@@ -1,10 +1,11 @@
-From eadd3d25156dce952244fcfc50abc8a62d1d5566 Mon Sep 17 00:00:00 2001
+From 758c19debd63c44ebf21ca20be2adf17c56d2389 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 10 Jun 2016 17:36:07 -0700
-Subject: [PATCH 0506/1239] net: thunderx: Report BGX is configured as XAUI
- only for LMAC0.
+Subject: [PATCH] net: thunderx: Report BGX is configured as XAUI only for
+ LMAC0.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 2 ++
  1 file changed, 2 insertions(+)
@@ -22,6 +23,3 @@ index b6ab4dc212..e129e2a65c 100644
  			lmac->qlm_mode = QLM_MODE_XAUI;
  			printf("BGX%d QLM%d LMAC%d mode: XAUI\n",
  					bgx->bgx_id, lmac->qlm, lmacid);
--- 
-2.29.0
-

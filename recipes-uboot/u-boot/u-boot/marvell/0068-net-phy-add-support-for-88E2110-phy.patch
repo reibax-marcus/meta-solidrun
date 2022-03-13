@@ -1,7 +1,7 @@
-From 0fdb9740fd3eecad6485f34ddb496554c52dc4fb Mon Sep 17 00:00:00 2001
+From 2b41a20cb951c88889eaddd5e4307cb1f7eea9f6 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Wed, 14 Nov 2018 14:58:30 +0200
-Subject: [PATCH 0068/1239] net: phy: add support for 88E2110 phy
+Subject: [PATCH] net: phy: add support for 88E2110 phy
 
 E2110 support 10M/100M/1G/2.5G/5G speed and use C45 register definition.
 Need to use C45 or C22 r13/r14 indirect method to access
@@ -9,6 +9,7 @@ Need to use C45 or C22 r13/r14 indirect method to access
 Change-Id: Ia608ca440eaea766c26db66de63ec7f6abef3453
 Signed-off-by: Kevin Shi <kshi@marvell.com>
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/net/phy/marvell.c | 205 ++++++++++++++++++++++++++++++++++++++
  include/linux/ethtool.h   |   3 +-
@@ -276,6 +277,3 @@ index f6dbdb096d..a97bde48df 100644
  #define SPEED_10000		10000
  
  /* Duplex, half or full. */
--- 
-2.29.0
-

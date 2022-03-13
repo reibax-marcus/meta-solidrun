@@ -1,8 +1,7 @@
-From 93cb9bf0293c34419774d287d84f7271ebc936af Mon Sep 17 00:00:00 2001
+From a1437b0373b927a3a461f2c645b88469589afbe1 Mon Sep 17 00:00:00 2001
 From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
 Date: Thu, 3 Nov 2016 00:06:29 +0530
-Subject: [PATCH 0536/1239] 83xx, bgx: updating bgx to work with 83xx
- interfaces.
+Subject: [PATCH] 83xx, bgx: updating bgx to work with 83xx interfaces.
 
 - updating bgx->max_lmac based on type if interface/qlm connected.
 max_lmac count is used to decide how many lmacs from each
@@ -16,6 +15,7 @@ linux driver (will revisit this on need basis)
 - tested for XAUI and SGMII on QLM2/3.
 
 Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 266 +++++++++----------------------
  drivers/net/cavium/thunder_bgx.h |  15 ++
@@ -560,6 +560,3 @@ index 405b58025b..c62a5f3123 100644
 +};
 +
  #endif /* THUNDER_BGX_H */
--- 
-2.29.0
-

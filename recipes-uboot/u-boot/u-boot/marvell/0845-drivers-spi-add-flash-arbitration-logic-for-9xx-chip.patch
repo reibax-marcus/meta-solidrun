@@ -1,8 +1,7 @@
-From a8aff5c0e7361daa10c25223deec909eb7c4e9ac Mon Sep 17 00:00:00 2001
+From 236b582557655b52554cabd94be228f863c5879d Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 6 Dec 2018 17:29:20 -0800
-Subject: [PATCH 0845/1239] drivers: spi: add flash arbitration logic for 9xx
- chips
+Subject: [PATCH] drivers: spi: add flash arbitration logic for 9xx chips
 
 Add logic to claim ownership on SPI bus using CPC_BOOT_OWNERX
 register.
@@ -13,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/1458
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  .../include/asm/arch-octeontx2/octeontx2.h    | 26 +++++++++++++++++--
  board/Marvell/octeontx2/octeontx2.c           | 19 ++++++++++++++
@@ -151,6 +151,3 @@ index fb4c6cd78b..8061473fab 100755
  	mpi_cfg.u = readq(baseaddr + MPI_CFG);
  	mpi_cfg.s.enable = 0;
  	writeq(mpi_cfg.u, baseaddr + MPI_CFG);
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 4d3824a35c836e8b5fec981a998047a224e6fef8 Mon Sep 17 00:00:00 2001
+From dac33d64e6f40846dd2ddd044d85777c94bc05a4 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 21 Dec 2018 11:56:36 -0800
-Subject: [PATCH 0857/1239] net: octeontx2: add smi driver for mdio bus
+Subject: [PATCH] net: octeontx2: add smi driver for mdio bus
 
 This patch adds support for smi driver used in 8xx chips for
 9xx so as to enable mdio commands from u-boot to read phy
@@ -13,6 +13,7 @@ Reviewed-on: https://sj1git1.cavium.com/1472
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/net/octeontx2/octeontx_smi.c | 382 +++++++++++++++++++++++++++
  1 file changed, 382 insertions(+)
@@ -406,6 +407,3 @@ index 0000000000..2b21170d95
 +	.ops	= &octeontx_smi_ops,
 +};
 +
--- 
-2.29.0
-

@@ -1,13 +1,14 @@
-From 1112acc4a84a87a4711cef5ee99b3d0973aa3ed0 Mon Sep 17 00:00:00 2001
+From a20a2be34e2bc67385251acac95cf40a9fb881fd Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 8 Nov 2019 13:05:20 -0800
-Subject: [PATCH 0985/1239] drivers: spi: octeontx: add spi_mem layer support
+Subject: [PATCH] drivers: spi: octeontx: add spi_mem layer support
 
 Add support for spi_mem ops otherwise x4 bus width will not
 work.
 
 Change-Id: I1aa5da83933744fe950194c8a536dcd55def02f9
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  drivers/spi/octeontx_spi.c | 96 +++++++++++++++++++++++++++++++++++++-
  1 file changed, 94 insertions(+), 2 deletions(-)
@@ -145,6 +146,3 @@ index fd112de950..1fb4989349 100644
 +};
 +
 +U_BOOT_PCI_DEVICE(octeontx_pci_spi, octeontx_spi_supported);
--- 
-2.29.0
-

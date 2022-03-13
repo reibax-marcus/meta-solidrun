@@ -1,8 +1,7 @@
-From 62593d32b329e4de93af4f0b6523d3b9d8b71b89 Mon Sep 17 00:00:00 2001
+From d897d217b2625b4d67272632c8c4fa5c380aa95e Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 29 May 2017 15:59:38 +0300
-Subject: [PATCH 0101/1239] power: regulator: add support for
- regulator-force-boot-off
+Subject: [PATCH] power: regulator: add support for regulator-force-boot-off
 
 Add suppor for regulator-force-boot-off DT property.
 This property can be used by the board/device drivers for
@@ -11,6 +10,7 @@ fot the other components initialization.
 
 Change-Id: I394b6be98bd89a1f4d49017a0e1ae75808a3cc02
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  .../regulator/regulator.txt                   |  1 +
  drivers/power/regulator/regulator-uclass.c    | 38 +++++++++++++++++++
@@ -147,6 +147,3 @@ index 6c6e2cd4f9..b6883a53d2 100644
  /**
   * regulator_autoset_by_name: setup the regulator given by its uclass's
   * platform data name field. The setup depends on constraints found in device's
--- 
-2.29.0
-

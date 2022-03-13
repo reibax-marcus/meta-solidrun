@@ -1,11 +1,11 @@
-From d5a15c9b313901dab1c43d72dfca1af08199be8a Mon Sep 17 00:00:00 2001
+From 92faf798c46abf77f21a112b5ef218b660b60b10 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 8 Nov 2019 17:15:57 -0800
-Subject: [PATCH 0991/1239] drivers: rtc: ds1337: clean up dm support wrt
- checkpatch
+Subject: [PATCH] drivers: rtc: ds1337: clean up dm support wrt checkpatch
 
 Change-Id: I26283f032b1408c12967e868a3727f8c153601ff
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  drivers/rtc/Kconfig  |  14 ++---
  drivers/rtc/ds1337.c | 130 +++++++++++++++++--------------------------
@@ -266,6 +266,3 @@ index 27962c8d1f..e91bdce6f4 100644
  	.probe = ds1337_rtc_probe,
  	.ops = &ds1337_rtc_ops,
  };
--- 
-2.29.0
-

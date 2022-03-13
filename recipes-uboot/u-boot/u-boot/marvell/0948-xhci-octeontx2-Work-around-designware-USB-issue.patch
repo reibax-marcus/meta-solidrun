@@ -1,7 +1,7 @@
-From abb27450697dda062e62a08eb9c1d74ad5121bed Mon Sep 17 00:00:00 2001
+From c6b0424ad3ee40d3aed6215a15de2928ccc8171f Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 31 Jul 2019 22:08:53 -0700
-Subject: [PATCH 0948/1239] xhci: octeontx2: Work-around designware USB issue
+Subject: [PATCH] xhci: octeontx2: Work-around designware USB issue
 
 In the Designware XHCI core used in the OcteonTX2
 SoC there is a bug if the received data is short
@@ -25,6 +25,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/13426
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/usb/host/xhci-ring.c | 22 +++++++++++++++-------
  1 file changed, 15 insertions(+), 7 deletions(-)
@@ -76,6 +77,3 @@ index 6a4b365013..17987ad559 100644
  	return (udev->status != USB_ST_NOT_PROC) ? 0 : -1;
  }
  
--- 
-2.29.0
-

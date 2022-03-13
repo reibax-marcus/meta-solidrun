@@ -1,8 +1,7 @@
-From 473d32068325dfdcadaaa42eb61645953ec15723 Mon Sep 17 00:00:00 2001
+From 571bf24355a7eb5b46ef210b7fcb45daba7f3d8d Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Wed, 23 Oct 2019 14:14:21 +0200
-Subject: [PATCH 0259/1239] arm: mvebu: config: db-88f6820-gp: enable
- DISTRO_DEFAULTS
+Subject: [PATCH] arm: mvebu: config: db-88f6820-gp: enable DISTRO_DEFAULTS
 
 Enabling distro defaults allows to enable options and cmds which are
 used during Linux distribution booting. Among others two important
@@ -12,6 +11,7 @@ options are enabled:
 
 Change-Id: Ic9a05ee9ae14a086c421f763e977872a12898fe2
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  configs/db-88f6820-gp_defconfig | 15 ++++-----------
  1 file changed, 4 insertions(+), 11 deletions(-)
@@ -66,6 +66,3 @@ index 65086ea9be..b968b3e87e 100644
  CONFIG_DM_USB=y
  CONFIG_USB_EHCI_HCD=y
 -CONFIG_USB_STORAGE=y
--- 
-2.29.0
-

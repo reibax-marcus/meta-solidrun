@@ -1,14 +1,15 @@
-From 7c9d61957f23b8c935b88a60b89779fc7faabb2c Mon Sep 17 00:00:00 2001
+From 09c9407dabae460569829d5f229d365a8f6b07d4 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 29 Nov 2016 19:26:01 -0800
-Subject: [PATCH 0579/1239] Fixed order of parameters to writeq, fixes GPIO not
- working right
+Subject: [PATCH] Fixed order of parameters to writeq, fixes GPIO not working
+ right
 
 The order the parameters was passed to writeq was reversed.
 
 Also fixed a compiler warning.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/gpio/thunderx_gpio.c | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
@@ -57,6 +58,3 @@ index 8cf0a76327..2237e96686 100644
  	      pinsel);
  	if (GPIO_BIT_CFG_FN(pinsel))
  		return GPIOF_FUNC;
--- 
-2.29.0
-

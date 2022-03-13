@@ -1,7 +1,7 @@
-From 95f4116113b732633b4e9a43643add1e78eb371d Mon Sep 17 00:00:00 2001
+From 0acedad43e6ec7829c4530781878cfa7a6037022 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Tue, 25 Feb 2020 23:19:23 -0800
-Subject: [PATCH 1111/1239] mmc: octeontx: minor cleanup and debug support
+Subject: [PATCH] mmc: octeontx: minor cleanup and debug support
 
 This changes the code to use DIV_ROUND_UP and fixes a case where
 it should round down instead.  In addition this adds some more
@@ -12,6 +12,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/23950
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 97 +++++++++++++++++++++++++++---------
  1 file changed, 74 insertions(+), 23 deletions(-)
@@ -216,6 +217,3 @@ index 6345278be7..9c16833b24 100644
  	debug("%s(%s): timing taps: %llu, delay: %u\n",
  	      __func__, mmc->dev->name, host->timing_taps, emm_tap.s.delay);
  	host->timing_calibrated = true;
--- 
-2.29.0
-

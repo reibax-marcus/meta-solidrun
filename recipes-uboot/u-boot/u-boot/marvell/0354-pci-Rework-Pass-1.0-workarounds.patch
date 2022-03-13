@@ -1,7 +1,7 @@
-From 866f059028bd4868dbb8c95a9f185daaf54d7859 Mon Sep 17 00:00:00 2001
+From 4d2016f8822a1966f15470bc3b4863f26e1e5d25 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 Nov 2015 20:40:58 -0800
-Subject: [PATCH 0354/1239] pci: Rework Pass 1.0 workarounds
+Subject: [PATCH] pci: Rework Pass 1.0 workarounds
 
 ---
  board/cavium/thunderx/pcie.c | 11 ++++++-----
@@ -32,6 +32,3 @@ index 8384f5dec3..07af5b3d73 100644
  		endaddr = baseaddr + ECAMX_PF_BAR2_SIZE;
  		if (far >= baseaddr && far < endaddr) {
  			opcode = readl(pt_regs->elr);
--- 
-2.29.0
-

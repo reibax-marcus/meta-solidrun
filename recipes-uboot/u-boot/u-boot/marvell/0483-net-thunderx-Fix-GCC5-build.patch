@@ -1,9 +1,10 @@
-From 78c37c91644f35694a001f67da66f93fdca7409f Mon Sep 17 00:00:00 2001
+From 032a90f3214ae4d424a15e82036477af8b94c8b7 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 23 May 2016 20:55:48 -0700
-Subject: [PATCH 0483/1239] net: thunderx: Fix GCC5 build
+Subject: [PATCH] net: thunderx: Fix GCC5 build
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -21,6 +22,3 @@ index 4d72a2e58b..1c3636b6f1 100644
  {
  	return ((uintptr_t)addr >> 44) & 0x3;
  }
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From aa662b94464de70d43e5613bf1545d1e49107cb1 Mon Sep 17 00:00:00 2001
+From aafe80796ba7a8012dbcef9cf5b801f7f644789e Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Mon, 27 Jul 2020 13:35:00 -0700
-Subject: [PATCH 1211/1239] smbios: type 4 implementation
+Subject: [PATCH] smbios: type 4 implementation
 
 SMBIOS type 4 is implemented for Armada CN9130. It
 adds CPU & SoC specific information to SMBIOS table.
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35162
 Tested-by: Jia Ma <jiam@marvell.com>
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  lib/smbios.c | 60 +++++++++++++++++++++++++++++++++++++++++++++-------
  1 file changed, 52 insertions(+), 8 deletions(-)
@@ -131,6 +132,3 @@ index 7b74971f68..cffd75cb0a 100644
  	}
  
  	memcpy(se->anchor, "_SM_", 4);
--- 
-2.29.0
-

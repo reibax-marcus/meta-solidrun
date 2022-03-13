@@ -1,7 +1,7 @@
-From e59c7d413895fd94e86d5769d079d650d55e2368 Mon Sep 17 00:00:00 2001
+From 3a84e66411c035a976ea579b945add4718748eb8 Mon Sep 17 00:00:00 2001
 From: jinghua <jinghua@marvell.com>
 Date: Mon, 24 Apr 2017 15:51:03 +0800
-Subject: [PATCH 0011/1239] phy: marvell: add comphy type PHY_TYPE_USB3
+Subject: [PATCH] phy: marvell: add comphy type PHY_TYPE_USB3
 
 - For some Marvell SoCs, like armada-3700, there are both
   USB host and device controller, but on PHY level the
@@ -13,6 +13,7 @@ Change-Id: I01262027edd8ec23391cff6fb409b3009aedfbb9
 Signed-off-by: jinghua <jinghua@marvell.com>
 Signed-off-by: Ken Ma <make@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_core.c        |  2 +-
  include/dt-bindings/comphy/comphy_data.h | 25 ++++++++++++------------
@@ -67,6 +68,3 @@ index 4f7e2821b8..08544fa758 100644
  #define PHY_TYPE_INVALID		0xff
  
  #define PHY_POLARITY_NO_INVERT		0
--- 
-2.29.0
-

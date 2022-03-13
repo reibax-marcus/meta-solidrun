@@ -1,13 +1,14 @@
-From f6f53434d81d7b53fe11b67a98869481e60f3f75 Mon Sep 17 00:00:00 2001
+From 17615367fe83095aeb93a110c62bfb60a501c909 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 7 May 2019 16:15:54 +0200
-Subject: [PATCH 0274/1239] arm64: mvebu: dts: a8k: fix the pcie memory size
+Subject: [PATCH] arm64: mvebu: dts: a8k: fix the pcie memory size
 
 The PCIe MEM space size for CP0 PCIe0 is bigger than for other PCIe
 interfaces - reflect it in device-tree description.
 
 Change-Id: I7cf0d76f7dd649b3da58d56ae5079a8556473ea6
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  arch/arm/dts/armada-8k.dtsi    |  2 +-
  arch/arm/dts/armada-cp110.dtsi | 14 +++++++-------
@@ -72,6 +73,3 @@ index 541643ca58..c92c8d4f9d 100644
  			num-lanes = <1>;
  			status = "disabled";
  		};
--- 
-2.29.0
-

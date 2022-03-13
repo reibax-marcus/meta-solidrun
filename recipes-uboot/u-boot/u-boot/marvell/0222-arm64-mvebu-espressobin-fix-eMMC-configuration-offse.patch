@@ -1,8 +1,7 @@
-From e001fa90cdea1a4ebbd88478603acd861abec96d Mon Sep 17 00:00:00 2001
+From 637846c2f8c60f6534c1ab7db276371203551115 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Wed, 28 Nov 2018 16:06:11 +0200
-Subject: [PATCH 0222/1239] arm64: mvebu: espressobin: fix eMMC configuration
- offset
+Subject: [PATCH] arm64: mvebu: espressobin: fix eMMC configuration offset
 
 The eMMC device found on EspressoBIN V7 has 2MB HW boot partition.
 Therefore the location of u-boot environment should be moved to
@@ -11,6 +10,7 @@ of 4MB space.
 
 Change-Id: I4486f16e7f1f628e4f38272d84e942a1524a2c76
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  include/configs/mvebu_armada-common.h | 11 +++++++++++
  1 file changed, 11 insertions(+)
@@ -45,6 +45,3 @@ index b9605bf7d5..884cf8b95c 100644
  
  #ifdef CONFIG_ENV_IS_IN_MMC
  #ifdef CONFIG_TARGET_MVEBU_ARMADA_37XX
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From fa8e833febb1d89c17e3ca9d0c13a59e531f0ce0 Mon Sep 17 00:00:00 2001
+From bb5a55ff3e0f823e0f837856b3fc405450dc8bfa Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 9 Feb 2020 11:11:16 +0200
-Subject: [PATCH 1092/1239] configs/mvebu: enable MTD support in all A7K/A8K
- configs
+Subject: [PATCH] configs/mvebu: enable MTD support in all A7K/A8K configs
 
 Enable mtd and mtdparts support in all A7K/A8K/CN913x configs.
 Enable mtd support for SPI flash and support for ubifs commands.
@@ -13,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/23117
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+
 ---
  configs/mvebu_comexpress-88f7020_defconfig | 6 ++++++
  configs/mvebu_crb_cn9130_defconfig         | 5 +++++
@@ -335,6 +335,3 @@ index bc9afbbc86..806cd4f7f4 100644
  CONFIG_MV88E6XXX_SWITCH=y
  CONFIG_PHY_MARVELL=y
  CONFIG_PHY_GIGE=y
--- 
-2.29.0
-

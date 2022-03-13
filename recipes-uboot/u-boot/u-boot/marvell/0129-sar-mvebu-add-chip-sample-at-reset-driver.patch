@@ -1,7 +1,7 @@
-From 8d4320a72c4a2c9b280f8bb7c8d2b4a8205419a5 Mon Sep 17 00:00:00 2001
+From c63127ee8447896a951266981d60a175a3a7b1f1 Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Wed, 10 May 2017 01:18:13 +0300
-Subject: [PATCH 0129/1239] sar: mvebu: add chip sample-at-reset driver
+Subject: [PATCH] sar: mvebu: add chip sample-at-reset driver
 
 In order to print soc info at u-boot bootlog, the sampled-at-reset
 driver is needed to fetch the information about the soc.
@@ -14,6 +14,7 @@ configuring chip frequencies from u-boot using SatR command.
 Change-Id: I605dbb3cf913c58cd159924a931c4b627395b7ae
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+
 ---
  arch/arm/dts/armada-ap806.dtsi      |   9 +
  arch/arm/dts/armada-cp110.dtsi      |   9 +
@@ -897,6 +898,3 @@ index ae24245e67..75d18a788e 100644
  };
  
  const char *fdtdec_get_compatible(enum fdt_compat_id id)
--- 
-2.29.0
-

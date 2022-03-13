@@ -1,8 +1,8 @@
-From 91030bf53ccfb9f0434fe78ff95c10d32e408ca7 Mon Sep 17 00:00:00 2001
+From 2d8f82ce0867704f79653484df24b97a09919e33 Mon Sep 17 00:00:00 2001
 From: Hanna Hawa <hannah@marvell.com>
 Date: Tue, 7 Nov 2017 10:24:36 +0200
-Subject: [PATCH 0051/1239] arm64: dts: cp110: unite cp110 master/slave dtsi
- files into single file
+Subject: [PATCH] arm64: dts: cp110: unite cp110 master/slave dtsi files into
+ single file
 
 This patch does following updates:
 - Change the name of CP110 from master/slave to 0/1 to prepare adding
@@ -15,6 +15,7 @@ This patch does following updates:
 Change-Id: If30728fedc7b1225040e5e0671c3751c0ef5542f
 Signed-off-by: Hanna Hawa <hannah@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-db-nand.dts          |  33 ++-
  arch/arm/dts/armada-7040-db.dts               |  40 +--
@@ -1891,6 +1892,3 @@ index b25b7cd305..24e83047ec 100644
  			num-lanes = <1>;
  			status = "disabled";
  		};
--- 
-2.29.0
-

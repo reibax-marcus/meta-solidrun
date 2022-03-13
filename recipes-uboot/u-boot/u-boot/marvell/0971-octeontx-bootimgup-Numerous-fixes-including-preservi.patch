@@ -1,8 +1,8 @@
-From 33e8343644c344ec7e8d1a4cf13d91af44c6669a Mon Sep 17 00:00:00 2001
+From 80597ac294216fab56546c4fdd4405b1948776cb Mon Sep 17 00:00:00 2001
 From: aaronw <awilliams@marvell.com>
 Date: Fri, 18 Oct 2019 18:39:34 -0700
-Subject: [PATCH 0971/1239] octeontx: bootimgup Numerous fixes including
- preserving ROM scripts
+Subject: [PATCH] octeontx: bootimgup Numerous fixes including preserving ROM
+ scripts
 
 This patch fixes a number of patches.
 1. Improve image validation checks by checking more sections and verifying
@@ -24,6 +24,7 @@ Reviewed-on: https://sj1git1.cavium.com/17579
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  cmd/bootimgup.c | 788 ++++++++++++++++++++++++++++++++++++++++--------
  1 file changed, 668 insertions(+), 120 deletions(-)
@@ -1009,6 +1010,3 @@ index d24c1fbdd8..e221b4ceeb 100644
  	bootimgup, 7, 1, do_bootimgup, "Updates Boot Image",
  	" <[-s]> <[-p]> <mmc | spi> <[devid] | [bus:cs]> [image_address] [image_size]\n"
  	" where: \n"
--- 
-2.29.0
-

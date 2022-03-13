@@ -1,7 +1,7 @@
-From 9869490d13d8b47b3464e1de04bb82b7a3f39fd0 Mon Sep 17 00:00:00 2001
+From c059ad67a8554b2ad566763ad174f54624407e5e Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Fri, 12 May 2017 10:55:56 +0800
-Subject: [PATCH 0099/1239] arm64: dts: a37xx: update comphy lane numbers
+Subject: [PATCH] arm64: dts: a37xx: update comphy lane numbers
 
 The latest change in the comphy_a3700.c driver aligned
 the lanes assignment to the functional specification.
@@ -9,6 +9,7 @@ Reflect that in supported device trees.
 
 Change-Id: Id7a239bd00e35e66b4e5023db081bb417267b8ca
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  arch/arm/dts/armada-3720-db.dts          | 8 ++++----
  arch/arm/dts/armada-3720-espressobin.dts | 8 ++++----
@@ -58,6 +59,3 @@ index f8fd4ed244..94cab2f4d1 100644
  	};
  
  	phy2 {
--- 
-2.29.0
-

@@ -1,14 +1,15 @@
-From 3b18724e84815fb5acd178cd9857c92507de52d5 Mon Sep 17 00:00:00 2001
+From 59f0ea661ecb3132b89e25a14c8f8f309249d1f8 Mon Sep 17 00:00:00 2001
 From: zachary zhang <zhangzg@marvell.com>
 Date: Tue, 15 May 2018 17:42:43 +0800
-Subject: [PATCH 0113/1239] arm64: mvebu: cmd: add support to load HW info
- during env reset
+Subject: [PATCH] arm64: mvebu: cmd: add support to load HW info during env
+ reset
 
 Call cmd_hw_info_load during env reset to initialize the
 HW configuration.
 
 Change-Id: If257c758bbc4759b8f22fbe50e0ba5a2750b8b30
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  env/common.c  | 12 ++++++++++++
  include/env.h | 10 ++++++++++
@@ -56,6 +57,3 @@ index b72239f6a5..c2490ab665 100644
 +#endif
 +
  #endif
--- 
-2.29.0
-

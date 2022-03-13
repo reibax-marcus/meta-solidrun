@@ -1,7 +1,7 @@
-From 42d8ca66b0b90ac90db237cc350e31192b84d094 Mon Sep 17 00:00:00 2001
+From d9aa33696cab2d43dce6ce2150b7b0b918d0ba2c Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 10 Jun 2019 20:33:39 -0700
-Subject: [PATCH 0934/1239] mmc: octeontx: Change default timing taps
+Subject: [PATCH] mmc: octeontx: Change default timing taps
 
 This changes the default timing taps which seems
 to improve HS200 mode on some devices.  This
@@ -13,6 +13,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10698
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 92 ++++++++++++++++++++++--------------
  1 file changed, 57 insertions(+), 35 deletions(-)
@@ -228,6 +229,3 @@ index 97196faecf..c4f7e90122 100644
  
  	emm_switch.s.bus_id = slot->bus_id;
  	debug("%s: Performing switch\n", __func__);
--- 
-2.29.0
-

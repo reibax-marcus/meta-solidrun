@@ -1,8 +1,7 @@
-From 0b04b8acf51289031a57f6aeaf91f11275623a7c Mon Sep 17 00:00:00 2001
+From 3d411d8d96ac5d52be6c5bc4294cd98568cfc559 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 25 Oct 2017 10:12:55 -0700
-Subject: [PATCH 0718/1239] BGX : Disable PCS and power down BGX before booting
- kernel.
+Subject: [PATCH] BGX : Disable PCS and power down BGX before booting kernel.
 
 Apart from disabling RX/TX, need to power down PCS before booting kernel
 so that kernel starts with clean initialization.
@@ -10,6 +9,7 @@ so that kernel starts with clean initialization.
 Bug# 29156
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 23 ++++++++++++++++-------
  1 file changed, 16 insertions(+), 7 deletions(-)
@@ -57,6 +57,3 @@ index d7149d4b80..fe7ae13cb6 100644
  	}
  	return 0;
  }
--- 
-2.29.0
-

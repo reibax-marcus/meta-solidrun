@@ -1,7 +1,7 @@
-From bbed15149f4aa6152cd466fbf6d25e23fb2834fc Mon Sep 17 00:00:00 2001
+From 4e24f7fac3742307d44c0ba00853cab71643d94a Mon Sep 17 00:00:00 2001
 From: aaronw <aaron.williams@cavium.com>
 Date: Mon, 4 Mar 2019 21:25:22 -0800
-Subject: [PATCH 0888/1239] octeontx: octeontx2: use strlcpy instead of strncpy
+Subject: [PATCH] octeontx: octeontx2: use strlcpy instead of strncpy
 
 strncpy does not terminate strings properly so this might be a
 possible security hole.  Changed to strlcpy to fix this.
@@ -11,6 +11,7 @@ Signed-off-by: aaronw <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5421
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  board/Marvell/octeontx/octeontx.c   | 2 +-
  board/Marvell/octeontx2/octeontx2.c | 2 +-
@@ -42,6 +43,3 @@ index 20ed369bae..d76d2b044d 100644
  		debug("fdt: BOARD-MODEL bdt.type %s \n", g_cavm_bdt.type);
  	} else {
  		printf("Error: cannot retrieve board type from fdt\n");
--- 
-2.29.0
-

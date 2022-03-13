@@ -1,7 +1,7 @@
-From 80a3802a1e9da83593fddddb8639739dd0c38db8 Mon Sep 17 00:00:00 2001
+From acb7422a94b2ec5c28defa0bb03451a6e1d54dea Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Mon, 24 Apr 2017 18:24:32 +0300
-Subject: [PATCH 0037/1239] arm64: dts: a70x0: align a7040-db to board setup A
+Subject: [PATCH] arm64: dts: a70x0: align a7040-db to board setup A
 
 A7040 DB board is a modular board,
 which supports multiple possible configurations.
@@ -22,6 +22,7 @@ CP-MPPs:
 Change-Id: I610dcda225eb196f4d1269c916fb8d170c8c7da8
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-db.dts       | 13 +++++++------
  arch/arm/dts/armada-cp110-master.dtsi |  7 ++++++-
@@ -88,6 +89,3 @@ index e4c17e9f4b..ade7141347 100644
  					marvell,pins = < 44 45 46 47 48 49 50 51
  							 52 53 54 55 >;
  					marvell,function = <1>;
--- 
-2.29.0
-

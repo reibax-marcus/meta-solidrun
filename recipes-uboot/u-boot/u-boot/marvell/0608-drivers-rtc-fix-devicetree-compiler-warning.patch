@@ -1,9 +1,10 @@
-From 013f1ed55dd15a5c61a3c1e9ef76de36ec75f520 Mon Sep 17 00:00:00 2001
+From a21ecf504480094c60da184ac53b31463657b135 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Wed, 8 Feb 2017 17:54:58 -0800
-Subject: [PATCH 0608/1239] drivers: rtc: fix devicetree compiler warning
+Subject: [PATCH] drivers: rtc: fix devicetree compiler warning
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  drivers/rtc/ds1337.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -21,6 +22,3 @@ index 35342a6953..8e220dfc54 100644
  
  	debug("RTC addr 0x%08x model %d\n", platdata->regaddr, platdata->rtcmodel);
  	return 0;
--- 
-2.29.0
-

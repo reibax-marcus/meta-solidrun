@@ -1,8 +1,8 @@
-From 9ad491e7cea28b253285379b3503b8c71e071058 Mon Sep 17 00:00:00 2001
+From 18709f638e5fb3ad9944cfba5bd5994694f2339c Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Wed, 1 Jan 2020 18:05:19 +0200
-Subject: [PATCH 1053/1239] arch/arm/dts: increase BAR2 size to 16MB for PCIe
- EP platforms
+Subject: [PATCH] arch/arm/dts: increase BAR2 size to 16MB for PCIe EP
+ platforms
 
 PCIe console is supported on systems running SoC in PCIe EP (device)
 mode and requires the following changes in DTS:
@@ -47,6 +47,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20999
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-ocp.dts | 4 ++++
  arch/arm/dts/cn9130-crb-C.dts    | 3 ++-
@@ -96,6 +97,3 @@ index 2efe5901a9..519108de89 100644
  	      <0x80 0x00000000 0x8 0x000000000>;
  	reg-names = "bar0", "bar2", "host-map";
  	status = "okay";
--- 
-2.29.0
-

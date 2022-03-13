@@ -1,7 +1,7 @@
-From 031195527308da1f2d3c0c54d9a44da7371c4bd8 Mon Sep 17 00:00:00 2001
+From be29b2821dfcffd440c7bb5bdb754ec4fc527686 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 Nov 2015 10:41:51 -0800
-Subject: [PATCH 0347/1239] cavium: vnic: Fix strict aliasing warnings
+Subject: [PATCH] cavium: vnic: Fix strict aliasing warnings
 
 ---
  drivers/net/cavium/nicvf_queues.c | 57 +++++++++++++++++--------------
@@ -133,6 +133,3 @@ index c4a3217842..47cabea9f7 100644
  
  		if (cqe_rx->align_pad) {
  			pkt += cqe_rx->align_pad;
--- 
-2.29.0
-

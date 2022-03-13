@@ -1,12 +1,13 @@
-From db536f5ed4825b7e56dea36e1aa4af7d840feb1d Mon Sep 17 00:00:00 2001
+From f00750dbbbb993a8e67fa6ec663e49ec6bbe192a Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 13 Sep 2016 17:42:41 -0700
-Subject: [PATCH 0525/1239] This patch adds support for setting the command
- prompt based on the board name.
+Subject: [PATCH] This patch adds support for setting the command prompt based
+ on the board name.
 
 I also reformatted some comments to make checkpatch happy.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  board/cavium/thunderx/thunderx.c | 22 ++++++++++++++++---
  include/configs/thunderx_81xx.h  | 37 +++++++++++++++++++++-----------
@@ -162,6 +163,3 @@ index fe16163ff4..958c172a3a 100644
  /** Enable long help support */
  #define CONFIG_SYS_LONGHELP
  /** Enable editing of the command line */
--- 
-2.29.0
-

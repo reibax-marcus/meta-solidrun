@@ -1,12 +1,12 @@
-From 148fd0349f382551ce89c03926eed38b85e1bd75 Mon Sep 17 00:00:00 2001
+From 66a5e2322855f567d4483c1ce3e2f1f26053255e Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 16 Jun 2016 12:33:33 -0700
-Subject: [PATCH 0508/1239] net: thunderx: Fix typo in CONFIG_THUNDERX_XCV
- configuration
+Subject: [PATCH] net: thunderx: Fix typo in CONFIG_THUNDERX_XCV configuration
 
 Still disable XCV (RGMII) support, not working yet.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/Makefile      | 2 +-
  drivers/net/cavium/thunder_bgx.c | 8 ++++----
@@ -78,6 +78,3 @@ index 39ef2b267d..5021d01d69 100644
  #define CONFIG_THUNDERX_SMI
  #define CONFIG_THUNDERX_VNIC
  #define CONFIG_RANDOM_MACADDR
--- 
-2.29.0
-

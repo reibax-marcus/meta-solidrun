@@ -1,11 +1,12 @@
-From a9d926c67e945d1dc333662a2131292001dd12d5 Mon Sep 17 00:00:00 2001
+From 66c83f7a301931af383d3dfcf4d2cc23aae55eab Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 23:32:00 -0400
-Subject: [PATCH 0473/1239] cavium: Remove stale VNIC initialization code
+Subject: [PATCH] cavium: Remove stale VNIC initialization code
 
 Drop VNIC initialization code since it's not relevant anymore
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  board/cavium/thunderx/thunderx.c | 19 +------------------
  1 file changed, 1 insertion(+), 18 deletions(-)
@@ -46,6 +47,3 @@ index b304678e52..14492caa20 100644
  	rc = pci_eth_init(bis);
  
  	return rc;
--- 
-2.29.0
-

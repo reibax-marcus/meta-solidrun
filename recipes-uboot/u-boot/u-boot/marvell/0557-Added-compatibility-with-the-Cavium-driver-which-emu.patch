@@ -1,10 +1,11 @@
-From d8e4efe3ac3424f61b56ccd4ed9687083ecc1592 Mon Sep 17 00:00:00 2001
+From 7a544c089d72db14f1adbbbd587a940078aeae55 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 8 Nov 2016 20:02:37 -0800
-Subject: [PATCH 0557/1239] Added compatibility with the Cavium driver which
- emulates the generic driver.
+Subject: [PATCH] Added compatibility with the Cavium driver which emulates the
+ generic driver.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  cmd/mmc.c | 8 ++++++++
  1 file changed, 8 insertions(+)
@@ -36,6 +37,3 @@ index 6f3cb85cc0..91a0bcc9dc 100644
  	return CMD_RET_SUCCESS;
  }
  
--- 
-2.29.0
-

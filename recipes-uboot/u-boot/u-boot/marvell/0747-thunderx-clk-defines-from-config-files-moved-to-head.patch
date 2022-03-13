@@ -1,10 +1,10 @@
-From 7c1a54c6af2f6c8997658bb8d685ce98f2d2195e Mon Sep 17 00:00:00 2001
+From f01d5bb232efc24fdc633cd2eff16fbcb3383329 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 17 Jan 2018 15:13:52 -0800
-Subject: [PATCH 0747/1239] thunderx: clk defines from config files moved to
- headers
+Subject: [PATCH] thunderx: clk defines from config files moved to headers
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/include/asm/arch-thunderx/clock.h | 4 ++++
  arch/arm/mach-thunderx/clock.c             | 1 +
@@ -50,6 +50,3 @@ index c7f1c1fc63..089c77c069 100644
  
  /**
   * Slave address to use for Thunder when accessed by another master
--- 
-2.29.0
-

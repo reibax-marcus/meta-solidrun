@@ -1,10 +1,10 @@
-From df6382d0a313af57f07eacaaf5268c12cec84731 Mon Sep 17 00:00:00 2001
+From 0182c5f24e08baf095a5c25b03ec045beb88ccae Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 22 Aug 2018 00:54:39 -0700
-Subject: [PATCH 0790/1239] octeontx: nand: fix missing function prototype
- warning.
+Subject: [PATCH] octeontx: nand: fix missing function prototype warning.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mtd/nand/octeontx_bch.h | 11 +++++++++++
  1 file changed, 11 insertions(+)
@@ -29,6 +29,3 @@ index 824efe3f91..c46bcb3150 100644
 +int octeontx_pci_nand_deferred_probe(void);
 +
  #endif /* __OCTEONTX_BCH_H__ */
--- 
-2.29.0
-

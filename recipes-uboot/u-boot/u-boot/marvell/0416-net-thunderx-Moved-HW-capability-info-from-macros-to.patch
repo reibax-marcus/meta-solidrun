@@ -1,8 +1,8 @@
-From 7a92a264f2280b43f9a1cc1022197cd62dd1f2fe Mon Sep 17 00:00:00 2001
+From 0af88b63b13e0b7e9e8809b472c34692b37bcb5e Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 9 May 2016 17:27:26 -0700
-Subject: [PATCH 0416/1239] net: thunderx: Moved HW capability info from macros
- to structure
+Subject: [PATCH] net: thunderx: Moved HW capability info from macros to
+ structure
 
 Current driver has most of the HW maximums info like no of channels,
 traffic limiters, RSS indices e.t.c in the form of macros. These have
@@ -12,6 +12,7 @@ newer chips with different set of HW maximums can be added.
 Signed-off-by: Sunil Goutham <sgoutham@cavium.com>
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic.h      | 60 +++++++++++++-----------------
  drivers/net/cavium/nic_main.c | 70 +++++++++++++++++++++++++++++------
@@ -291,6 +292,3 @@ index f822d116fe..f88b088aa3 100644
  #if 0
  	nic->node = NIC_NODE_ID(pci_resource_start(pdev, PCI_CFG_REG_BAR_NUM));
  #endif
--- 
-2.29.0
-

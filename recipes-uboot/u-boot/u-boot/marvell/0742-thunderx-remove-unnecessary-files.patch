@@ -1,11 +1,12 @@
-From 20c75290a8e75b3b8876e00eb7489b2c3d82b9ca Mon Sep 17 00:00:00 2001
+From 2a89c84c4a4646e6799bcc2fb0279ef2ae049f3c Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 17 Jan 2018 15:01:26 -0800
-Subject: [PATCH 0742/1239] thunderx: remove unnecessary files
+Subject: [PATCH] thunderx: remove unnecessary files
 
 remove stale or unneeded files from mach-thunderx and board files.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/cpu/armv8/cvm-thunderx/Makefile   |   8 -
  arch/arm/cpu/armv8/cvm-thunderx/lowlevel.S |  71 ----
@@ -964,6 +965,3 @@ index 5e9ccb43cd..0000000000
 -
 -#endif
 -
--- 
-2.29.0
-

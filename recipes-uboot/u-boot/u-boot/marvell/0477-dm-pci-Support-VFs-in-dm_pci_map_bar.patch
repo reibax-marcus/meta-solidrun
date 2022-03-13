@@ -1,13 +1,14 @@
-From e0357b619ca76daf109a1dd83595227b1ed90774 Mon Sep 17 00:00:00 2001
+From 79b3536668b774d5d5a78bb1b84b4ccfd09e555e Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 19 May 2016 15:21:45 -0400
-Subject: [PATCH 0477/1239] dm: pci: Support VFs in dm_pci_map_bar()
+Subject: [PATCH] dm: pci: Support VFs in dm_pci_map_bar()
 
 Support virtual functions in dm_pci_map_bar. Currently, only
 EA devices are supported since the subsystem lacks saving BAR
 sizes for non-EA PFs
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci-uclass.c | 38 +++++++++++++++++++++++++-------------
  include/pci.h            |  5 ++++-
@@ -110,6 +111,3 @@ index 7850a16344..9d2ecb3dfa 100644
  	int vf_id;
  };
  
--- 
-2.29.0
-

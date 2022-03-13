@@ -1,7 +1,7 @@
-From 2a0df36e6497d62d6ef2d9c2746f89ab79f67e37 Mon Sep 17 00:00:00 2001
+From dea7960b4ce94b39bfefcad721b37c9a636409e4 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Mon, 13 Apr 2020 20:47:21 -0700
-Subject: [PATCH 1132/1239] mmc: octeontx: Introduce delay for DMA operations
+Subject: [PATCH] mmc: octeontx: Introduce delay for DMA operations
 
 In a small percentage of operations on certain hardware it appears that
 the DMA operation may not begin immediately.  This patch introduces a
@@ -17,6 +17,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/26782
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 7 ++++++-
  drivers/mmc/octeontx_hsmmc.h | 1 +
@@ -67,6 +68,3 @@ index ed475798d0..70844b1cba 100644
  	bool		initialized:1;
  	bool		timing_calibrated:1;
  	bool		is_asim:1;
--- 
-2.29.0
-

@@ -1,13 +1,14 @@
-From 507b77fb40144f5f2f63bb45704052c551a06c1b Mon Sep 17 00:00:00 2001
+From e3bdfe297ea78118dea9661582bd682ec4e446f4 Mon Sep 17 00:00:00 2001
 From: allen yan <yanwei@marvell.com>
 Date: Tue, 18 Apr 2017 17:39:47 +0800
-Subject: [PATCH 0174/1239] arm64: mvebu: clock: a3700: introduce clock driver
+Subject: [PATCH] arm64: mvebu: clock: a3700: introduce clock driver
 
 Clock driver is used to print SoC information during
 boot.
 
 Change-Id: Icf7a3d21de5b59c8be16ca0ccf5aba67fba88770
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada3700/Makefile  |   1 +
  arch/arm/mach-mvebu/armada3700/clock.c   | 244 +++++++++++++++++++++++
@@ -288,6 +289,3 @@ index 4dde1a67e5..9cfd757e55 100644
  
  void soc_print_clock_info(void);
  
--- 
-2.29.0
-

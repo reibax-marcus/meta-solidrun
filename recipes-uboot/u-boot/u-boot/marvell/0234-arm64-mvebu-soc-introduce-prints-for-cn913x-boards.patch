@@ -1,8 +1,7 @@
-From 8d1d3267ad290678ea44b014dbad6ccb3c7e5890 Mon Sep 17 00:00:00 2001
+From 00f423c2a00b1a810c605ce684fdcbe1b4791183 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Tue, 22 Oct 2019 15:22:31 +0200
-Subject: [PATCH 0234/1239] arm64: mvebu: soc: introduce prints for cn913x
- boards
+Subject: [PATCH] arm64: mvebu: soc: introduce prints for cn913x boards
 
 since the 9130-9131-9132 has the same ap+cp characteristics,
 specific check were needed to differentiate between them.
@@ -10,6 +9,7 @@ also cn9030-A3 was added, which differs by the ap_rev from cn9030-A1
 
 Change-Id: I9ecf16abcd49df842629fb86156f7769c436d25a
 Signed-off-by: Alex Leibovich <alexl@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/soc.c | 79 ++++++++++++++++++++++--------
  1 file changed, 59 insertions(+), 20 deletions(-)
@@ -139,6 +139,3 @@ index 223e5873bb..322668c816 100644
  	}
  
  	if (ret)
--- 
-2.29.0
-

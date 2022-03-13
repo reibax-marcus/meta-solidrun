@@ -1,8 +1,7 @@
-From c4da76348bd15009c9e6e5d1e92cc31c2e71fb92 Mon Sep 17 00:00:00 2001
+From cccb0859ab6f64db40b43820e17bf768ebcd2212 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Tue, 21 Feb 2017 12:05:08 -0800
-Subject: [PATCH 0615/1239] env: sf: add support environment storage in SPI
- flash
+Subject: [PATCH] env: sf: add support environment storage in SPI flash
 
 adds support for storage of environment in Serial Flash.
 One of macro's CONFIG_ATF or CONFIG_SPI_ENV needs to be
@@ -12,6 +11,7 @@ device_probe by invoking initr_env after eth_init,
 need to revisit after device_probe is fixed.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  common/board_r.c                | 11 ++++++++++-
  include/configs/thunderx_81xx.h | 18 ++++++++++++++++++
@@ -111,6 +111,3 @@ index baf5085b0f..31889fd4f1 100644
  /** Size of environment in bytes */
  #define CONFIG_ENV_SIZE			0x8000
  /** Starting offset of the environment */
--- 
-2.29.0
-

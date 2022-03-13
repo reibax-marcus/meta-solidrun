@@ -1,9 +1,10 @@
-From 710685991e50fae3f24e795caeac8f83bf2d644e Mon Sep 17 00:00:00 2001
+From eedae370fd591b30cf6e1d50c39812d5a648cb23 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 6 Jun 2018 11:54:58 -0700
-Subject: [PATCH 0780/1239] Minor cleanup.
+Subject: [PATCH] Minor cleanup.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/octeontx.h   | 1 -
  arch/arm/include/asm/arch-octeontx2/atf.h       | 1 +
@@ -84,6 +85,3 @@ index 28d3284994..8b40eb4ad8 100644
  
 -#endif /* __OCTEONTX2_93XX_H__ */
 +#endif /* __OCTEONTX2_96XX_H__ */
--- 
-2.29.0
-

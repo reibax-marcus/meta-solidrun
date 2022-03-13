@@ -1,9 +1,10 @@
-From 6d9459f8ea9e3cff878a11fe1aabd197edd073c3 Mon Sep 17 00:00:00 2001
+From d0d7430eed65ec8af6d7474315442d1cbd1efdf6 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 22 Jun 2017 10:37:52 -0700
-Subject: [PATCH 0640/1239] drivers: i2c: send nack at end of read op
+Subject: [PATCH] drivers: i2c: send nack at end of read op
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/i2c/thunderx_i2c.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -21,6 +22,3 @@ index a5bb30d9a0..310680f6eb 100644
  
  		result = twsi_wait(baseaddr);
  		if (result) {
--- 
-2.29.0
-

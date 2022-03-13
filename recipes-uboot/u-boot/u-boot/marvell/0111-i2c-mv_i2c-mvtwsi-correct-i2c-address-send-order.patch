@@ -1,7 +1,7 @@
-From 9a2d0afaaf38ac541ec4b795b0e051caa7ba6d3a Mon Sep 17 00:00:00 2001
+From 470351825761810ccdc44244f8b8cfa9deabb1d0 Mon Sep 17 00:00:00 2001
 From: Evan Wang <xswang@marvell.com>
 Date: Mon, 17 Apr 2017 18:24:53 +0800
-Subject: [PATCH 0111/1239] i2c: mv_i2c/mvtwsi: correct i2c address send order
+Subject: [PATCH] i2c: mv_i2c/mvtwsi: correct i2c address send order
 
 Currently in marvell I2C drivers, if the offset width
 more than 1 bytes, the lower byte are sent first,
@@ -10,6 +10,7 @@ The patch fixes the issue.
 
 Change-Id: I072cd8a933b9b83968237655233df95d67780499
 Signed-off-by: Evan Wang <xswang@marvell.com>
+
 ---
  drivers/i2c/mv_i2c.c | 6 ++++--
  drivers/i2c/mvtwsi.c | 6 ++++--
@@ -89,6 +90,3 @@ index 0a2dafcec6..69244b890c 100644
  				   tick);
  	/* Send data bytes */
  	while ((status == 0) && (length-- > 0))
--- 
-2.29.0
-

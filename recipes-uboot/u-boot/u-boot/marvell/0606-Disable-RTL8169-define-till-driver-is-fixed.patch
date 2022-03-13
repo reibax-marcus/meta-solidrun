@@ -1,9 +1,10 @@
-From 93755a0854421c215211674c73056e95d54a7b61 Mon Sep 17 00:00:00 2001
+From c7525052837344631e084feb9f06d469a6d278d3 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 6 Feb 2017 11:05:29 -0800
-Subject: [PATCH 0606/1239] Disable RTL8169 define till driver is fixed.
+Subject: [PATCH] Disable RTL8169 define till driver is fixed.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  include/configs/thunderx_81xx.h | 14 +++++++++-----
  include/configs/thunderx_83xx.h |  3 ---
@@ -62,6 +63,3 @@ index 1bcc5b84ab..baf5085b0f 100644
  /* Initial environment variables */
  #define UBOOT_IMG_HEAD_SIZE		0x40
  /* C80000 - 0x40 */
--- 
-2.29.0
-

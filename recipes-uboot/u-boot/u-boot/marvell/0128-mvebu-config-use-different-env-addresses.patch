@@ -1,7 +1,7 @@
-From ada5f7957cd7b690b6637bea88720bc91aba633c Mon Sep 17 00:00:00 2001
+From 6a4fe86409f9ed73f2840bce7975c91d23b42840 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Tue, 26 Jun 2018 16:29:31 +0300
-Subject: [PATCH 0128/1239] mvebu: config: use different env addresses
+Subject: [PATCH] mvebu: config: use different env addresses
 
 The ATF RT services region and TEE overlaps with existing env addresses.
 Because the ATF RT service and TEE region is going to be marked as
@@ -10,6 +10,7 @@ some envs.
 
 Change-Id: Iffdc8eb37539dde5889a3c5d4ae7ab67e0d32469
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  include/configs/mvebu_armada-common.h | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
@@ -33,6 +34,3 @@ index 5b08a4f92d..2df2a5dff3 100644
  					"fdt_high=0xffffffffffffffff\0"	\
  					"hostname=marvell\0"		\
  					"ramdisk_addr_r=0x8000000\0"	\
--- 
-2.29.0
-

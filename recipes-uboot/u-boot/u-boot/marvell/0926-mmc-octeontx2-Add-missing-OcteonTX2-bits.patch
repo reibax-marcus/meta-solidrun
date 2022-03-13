@@ -1,7 +1,7 @@
-From 476d8a375dfd602e8c58c0872a38d65c17097a25 Mon Sep 17 00:00:00 2001
+From 71f9e39bc1ab035d88d94297d7cddf4ad9a53fdb Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 5 Jun 2019 19:38:03 -0700
-Subject: [PATCH 0926/1239] mmc: octeontx2: Add missing OcteonTX2 bits
+Subject: [PATCH] mmc: octeontx2: Add missing OcteonTX2 bits
 
 This adds some bits that are in some registers for OcteonTX2
 in the register dump function.
@@ -11,6 +11,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10556
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 13 ++++++++++++-
  1 file changed, 12 insertions(+), 1 deletion(-)
@@ -60,6 +61,3 @@ index 8986521da6..9126044e1e 100644
  	printf("    60-61: bus_id:              %u\n", emm_cmd.s.bus_id);
  	printf("    59:    cmd_val:             %s\n",
  	       emm_cmd.s.cmd_val ? "yes" : "no");
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 7eee6da61aa80d4e64e1af9ea13867c981aa2d67 Mon Sep 17 00:00:00 2001
+From 400c91e5d79e0267e341a0ac35674136b1d95035 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 17 Dec 2019 14:48:17 +0100
-Subject: [PATCH 1045/1239] armv8: add return code definitions for smccc
+Subject: [PATCH] armv8: add return code definitions for smccc
 
 Definitions taken from Linux
 
@@ -11,6 +11,7 @@ Reviewed-on: https://sj1git1.cavium.com/20586
 Reviewed-by: Yoav Gvili <ygvili@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/include/asm/system.h | 5 +++++
  1 file changed, 5 insertions(+)
@@ -31,6 +32,3 @@ index a1a5e35ef6..8a99ed39da 100644
  void __noreturn psci_system_reset(void);
  void __noreturn psci_system_off(void);
  
--- 
-2.29.0
-

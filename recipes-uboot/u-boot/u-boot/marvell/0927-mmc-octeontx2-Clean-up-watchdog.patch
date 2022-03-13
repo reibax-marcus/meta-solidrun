@@ -1,13 +1,14 @@
-From dcfe64a738ff097d7ab332114f53b934fb3f6f38 Mon Sep 17 00:00:00 2001
+From 7cfdf65a8995964860e6314e151f5a07f3ccfa71 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 5 Jun 2019 19:43:25 -0700
-Subject: [PATCH 0927/1239] mmc: octeontx2: Clean up watchdog
+Subject: [PATCH] mmc: octeontx2: Clean up watchdog
 
 Change-Id: Ifd4916c55406a01f84cc4726ca4418e32214f7f4
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10557
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 15 +++++++--------
  1 file changed, 7 insertions(+), 8 deletions(-)
@@ -59,6 +60,3 @@ index 9126044e1e..3243cd4aaa 100644
  		val = (1 << 26) - 1;
  	}
  	wdog.u = 0;
--- 
-2.29.0
-

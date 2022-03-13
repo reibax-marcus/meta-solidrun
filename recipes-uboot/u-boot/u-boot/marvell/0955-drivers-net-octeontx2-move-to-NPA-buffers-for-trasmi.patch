@@ -1,8 +1,7 @@
-From f984cd23081e1fbe3c4e5a39fc12f84d1ee4ebf8 Mon Sep 17 00:00:00 2001
+From 10c83adf83a4bb23881116e7654a2011c9ee1051 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 29 Aug 2019 18:12:21 -0700
-Subject: [PATCH 0955/1239] drivers: net: octeontx2: move to NPA buffers for
- trasmit
+Subject: [PATCH] drivers: net: octeontx2: move to NPA buffers for trasmit
 
 Move to usage of NPA pool transmit buffers from static 16 buffer
 count. This allows support for larger timeouts on BOOTP and other
@@ -14,6 +13,7 @@ Change-Id: Id8f2f58af438b9b304d62bdb3196ecdf996f2031
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-on: https://sj1git1.cavium.com/15071
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/net/octeontx2/nix.c    | 165 ++++++++++++++++-----------------
  drivers/net/octeontx2/nix.h    |  12 +--
@@ -352,6 +352,3 @@ index 87cb3c40e4..92ddf42ad8 100644
  		printf("%s: Error requesting send queue\n", __func__);
  		return err;
  	}
--- 
-2.29.0
-

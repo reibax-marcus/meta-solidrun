@@ -1,7 +1,7 @@
-From 63cab6fc55ab140ae1e19f037db9b1c907247247 Mon Sep 17 00:00:00 2001
+From b61bd3d30c875f5ca25dd80715b999463a2d9101 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Tue, 21 Jan 2020 10:57:42 +0100
-Subject: [PATCH 1068/1239] mmc: xenon_sdhci: improve voltage switch sequence
+Subject: [PATCH] mmc: xenon_sdhci: improve voltage switch sequence
 
 Until now in the xenon_sdhci driver the voltage switch
 relied on the pad_type selection, which is valid for
@@ -28,6 +28,7 @@ Reviewed-on: https://sj1git1.cavium.com/21960
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Grzegorz Jaszczyk <jaszczyk@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  drivers/mmc/xenon_sdhci.c | 54 ++++++++++++++++++++-------------------
  1 file changed, 28 insertions(+), 26 deletions(-)
@@ -128,6 +129,3 @@ index 3144e13d50..c1f08a5dde 100644
  
  	name = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "marvell,pad-type",
  			   NULL);
--- 
-2.29.0
-

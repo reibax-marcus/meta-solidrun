@@ -1,7 +1,7 @@
-From b01aae0afcc8637e5f15fbc8890b0f7e011cef3e Mon Sep 17 00:00:00 2001
+From 338e35af88d3f70e92cc1649449c052e4bad5ec7 Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Thu, 27 Apr 2017 15:41:59 +0800
-Subject: [PATCH 0097/1239] arm64: a37xx: enable serdes lane 2 mux for SATA PHY
+Subject: [PATCH] arm64: a37xx: enable serdes lane 2 mux for SATA PHY
 
 For Armada3700 A0 chip, comphy serdes lane 2 could be used as
 PHY for SATA or USB3
@@ -13,6 +13,7 @@ This patch fixes to enable serdes lane 2 mux for SATA PHY.
 
 Change-Id: I5245e97a518091fb2f4e62929c347f9a45757822
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  board/Marvell/mvebu_armada-37xx/board.c | 75 +++++++++++++++++++++++++
  1 file changed, 75 insertions(+)
@@ -123,6 +124,3 @@ index bef4e1767c..6d1bea279f 100644
  	return 0;
  }
  
--- 
-2.29.0
-

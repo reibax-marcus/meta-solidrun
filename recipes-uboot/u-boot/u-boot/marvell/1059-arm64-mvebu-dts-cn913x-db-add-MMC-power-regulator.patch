@@ -1,8 +1,7 @@
-From 8ccb770b91bbb9111f6b3684aed6b26cf82f3b9d Mon Sep 17 00:00:00 2001
+From 658520586ab507ede4a0e00c70cb53c3e41e6166 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Thu, 9 Jan 2020 16:32:33 +0100
-Subject: [PATCH 1059/1239] arm64: mvebu: dts: cn913x-db: add MMC power
- regulator
+Subject: [PATCH] arm64: mvebu: dts: cn913x-db: add MMC power regulator
 
 This adds the regulator description and extends the
 AP MMC node in order to enable the highest speed modes
@@ -15,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/21321
 Reviewed-by: Grzegorz Jaszczyk <jaszczyk@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/dts/cn9130-db-A.dts |  8 --------
  arch/arm/dts/cn9130-db-B.dts |  8 --------
@@ -95,6 +95,3 @@ index f844e1705f..2a742eba2e 100644
  /*
   * CP0
   */
--- 
-2.29.0
-

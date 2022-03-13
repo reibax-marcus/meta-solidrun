@@ -1,13 +1,13 @@
-From dc5f207e7e10dcd2c4272711a6118574a37b0f55 Mon Sep 17 00:00:00 2001
+From 96cf1e5c6f49035ebb85a8060d2c420474a12ade Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 29 Jul 2019 15:56:35 +0300
-Subject: [PATCH 0265/1239] scripts: update checkpatch to the current kernel
- version
+Subject: [PATCH] scripts: update checkpatch to the current kernel version
 
 sync checkpatch.pl and accociated files with latest kernel master
 
 Change-Id: I64714a87ace2ecfed880add57320ac8b708bb485
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  scripts/checkpatch.pl            | 397 +++++++++++++++++++++++--------
  scripts/const_structs.checkpatch |  66 ++++-
@@ -1812,6 +1812,3 @@ index 9a058cff49..86b87332b9 100644
  wating||waiting
  wiat||wait
  wether||whether
--- 
-2.29.0
-

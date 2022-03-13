@@ -1,7 +1,7 @@
-From a5f07d2c0559253323228d87e88ff5fb733b988b Mon Sep 17 00:00:00 2001
+From 179d209a729ab2e101c1daf76fd14daa57aa9457 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 13 May 2020 16:36:56 -0700
-Subject: [PATCH 1161/1239] octeontx3: Add support for OcteonTX3 SoC platforms
+Subject: [PATCH] octeontx3: Add support for OcteonTX3 SoC platforms
 
 This patch adds initial support for OcteonTX3.
 For 106xx boards, use octeontx3_106xx_defconfig.
@@ -11,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29489
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/Kconfig                              |    10 +
  arch/arm/Makefile                             |     1 +
@@ -27626,6 +27627,3 @@ index 0000000000..4af40bd740
 +#define CONFIG_CMD_BKOPS_ENABLE
 +
 +#endif /* __OCTEONTX3_106XX_H__ */
--- 
-2.29.0
-

@@ -1,10 +1,10 @@
-From e09b01edc379c0c08854bfced87180c2908e6a5f Mon Sep 17 00:00:00 2001
+From 3818eb5ae80e08027c77caadf004b4292b80722d Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 20 Aug 2018 21:12:27 -0700
-Subject: [PATCH 0788/1239] octeontx: nand: Added nand and bch drivers for
- OcteonTX
+Subject: [PATCH] octeontx: nand: Added nand and bch drivers for OcteonTX
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mtd/nand/octeontx_bch.c      |  431 +++++
  drivers/mtd/nand/octeontx_bch.h      |  163 ++
@@ -3107,6 +3107,3 @@ index 9337f6482e..9bf12cd177 100644
  obj-$(CONFIG_NAND_PXA3XX) += pxa3xx_nand.o
  obj-$(CONFIG_NAND_SPEAR) += spr_nand.o
  obj-$(CONFIG_TEGRA_NAND) += tegra_nand.o
--- 
-2.29.0
-

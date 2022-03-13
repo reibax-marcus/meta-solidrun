@@ -1,8 +1,7 @@
-From c419dd533155d6cbe7d2e8ddf64b7206709eaf98 Mon Sep 17 00:00:00 2001
+From 4fc5c99466fc844f0d8ac42d0eaebc10cb4107f5 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 31 Aug 2017 17:09:54 -0700
-Subject: [PATCH 0700/1239] board: thunderx: set ethaddr environment variables
- correctly
+Subject: [PATCH] board: thunderx: set ethaddr environment variables correctly
 
 early setting in thunderx_parse_phy_info will fail as env
 device is not initialized yet. Set them using
@@ -10,6 +9,7 @@ thunderx_parse_mac_addr in board_late_init which works for
 environment and net subsystem.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  .../include/asm/arch-thunderx/thunderx_fdt.h  |  1 +
  board/cavium/thunderx/fdt.c                   | 68 ++++++++++++++++++-
@@ -147,6 +147,3 @@ index 943a9a2902..85b0a3d50f 100644
  	board = getenv("board");
  
  	/* some times simulator fails to load environment
--- 
-2.29.0
-

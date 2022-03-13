@@ -1,10 +1,11 @@
-From daad83bf56b549c5cc4a48012137dec8c2524f92 Mon Sep 17 00:00:00 2001
+From a94286868d13bb2fae0cf8081cd591fba49a3aa6 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 28 Mar 2018 00:50:18 -0700
-Subject: [PATCH 0806/1239] Signed-off-by: Aaron Williams
- <aaron.williams@cavium.com> net: cavium: nix: Fixed CSR offset file
+Subject: [PATCH] Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+ net: cavium: nix: Fixed CSR offset file
 
 A fix was made to the script to generate the CSR offsets.
+
 ---
  drivers/net/cavium/octeontx2/cavm-csrs-lmt.h |   4 +-
  drivers/net/cavium/octeontx2/cavm-csrs-nix.h | 536 +++++++++----------
@@ -2803,6 +2804,3 @@ index db7c3c6268..59fe6e80d5 100644
  {
  	if (CAVIUM_IS_MODEL(CAVIUM_CN9XXX))
  		return 0x28;
--- 
-2.29.0
-

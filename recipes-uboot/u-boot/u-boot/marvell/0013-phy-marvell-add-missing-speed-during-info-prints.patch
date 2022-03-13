@@ -1,7 +1,7 @@
-From 5a406c361480cf600f30b6384bad931c0e845a91 Mon Sep 17 00:00:00 2001
+From 2d7d304951e12c055f659009bb15b9398408cb42 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Wed, 26 Apr 2017 17:20:47 +0300
-Subject: [PATCH 0013/1239] phy: marvell: add missing speed during info prints
+Subject: [PATCH] phy: marvell: add missing speed during info prints
 
 In get_speed_string() we have an array (speed_strings[])
 which includes all possible speed strings.
@@ -13,6 +13,7 @@ and fixes incorrect printing when speed > 5.0G.
 
 Change-Id: I9900d23595094be321be0c62fcaa88036324568e
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_core.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
@@ -33,6 +34,3 @@ index 3065b87ebc..f3725312b1 100644
  	};
  
  	if (speed < 0 || speed > COMPHY_SPEED_MAX)
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From f4c1f1ceab9dba5335832248e51fab3f15a5b4c9 Mon Sep 17 00:00:00 2001
+From 85263235e4b49cad3a9d41945be17de7346ee950 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 11 Jun 2020 00:50:18 -0700
-Subject: [PATCH 1171/1239] Revert "drivers: mmc: Enable for OcteonTX3
- platforms"
+Subject: [PATCH] Revert "drivers: mmc: Enable for OcteonTX3 platforms"
 
 This reverts commit bcb0cad950d66199a4361de4a7e7111dff0ac6d6.
 
@@ -13,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29830
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/mmc/Kconfig                | 2 +-
  drivers/mmc/octeontx_hsmmc.c       | 7 -------
@@ -65,6 +65,3 @@ index ccfa12b22b..4af40bd740 100644
 -#define MMC_SUPPORTS_TUNING
 +
  #endif /* __OCTEONTX3_106XX_H__ */
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From 6dea8ef076f1459f5bcb7c6112444b448f8c8461 Mon Sep 17 00:00:00 2001
+From 71b0f32bfeb063ad9343fc4d12a6953933ab4492 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Sun, 16 Feb 2020 23:24:48 +0100
-Subject: [PATCH 1121/1239] arm64: mvebu: soc: use smc calls for soc type and
- revision id reading
+Subject: [PATCH] arm64: mvebu: soc: use smc calls for soc type and revision id
+ reading
 
 This change will be needed after dfx register set will be secured by the
 trusted firmware.
@@ -12,6 +12,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/25051
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/soc.c | 19 ++++++++++++++++---
  1 file changed, 16 insertions(+), 3 deletions(-)
@@ -52,6 +53,3 @@ index a3f3fa93bb..4accabe20c 100644
  	return 0;
  }
  
--- 
-2.29.0
-

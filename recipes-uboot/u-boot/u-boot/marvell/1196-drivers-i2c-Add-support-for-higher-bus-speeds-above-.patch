@@ -1,8 +1,7 @@
-From 285bb9badfcdfd06b1b2b2b5e690f327ae2cabb1 Mon Sep 17 00:00:00 2001
+From 29b9a5b6d0d7b5180796a7ee4b8f2eb535e19033 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Tue, 30 Jun 2020 19:56:10 -0700
-Subject: [PATCH 1196/1239] drivers: i2c: Add support for higher bus speeds
- above 400KHz
+Subject: [PATCH] drivers: i2c: Add support for higher bus speeds above 400KHz
 
 Set HS_MODE and use SCLK as reference clock for bus speeds greater
 than 400KHz.
@@ -12,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32334
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/i2c/octeontx_i2c.c | 101 ++++++++++++++++++++++++++++++++-----
  1 file changed, 87 insertions(+), 14 deletions(-)
@@ -185,6 +185,3 @@ index 7d462ce28c..7a560e8eb0 100644
  	sw_twsi.u = 0;
  	sw_twsi.s.v = 1;		/* Clear valid bit */
  	sw_twsi.s.op = TWSI_SW_EOP_IA;	/* See EOP field */
--- 
-2.29.0
-

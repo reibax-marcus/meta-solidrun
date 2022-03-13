@@ -1,14 +1,14 @@
-From b908fd3804ea775d2daa472175bc54c13f3eb158 Mon Sep 17 00:00:00 2001
+From 059104e776280a3b068aba1ec90ae334e78fa537 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 16 Aug 2018 17:24:19 -0700
-Subject: [PATCH 0817/1239] net: octeontx2: add lf/af shutdown functions for
- nix and npa
+Subject: [PATCH] net: octeontx2: add lf/af shutdown functions for nix and npa
 
 Add support for shutdown of all nix/npa lf/af blocks.
 Disables all queues, contexts, memory for pool/aura(NPA)
 or SQ/RQ/CQ (NIX) and resets lf/af blocks.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx2/nix.c    |   4 +-
  drivers/net/cavium/octeontx2/nix.h    |   4 +
@@ -454,6 +454,3 @@ index 15ff6a0d19..1b01b63980 100644
  	return 0;
  }
  
--- 
-2.29.0
-

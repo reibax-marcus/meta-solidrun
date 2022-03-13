@@ -1,12 +1,13 @@
-From 064a1b1f346e341a5c064e28eb80814ca9c4e810 Mon Sep 17 00:00:00 2001
+From 48a7ff61652b12fc5e996846b08b6ff8c06af313 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Fri, 21 Dec 2018 11:54:57 -0800
-Subject: [PATCH 0856/1239] Use 100KHz for tclk on T9x SOC.
+Subject: [PATCH] Use 100KHz for tclk on T9x SOC.
 
 Change-Id: I93e6b570473b7e2d448da9014744e2cd22db5d01
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/1471
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+
 ---
  drivers/i2c/octeontx_i2c.c | 24 +++++++++++++++++++++++-
  1 file changed, 23 insertions(+), 1 deletion(-)
@@ -60,6 +61,3 @@ index b403f09b37..79f0b84731 100644
  	if (m_div >= 16)
  		return -1;
  
--- 
-2.29.0
-

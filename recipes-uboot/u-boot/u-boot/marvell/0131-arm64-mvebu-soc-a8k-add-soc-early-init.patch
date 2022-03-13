@@ -1,7 +1,7 @@
-From 660ea522ae2bd0f5e5300aa52f936c346508470f Mon Sep 17 00:00:00 2001
+From c584e460e4a645f51b3871cf8aa186404b615db6 Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Wed, 10 May 2017 12:12:35 +0300
-Subject: [PATCH 0131/1239] arm64: mvebu: soc: a8k: add soc early init
+Subject: [PATCH] arm64: mvebu: soc: a8k: add soc early init
 
 SoC early init is required in order to print the
 SoC information at the beginning of bootflow.
@@ -11,6 +11,7 @@ sample-at-reset register init.
 
 Change-Id: I5728a8493dd35835174ce41a1bf71c32956bbc7d
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/soc.c    | 11 +++++++++++
  board/Marvell/mvebu_armada-8k/board.c |  9 ++++++++-
@@ -67,6 +68,3 @@ index 30a6fb55ca..aa6b9126f1 100644
  
  	return 0;
  }
--- 
-2.29.0
-

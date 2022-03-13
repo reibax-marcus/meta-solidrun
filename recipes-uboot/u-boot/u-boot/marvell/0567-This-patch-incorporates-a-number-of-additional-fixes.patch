@@ -1,8 +1,7 @@
-From 0bf07607fcf85de5f4a74f0a66c362617c30ee62 Mon Sep 17 00:00:00 2001
+From 91eaeebc9cb3143034d89462a52aba12eb5b44fe Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 14 Nov 2016 06:52:26 -0800
-Subject: [PATCH 0567/1239] This patch incorporates a number of additional
- fixes.
+Subject: [PATCH] This patch incorporates a number of additional fixes.
 
 1. mmc_switch_dev was using the wrong bus_width value for programming
    the MIO_EMM_SWITCH.bus_width field.
@@ -12,6 +11,7 @@ Subject: [PATCH 0567/1239] This patch incorporates a number of additional
 5. Got rid of mmc_set_dev since it is not really supported and breaks things.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 94 +++++++++++++++++++++++-----------------
  1 file changed, 55 insertions(+), 39 deletions(-)
@@ -283,6 +283,3 @@ index 6bc24a7cbf..7cfdd269a3 100644
  	return err;
  }
  
--- 
-2.29.0
-

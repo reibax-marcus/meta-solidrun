@@ -1,10 +1,10 @@
-From b1390993fac2c26355977ae3b48a2fee4f3b37d8 Mon Sep 17 00:00:00 2001
+From 87925d5ae7b522ca68f3537eec7cf4301190e56f Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 13 May 2016 08:59:16 -0700
-Subject: [PATCH 0430/1239] Update BGX_SPUX_STATUS1.rcv_lnk only when the value
- is 0
+Subject: [PATCH] Update BGX_SPUX_STATUS1.rcv_lnk only when the value is 0
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
@@ -23,6 +23,3 @@ index 3d0afdaa60..3d919dd2ec 100644
  	if (bgx_poll_reg(bgx, lmacid, BGX_SPUX_STATUS1,
  			 SPU_STATUS1_RCV_LNK, false)) {
  		printf("SPU receive link down\n");
--- 
-2.29.0
-

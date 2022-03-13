@@ -1,7 +1,7 @@
-From 1e451f1604ea85db4408f94c45e0b814b4282a91 Mon Sep 17 00:00:00 2001
+From 766dcf0aacf0c99838fd0574da63e29ed34ccd95 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 Nov 2015 20:39:04 -0800
-Subject: [PATCH 0352/1239] PCI EA: Add support for future use
+Subject: [PATCH] PCI EA: Add support for future use
 
 ---
  board/cavium/thunderx/pcie.c | 247 +++++++++++++++++++++++++++++++++++
@@ -286,6 +286,3 @@ index 7e45c45067..7723c5f17d 100644
 +
 +	return 0;
 +}
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From ae1f971be44e1911b39f087d15d9171db2067a93 Mon Sep 17 00:00:00 2001
+From a13bbf9db08eceaeb1f6752c9d1066f4b7c1b27c Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Mon, 9 Apr 2018 09:45:46 +0800
-Subject: [PATCH 0169/1239] arm64: dts: a8k: update SPI max frequency
+Subject: [PATCH] arm64: dts: a8k: update SPI max frequency
 
 This patch sets SPI controller's frequency to its maximum stable
 value(50MHz), and sets SPI flash frequency to its maximum stable
@@ -9,6 +9,7 @@ value(108MHz) to get better performance.
 
 Change-Id: Iaa797705863b708768b6b345e713696c024ce6ee
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  arch/arm/dts/armada-7020-amc.dts   | 2 +-
  arch/arm/dts/armada-7040-db-B.dts  | 2 +-
@@ -228,6 +229,3 @@ index 86dec35db7..1381910431 100644
  				status = "disabled";
  			};
  
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From fbc6e214ab50b96ac2bed7cc4c5901f596cb463b Mon Sep 17 00:00:00 2001
+From 13e962241c697f0300486bd6df12c9742f8be8de Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 6 Nov 2019 08:43:33 -0800
-Subject: [PATCH 0981/1239] drivers: i2c: octeontx: fix incorrect tclk
- calculation
+Subject: [PATCH] drivers: i2c: octeontx: fix incorrect tclk calculation
 
 For OcteonTX, incorrect brace indentation leads to wrong
 calculation of TWSI controller clock. Fix with proper
@@ -13,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/18284
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/i2c/octeontx_i2c.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -37,6 +37,3 @@ index 7c090057d6..04c8199ed4 100644
  
  	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.
  	 * Compute the clocks M divider based on the SCLK.
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 82222cbd2bcabb01cdf5c25c96336d52e46f8fff Mon Sep 17 00:00:00 2001
+From 5e0aac7b4e7a0a880982121d20f4db51b120a0ec Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Tue, 17 Dec 2019 20:56:25 -0800
-Subject: [PATCH 1037/1239] Add PCIe console support
+Subject: [PATCH] Add PCIe console support
 
 This enables PCIe console support for the SFF83XX board.
 
@@ -10,6 +10,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20467
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/lock.h | 139 ++++++++++++++++++++++
  board/Marvell/octeontx/board.c            | 121 ++++++++++++++++++-
@@ -336,6 +337,3 @@ index fe0f1873b2..c412ce1d15 100644
  CONFIG_CONSOLE_MUX=y
  CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 +CONFIG_OCTEONTX_SERIAL_PCIE_CONSOLE=y
--- 
-2.29.0
-

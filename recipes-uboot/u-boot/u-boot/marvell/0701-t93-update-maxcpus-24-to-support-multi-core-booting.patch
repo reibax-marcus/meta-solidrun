@@ -1,10 +1,10 @@
-From 634b4e94be3def53867477327b7e196450e03f25 Mon Sep 17 00:00:00 2001
+From 3371f4cac196eb7ef3c5a7bc948e516a4713122b Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Thu, 31 Aug 2017 11:08:55 -0700
-Subject: [PATCH 0701/1239] t93 : update maxcpus = 24 to support multi core
- booting
+Subject: [PATCH] t93 : update maxcpus = 24 to support multi core booting
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  include/configs/thunderx_93xx.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -22,6 +22,3 @@ index 6c16676cb0..09d0232c26 100644
  					"root=/dev/sda2 coherent_pool=16M"
  
  /** Store U-Boot version in "ver" environment variable */
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 6af3d25af1f0431ec1f181099cf9948eba541cc9 Mon Sep 17 00:00:00 2001
+From 371054e34b4cdea46345a3356c07611ab8053a19 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 21 Dec 2018 12:05:52 -0800
-Subject: [PATCH 0858/1239] 96xx: configs: add marvell vitesse phy support
+Subject: [PATCH] 96xx: configs: add marvell vitesse phy support
 
 This patch enables mdio command and phy driver support for
 vitesse and marvell.
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/1473
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  configs/octeontx2_96xx_defconfig | 3 +++
  drivers/net/octeontx2/Makefile   | 3 ++-
@@ -42,6 +43,3 @@ index bfe4a0c328..21d00320a0 100644
 -				rvu_af.o rvu_common.o
 +				rvu_af.o rvu_common.o octeontx_smi.o
 +
--- 
-2.29.0
-

@@ -1,9 +1,10 @@
-From 083ce5d0fa16a9b5878e354bfe64e23bdc6e0ddc Mon Sep 17 00:00:00 2001
+From d4596934cd9f01bbc0a03ac95534f528d91e7f44 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 14 Sep 2016 17:23:02 -0700
-Subject: [PATCH 0527/1239] Added support for the Marvell PHY.
+Subject: [PATCH] Added support for the Marvell PHY.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  include/configs/thunderx_81xx.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -21,6 +22,3 @@ index 24476ca54f..37e5c7dce8 100644
  
  /** Command line configuration */
  #define CONFIG_MENU
--- 
-2.29.0
-

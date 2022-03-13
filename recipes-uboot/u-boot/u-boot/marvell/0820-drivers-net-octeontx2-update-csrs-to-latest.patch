@@ -1,9 +1,10 @@
-From 06c0257306ac4f534713c223db00035fdd2203e5 Mon Sep 17 00:00:00 2001
+From 72a1eebc28418cbc0c7f179c7a9e4b6ebadc1dcd Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 13 Sep 2018 15:12:23 -0700
-Subject: [PATCH 0820/1239] drivers: net: octeontx2: update csrs to latest
+Subject: [PATCH] drivers: net: octeontx2: update csrs to latest
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx2/cavm-csrs-cgx.h | 1994 ++++++++---------
  drivers/net/cavium/octeontx2/cavm-csrs-lmt.h |   47 +-
@@ -10134,6 +10135,3 @@ index cb796bc351..813c0fef88 100644
   */
  union cavm_rvu_vf_msix_vecx_ctl {
  	u64 u;
--- 
-2.29.0
-

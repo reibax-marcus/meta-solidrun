@@ -1,12 +1,13 @@
-From 4d387173336e013d3d0389e652847ac02b508275 Mon Sep 17 00:00:00 2001
+From 52099d6bbbde3c8e0a026347f85837797304fef1 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <suneel.garapati@cavium.com>
 Date: Wed, 11 Jan 2017 17:54:23 -0800
-Subject: [PATCH 0595/1239] cmd: bootimgup: validate boot image before update
+Subject: [PATCH] cmd: bootimgup: validate boot image before update
 
 use cavium flash header and bdk magic string to validate
 image before flashing to device.
 
 Signed-off-by: Suneel Garapati <suneel.garapati@cavium.com>
+
 ---
  cmd/bootimgup.c | 20 ++++++++++++++++++++
  1 file changed, 20 insertions(+)
@@ -49,6 +50,3 @@ index d26a2dd522..f120a907b5 100644
  	/* The remaining commands require a selected device */
  	if (!flash) {
  		debug("No SPI flash selected.  Executing 'sf probe'\n");
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From a404b98c80e9513978bc97cc16a7b7ffd024aaff Mon Sep 17 00:00:00 2001
+From 29b1a29aeaf61f617e7c0c1b1bb1f8fcec4b76ad Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Mon, 24 Apr 2017 11:33:33 +0300
-Subject: [PATCH 0115/1239] cmd: mvebu: initial support for SAR infrastructure
+Subject: [PATCH] cmd: mvebu: initial support for SAR infrastructure
 
 Introduce sar infrastructure and sar/SatR cmd.
 SAR or SatR stands for sample at reset.
@@ -16,6 +16,7 @@ for SatR cmd from uboot-2015 but gradually move to sar cmd.
 
 Change-Id: Ic2c50712d2a7b97dcbaa37ae122e17795bd37f19
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  board/Marvell/common/Kconfig  |   9 +
  board/Marvell/common/Makefile |   1 +
@@ -852,6 +853,3 @@ index 74430c8b2f..ae24245e67 100644
  };
  
  const char *fdtdec_get_compatible(enum fdt_compat_id id)
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 8bc56ed2fba2cc00c35510e337719e2c43439c3d Mon Sep 17 00:00:00 2001
+From 94ad1c6e6b742084b78778eaede5e30a8ee83a6b Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 23 Feb 2018 11:51:07 -0800
-Subject: [PATCH 0758/1239] drivers: ahci: fix delay in bootup for
- sff8104/nas8104
+Subject: [PATCH] drivers: ahci: fix delay in bootup for sff8104/nas8104
 
 These boards have port multipliers and with generic ahci
 driver, device is always present on port 0 and there is no
@@ -12,6 +11,7 @@ name to not wait for status on spinup of device.
 fix for bug #31967
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/thunderx.c | 19 +++++++++----------
  drivers/ata/ahci.c               | 11 +++++++++++
@@ -100,6 +100,3 @@ index 24f3a65357..56cfd8dbcd 100644
  	/*
  	 * Make sure interface is not busy based on error and status
  	 * information from task file data register before proceeding
--- 
-2.29.0
-

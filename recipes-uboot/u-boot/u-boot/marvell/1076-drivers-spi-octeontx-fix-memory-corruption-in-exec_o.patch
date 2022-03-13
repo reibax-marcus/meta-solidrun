@@ -1,8 +1,7 @@
-From b6d87f7297434969401014a4fd99b3b6e038839c Mon Sep 17 00:00:00 2001
+From 50ce3654e7de1f6ba54389931f75f675d21548e9 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Thu, 30 Jan 2020 23:40:00 -0800
-Subject: [PATCH 1076/1239] drivers: spi: octeontx: fix memory corruption in
- exec_op
+Subject: [PATCH] drivers: spi: octeontx: fix memory corruption in exec_op
 
 Using fixed length buffer in octeontx_spi_exec_op for address
 and dummy is incorrect as dummy byte count is variable length.
@@ -13,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/22633
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/spi/octeontx_spi.c | 16 +++++++++++-----
  1 file changed, 11 insertions(+), 5 deletions(-)
@@ -67,6 +67,3 @@ index 8214235f3f..e2404b2170 100644
  					flags);
  		if (ret < 0)
  			return ret;
--- 
-2.29.0
-

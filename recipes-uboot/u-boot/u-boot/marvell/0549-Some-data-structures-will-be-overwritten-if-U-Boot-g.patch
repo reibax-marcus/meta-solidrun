@@ -1,14 +1,15 @@
-From b4e00f76e8e4126038cff4deadad6269ae76b1e9 Mon Sep 17 00:00:00 2001
+From 2e07f1f3942e6fdc6458739ad30ad5ea9518d4d5 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Sun, 30 Oct 2016 21:54:44 -0700
-Subject: [PATCH 0549/1239] Some data structures will be overwritten if U-Boot
- grows near 512K.
+Subject: [PATCH] Some data structures will be overwritten if U-Boot grows near
+ 512K.
 
 This moves the stack and the CPU release from 512K - 16bytes to 1M - 16 bytes
 since it is easy to hit this location as U-Boot grows.  Ideally these will be
 moved elsewhere though this can be done at some later time.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  include/configs/thunderx_81xx.h | 8 +++++---
  1 file changed, 5 insertions(+), 3 deletions(-)
@@ -46,6 +47,3 @@ index 37e5c7dce8..27fddd9ca2 100644
  /** Starting offset of the environment */
  #define CONFIG_ENV_OFFSET		0xf00000
  
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 460d2e546e5fb6f5e949613c6a2d8dae0ba93811 Mon Sep 17 00:00:00 2001
+From fc41bb510e5b6f902cc4d8e81c88803ae333bd02 Mon Sep 17 00:00:00 2001
 From: Victor Gu <xigu@marvell.com>
 Date: Mon, 5 Jun 2017 19:08:15 +0800
-Subject: [PATCH 0079/1239] arm64: dts: a7020: add support for A7020 AMC board
+Subject: [PATCH] arm64: dts: a7020: add support for A7020 AMC board
 
 Add Armada 7020 AMC board configuration DTS file.
 The supported IO devices such as SATA, PCIe x4, USB2 host,
@@ -15,6 +15,7 @@ In AMC board, the SMI is connectted to main switch board.
 
 Change-Id: I19c7d9bd0f168c473875b09e05092ede79ada7ac
 Signed-off-by: Victor Gu <xigu@marvell.com>
+
 ---
  arch/arm/dts/Makefile            |   1 +
  arch/arm/dts/armada-7020-amc.dts | 217 +++++++++++++++++++++++++++++++
@@ -256,6 +257,3 @@ index 0000000000..f902d17459
 +	phy = <&phy1>;
 +	phy-mode = "rgmii-id";
 +};
--- 
-2.29.0
-

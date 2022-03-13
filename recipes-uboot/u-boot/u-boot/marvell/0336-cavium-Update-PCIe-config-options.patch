@@ -1,7 +1,7 @@
-From 3495a366ff927fcef9251482230ef693b4df5032 Mon Sep 17 00:00:00 2001
+From af377892c40ae70cd642b78b9964e2b7488359a2 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 16:46:05 -0800
-Subject: [PATCH 0336/1239] cavium: Update PCIe config options
+Subject: [PATCH] cavium: Update PCIe config options
 
 ---
  include/configs/thunderx_88xx.h | 3 ++-
@@ -21,6 +21,3 @@ index 8eed9f99c9..b11d4d324d 100644
  
  #define CONFIG_SYS_CACHELINE_SIZE 128
  
--- 
-2.29.0
-

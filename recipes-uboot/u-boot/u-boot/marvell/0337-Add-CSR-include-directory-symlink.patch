@@ -1,7 +1,7 @@
-From 9d6f275fae10569e93eee8731d7e1054b1132e89 Mon Sep 17 00:00:00 2001
+From 801fbd87fb3ac10f87df1080669bdf55ffa8cfe0 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 16:47:28 -0800
-Subject: [PATCH 0337/1239] Add CSR include directory symlink
+Subject: [PATCH] Add CSR include directory symlink
 
 ---
  csr | 1 +
@@ -16,6 +16,3 @@ index 0000000000..5702a41e9a
 @@ -0,0 +1 @@
 +../../csr
 \ No newline at end of file
--- 
-2.29.0
-

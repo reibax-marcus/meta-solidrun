@@ -1,7 +1,7 @@
-From af0a25df5a92180c8ee4d642718cb2967a5b3de3 Mon Sep 17 00:00:00 2001
+From 893a9ec7441ec4112dc01de8d61d19b5759ebdae Mon Sep 17 00:00:00 2001
 From: selvam venkatachalam <selvamv@marvell.com>
 Date: Thu, 9 Jul 2020 17:12:09 -0400
-Subject: [PATCH 1191/1239] U-boot will use SMC calls for SERDES diags
+Subject: [PATCH] U-boot will use SMC calls for SERDES diags
 
 with this change uboot will use the SMC call for SERDES diags.
 support for cgx calls to do SERDES diags is removed.
@@ -10,6 +10,7 @@ Change-Id: If8e52a125fbd3335bc4f4f49cc50c31f5c4ecb75
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/31717
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/smc-id.h |  5 ++
  cmd/marvell/octeontx2_qlm_cmds.c             | 75 +++++++++++++++++---
@@ -162,6 +163,3 @@ index caa40abcbf..3d29a20b76 100644
  	return CMD_RET_SUCCESS;
  }
  
--- 
-2.29.0
-

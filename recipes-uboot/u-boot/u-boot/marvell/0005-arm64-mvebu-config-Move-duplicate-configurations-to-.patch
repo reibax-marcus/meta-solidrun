@@ -1,8 +1,8 @@
-From 98dde97f6604b22c105c86b7812b4587038c3f10 Mon Sep 17 00:00:00 2001
+From 1ba3197547f1a00b366c3cafbb47237d4899c6c1 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 6 Aug 2017 15:13:49 +0300
-Subject: [PATCH 0005/1239] arm64: mvebu: config: Move duplicate configurations
- to a common file
+Subject: [PATCH] arm64: mvebu: config: Move duplicate configurations to a
+ common file
 
 Move duplicate settings from configuration files of A8K and
 A37xx files to a common file - mvebu_armada-common.h.
@@ -18,6 +18,7 @@ Signed-off-by: Ken Ma <make@marvell.com>
 
 [Adjust to mainline U-Boot]
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  include/configs/mvebu_armada-37xx.h   |  93 ++----------------
  include/configs/mvebu_armada-8k.h     |  77 +--------------
@@ -384,6 +385,3 @@ index 0000000000..44c1d13ecf
 +#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
 +
 +#endif /* _CONFIG_MVEBU_ARMADA_H */
--- 
-2.29.0
-

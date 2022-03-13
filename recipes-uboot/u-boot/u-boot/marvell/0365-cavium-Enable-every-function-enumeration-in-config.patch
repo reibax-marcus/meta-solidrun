@@ -1,7 +1,7 @@
-From 0476b2ebdd1fd2ef6f9baa74b4d549f5eb16de15 Mon Sep 17 00:00:00 2001
+From 3a95c31e8c1fe00742c506c90ae36d29f3713965 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 9 Nov 2015 14:20:14 -0800
-Subject: [PATCH 0365/1239] cavium: Enable every function enumeration in config
+Subject: [PATCH] cavium: Enable every function enumeration in config
 
 ---
  include/configs/thunderx_88xx.h | 1 +
@@ -19,6 +19,3 @@ index 42b1f69d6c..164b68d2b6 100644
  #define CONFIG_THUNDERX_ECAMS 8
  #define CONFIG_THUNDERX_RCS 12
  
--- 
-2.29.0
-

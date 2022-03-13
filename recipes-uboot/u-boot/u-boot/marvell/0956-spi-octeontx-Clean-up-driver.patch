@@ -1,7 +1,7 @@
-From b89a6e1d7c3326a3a7cdad1ab3bc70323d4a018e Mon Sep 17 00:00:00 2001
+From 1a95d13e56eec705c55dea4ff35495105548adfd Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Tue, 3 Sep 2019 19:13:49 -0700
-Subject: [PATCH 0956/1239] spi: octeontx: Clean up driver
+Subject: [PATCH] spi: octeontx: Clean up driver
 
 This performs some minor cleanup of the driver.
 
@@ -17,6 +17,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/15246
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/spi/octeontx_spi.c | 270 +++++++++++++++++--------------------
  1 file changed, 123 insertions(+), 147 deletions(-)
@@ -439,6 +440,3 @@ index 9fbbdef467..881371dd15
  	.ops			= &octeontx_spi_ops,
  };
 -
--- 
-2.29.0
-

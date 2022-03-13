@@ -1,11 +1,12 @@
-From 601bb1a71992fdcb9697ddb35691a6e7fecaec6d Mon Sep 17 00:00:00 2001
+From 408735d0e987ada88f39f15249aeceb59307e4b5 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 16 May 2016 20:39:07 -0400
-Subject: [PATCH 0451/1239] gpio: thunderx: Add ThunderX GPIO driver
+Subject: [PATCH] gpio: thunderx: Add ThunderX GPIO driver
 
 This commit adds a DM-based GPIO driver for ThunderX SoCs
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/gpio/Kconfig         |   7 ++
  drivers/gpio/Makefile        |   1 +
@@ -214,6 +215,3 @@ index 0000000000..148c19e9f2
 +	.ops	= &thunderx_gpio_ops,
 +	.flags	= DM_FLAG_PRE_RELOC,
 +};
--- 
-2.29.0
-

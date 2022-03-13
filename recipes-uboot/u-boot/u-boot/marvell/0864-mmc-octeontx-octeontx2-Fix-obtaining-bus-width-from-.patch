@@ -1,8 +1,8 @@
-From ad852ba18e630aff5b86e7d8d4f91b99c07c68da Mon Sep 17 00:00:00 2001
+From d15871e9c40f387a4e779a116b2747bd117a1479 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Thu, 27 Dec 2018 17:15:20 -0800
-Subject: [PATCH 0864/1239] mmc: octeontx/octeontx2: Fix obtaining bus width
- from device tree
+Subject: [PATCH] mmc: octeontx/octeontx2: Fix obtaining bus width from device
+ tree
 
 The OcteonTX driver was using the old obsolete parameter
 "cavium,bus-max-width" instead of "bus-width" in the device tree to
@@ -18,6 +18,7 @@ Tested-by: sa_ip-sw-jenkins
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/mmc/octeontx_mmc.c | 43 +++++++++++++++++++-------------------
  1 file changed, 21 insertions(+), 22 deletions(-)
@@ -170,6 +171,3 @@ index bd05b16c1e..a7b8802a75 100644
  		if (slot->mmc->bus_width >= 4)
  			slot->cfg.host_caps |= MMC_MODE_4BIT;
  		if (slot->mmc->bus_width == 8)
--- 
-2.29.0
-

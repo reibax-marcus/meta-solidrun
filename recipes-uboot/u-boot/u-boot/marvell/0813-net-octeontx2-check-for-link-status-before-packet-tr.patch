@@ -1,14 +1,14 @@
-From 57d94d48e8c578ade6b4a5cb9e3ade815d0a8753 Mon Sep 17 00:00:00 2001
+From 78992c440aa9c722bfd6461894bbcd3480acc829 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 9 Aug 2018 14:40:49 -0700
-Subject: [PATCH 0813/1239] net: octeontx2: check for link status before packet
- transfer
+Subject: [PATCH] net: octeontx2: check for link status before packet transfer
 
 lmac link status should be checked in init call from network
 stack, if not enabled, return error to avoid packet transfer.
 Add error checks on the atf interface calls.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx2/cgx.c | 46 +++++++++++++++++++++++++-----
  drivers/net/cavium/octeontx2/cgx.h |  2 ++
@@ -137,6 +137,3 @@ index 19b8def90f..7e1ea4e213 100644
  	cgx_lmac_rx_tx_enable(nix->lmac, nix->lmac->lmac_id, true);
  
  	return 0;
--- 
-2.29.0
-

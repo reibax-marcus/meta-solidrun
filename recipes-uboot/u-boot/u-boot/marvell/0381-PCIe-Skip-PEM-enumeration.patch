@@ -1,12 +1,13 @@
-From 84f23f58fa06867e6f22523a6df4a84e49cdf515 Mon Sep 17 00:00:00 2001
+From 803d3a67053a95d14c426e4cfb187706dfb2d571 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 20 Feb 2016 13:39:55 -0800
-Subject: [PATCH 0381/1239] PCIe: Skip PEM enumeration
+Subject: [PATCH] PCIe: Skip PEM enumeration
 
 Don't enumerate PEMs and devices under them
 since it might lead to very long delays
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  board/cavium/thunderx/pcie.c | 7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)
@@ -29,6 +30,3 @@ index c897a3f472..f5de550406 100644
  }
  
  int pci_print_dev(struct pci_controller *hose, pci_dev_t dev)
--- 
-2.29.0
-

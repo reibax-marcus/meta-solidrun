@@ -1,8 +1,7 @@
-From 138e39fbab667036af721a89e37a4067683e9d7f Mon Sep 17 00:00:00 2001
+From a582c38e5bbd34c357ea39a1fd2b1d8ff9646fec Mon Sep 17 00:00:00 2001
 From: zachary zhang <zhangzg@marvell.com>
 Date: Wed, 9 Aug 2017 18:17:03 +0800
-Subject: [PATCH 0118/1239] efuse: mvebu: add DM and dts support for efuse
- driver
+Subject: [PATCH] efuse: mvebu: add DM and dts support for efuse driver
 
 Efuse feature is fixed with hardcoded for a38x efuse, which is not
 flexible for different mvebu SoC chips.
@@ -12,6 +11,7 @@ Besides, it removes those older mvebu fuse codes.
 
 Change-Id: I4591f8356f9ed0e82e36c0a20911d66a4cb1d486
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/dts/armada-388-gp.dts                |   5 +
  arch/arm/dts/armada-38x.dtsi                  |   8 +
@@ -612,6 +612,3 @@ index 0000000000..671f6a06bd
 +int mvebu_lock_efuse(int nr);
 +
 +#endif
--- 
-2.29.0
-

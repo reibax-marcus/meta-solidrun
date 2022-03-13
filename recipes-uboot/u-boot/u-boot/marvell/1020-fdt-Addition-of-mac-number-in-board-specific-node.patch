@@ -1,7 +1,7 @@
-From e91245981fe0c7e5d0e0719529ab647b2a76efda Mon Sep 17 00:00:00 2001
+From 1861a0532b61e2de833b0de4c0cf7ae17c260ab2 Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Tue, 3 Dec 2019 13:00:05 -0800
-Subject: [PATCH 1020/1239] fdt: Addition of mac number in board specific node
+Subject: [PATCH] fdt: Addition of mac number in board specific node
 
 mac number is a property that is inherited from cavium,bdk node
 to new node octeontx_brd.
@@ -17,6 +17,7 @@ Signed-off-by: Sujeet Baranwal <sbaranwal@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19763
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx2/board-fdt.c | 82 +++++++++--------------------
  1 file changed, 26 insertions(+), 56 deletions(-)
@@ -141,6 +142,3 @@ index 5e7f6a6ce6..c975bcdf71 100644
  /**
   * Return the FDT base address that was passed by ATF
   *
--- 
-2.29.0
-

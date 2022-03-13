@@ -1,13 +1,14 @@
-From d0463f5620e120b78edb5a0caf0bb103defdffb2 Mon Sep 17 00:00:00 2001
+From 21b00ffe1f203c321a8f9f8d8aa6ee8c49601314 Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Sun, 25 Jun 2017 11:55:13 +0300
-Subject: [PATCH 0242/1239] rtc: marvell-rtc: introduce RTC driver
+Subject: [PATCH] rtc: marvell-rtc: introduce RTC driver
 
 Add DM driver support for a8k RTC
 Add device tree binding documentation
 
 Change-Id: Id2166380c32d8f67a97a453e94dbcd19bf80e12b
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+
 ---
  doc/device-tree-bindings/rtc/marvell-rtc.txt |  23 +++
  drivers/rtc/Kconfig                          |   9 +
@@ -345,6 +346,3 @@ index 1b2d32db9f..8fc03e286e 100644
 +#endif
 +
  #endif /* _CONFIG_MVEBU_ARMADA_8K_H */
--- 
-2.29.0
-

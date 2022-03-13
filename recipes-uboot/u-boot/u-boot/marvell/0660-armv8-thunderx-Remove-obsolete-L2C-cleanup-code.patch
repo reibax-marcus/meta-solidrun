@@ -1,11 +1,12 @@
-From cfa8ce5687250d6082c43fd8a53887057c47ea10 Mon Sep 17 00:00:00 2001
+From f9d70ecb6c7afc5e3d8c38b75b002fdd29044911 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 26 Jul 2017 16:58:37 +0300
-Subject: [PATCH 0660/1239] armv8: thunderx: Remove obsolete L2C cleanup code
+Subject: [PATCH] armv8: thunderx: Remove obsolete L2C cleanup code
 
 This is performed in ATF, so the code in question is redundant
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  arch/arm/mach-thunderx/lowlevel_init.S | 41 --------------------------
  1 file changed, 41 deletions(-)
@@ -62,6 +63,3 @@ index 458842497c..2933ece17c 100644
  	mov	lr, x29			/* Restore LR */
  	ret
  ENDPROC(lowlevel_init)
--- 
-2.29.0
-

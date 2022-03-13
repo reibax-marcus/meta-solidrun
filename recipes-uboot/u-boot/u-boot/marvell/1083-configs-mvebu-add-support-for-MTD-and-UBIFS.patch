@@ -1,13 +1,14 @@
-From 9ef5d91d499605af848a2170a29bce9162e06b2f Mon Sep 17 00:00:00 2001
+From a8ba455b99ed2a9be889542a0c67078b53e7c8ec Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 2 Feb 2020 14:46:09 +0200
-Subject: [PATCH 1083/1239] configs/mvebu: add support for MTD and UBIFS
+Subject: [PATCH] configs/mvebu: add support for MTD and UBIFS
 
 Change-Id: I346ec9936564023df7a9bd6e9b4c0c581dea90ea
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/22736
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+
 ---
  configs/mvebu_db_armada8k_defconfig | 3 +++
  configs/mvebu_db_cn91xx_defconfig   | 3 +++
@@ -55,6 +56,3 @@ index 7b3e3b4b56..fbf4f8f2ea 100644
  CONFIG_NAND=y
  CONFIG_NAND_PXA3XX=y
  CONFIG_SPI_FLASH=y
--- 
-2.29.0
-

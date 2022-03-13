@@ -1,9 +1,10 @@
-From 2a42e2527d885af0ceeb51724228217f0c36240a Mon Sep 17 00:00:00 2001
+From 1637bd59821ad2c84e7909f6dce250d2ae14d1de Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 6 Dec 2017 16:06:49 -0800
-Subject: [PATCH 0726/1239] Remove BGX defines from T93.
+Subject: [PATCH] Remove BGX defines from T93.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/fdt.c     | 8 ++++++--
  drivers/net/cavium/Makefile     | 2 +-
@@ -104,6 +105,3 @@ index 6e46bb4533..c7c343a43d 100644
  /** Command line configuration */
  #define CONFIG_MENU
  
--- 
-2.29.0
-

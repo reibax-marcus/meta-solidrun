@@ -1,10 +1,10 @@
-From b2dd1aabbb2e7b76e65523955691e4210ff109ab Mon Sep 17 00:00:00 2001
+From 4020cf5d1014531fc4497b7b5215026a0136b333 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 13 May 2016 08:52:38 -0700
-Subject: [PATCH 0429/1239] Replace printfs with debug in rx_equalization()
- function.
+Subject: [PATCH] Replace printfs with debug in rx_equalization() function.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 9 +++++----
  1 file changed, 5 insertions(+), 4 deletions(-)
@@ -41,6 +41,3 @@ index 620785f66d..3d0afdaa60 100644
  			fail = 1;
  		}
  	}
--- 
-2.29.0
-

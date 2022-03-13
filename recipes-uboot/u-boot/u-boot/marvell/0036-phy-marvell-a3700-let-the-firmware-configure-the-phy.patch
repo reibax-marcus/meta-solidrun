@@ -1,8 +1,7 @@
-From 5fa525037026ffe3ed23da6ccb2f1e595843c7ac Mon Sep 17 00:00:00 2001
+From 2ea4fd7df9197d624561709e59d129fee74295ad Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 31 Aug 2018 10:55:38 +0200
-Subject: [PATCH 0036/1239] phy: marvell: a3700: let the firmware configure the
- phy
+Subject: [PATCH] phy: marvell: a3700: let the firmware configure the phy
 
 Serdes lanes configuration are now available via SiP services in
 firmware (firmware comphy driver exposes it's API via RT service).
@@ -12,6 +11,7 @@ appropriate SMC calls.
 Change-Id: I81d66ba1b130cccd4bbc4388774e0a6e2b4d0972
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/Makefile       |   1 -
  drivers/phy/marvell/comphy_a3700.c | 868 +++++------------------------
@@ -1486,6 +1486,3 @@ index e3a9b7b0a0..0000000000
 -
 -	debug_exit();
 -}
--- 
-2.29.0
-

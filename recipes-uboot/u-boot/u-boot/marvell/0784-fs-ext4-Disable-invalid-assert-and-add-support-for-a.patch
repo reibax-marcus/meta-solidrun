@@ -1,10 +1,11 @@
-From 40a84c59f1c5db617fd27389b5042290739c747c Mon Sep 17 00:00:00 2001
+From fd9cf37a026aac026905ae0d5f57703f9668e003 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 18 Jul 2018 23:27:00 -0700
-Subject: [PATCH 0784/1239] fs: ext4: Disable invalid assert and add support
- for alternative checksum
+Subject: [PATCH] fs: ext4: Disable invalid assert and add support for
+ alternative checksum
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  fs/ext4/ext4_common.c | 29 ++++++++++++++++++++++++++---
  include/ext4fs.h      |  3 +++
@@ -97,6 +98,3 @@ index 34585d407d..92e6782174 100644
  #define EXT4_BG_INODE_UNINIT		0x0001
  #define EXT4_BG_BLOCK_UNINIT		0x0002
  #define EXT4_BG_INODE_ZEROED		0x0004
--- 
-2.29.0
-

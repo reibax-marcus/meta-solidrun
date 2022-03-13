@@ -1,14 +1,14 @@
-From b5fb572f09bb2ce41b51834524c0290cab47e9f4 Mon Sep 17 00:00:00 2001
+From 11c6c3ef54325b3faec4f39198682a93d30eb291 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 27 Mar 2018 17:48:33 -0700
-Subject: [PATCH 0803/1239] drivers: net: octeontx2: add initial code for rvu
- af/pf, cgx
+Subject: [PATCH] drivers: net: octeontx2: add initial code for rvu af/pf, cgx
 
 This initial commit is to add register headersi for npa/rvu/cgx,
 initial cgx interface code and rvu af/pf bar enumerations.
 Also, puts in place drivers for cgx and rvu af/pf.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/Makefile             |    1 -
  drivers/net/cavium/octeontx2/Kconfig    |    6 +-
@@ -5186,6 +5186,3 @@ index 0000000000..0f8b7208c6
 +U_BOOT_PCI_DEVICE(rvu_pf, rvu_pf_supported);
 +
 +
--- 
-2.29.0
-

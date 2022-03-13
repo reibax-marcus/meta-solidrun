@@ -1,7 +1,7 @@
-From 1b9a20ebad3677404a51c61ff1f195c299f47600 Mon Sep 17 00:00:00 2001
+From d75dde1fc938dfa3269d441278bf32527e93ecba Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Tue, 23 Jul 2019 16:21:30 -0700
-Subject: [PATCH 0944/1239] board: octeontx2: add t98 platform support
+Subject: [PATCH] board: octeontx2: add t98 platform support
 
 Add t98 config files and minor code changes to enable
 the platform.
@@ -11,6 +11,7 @@ Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/12950
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  .../include/asm/arch-octeontx2/octeontx2.h    |   1 +
  arch/arm/mach-octeontx2/Kconfig               |   3 +
@@ -333,6 +334,3 @@ index 0000000000..5f57ef2847
 +#endif
 +
 +#endif /* __OCTEONTX2_98XX_H__ */
--- 
-2.29.0
-

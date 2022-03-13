@@ -1,8 +1,8 @@
-From 9c3a4855ce1831aea51a1a1fa4b674713f70c8dc Mon Sep 17 00:00:00 2001
+From bc83e3b763b91b5e125c7fe29296200541993194 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 28 Aug 2018 13:11:02 +0200
-Subject: [PATCH 0192/1239] pci: aardvark: move setting of reference clock to
- the pcie driver
+Subject: [PATCH] pci: aardvark: move setting of reference clock to the pcie
+ driver
 
 The settings of reference clock is done via pcie address space and not
 comphy address space - move the settings in appropriate place.
@@ -12,6 +12,7 @@ to get rid of not comphy related operation from the comphy driver.
 
 Change-Id: I6f424c3637dfcc7f216d743149c67dff9e3cafc9
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/pci/pci-aardvark.c | 8 ++++++++
  1 file changed, 8 insertions(+)
@@ -42,6 +43,3 @@ index 864ac16f57..bc1080baa3 100644
  	/* Set to Direct mode */
  	reg = advk_readl(pcie, CTRL_CONFIG_REG);
  	reg &= ~(CTRL_MODE_MASK << CTRL_MODE_SHIFT);
--- 
-2.29.0
-

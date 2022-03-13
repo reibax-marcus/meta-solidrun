@@ -1,14 +1,14 @@
-From 0dea870daf3a359cfc196ff7846d5af19a53443b Mon Sep 17 00:00:00 2001
+From eae9bd18d5e8ff1a9e884cf2a915d3878bba2931 Mon Sep 17 00:00:00 2001
 From: Ben Peled <bpeled@marvell.com>
 Date: Mon, 24 Dec 2018 15:45:29 +0200
-Subject: [PATCH 0229/1239] cmd: mvebu: add mv_get_counters command to get MIB
- counters.
+Subject: [PATCH] cmd: mvebu: add mv_get_counters command to get MIB counters.
 
 mv_get_counters with eth port as first argument return MIB counters.
 Default port is ethact.
 
 Change-Id: Ie216f731060722740f8590807b280d3b557b9da0
 Signed-off-by: Ben Peled <bpeled@marvell.com>
+
 ---
  cmd/mvebu/Kconfig           |  10 ++
  cmd/mvebu/Makefile          |   1 +
@@ -234,6 +234,3 @@ index 0000000000..579bb9f1e5
 +	mv_get_counters, 2, 1, mv_do_get_counters_cmd,
 +	"Get gop counters",
 +	"mv_get_counters <port_name:default=ethact>\n");
--- 
-2.29.0
-

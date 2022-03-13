@@ -1,13 +1,14 @@
-From f9a72fa36c2c39f62dab85b2b5afbeba5b2e3c2b Mon Sep 17 00:00:00 2001
+From bb47bd5a88987f9f60a3228d64c8dfcd42bddb76 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Thu, 21 Sep 2017 15:52:22 -0700
-Subject: [PATCH 0712/1239] Allow DHCP server to specify tftp server address
+Subject: [PATCH] Allow DHCP server to specify tftp server address
 
 This patch adds support so that the DHCP server can specify the IP
 address of a TFTP server to load images from by using option 150 as
 specified in RFC5859.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  README      | 7 +++++++
  net/bootp.c | 9 +++++++++
@@ -65,6 +66,3 @@ index 505489140e..e051cd2ade 100644
  		default:
  #if defined(CONFIG_BOOTP_VENDOREX)
  			if (dhcp_vendorex_proc(popt))
--- 
-2.29.0
-

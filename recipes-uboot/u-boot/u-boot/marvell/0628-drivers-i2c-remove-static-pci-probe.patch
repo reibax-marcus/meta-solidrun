@@ -1,11 +1,12 @@
-From 6c863989e10be7520a84be30bb949b7ba583f7e1 Mon Sep 17 00:00:00 2001
+From f8df026107b1bf539d717350f093fee59cc02c9b Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarpati@caviumnetworks.com>
 Date: Tue, 4 Apr 2017 15:46:43 -0700
-Subject: [PATCH 0628/1239] drivers: i2c: remove static pci probe
+Subject: [PATCH] drivers: i2c: remove static pci probe
 
 move to driver-model probe method based on compatible.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/i2c/thunderx_i2c.c | 8 --------
  1 file changed, 8 deletions(-)
@@ -33,6 +34,3 @@ index 1046c0f2ea..8643a33750 100644
 -};
 -
 -U_BOOT_PCI_DEVICE(thunderx_pci_twsi, thunderx_pci_twsi_supported);
--- 
-2.29.0
-

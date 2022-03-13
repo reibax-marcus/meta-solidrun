@@ -1,8 +1,8 @@
-From 0cf2156cd169f16a020f3e7b8c43fdd49709e3f9 Mon Sep 17 00:00:00 2001
+From d3e56d4264efa742cbcdabf897e4e14bb5934182 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Sun, 3 Nov 2019 03:41:52 +0100
-Subject: [PATCH 0279/1239] pcie: designware: mvebu: do not configure ATU for
- IO when not used
+Subject: [PATCH] pcie: designware: mvebu: do not configure ATU for IO when not
+ used
 
 The pcie_dw_mvebu configure ATU regions for memory, configuration
 and IO space types. However the latter is not obligatory
@@ -15,6 +15,7 @@ Signed-off-by: Marcin Wojtas <mw@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/18136
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  drivers/pci/pcie_dw_mvebu.c | 37 +++++++++++++++++++++++++------------
  1 file changed, 25 insertions(+), 12 deletions(-)
@@ -90,6 +91,3 @@ index 95fb41966f..2e74833add 100644
  
  	pcie_dw_prog_outbound_atu(pcie, PCIE_ATU_REGION_INDEX1,
  				  PCIE_ATU_TYPE_MEM, pcie->mem.phys_start,
--- 
-2.29.0
-

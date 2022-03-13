@@ -1,7 +1,7 @@
-From 4a59f5d8127cd59db37b157c3669e30ac7752655 Mon Sep 17 00:00:00 2001
+From 93460bc2ac43389e4c84af49b92a1b819c81f78b Mon Sep 17 00:00:00 2001
 From: aaronw <aaron.w2@gmail.com>
 Date: Tue, 12 Mar 2019 18:25:26 -0700
-Subject: [PATCH 0912/1239] octeontx: mmc: Don't do tuning in asim
+Subject: [PATCH] octeontx: mmc: Don't do tuning in asim
 
 This skips tuning when running in ASIM.
 
@@ -10,6 +10,7 @@ Signed-off-by: aaronw <aaron.w2@gmail.com>
 Reviewed-on: https://sj1git1.cavium.com/5583
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 3 +++
  1 file changed, 3 insertions(+)
@@ -28,6 +29,3 @@ index 73974d8807..9a70b25ebe 100644
  	for (a = adj; a->name; a++) {
  		debug("%s(%s): Testing: %s, mode: %s, opcode: %u\n", __func__,
  		      dev->name, a->name, mmc_mode_name(mmc->selected_mode),
--- 
-2.29.0
-

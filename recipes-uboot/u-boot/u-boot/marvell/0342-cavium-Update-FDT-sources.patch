@@ -1,7 +1,7 @@
-From a66ebba6546d4b33515be158c85fdf84c2e50707 Mon Sep 17 00:00:00 2001
+From a9adbc6ba83b1ef697b0ff61fd75617e3fa960fd Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 18:38:13 -0800
-Subject: [PATCH 0342/1239] cavium: Update FDT sources
+Subject: [PATCH] cavium: Update FDT sources
 
 ---
  arch/arm/dts/Makefile             |    2 +-
@@ -3433,6 +3433,3 @@ index 230c05b34a..e17a5b552a 100644
 +		};
 +	};
  };
--- 
-2.29.0
-

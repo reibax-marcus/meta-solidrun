@@ -1,8 +1,7 @@
-From c7e031676b0766d7e099f694ad254ea712b0139d Mon Sep 17 00:00:00 2001
+From 5f7cf3568a6607f4c1e4b56f4bca8c911227bfee Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 11 Jun 2020 00:43:07 -0700
-Subject: [PATCH 1173/1239] Revert "octeontx3: Add support for OcteonTX3 SoC
- platforms"
+Subject: [PATCH] Revert "octeontx3: Add support for OcteonTX3 SoC platforms"
 
 This reverts commit a5f07d2c0559253323228d87e88ff5fb733b988b.
 
@@ -13,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29827
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/Kconfig                              |    10 -
  arch/arm/Makefile                             |     1 -
@@ -27628,6 +27628,3 @@ index 4af40bd740..0000000000
 -#define CONFIG_CMD_BKOPS_ENABLE
 -
 -#endif /* __OCTEONTX3_106XX_H__ */
--- 
-2.29.0
-

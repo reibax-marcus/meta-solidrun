@@ -1,12 +1,12 @@
-From 938bde9ccfc1444339cf4bd867f7431e6b094daa Mon Sep 17 00:00:00 2001
+From c69463b7c5455816c490456316c7fbe0a8feda07 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 16 May 2016 20:43:03 -0400
-Subject: [PATCH 0453/1239] armv8: Add 64-bit setbit()/clrbit()
- functions/macros
+Subject: [PATCH] armv8: Add 64-bit setbit()/clrbit() functions/macros
 
 These are used for convenience for frequently occuring operations
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  arch/arm/include/asm/io.h | 9 +++++++++
  1 file changed, 9 insertions(+)
@@ -31,6 +31,3 @@ index e6d27b69f9..ebd9a67019 100644
  /*
   * Now, pick up the machine-defined IO definitions
   */
--- 
-2.29.0
-

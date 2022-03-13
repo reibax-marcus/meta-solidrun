@@ -1,8 +1,8 @@
-From 4523ae8f32432483a1f08cfc0dd67bceb9fa8242 Mon Sep 17 00:00:00 2001
+From 8aa8923fde5af6c2932dd3b68cb5cc4d4da4fbc7 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 17 Jan 2019 14:04:59 -0800
-Subject: [PATCH 0868/1239] drivers: pci: octeontx: enable ras injection errata
- for all PEMs
+Subject: [PATCH] drivers: pci: octeontx: enable ras injection errata for all
+ PEMs
 
 Remove init_done flag based init as it will skip the workaround
 init to inject byte enable error for PEM 1/2/3.
@@ -14,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/2356
 Tested-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/pci/pci_octeontx_ecam.c | 5 -----
  1 file changed, 5 deletions(-)
@@ -47,6 +48,3 @@ index 244a5bcce3..63e304daa1 100644
  	cfg_off = PCIERC_RAS_EINJ_EN;
  	wval = cfg_off;
  	data = 0x40;
--- 
-2.29.0
-

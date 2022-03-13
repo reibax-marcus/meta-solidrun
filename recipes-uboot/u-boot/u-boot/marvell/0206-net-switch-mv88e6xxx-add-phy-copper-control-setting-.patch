@@ -1,8 +1,8 @@
-From 1f8dcaf1d14d831a93d9bdc3bb9384eceea1761a Mon Sep 17 00:00:00 2001
+From 0803e6b6a9be728b39358432cd0be5231cc3d79b Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Mon, 24 Jul 2017 17:57:27 +0800
-Subject: [PATCH 0206/1239] net: switch: mv88e6xxx: add phy copper control
- setting for lan ports
+Subject: [PATCH] net: switch: mv88e6xxx: add phy copper control setting for
+ lan ports
 
 When Espressobin board gets reset by the reset-button, sometimes the
 switch lan ports' power down bit(0_0.11) in phy copper control register
@@ -13,6 +13,7 @@ initialization to clear power down bit by force.
 Change-Id: I02d1eb3dac780659b34197e7393ddb45178a4898
 Signed-off-by: Ken Ma <make@marvell.com>
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/net/phy/mv88e6xxx.c | 12 ++++++++++++
  drivers/net/phy/mv88e6xxx.h |  7 +++++++
@@ -59,6 +60,3 @@ index e876e5a78c..7083b7dba1 100644
  struct mv88e6xxx_dev {
  	unsigned int phy_addr;
  	unsigned int port_mask;
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From a4b6130ea15c88ce29876e7455b8901da5a823f7 Mon Sep 17 00:00:00 2001
+From 11bcdfd608b362b5c4e57b162fb55dad039eda40 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 14 Sep 2018 10:57:36 -0700
-Subject: [PATCH 0824/1239] octeontx/tx2: discard usage of soft reset register
+Subject: [PATCH] octeontx/tx2: discard usage of soft reset register
 
 Remove usage of soft reset in RST registers instead use
 psci calls.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/octeontx.h |  2 -
  arch/arm/mach-octeontx/cpu.c                  |  5 +++
@@ -223,6 +224,3 @@ index b5a9511858..1de3ef04bc 100644
  	debug("%s(%p, %u) io clock: %u\n", __func__, bus, speed, io_clock_hz);
  
  	/* Set the TWSI clock to a conservative TWSI_BUS_FREQ.  Compute the
--- 
-2.29.0
-

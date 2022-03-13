@@ -1,7 +1,7 @@
-From 3e048a4fc4eced3d4509717cee34afb1691734cd Mon Sep 17 00:00:00 2001
+From c4a2c87502f80c0bce17d37b047be9d0ab8016c0 Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Fri, 24 Jul 2020 15:12:20 -0700
-Subject: [PATCH 1213/1239] smbios: type 8 implementation
+Subject: [PATCH] smbios: type 8 implementation
 
 SMBIOS type 8 deals with Port Connector Information which
 is added in this patch.
@@ -11,6 +11,7 @@ Change-Id: Iefc32f61ca055db733e29d180dea0a044bd51ae3
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35165
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Tested-by: Jia Ma <jiam@marvell.com>
+
 ---
  include/smbios.h | 21 +++++++++++++++++++
  lib/smbios.c     | 52 ++++++++++++++++++++++++++++++++++++++++++++++++
@@ -139,6 +140,3 @@ index ed24852dec..50969a130c 100644
  	smbios_write_type32,
  	smbios_write_type127
  };
--- 
-2.29.0
-

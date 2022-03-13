@@ -1,8 +1,7 @@
-From ba32d3525584b6af33f1999b5dcbb602b5bdc691 Mon Sep 17 00:00:00 2001
+From 1d7d119b66f4a15f095476a402511fb2c361de98 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Mon, 25 Feb 2019 16:02:11 +0100
-Subject: [PATCH 0272/1239] pinctrl: mvebu: allow proper SD/MMC PHY MUX setting
- in CP115
+Subject: [PATCH] pinctrl: mvebu: allow proper SD/MMC PHY MUX setting in CP115
 
 SD/MMC PHY usage requires additional setting in MPP registers.
 For standalone CP115 chips it wasn't done, due to wrong compatible
@@ -11,6 +10,7 @@ modify the MPP driver accordingly.
 
 Change-Id: I2e566ae9be9b1f6e2ea3a45d80a04ca0c70e0b4e
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  drivers/pinctrl/mvebu/pinctrl-mvebu.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
@@ -38,6 +38,3 @@ index e18b39dc58..e8423d550b 100644
  	{ }
  };
  
--- 
-2.29.0
-

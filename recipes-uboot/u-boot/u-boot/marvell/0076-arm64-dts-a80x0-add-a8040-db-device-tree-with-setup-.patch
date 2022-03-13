@@ -1,8 +1,7 @@
-From feebd669cb5267eba85114635c5b7f41e22678af Mon Sep 17 00:00:00 2001
+From 6109bd5303ebbbb068c05b8372bbfd5134a5de75 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 19 May 2017 11:15:33 +0200
-Subject: [PATCH 0076/1239] arm64: dts: a80x0: add a8040-db device tree with
- setup F
+Subject: [PATCH] arm64: dts: a80x0: add a8040-db device tree with setup F
 
 Topology for setup F:
 CP0-SerDes:
@@ -29,6 +28,7 @@ CP1-MPPs:
 Change-Id: I6c1f7774760d4efdfd61bb9909a923db5aed5c3f
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Signed-off-by: Ken Ma <make@marvell.com>
+
 ---
  arch/arm/dts/Makefile             |   1 +
  arch/arm/dts/armada-8040-db-F.dts | 357 ++++++++++++++++++++++++++++++
@@ -410,6 +410,3 @@ index 0000000000..4a62ce4bd3
 +	phy = <&phy0>;
 +	phy-mode = "rgmii-id";
 +};
--- 
-2.29.0
-

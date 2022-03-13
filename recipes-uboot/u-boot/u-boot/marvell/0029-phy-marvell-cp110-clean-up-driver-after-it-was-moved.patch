@@ -1,12 +1,13 @@
-From 1a68412cc277096bd283e14167074e4e828a9315 Mon Sep 17 00:00:00 2001
+From 4cb488ee37f8007e08107bef41cc1d514a940b06 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Wed, 4 Apr 2018 16:42:43 +0200
-Subject: [PATCH 0029/1239] phy: marvell: cp110: clean up driver after it was
- moved to atf
+Subject: [PATCH] phy: marvell: cp110: clean up driver after it was moved to
+ atf
 
 Change-Id: I358792a96c13b54e700c05227cc7a8f6bd584694
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_a3700.h |   1 -
  drivers/phy/marvell/comphy_core.h  |  50 --
@@ -848,6 +849,3 @@ index 563bdbec80..e3a9b7b0a0 100644
  
  /*
   * comphy_mux_check_config()
--- 
-2.29.0
-

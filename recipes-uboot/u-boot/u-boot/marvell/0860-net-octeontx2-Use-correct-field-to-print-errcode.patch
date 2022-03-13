@@ -1,12 +1,13 @@
-From 9bc365e0a59e3d6f9be050e7a80a6a3f8d8a3ece Mon Sep 17 00:00:00 2001
+From acc49b8c4bb297401f9113ab8ac0d7c5f28bd282 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Mon, 24 Dec 2018 10:23:02 -0800
-Subject: [PATCH 0860/1239] net:octeontx2: Use correct field to print errcode.
+Subject: [PATCH] net:octeontx2: Use correct field to print errcode.
 
 Change-Id: I3b64d753f4521d231a351bef70560066d01ac9f4
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/1475
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
+
 ---
  drivers/net/octeontx2/cgx_intf.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -24,6 +25,3 @@ index 172705ff84..118a10a015 100644
  		err = -1;
  		goto error;
  	}
--- 
-2.29.0
-

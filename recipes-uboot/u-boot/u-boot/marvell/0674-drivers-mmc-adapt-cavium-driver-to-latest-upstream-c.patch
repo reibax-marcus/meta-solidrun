@@ -1,14 +1,14 @@
-From a74d3bc5d2c52b0caf7ee921ba43815c84f42157 Mon Sep 17 00:00:00 2001
+From 0394597fbd22708c6b6204aebda66c9649af05eb Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 1 Aug 2017 12:50:15 -0700
-Subject: [PATCH 0674/1239] drivers: mmc: adapt cavium driver to latest
- upstream code
+Subject: [PATCH] drivers: mmc: adapt cavium driver to latest upstream code
 
 upstream code introduced block layer and significant changes
 in uclass driver. Adapt cavium driver to these changes
 and also move to kconfig options.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  .../include/asm/arch-thunderx/cavium_mmc.h    |  12 +-
  arch/arm/mach-thunderx/Kconfig                |   4 -
@@ -2327,6 +2327,3 @@ index 0941fafed1..31aba7496b 100644
 +struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum);
  
  #endif /* _MMC_H_ */
--- 
-2.29.0
-

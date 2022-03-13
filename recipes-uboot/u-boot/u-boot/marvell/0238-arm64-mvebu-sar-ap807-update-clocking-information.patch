@@ -1,14 +1,14 @@
-From 75d13efd6101e112e9671bcbfc1a2fe8d8385d6b Mon Sep 17 00:00:00 2001
+From 0b044793fcc959e403ce088d233af58d4b2054ed Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Fri, 4 Jan 2019 13:56:12 +0200
-Subject: [PATCH 0238/1239] arm64: mvebu: sar: ap807: update clocking
- information
+Subject: [PATCH] arm64: mvebu: sar: ap807: update clocking information
 
 For the ap807 based system cpu_freq==6 is reserved for
 CPU_2200_DDR_1200_RCLK_1200 mode. Reflect it in the code.
 
 Change-Id: I11e3de7ecc04029fa6e381798f7fcdadfd3e6dcc
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/misc/mvebu_sar/ap807_sar.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -35,6 +35,3 @@ index 5190954527..eb306cbf01 100644
  	{1.8 * GHz, 1.05 * GHz, 1.2 * GHz, CPU_1800_DDR_1050_RCLK_1200},
  	{1.6 * GHz, 1.2 * GHz, 1.2 * GHz, CPU_1600_DDR_1200_RCLK_1200},
  	{1.6 * GHz, 0.9  * GHz, 0.9  * GHz, CPU_1600_DDR_900_RCLK_900},
--- 
-2.29.0
-

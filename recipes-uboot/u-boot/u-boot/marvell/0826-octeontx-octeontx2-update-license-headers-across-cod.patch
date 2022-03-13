@@ -1,10 +1,10 @@
-From 4ebe9bb487dc1359470d0d6cfceb691d037f7dab Mon Sep 17 00:00:00 2001
+From 38bdffb536041e8a379c7a273233874b9a1c3358 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 14 Sep 2018 14:47:33 -0700
-Subject: [PATCH 0826/1239] octeontx: octeontx2: update license headers across
- code
+Subject: [PATCH] octeontx: octeontx2: update license headers across code
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  MAINTAINERS                                   | 17 +++++--
  arch/arm/Kconfig                              |  4 +-
@@ -2197,6 +2197,3 @@ index 30d67573a2..85b8f6306a 100644
  
  #ifndef __OCTEONTX_83XX_H__
  #define __OCTEONTX_83XX_H__
--- 
-2.29.0
-

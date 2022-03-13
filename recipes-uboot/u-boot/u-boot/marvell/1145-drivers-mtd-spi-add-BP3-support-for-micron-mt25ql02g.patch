@@ -1,8 +1,7 @@
-From b7b041b0d18304a30eedd2ea318b529dc0e866d2 Mon Sep 17 00:00:00 2001
+From db6b17af66052706bf3e0a47a3f84268945e2951 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Thu, 30 Apr 2020 23:25:00 -0700
-Subject: [PATCH 1145/1239] drivers: mtd: spi: add BP3 support for micron
- mt25ql02g
+Subject: [PATCH] drivers: mtd: spi: add BP3 support for micron mt25ql02g
 
 Add support to program block protection bits[0:3] in status
 register as mt25ql02g has larger 64K sector count.
@@ -14,6 +13,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27756
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/mtd/spi/spi-nor-core.c | 155 +++++++++++++++++++++++++++------
  drivers/mtd/spi/spi-nor-ids.c  |   2 +-
@@ -318,6 +318,3 @@ index 709b49d393..cfbef0351e 100644
  #define SR_TB			BIT(5)	/* Top/Bottom protect */
  #define SR_SRWD			BIT(7)	/* SR write protect */
  /* Spansion/Cypress specific status bits */
--- 
-2.29.0
-

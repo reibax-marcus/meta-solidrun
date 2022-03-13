@@ -1,8 +1,7 @@
-From 1ef11524a1e1ba40ecb3a532cf1c65eb0feac16d Mon Sep 17 00:00:00 2001
+From bab5648e220d50ace3884608e783a28f5c6482d8 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 7 Nov 2018 16:28:00 -0800
-Subject: [PATCH 0838/1239] drivers: net: octeontx2: code changes with emulator
- testing
+Subject: [PATCH] drivers: net: octeontx2: code changes with emulator testing
 
 - add workaround for NPC errata #35786
 - mask chan_num properly before writing to mcam bank register
@@ -14,6 +13,7 @@ Subject: [PATCH 0838/1239] drivers: net: octeontx2: code changes with emulator
 - cleanup nix.h header on debug prints
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/octeontx2/nix.h    | 20 +++++----
  drivers/net/octeontx2/nix_af.c | 81 +++++++++++++++++++++++++++++-----
@@ -256,6 +256,3 @@ index 8506e2ee38..92e48211cc 100644
  	nix_af_reg_write(nix_af, CAVM_NIXX_AF_CFG(), af_cfg.u);
  
  	/* Enable NDC cache */
--- 
-2.29.0
-

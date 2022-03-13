@@ -1,7 +1,7 @@
-From 7a2ea2a28363bb04648c26e90d49a4d5b59c4d4b Mon Sep 17 00:00:00 2001
+From 9dfd8a1dd07e9cdff2f7bdeaea0c4a9953f35d31 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 7 May 2019 22:07:31 -0700
-Subject: [PATCH 0905/1239] Fix MMC support in ASIM and add emulator support
+Subject: [PATCH] Fix MMC support in ASIM and add emulator support
 
 This patch adds several more areas where timing operations
 are skipped when running inside ASIM.  In addition, the
@@ -17,6 +17,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/8731
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Roy Franz <Roy.Franz@cavium.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 35 +++++++++++++++++++----------------
  drivers/mmc/octeontx_hsmmc.h |  2 ++
@@ -160,6 +161,3 @@ index abb1324024..6c27d909aa 100644
  };
  
  /*
--- 
-2.29.0
-

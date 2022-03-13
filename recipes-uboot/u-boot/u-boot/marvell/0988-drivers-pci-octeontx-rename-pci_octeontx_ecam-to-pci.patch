@@ -1,11 +1,12 @@
-From 56b76ff3d1e35a1d29d96ea0e4cf4aa11b437466 Mon Sep 17 00:00:00 2001
+From d94eca8de027be54351f490dea826586152afd7e Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 8 Nov 2019 16:51:14 -0800
-Subject: [PATCH 0988/1239] drivers: pci: octeontx: rename pci_octeontx_ecam to
+Subject: [PATCH] drivers: pci: octeontx: rename pci_octeontx_ecam to
  pci_octeontx
 
 Change-Id: Ic0a0a859b6fe0a2668f4a313663c83eb7f05b0e0
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  drivers/pci/Kconfig                                 | 6 +++---
  drivers/pci/Makefile                                | 2 +-
@@ -69,6 +70,3 @@ index 9a90e5d591..d754f98bbd 100644
  
  	switch (size) {
  	case PCI_SIZE_8:
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From 5177e99a1358cd135706323a039eb1fd06355ecc Mon Sep 17 00:00:00 2001
+From bef34ca1b295fb1f72b243462892b2a42a7b6664 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 19 Jul 2019 17:06:09 -0700
-Subject: [PATCH 0942/1239] drivers: net: octeontx: handle multiple ring
- buffers in receive
+Subject: [PATCH] drivers: net: octeontx: handle multiple ring buffers in
+ receive
 
 Fix logic to parse all ring buffers in one CQ entry and form
 single packet to forward to net stack.
@@ -13,6 +13,7 @@ Reviewed-on: https://sj1git1.cavium.com/12810
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/net/octeontx/nicvf_main.c   |  2 ++
  drivers/net/octeontx/nicvf_queues.c | 28 +++++++++++++++++++++++-----
@@ -87,6 +88,3 @@ index 405c7535fa..c8cb693739 100644
  }
  
  /* Clear interrupt */
--- 
-2.29.0
-

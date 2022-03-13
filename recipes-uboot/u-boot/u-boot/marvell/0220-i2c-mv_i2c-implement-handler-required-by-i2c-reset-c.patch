@@ -1,14 +1,14 @@
-From 389b2ffb8c65b146c32b83719ff5cf9aa1faa340 Mon Sep 17 00:00:00 2001
+From 2e4da82bb521ff687074e184a990b08848dba293 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Sun, 25 Nov 2018 21:39:37 +0100
-Subject: [PATCH 0220/1239] i2c: mv_i2c: implement handler required by "i2c
- reset" cmd
+Subject: [PATCH] i2c: mv_i2c: implement handler required by "i2c reset" cmd
 
 After this change the "i2c reset" command can be used which will allow
 to re-initialize I2C Controller.
 
 Change-Id: I39703611bcf8d4bfe03ef619e5dd5df8a9d59efb
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/i2c/mv_i2c.c | 9 +++++++++
  1 file changed, 9 insertions(+)
@@ -36,6 +36,3 @@ index 9bde9cd599..d1803a6046 100644
  };
  
  static const struct udevice_id mv_i2c_ids[] = {
--- 
-2.29.0
-

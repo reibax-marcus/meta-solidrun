@@ -1,7 +1,7 @@
-From 4525c7f288d0705002a847ba81463fae4a77e07a Mon Sep 17 00:00:00 2001
+From ab79ccba63cffca2995302015c4b5fda698ec588 Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Mon, 11 Jun 2018 15:37:49 +0300
-Subject: [PATCH 0143/1239] sar: mvebu: add sampled-at-reset driver for AP807
+Subject: [PATCH] sar: mvebu: add sampled-at-reset driver for AP807
 
 Add U_BOOT SAR driver for ap807, this driver handles
 the registeration of the SoC and fetching frequencies
@@ -12,6 +12,7 @@ in the U-Boot bootlog.
 Change-Id: Id84671fd0f7201c23b41b442788c3038664d349a
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/misc/mvebu_sar/ap807_sar.c  | 230 ++++++++++++++++++++++++++++
  drivers/misc/mvebu_sar/sar-uclass.c |   6 +
@@ -271,6 +272,3 @@ index 49557e6c5f..74cfe9faca 100644
  		/* fetch driver info from device-tree */
  		sar_base = (void *)fdtdec_get_addr_size_auto_noparent(blob,
  				node, "reg", 0, NULL, true);
--- 
-2.29.0
-

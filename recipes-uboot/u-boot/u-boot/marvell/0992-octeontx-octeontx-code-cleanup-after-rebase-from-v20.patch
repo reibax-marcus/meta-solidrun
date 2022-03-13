@@ -1,8 +1,7 @@
-From 6b2794279012ce68bf59ab56ea49cca24d724f6e Mon Sep 17 00:00:00 2001
+From 7c982ff95e2f6c3141b3f444ed6b44feb8844ccb Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Fri, 8 Nov 2019 17:16:59 -0800
-Subject: [PATCH 0992/1239] octeontx: octeontx: code cleanup after rebase from
- v2018.03
+Subject: [PATCH] octeontx: octeontx: code cleanup after rebase from v2018.03
 
 This patch cleans up all redundant code changes and also
 which are irrelevant to v2019.10. Move files to correct location
@@ -10,6 +9,7 @@ as necessary like nand driver. Some cleanup wrt checkpatch too.
 
 Change-Id: I7ae2c015d67f8aed25f3fe3a694c2d1cb1702105
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  arch/arm/Kconfig                              |   9 +-
  arch/arm/Makefile                             |   2 -
@@ -1867,6 +1867,3 @@ index a28032823e..41f5263526 100644
  	/*
  	 * If board-specific initialization exists, call it.
  	 * If not, call a CPU-specific one
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From 30aa48c616405d56768769f722a7bd09936648d5 Mon Sep 17 00:00:00 2001
+From 16ddb6c988ddd94e582b0148826a5d97ed4d8e6d Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 17 Jan 2018 17:49:19 -0800
-Subject: [PATCH 0750/1239] configs: t93: move to Kconfig defines and cleanup
+Subject: [PATCH] configs: t93: move to Kconfig defines and cleanup
 
 Define all required entries through menuconfig and remove
 stale items in thunderx_93xx.h config file.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  configs/t93_defconfig           |  53 +++---
  include/configs/thunderx_93xx.h | 277 +++++---------------------------
@@ -482,6 +483,3 @@ index c7c343a43d..447faaf169 100644
 +#define CONFIG_HW_WATCHDOG
  
  #endif /* __THUNDERX_93XX_H__ */
--- 
-2.29.0
-

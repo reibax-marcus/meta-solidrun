@@ -1,11 +1,12 @@
-From 37725e7296055a6b14bd3be8d6104d63ab542308 Mon Sep 17 00:00:00 2001
+From ced276be8d906794929ea5292c33a079d6b0bf38 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Sat, 14 May 2016 21:02:14 -0700
-Subject: [PATCH 0443/1239] net: thunderx: Fix get_qlm_for_bgx()
+Subject: [PATCH] net: thunderx: Fix get_qlm_for_bgx()
 
 Check the correct qlm for BGX# and LMAC in the BGX.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 31 +++++++------------------------
  1 file changed, 7 insertions(+), 24 deletions(-)
@@ -56,6 +57,3 @@ index 056c08979a..9a014396af 100644
  	}
  	return -1;
  }
--- 
-2.29.0
-

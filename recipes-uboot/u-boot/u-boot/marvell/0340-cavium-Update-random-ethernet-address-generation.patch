@@ -1,7 +1,7 @@
-From 80ed215b1c808dbde8304db56b3e0d3c2c40c3b3 Mon Sep 17 00:00:00 2001
+From 2f54e8ed61cc5fb533750eefd328869a0d14f952 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 4 Nov 2015 18:08:12 -0800
-Subject: [PATCH 0340/1239] cavium: Update random ethernet address generation
+Subject: [PATCH] cavium: Update random ethernet address generation
 
 ---
  board/cavium/thunderx/thunderx.c | 22 +---------------------
@@ -47,6 +47,3 @@ index c7a06a7c60..72f9121ae9 100644
  		eth_setenv_enetaddr("ethaddr", ethaddr);
  	}
  #endif
--- 
-2.29.0
-

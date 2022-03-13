@@ -1,9 +1,10 @@
-From 1bd6707d23616ab3bf5d29e883432929ab2a0c17 Mon Sep 17 00:00:00 2001
+From 56695ca6ef33f4fade54cf590d1b6a5f7811037f Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 10 Feb 2017 14:34:29 -0800
-Subject: [PATCH 0611/1239] Configure only one lmac for aqr107 interface.
+Subject: [PATCH] Configure only one lmac for aqr107 interface.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 13 ++++++++++++-
  1 file changed, 12 insertions(+), 1 deletion(-)
@@ -39,6 +40,3 @@ index 92d41bb36a..8759cb37d6 100644
  				lmac->qlm_mode = QLM_MODE_XFI;
  				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
  					bgx->bgx_id, lmac->qlm, lmacid);
--- 
-2.29.0
-

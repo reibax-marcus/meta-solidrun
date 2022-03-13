@@ -1,8 +1,7 @@
-From a5b51da9096e4fab6c40d303819d62b535b9c318 Mon Sep 17 00:00:00 2001
+From ea38d57cea6781e11713ba7c7d697ce2fe8dab43 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 6 Feb 2019 00:10:29 -0800
-Subject: [PATCH 0877/1239] drivers: spi: add check on clk divider and dual
- mode support
+Subject: [PATCH] drivers: spi: add check on clk divider and dual mode support
 
 Add check on calculated frequency wrt requested frequency to
 make sure it is within tolerance. Also add a check on dual
@@ -13,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/3555
 Tested-by: sa_ip-sw-jenkins
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/spi/octeontx_spi.c | 15 ++++++++++++++-
  1 file changed, 14 insertions(+), 1 deletion(-)
@@ -57,6 +57,3 @@ index 0bdf906855..9fbbdef467 100755
  
  	debug("%s %d\n", __func__, priv->clkdiv);
  
--- 
-2.29.0
-

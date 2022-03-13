@@ -1,12 +1,13 @@
-From 672ebd11324d14b87c5067aa64ebb768c1013971 Mon Sep 17 00:00:00 2001
+From 3d41d13f13a85c3b7588248acf1f76d4486872cf Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Sun, 10 Mar 2019 13:57:11 -0700
-Subject: [PATCH 0894/1239] driver: mmc: octeontx: Fix compilation errors.
+Subject: [PATCH] driver: mmc: octeontx: Fix compilation errors.
 
 Change-Id: Ia702a27db3be28f426ae2ee22c94e93039752b6a
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5460
 Tested-by: sa_ip-sw-jenkins
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 25 ++++++++++++++++---------
  1 file changed, 16 insertions(+), 9 deletions(-)
@@ -115,6 +116,3 @@ index 284a0efd19..e8308e8fff 100644
  	slot->disable_ddr = ofnode_read_bool(node, "marvell,disable-ddr");
  	slot->non_removable = ofnode_read_bool(node, "non-removable");
  	slot->cmd_clk_skew = ofnode_read_u32_default(node,
--- 
-2.29.0
-

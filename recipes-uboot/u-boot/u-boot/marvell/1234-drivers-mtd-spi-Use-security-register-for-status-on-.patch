@@ -1,8 +1,8 @@
-From f097f6fc4354313b1bc1f41faf8dfaee796d089c Mon Sep 17 00:00:00 2001
+From d1fcffcf41f967bb81dad645d31ae9e0d0047c75 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Thu, 22 Oct 2020 19:36:27 -0700
-Subject: [PATCH 1234/1239] drivers: mtd: spi: Use security register for status
- on Macronix
+Subject: [PATCH] drivers: mtd: spi: Use security register for status on
+ Macronix
 
 For erase and write operation status, add support to read
 security register status bits P_ERR and E_ERR and enable
@@ -13,6 +13,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/38516
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/mtd/spi/spi-nor-core.c | 48 ++++++++++++++++++++++++++++++++--
  include/linux/mtd/spi-nor.h    |  6 +++++
@@ -131,6 +132,3 @@ index 120cf82f46..e93a187b53 100644
  };
  
  /**
--- 
-2.29.0
-

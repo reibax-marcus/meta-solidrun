@@ -1,9 +1,10 @@
-From aa75cfcfe8b2f5fc8428ba9dbab06e68315dcb7c Mon Sep 17 00:00:00 2001
+From c3f658ffc1bbe23d78383ed175bf02aa8a8f3dbb Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 26 May 2016 12:26:57 -0700
-Subject: [PATCH 0487/1239] Disable function tracing for e1000 driver.
+Subject: [PATCH] Disable function tracing for e1000 driver.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  include/configs/thunderx_81xx.h | 2 +-
  include/configs/thunderx_88xx.h | 2 +-
@@ -35,6 +36,3 @@ index 9bcd5b92a8..9810f60f41 100644
  
  /* Initial environment variables */
  #define UBOOT_IMG_HEAD_SIZE		0x40
--- 
-2.29.0
-

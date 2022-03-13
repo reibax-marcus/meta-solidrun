@@ -1,8 +1,7 @@
-From 3047d49b842b37c0c06eb9ab8b1459e900d0c0ec Mon Sep 17 00:00:00 2001
+From fc8a01a88721164aa30705a847feea1a91297418 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 30 Jun 2020 16:17:34 +0300
-Subject: [PATCH 1190/1239] configs/mvebu_*: enable FIT update and DM SPI in
- all setups
+Subject: [PATCH] configs/mvebu_*: enable FIT update and DM SPI in all setups
 
 Enable support for SPI MDT model and fitupd  command in all
 Marvell platforms default configuration files mvebu_*_defconfig
@@ -21,6 +20,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/31198
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+
 ---
  configs/mvebu_comexpress-88f7020_defconfig  | 6 ++++++
  configs/mvebu_crb_cn9130_defconfig          | 6 ++++++
@@ -368,6 +368,3 @@ index 806cd4f7f4..8fba4c8ab9 100644
 +CONFIG_OF_LIBFDT=y
 +CONFIG_UPDATE_TFTP=y
 \ No newline at end of file
--- 
-2.29.0
-

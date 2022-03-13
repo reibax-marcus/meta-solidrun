@@ -1,14 +1,15 @@
-From b69ebff0bdb6f676be7464ca891c3ed254dc6a33 Mon Sep 17 00:00:00 2001
+From 9875815c870d32c764d6a42ad45e0c713433aecf Mon Sep 17 00:00:00 2001
 From: Ben Peled <bpeled@marvell.com>
 Date: Tue, 18 Dec 2018 17:56:34 +0200
-Subject: [PATCH 0228/1239] cmd: mvebu: add mv_fw_info command to get service
- CPU firmware info
+Subject: [PATCH] cmd: mvebu: add mv_fw_info command to get service CPU
+ firmware info
 
 Firmware information written by both cp and ap to ap to mss sram cp0
 region and read when cmd is called.
 
 Change-Id: I5fd5aa4d65ef19b2d47b868c6d206e1b00a5e4ca
 Signed-off-by: Ben Peled <bpeled@marvell.com>
+
 ---
  cmd/mvebu/Kconfig      |  8 +++++
  cmd/mvebu/Makefile     |  1 +
@@ -128,6 +129,3 @@ index 0000000000..b4d211f64d
 +	mv_fw_info, 1, 0, mv_do_fw_info_cmd,
 +	"Prints service CPU firmware information",
 +	"");
--- 
-2.29.0
-

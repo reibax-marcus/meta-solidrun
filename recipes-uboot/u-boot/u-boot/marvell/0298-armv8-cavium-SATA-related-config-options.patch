@@ -1,7 +1,7 @@
-From af80926a58602ce90ec87543301ef11a988582a1 Mon Sep 17 00:00:00 2001
+From 01465017e3f78296b38b06b1495bec4bcf094bc7 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Fri, 13 Mar 2015 18:41:07 +0300
-Subject: [PATCH 0298/1239] armv8: cavium: SATA-related config options
+Subject: [PATCH] armv8: cavium: SATA-related config options
 
 ---
  include/configs/thunderx_88xx.h | 18 ++++++++++++++++++
@@ -39,6 +39,3 @@ index ae606b912d..3ee8781bcd 100644
  #define CONFIG_SYS_I2C
  #define CONFIG_SYS_I2C_THUNDERX
  #define CONFIG_SYS_I2C_THUNDERX_SPEED_0 100000
--- 
-2.29.0
-

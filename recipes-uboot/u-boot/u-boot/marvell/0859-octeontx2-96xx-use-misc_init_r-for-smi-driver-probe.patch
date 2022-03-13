@@ -1,8 +1,7 @@
-From 0885dd7d0a251e653a8fa8de6361d4ea5f462bbb Mon Sep 17 00:00:00 2001
+From 0f38a28bdef49f30e8fa126df3198624c17950e1 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 21 Dec 2018 12:31:27 -0800
-Subject: [PATCH 0859/1239] octeontx2: 96xx: use misc_init_r for smi driver
- probe
+Subject: [PATCH] octeontx2: 96xx: use misc_init_r for smi driver probe
 
 This helps in no re-init of eth_common_init.
 
@@ -12,6 +11,7 @@ Reviewed-on: https://sj1git1.cavium.com/1474
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  board/Marvell/octeontx2/octeontx2.c | 7 ++++---
  include/configs/octeontx2_96xx.h    | 2 ++
@@ -72,6 +72,3 @@ index 0c9e7d4796..acd890ab67 100644
  /**
   * Only allow the Ethernet MAC address environment variable to be
   * overwritten once.
--- 
-2.29.0
-

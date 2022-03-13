@@ -1,9 +1,10 @@
-From 930e2f3496e1d957ab9855e12aab563615b1052d Mon Sep 17 00:00:00 2001
+From 66542179d7f6c3daea8dc5515fc907eebe56bbc3 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 1 Aug 2017 12:55:04 -0700
-Subject: [PATCH 0677/1239] configs: more kconfig changes
+Subject: [PATCH] configs: more kconfig changes
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  configs/t81_defconfig           | 13 +++++++++++++
  configs/t83_defconfig           | 10 ++++++++++
@@ -244,6 +245,3 @@ index 1af83e57da..c6abbb07a0 100644
  /**************************/
  #define CONFIG_CMD_SAVES
  
--- 
-2.29.0
-

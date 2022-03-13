@@ -1,7 +1,7 @@
-From b6ad5fd394af16d06368047004de3158024f60fd Mon Sep 17 00:00:00 2001
+From e0fb48341312b98567552d318531c02881fcaf2c Mon Sep 17 00:00:00 2001
 From: Yan Markman <ymarkman@marvell.com>
 Date: Wed, 31 Jul 2019 03:13:58 -0700
-Subject: [PATCH 0947/1239] board: octeontx2 octeontx: bootargs without debug
+Subject: [PATCH] board: octeontx2 octeontx: bootargs without debug
 
 By default the "debug" should not present in bootargs and in
 Kernel-command-line.
@@ -20,6 +20,7 @@ Reviewed-on: https://sj1git1.cavium.com/13363
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  configs/octeontx2_95xx_defconfig | 2 +-
  configs/octeontx2_96xx_defconfig | 2 +-
@@ -107,6 +108,3 @@ index b5b47212c1..d7256b6dc0 100644
  CONFIG_VERSION_VARIABLE=y
  # CONFIG_DISPLAY_CPUINFO is not set
  CONFIG_BOARD_EARLY_INIT_R=y
--- 
-2.29.0
-

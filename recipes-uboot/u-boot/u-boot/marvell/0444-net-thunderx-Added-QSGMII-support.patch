@@ -1,11 +1,12 @@
-From d3656572a635b00d3c92a10cd832af5cfd0730a0 Mon Sep 17 00:00:00 2001
+From 01522de8d4957f14da474f870dc7dd99caf328b1 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Sun, 15 May 2016 06:42:40 -0700
-Subject: [PATCH 0444/1239] net: thunderx: Added QSGMII support.
+Subject: [PATCH] net: thunderx: Added QSGMII support.
 
 Not working yet.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 43 ++++++++++++++++++++++++++++----
  drivers/net/cavium/thunder_bgx.h |  2 ++
@@ -141,6 +142,3 @@ index d8fc229e09..6033f59262 100644
  };
  
  struct bgx_board_info {
--- 
-2.29.0
-

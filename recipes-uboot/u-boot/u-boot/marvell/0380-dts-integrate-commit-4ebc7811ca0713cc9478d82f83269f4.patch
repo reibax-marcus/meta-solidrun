@@ -1,7 +1,7 @@
-From 207a62bff3cce385cb114a79283efcdafa5af438 Mon Sep 17 00:00:00 2001
+From c3c8929c22b372bc8b05cb67bf4dfd1287fba4ee Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Fri, 22 Jan 2016 12:05:45 -0800
-Subject: [PATCH 0380/1239] dts : integrate commit
+Subject: [PATCH] dts : integrate commit
  4ebc7811ca0713cc9478d82f83269f4e19fc3563 from UEFI
 
 Integrate the commit thunderx,dts: Update PEM nodes so we can do PME/AER
@@ -9,6 +9,7 @@ to support PCIe/AER
 
 thunderx,dts: Update PEM nodes so we can do PME/AER
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  arch/arm/dts/thunder-88xx.dtsi | 39 ++++++++++++++++++++++------------
  1 file changed, 26 insertions(+), 13 deletions(-)
@@ -117,6 +118,3 @@ index 0fc2e64374..482037e28d 100644
  
  			#interrupt-cells = <1>;
  			interrupt-map-mask = <0 0 0 7>;
--- 
-2.29.0
-

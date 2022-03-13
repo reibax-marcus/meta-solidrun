@@ -1,8 +1,7 @@
-From 37fb64e3e55980d6e0eb2e6f202287fd5a2b3b18 Mon Sep 17 00:00:00 2001
+From 49855be8cd5487f7b6a13d78d62e96793d517060 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Mon, 27 Jan 2020 12:05:46 +0100
-Subject: [PATCH 1075/1239] net: mvpp2: remove redundant SMI address
- configuration
+Subject: [PATCH] net: mvpp2: remove redundant SMI address configuration
 
 Because the mvpp2 driver now relies on the PHYLIB and
 the external MDIO driver, configuring low level
@@ -14,6 +13,7 @@ Reviewed-on: https://sj1git1.cavium.com/22362
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 12 ------------
  1 file changed, 12 deletions(-)
@@ -48,6 +48,3 @@ index 41afb7ed22..eb91c30d67 100644
  		/* GoP Init */
  		gop_port_init(port);
  	}
--- 
-2.29.0
-

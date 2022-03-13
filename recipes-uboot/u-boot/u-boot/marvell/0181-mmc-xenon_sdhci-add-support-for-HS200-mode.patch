@@ -1,7 +1,7 @@
-From 99e851bdcb4aafa8d09e4eedef688c743c0f6028 Mon Sep 17 00:00:00 2001
+From 84b97c27bfe80e99849bd9022d6a12de779fc28d Mon Sep 17 00:00:00 2001
 From: Wojciech Macek <wma@semihalf.com>
 Date: Mon, 20 Aug 2018 09:23:28 +0200
-Subject: [PATCH 0181/1239] mmc: xenon_sdhci: add support for HS200 mode
+Subject: [PATCH] mmc: xenon_sdhci: add support for HS200 mode
 
 Add support for Marvell Xenon SDHCI HS200 mode.
 
@@ -11,6 +11,7 @@ driver, but simplified.
 
 Change-Id: I22f181f8cfe2ec4893469fb8e1642a8d5e6b445f
 Signed-off-by: Wojciech Macek <wma@semihalf.com>
+
 ---
  drivers/mmc/xenon_sdhci.c | 334 ++++++++++++++++++++++++++++++++++++--
  1 file changed, 322 insertions(+), 12 deletions(-)
@@ -473,6 +474,3 @@ index e6a83e5947..3144e13d50 100644
  	host->ops = &xenon_sdhci_ops;
  	host->max_clk = XENON_MMC_MAX_CLK;
  
--- 
-2.29.0
-

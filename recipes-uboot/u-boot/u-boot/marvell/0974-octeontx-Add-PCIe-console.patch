@@ -1,7 +1,7 @@
-From 784018340572f523e66a76117a96a209fb07d063 Mon Sep 17 00:00:00 2001
+From 81864575a7eb74df1abe1fd0e10984fa5757f21e Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Wed, 9 Oct 2019 21:29:20 -0700
-Subject: [PATCH 0974/1239] octeontx: Add PCIe console
+Subject: [PATCH] octeontx: Add PCIe console
 
 This adds code for performing console read/write operations using
 a shared memory buffer across the PCIe bus.  This consists of two
@@ -25,6 +25,7 @@ Reviewed-on: https://sj1git1.cavium.com/17158
 Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/lock.h    |  139 ++
  board/Marvell/octeontx2/board.c               |  127 +-
@@ -1828,6 +1829,3 @@ index 0000000000..355f55efbe
 +}
 +
 +#endif /* __SERIAL_OCTEONTX_PCIE_CONSOLE_H__ */
--- 
-2.29.0
-

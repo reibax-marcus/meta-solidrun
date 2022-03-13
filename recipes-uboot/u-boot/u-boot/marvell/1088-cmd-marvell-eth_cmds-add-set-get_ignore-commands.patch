@@ -1,7 +1,7 @@
-From f46d91114ced115a407db4104a6a07037b0598e5 Mon Sep 17 00:00:00 2001
+From f9e6e37d762eb4736f234d109aa876e69631661b Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Thu, 19 Dec 2019 15:06:53 -0800
-Subject: [PATCH 1088/1239] cmd: marvell: eth_cmds: add set/get_ignore commands
+Subject: [PATCH] cmd: marvell: eth_cmds: add set/get_ignore commands
 
 Add command support to set/get ignore parameter in persistent
 settings on flash of any selected ethernet interface.
@@ -11,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20606
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/marvell/eth_cmds.c           | 60 +++++++++++++++++++++++---------
  drivers/net/octeontx2/cgx_intf.c | 43 +++++++++++++++++++++++
@@ -240,6 +241,3 @@ index 3fbb763fd3..5607b64afa 100644
  	/* any other arg for command id * like : mtu, dmac filtering control */
  	struct cgx_prbs_args prbs_args;
  	struct cgx_display_eye_args dsp_eye_args;
--- 
-2.29.0
-

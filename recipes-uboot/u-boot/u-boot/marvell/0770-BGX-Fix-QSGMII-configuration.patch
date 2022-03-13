@@ -1,13 +1,14 @@
-From 2fb2ca2638463d79761a3ae9d53f8e0c3cc3b450 Mon Sep 17 00:00:00 2001
+From 8a34f608ec4fa67bc7f3cb91a6cd572cdac31632 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 29 Mar 2018 00:28:48 -0700
-Subject: [PATCH 0770/1239] BGX: Fix QSGMII configuration
+Subject: [PATCH] BGX: Fix QSGMII configuration
 
 Any one lane can be used to configure QSGMII interface in a given BGX.
 After QSGMII is configured for that BGX, clear qsgmii_configured
 variable so that another QLM can be configured in QSGMII mode.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/octeontx_bgx.c | 3 +++
  1 file changed, 3 insertions(+)
@@ -26,6 +27,3 @@ index 6d2add8836..f311fb4152 100644
  	printf("BGX%d LMACs: %d\n", bgx->bgx_id, count);
  	bgx->lmac_count = count;
  	bgx_reg_write(bgx, 0, BGX_CMR_RX_LMACS, count);
--- 
-2.29.0
-

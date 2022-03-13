@@ -1,14 +1,15 @@
-From 27b21c6418e41e27c1392621cbe8fb78cb37ba68 Mon Sep 17 00:00:00 2001
+From f5987742b68b87152675ba0725d654aaae991143 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Sat, 19 Sep 2020 21:52:00 -0700
-Subject: [PATCH 1226/1239] board: marvell: Renamed enable_wfe with
- enable_wfe_mask env variable
+Subject: [PATCH] board: marvell: Renamed enable_wfe with enable_wfe_mask env
+ variable
 
 Change-Id: I2cb99f7b504007283e72882643c1c335a16bd4bd
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/36270
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/smc-id.h | 2 +-
  arch/arm/include/asm/arch-octeontx2/smc.h    | 2 +-
@@ -75,6 +76,3 @@ index cf21bf9452..e06cd82b2a 100644
  	regs.regs[1] = val;
  	smc_call(&regs);
  
--- 
-2.29.0
-

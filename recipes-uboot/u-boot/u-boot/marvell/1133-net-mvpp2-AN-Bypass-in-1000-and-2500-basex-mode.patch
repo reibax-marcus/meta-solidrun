@@ -1,7 +1,7 @@
-From 297fab6e3ece70b9c682cadfb87cfd82fd8fc322 Mon Sep 17 00:00:00 2001
+From 0dd6c5f272821d734e56cce6170bfec047bc7b19 Mon Sep 17 00:00:00 2001
 From: Ben Peled <bpeled@marvell.com>
 Date: Mon, 20 Apr 2020 19:03:25 +0300
-Subject: [PATCH 1133/1239] net: mvpp2: AN Bypass in 1000 and 2500 basex mode
+Subject: [PATCH] net: mvpp2: AN Bypass in 1000 and 2500 basex mode
 
 Change-Id: I653e2468765cdfb8dc591debd1c878c32ea4525a
 Signed-off-by: Ben Peled <bpeled@marvell.com>
@@ -9,6 +9,7 @@ Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/27203
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
@@ -37,6 +38,3 @@ index 4bc91695ab..050ceac01c 100644
  		MVPP2_GMAC_CONFIG_GMII_SPEED  |
  		MVPP2_GMAC_CONFIG_FULL_DUPLEX |
  		MVPP2_GMAC_CHOOSE_SAMPLE_TX_CONFIG;
--- 
-2.29.0
-

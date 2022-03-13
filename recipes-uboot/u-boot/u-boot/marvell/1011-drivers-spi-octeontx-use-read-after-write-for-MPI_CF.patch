@@ -1,8 +1,7 @@
-From 356d9a3592996d0fdff2c20ecceb0683cd5fc33f Mon Sep 17 00:00:00 2001
+From 31ec97f4cb8919adc9493fc8e1970ef956b9bae2 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Thu, 21 Nov 2019 15:29:46 -0800
-Subject: [PATCH 1011/1239] drivers: spi: octeontx: use read after write for
- MPI_CFG
+Subject: [PATCH] drivers: spi: octeontx: use read after write for MPI_CFG
 
 Use read to make previous write observed for mode change
 in config register.
@@ -16,6 +15,7 @@ Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19365
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/spi/octeontx_spi.c | 4 ++++
  1 file changed, 4 insertions(+)
@@ -56,6 +56,3 @@ index 15df8d7c13..8214235f3f 100644
  		udelay(10);
  	}
  
--- 
-2.29.0
-

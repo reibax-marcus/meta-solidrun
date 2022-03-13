@@ -1,12 +1,13 @@
-From 5333b2e8febb3e54eba0b2aecd7a182442b6b933 Mon Sep 17 00:00:00 2001
+From 3d4cd129af0f3b206a6fa2ca20b29ad369a0b937 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 10 Sep 2018 16:54:03 -0700
-Subject: [PATCH 0795/1239] octeontx2: mmc: Disable tap calibration in ASIM
+Subject: [PATCH] octeontx2: mmc: Disable tap calibration in ASIM
 
 This patch adds code to detect when U-Boot is running on ASIM and to
 disable the tap calibration procedure which ASIM does not support.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  .../include/asm/arch-octeontx/octeontx_mmc.h  |  3 +++
  drivers/mmc/octeontx_mmc.c                    | 27 +++++++++++++++++++
@@ -88,6 +89,3 @@ index 57db77c4e0..7ea797da7f 100644
  		mmc = slot->mmc;
  		if (!mmc)
  			continue;
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 0bccf1d7810c12d40d5174889c17d235399ec156 Mon Sep 17 00:00:00 2001
+From efab121760109d0ae57b12fb685d9f41d7971530 Mon Sep 17 00:00:00 2001
 From: Alex Leibovich <alexl@marvell.com>
 Date: Tue, 24 Dec 2019 08:50:55 +0200
-Subject: [PATCH 1051/1239] ddr_phy: cn9130: Add new u-boot command for ddr_phy
- access
+Subject: [PATCH] ddr_phy: cn9130: Add new u-boot command for ddr_phy access
 
 Added new u-boot commands allowing access to ddr_phy
 registers: ddr_phy_write + ddr_phy_read.
@@ -15,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/20755
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/mach-mvebu/include/mach/soc.h |  3 ++
  cmd/mvebu/Kconfig                      |  7 +++
@@ -141,6 +141,3 @@ index 0000000000..2d58bc9857
 +	   "Usage Example:\n"
 +	   "\t-ddr_phy write D0000 3"
 +	   "\t-ddr_phy read 100c0");
--- 
-2.29.0
-

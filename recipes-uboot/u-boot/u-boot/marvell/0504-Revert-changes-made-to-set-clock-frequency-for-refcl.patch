@@ -1,12 +1,13 @@
-From 4f828749d256d54157805ad0a22e5f7376627b6d Mon Sep 17 00:00:00 2001
+From 58a69050c8e4516ab5f74365d4ccbfff66258f5c Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 9 Jun 2016 20:58:23 -0700
-Subject: [PATCH 0504/1239] Revert changes made to set clock-frequency for
- refclkuaa and sclk
+Subject: [PATCH] Revert changes made to set clock-frequency for refclkuaa and
+ sclk
 
 BDK sets clock-frequency, no need to update again in u-boot.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/fdt.c     | 45 ---------------------------------
  include/configs/thunderx_81xx.h |  1 -
@@ -107,6 +108,3 @@ index 9810f60f41..a6774031d1 100644
  
  /* SMP Spin Table Definitions */
  #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
--- 
-2.29.0
-

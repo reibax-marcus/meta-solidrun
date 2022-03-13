@@ -1,9 +1,9 @@
-From 4afeb4ef3d30175d0e8eb26ab488a306d7247d51 Mon Sep 17 00:00:00 2001
+From cb3437f6c4ccc0e0880bd418ac106f3f00705104 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 7 Jun 2016 14:12:52 -0700
-Subject: [PATCH 0497/1239] Fixed reading PHY information out of device tree.
- Note that this needs to be changed in order to properly parse the device tree
- rather than reading the BDK section.
+Subject: [PATCH] Fixed reading PHY information out of device tree. Note that
+ this needs to be changed in order to properly parse the device tree rather
+ than reading the BDK section.
 
 ---
  board/cavium/thunderx/fdt.c | 12 +++++++-----
@@ -37,6 +37,3 @@ index ae121d9d42..96d746cd5c 100644
  			} else {
  				debug("Err: cannot retrieve phy address from fdt\n");
  			}
--- 
-2.29.0
-

@@ -1,9 +1,10 @@
-From f73fa0583a8569eeafe0e1eac89ab4afac6fa2fe Mon Sep 17 00:00:00 2001
+From 643e4816296a49aa8e9de7f90b11fc5785115417 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 24 Jul 2017 17:05:24 -0700
-Subject: [PATCH 0658/1239] mmc: Don't invert cd-gpios and wp-gpios value.
+Subject: [PATCH] mmc: Don't invert cd-gpios and wp-gpios value.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/mmc/cavium_mmc.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -30,6 +31,3 @@ index c70def96f1..dc1a08c489 100644
  		val ^= slot->cd_inverted;
  		debug("%s(%s): gpio %s pin %d returned %d\n", __func__,
  		      mmc->cfg->name,
--- 
-2.29.0
-

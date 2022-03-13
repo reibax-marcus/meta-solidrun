@@ -1,8 +1,7 @@
-From a458b2ff2fd90b4b1704be16b4fe52ed1fc5b1d1 Mon Sep 17 00:00:00 2001
+From b46e51cc0f2ac118a0845c27ab40718247f15a19 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 Nov 2015 10:40:26 -0800
-Subject: [PATCH 0346/1239] armv8: cavium: Implement ARMv8-specific memory node
- fixup
+Subject: [PATCH] armv8: cavium: Implement ARMv8-specific memory node fixup
 
 ---
  board/cavium/thunderx/fdt.c | 60 +++++++++++++++++++++++++++++++++++++
@@ -79,6 +78,3 @@ index d5b4504e75..844431f9f2 100644
  static void ft_setup_bgx(char *fdt, unsigned int node, unsigned int bgx_id)
  {
  	union bgxx_cmrx_config cmrx_config;
--- 
-2.29.0
-

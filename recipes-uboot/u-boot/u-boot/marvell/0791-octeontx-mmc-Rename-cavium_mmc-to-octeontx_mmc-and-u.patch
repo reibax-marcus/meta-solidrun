@@ -1,8 +1,8 @@
-From 16e156f267e72b0d9e9886536ef29d7169630461 Mon Sep 17 00:00:00 2001
+From 2b9691b898e5ce460a78a32fd3831d6b86992824 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Fri, 31 Aug 2018 20:47:32 -0700
-Subject: [PATCH 0791/1239] octeontx: mmc: Rename cavium_mmc to octeontx_mmc
- and use hw generated regs
+Subject: [PATCH] octeontx: mmc: Rename cavium_mmc to octeontx_mmc and use hw
+ generated regs
 
 This patch renames the cavium_mmc driver to octeontx_mmc.  Additionally it
 modifies the driver to use an auto-generated hardware register definition
@@ -15,6 +15,7 @@ fixed.
 A future patch will clean up the changes required for the generic mmc files.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  .../include/asm/arch-octeontx/cavium_mmc.h    | 1845 -----------------
  .../asm/arch-octeontx/cavm-csrs-mio_emm.h     | 1197 +++++++++++
@@ -6184,6 +6185,3 @@ index 6d63c3cca4..d7e528ae9e 100644
 +	.ops = &octeontx_mmc_ops,
  };
  
--- 
-2.29.0
-

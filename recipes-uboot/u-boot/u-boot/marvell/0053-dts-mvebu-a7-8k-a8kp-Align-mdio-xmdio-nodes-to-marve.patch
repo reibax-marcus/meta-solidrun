@@ -1,8 +1,8 @@
-From 9b152b19520a4fc0fc27f3a7233d65152b59e9be Mon Sep 17 00:00:00 2001
+From 0956e11cf485e0ccd5e62c3b7f11fe66f6ca9e82 Mon Sep 17 00:00:00 2001
 From: Ken Ma <make@marvell.com>
 Date: Fri, 8 Dec 2017 15:33:15 +0800
-Subject: [PATCH 0053/1239] dts: mvebu: a7/8k/a8kp: Align mdio/xmdio nodes to
- marvell mdio driver
+Subject: [PATCH] dts: mvebu: a7/8k/a8kp: Align mdio/xmdio nodes to marvell
+ mdio driver
 
 - Add name for mdio;
 - Add xmdio node;
@@ -12,6 +12,7 @@ Subject: [PATCH 0053/1239] dts: mvebu: a7/8k/a8kp: Align mdio/xmdio nodes to
 Change-Id: I0703144c87696e699963bac321e5db92f2becfaf
 Signed-off-by: Ken Ma <make@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-db.dts |  1 +
  arch/arm/dts/armada-8040-db.dts |  2 ++
@@ -71,6 +72,3 @@ index 24e83047ec..b180710ad8 100644
  			};
  
  			CP110_LABEL(pinctl): pinctl@440000 {
--- 
-2.29.0
-

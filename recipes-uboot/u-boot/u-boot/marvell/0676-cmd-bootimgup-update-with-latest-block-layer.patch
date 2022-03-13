@@ -1,9 +1,10 @@
-From 40666f22dd9ff0f2102dfa41e34d33de2422bade Mon Sep 17 00:00:00 2001
+From 454954050736365a0c2a083324020b6ac77c1158 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 2 Aug 2017 12:41:30 -0700
-Subject: [PATCH 0676/1239] cmd: bootimgup: update with latest block layer
+Subject: [PATCH] cmd: bootimgup: update with latest block layer
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/Kconfig           | 11 ++++++-----
  cmd/bootimgup.c       | 15 +++++++++++----
@@ -130,6 +131,3 @@ index fabba817fe..f4fd78c183 100644
  CONFIG_EFI_PARTITION=y
  CONFIG_PARTITION_TYPE_GUID=y
  CONFIG_NET_RANDOM_ETHADDR=y
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 5a824419a523eadad92171fd445fd16f78d2d974 Mon Sep 17 00:00:00 2001
+From 552ba49e660f751cb15f1a9de275c62ceabf3c54 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 10 Nov 2015 12:45:57 -0800
-Subject: [PATCH 0368/1239] cavium: Update FDTs for OF control
+Subject: [PATCH] cavium: Update FDTs for OF control
 
 ---
  arch/arm/dts/thunder-88xx-2n.dts  | 4 ++++
@@ -80,6 +80,3 @@ index 2225a31585..0fc2e64374 100644
  		};
  
  		smmu0@8300,00000000 {
--- 
-2.29.0
-

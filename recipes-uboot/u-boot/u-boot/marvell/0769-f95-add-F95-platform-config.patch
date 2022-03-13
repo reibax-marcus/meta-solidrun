@@ -1,9 +1,10 @@
-From 32a94daf917cc417bab58a5a423f66f2073ff9c8 Mon Sep 17 00:00:00 2001
+From dd55474404f8901099d3d84af7612513be78831e Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Mon, 12 Mar 2018 23:21:13 -0700
-Subject: [PATCH 0769/1239] f95: add F95 platform config
+Subject: [PATCH] f95: add F95 platform config
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  configs/octeontx2_95xx_defconfig |  92 ++++++++++++++++++++++++++++
  include/configs/octeontx2_95xx.h | 102 +++++++++++++++++++++++++++++++
@@ -217,6 +218,3 @@ index 0000000000..4166348d6f
 +#define CONFIG_SYS_PROMPT		env_get("prompt")
 +
 +#endif /* __OCTEONTX2_95XX_H__ */
--- 
-2.29.0
-

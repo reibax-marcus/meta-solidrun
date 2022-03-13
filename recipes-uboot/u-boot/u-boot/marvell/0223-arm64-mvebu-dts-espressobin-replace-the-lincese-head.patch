@@ -1,14 +1,15 @@
-From 05bfd82c3eb4e8bf614a7f62a1151572b5ba0c92 Mon Sep 17 00:00:00 2001
+From 0135e2350eb041126fe57ab7be720f0bb293ccc9 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Wed, 28 Nov 2018 16:09:24 +0200
-Subject: [PATCH 0223/1239] arm64: mvebu: dts: espressobin: replace the lincese
- header with SPDX
+Subject: [PATCH] arm64: mvebu: dts: espressobin: replace the lincese header
+ with SPDX
 
 EspressoBIN DTS file header is replaced with SPDX license
 reference instead of full license text inclusion.
 
 Change-Id: I0b8c177d811103c2c545fb7546a55a6bebfd0c90
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-3720-espressobin.dts | 43 ++----------------------
  1 file changed, 3 insertions(+), 40 deletions(-)
@@ -78,6 +79,3 @@ index da6576f73c..169060fb23 100644
  
  	chosen {
  		stdout-path = "serial0:115200n8";
--- 
-2.29.0
-

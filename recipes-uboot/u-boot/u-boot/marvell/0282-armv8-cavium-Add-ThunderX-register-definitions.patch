@@ -1,7 +1,7 @@
-From 685bfc4f62cadbcd550b480113dd9a35f1872df3 Mon Sep 17 00:00:00 2001
+From 5ed81a71304b61cf76a11c2e6eb8a4eeec67b858 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 15 Apr 2015 15:51:29 -0700
-Subject: [PATCH 0282/1239] armv8: cavium: Add ThunderX register definitions
+Subject: [PATCH] armv8: cavium: Add ThunderX register definitions
 
 ---
  include/cavium/thunderx.h | 13 +++++++++++++
@@ -27,6 +27,3 @@ index 0000000000..2fb02af075
 +#define RST_BOOT 0x87E006001600ULL
 +
 +#endif
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From 77e5a59bb0162da4a8c3cda124f19fdc2f2b86e5 Mon Sep 17 00:00:00 2001
+From 352b726d26855fdaeb943f74a3669df49af327f0 Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Thu, 5 Jul 2018 14:46:28 +0300
-Subject: [PATCH 0157/1239] arm64: dts: a8k: align regulator naming
+Subject: [PATCH] arm64: dts: a8k: align regulator naming
 
 Replace legacy CP naming cpm/cps with cp0/cp1.
 
 Change-Id: I2d1724b408577d78ae53a4575a0899e709de0060
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+
 ---
  arch/arm/dts/armada-70x0-db.dtsi | 12 ++++++------
  arch/arm/dts/armada-80x0-db.dtsi | 22 +++++++++++-----------
@@ -116,6 +117,3 @@ index a40c3edba0..3544f8623a 100644
  				vbus-disable-delay = <500>;
  			};
  		};
--- 
-2.29.0
-

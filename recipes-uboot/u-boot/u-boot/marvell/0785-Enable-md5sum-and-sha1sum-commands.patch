@@ -1,7 +1,7 @@
-From 1c23f8bd9de37fd4442bf691d1b260430ee2cde9 Mon Sep 17 00:00:00 2001
+From cdad3a430182e8d62fee543c1609cd707723292b Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 23 Jul 2018 19:37:32 -0700
-Subject: [PATCH 0785/1239] Enable md5sum and sha1sum commands.
+Subject: [PATCH] Enable md5sum and sha1sum commands.
 
 ---
  configs/octeontx_81xx_defconfig | 2 ++
@@ -34,6 +34,3 @@ index dac84a48a5..288785c4a7 100644
  CONFIG_SCSI_AHCI=y
  CONFIG_AHCI_PCI=y
  CONFIG_BLOCK_CACHE=y
--- 
-2.29.0
-

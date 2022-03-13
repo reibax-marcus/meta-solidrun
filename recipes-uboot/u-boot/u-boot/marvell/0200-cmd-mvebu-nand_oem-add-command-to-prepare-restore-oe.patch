@@ -1,8 +1,8 @@
-From c37635631ee666fb7b9f7d61bd25170db01e648e Mon Sep 17 00:00:00 2001
+From 0f8bc6fdfe850ddab47ae1de0acabaa8d4f10b01 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Wed, 3 Oct 2018 10:40:07 +0200
-Subject: [PATCH 0200/1239] cmd: mvebu: nand_oem: add command to
- prepare/restore oem image
+Subject: [PATCH] cmd: mvebu: nand_oem: add command to prepare/restore oem
+ image
 
 This patch adds "nand_oem prepare/restore" command helping to create
 oem image.
@@ -76,6 +76,7 @@ required special routine for 64bit division.
 
 Change-Id: Ie11d3c7df4768f5bc9f1844b33281c6857481670
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  cmd/mvebu/pxa3xx_nand_oem.c | 587 ++++++++++++++++++++++++++++++++++++
  1 file changed, 587 insertions(+)
@@ -674,6 +675,3 @@ index 0000000000..61762d4cc2
 +
 +U_BOOT_CMD(nand_oem, 6, 0, do_nand_oem,
 +	   "NAND oem cmd", nand_oem_help_text);
--- 
-2.29.0
-

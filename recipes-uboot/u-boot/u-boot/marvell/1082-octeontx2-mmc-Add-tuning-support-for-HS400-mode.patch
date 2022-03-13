@@ -1,7 +1,7 @@
-From ed7a632cf65504f34071315ef72a05bc6ca1fb8e Mon Sep 17 00:00:00 2001
+From 4f26bfabddc5b51b1fc01f663e09d2ae3e1ccbe5 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Sun, 2 Feb 2020 13:51:55 -0800
-Subject: [PATCH 1082/1239] octeontx2: mmc: Add tuning support for HS400 mode
+Subject: [PATCH] octeontx2: mmc: Add tuning support for HS400 mode
 
 The eMMC specification does not provide a means to perform tuning in
 the HS400 mode and instead relies on using tuning parameters obtained
@@ -26,6 +26,7 @@ Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/22715
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 520 ++++++++++++++++++++++++++++-------
  drivers/mmc/octeontx_hsmmc.h |  11 +-
@@ -950,6 +951,3 @@ index ecb80f4d12..30e04e1c85 100644
  };
  
  /*
--- 
-2.29.0
-

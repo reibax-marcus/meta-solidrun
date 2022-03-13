@@ -1,8 +1,8 @@
-From ffa869d4e503cc1ad8e2a2aa26a4f0063d970652 Mon Sep 17 00:00:00 2001
+From 60246f6f602af3a27ae0dea8a61a743454f864ed Mon Sep 17 00:00:00 2001
 From: Ravindra Reddy <ravindra@marvell.com>
 Date: Fri, 28 Apr 2017 12:39:25 +0530
-Subject: [PATCH 0202/1239] net: switch: mv88e6xxx: add support for peridot and
- topaz families
+Subject: [PATCH] net: switch: mv88e6xxx: add support for peridot and topaz
+ families
 
 This patch adds support for 88E6190, 88E6290, 88E6390, 88E6141,
 88E6341 switches
@@ -16,6 +16,7 @@ This patch adds support for 88E6190, 88E6290, 88E6390, 88E6141,
 Change-Id: Ie737182672670478d4ba1cb1d656fcc709253bed
 Signed-off-by: Ravindra Reddy <ravindra@marvell.com>
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  common/board_r.c            |  13 +
  drivers/net/phy/Kconfig     |   9 +
@@ -987,6 +988,3 @@ index 75a16e4c8f..20942c7f30 100644
  int eth_get_dev_index(void);		/* get the device index */
  
  /**
--- 
-2.29.0
-

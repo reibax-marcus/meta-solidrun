@@ -1,8 +1,7 @@
-From 2558321ddd1bb2c5b46d6141bd3d1d1009a21061 Mon Sep 17 00:00:00 2001
+From 545383acb739fe3aa3a79e9dea35fe11c2fca97c Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 16 Dec 2019 18:57:36 +0200
-Subject: [PATCH 1035/1239] include/configs: use 2MB boot on 9130-CRB mmc
- device
+Subject: [PATCH] include/configs: use 2MB boot on 9130-CRB mmc device
 
 CN9130-CRB has eMMC with 2MB BOOT0/BOOT1 partitions.
 This is less than expected (4MB), so the environment location
@@ -13,6 +12,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20405
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  include/configs/mvebu_armada-common.h | 10 ++++++----
  1 file changed, 6 insertions(+), 4 deletions(-)
@@ -45,6 +45,3 @@ index 3d3174cb98..c034b657f5 100644
   */
  #define CONFIG_ENV_OFFSET		(0x200000 - CONFIG_ENV_SIZE)
  #else
--- 
-2.29.0
-

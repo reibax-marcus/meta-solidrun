@@ -1,7 +1,7 @@
-From 6affe227f51b9c478ee82c231b8aa0f4794b50ee Mon Sep 17 00:00:00 2001
+From 85efc7686039a7d6ad6eb9e5785447174c2e8d1c Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Mon, 19 Jun 2017 11:23:31 +0300
-Subject: [PATCH 0107/1239] thermal: introduce mvebu thermal driver
+Subject: [PATCH] thermal: introduce mvebu thermal driver
 
 In Armada 7K/8K there are 2 types of thermal sensor:
       - regular thermal (integrated in CP)
@@ -13,6 +13,7 @@ Add device tree binding documentation
 
 Change-Id: Iff3a140dc580f5e8e221e557dd8a92a68bce6094
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/include/asm/arch-mvebu/thermal.h     |  34 ++++
  .../thermal/mvebu-thermal.txt                 |  63 ++++++++
@@ -533,6 +534,3 @@ index 0000000000..15c686522c
 +	.probe	= mvebu_thermal_probe,
 +	.priv_auto_alloc_size = sizeof(struct thermal_unit_config),
 +};
--- 
-2.29.0
-

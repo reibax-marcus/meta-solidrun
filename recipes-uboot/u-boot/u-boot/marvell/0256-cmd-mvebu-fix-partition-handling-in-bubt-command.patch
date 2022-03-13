@@ -1,13 +1,14 @@
-From 1047d8ff2529d08d8000d3766829a1e1ea0f50a1 Mon Sep 17 00:00:00 2001
+From dd5318ccb8243a842d2e9e6eb2e0f293c0628125 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Thu, 9 Aug 2018 15:41:59 +0300
-Subject: [PATCH 0256/1239] cmd: mvebu: fix partition handling in bubt command
+Subject: [PATCH] cmd: mvebu: fix partition handling in bubt command
 
 Update the code handling MMC partitions following latest
 changes in the basic MMC structures.
 
 Change-Id: I9cd36550cd30726c5382d77ac34cb293aafce325
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  cmd/mvebu/bubt.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
@@ -38,6 +39,3 @@ index ae7515c585..0e15425ed6 100644
  #endif
  
  	return 0;
--- 
-2.29.0
-

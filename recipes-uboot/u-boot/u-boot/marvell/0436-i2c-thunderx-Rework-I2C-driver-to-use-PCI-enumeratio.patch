@@ -1,14 +1,14 @@
-From 6e868ed91f56a076602b0554125ab2ff4e5e08c7 Mon Sep 17 00:00:00 2001
+From e9780b20ecdb3de4b87c87e7bee79510aeff7a81 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 14 May 2016 17:33:03 -0400
-Subject: [PATCH 0436/1239] i2c: thunderx: Rework I2C driver to use PCI
- enumeration
+Subject: [PATCH] i2c: thunderx: Rework I2C driver to use PCI enumeration
 
 This commit makes ThunderX on-chip I2C controller use
 PCI enumeration. This allows seamless support for any
 current and future chips using this controller
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/i2c/thunderx_i2c.c | 486 ++++++++++++++++++++-----------------
  1 file changed, 263 insertions(+), 223 deletions(-)
@@ -592,6 +592,3 @@ index 8c0b58e459..961f962bbb 100644
 +};
 +
 +U_BOOT_PCI_DEVICE(thunderx_pci_twsi, thunderx_pci_twsi_supported);
--- 
-2.29.0
-

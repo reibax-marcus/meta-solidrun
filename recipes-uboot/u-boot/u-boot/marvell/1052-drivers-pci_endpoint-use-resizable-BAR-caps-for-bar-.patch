@@ -1,8 +1,8 @@
-From 23c8faa42a2571837c093c1d35b943c7943cec32 Mon Sep 17 00:00:00 2001
+From 1c4217ccdc4b579734911f45aa5a213d448479cc Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Wed, 1 Jan 2020 17:58:51 +0200
-Subject: [PATCH 1052/1239] drivers/pci_endpoint: use resizable BAR caps for
- bar size setup
+Subject: [PATCH] drivers/pci_endpoint: use resizable BAR caps for bar size
+ setup
 
 The proper BAR size for DW EP should be set using resizable BAR
 capabilities block instead of BAR mask shadow register.
@@ -13,6 +13,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20997
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  drivers/pci_endpoint/pcie_dw_mvebu_ep.c | 26 ++++++++++++++++++-------
  drivers/pci_endpoint/pcie_dw_mvebu_ep.h | 13 +++++++++++++
@@ -84,6 +85,3 @@ index 108bebbc4f..e15225a605 100644
  #define MAX_ATU_REGIONS			16
  #define MAX_ATU_SIZE			(4ul * SZ_1G)
  
--- 
-2.29.0
-

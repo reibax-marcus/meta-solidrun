@@ -1,13 +1,14 @@
-From 04e7789ea115e5b452794aff54d5a8f872b074bf Mon Sep 17 00:00:00 2001
+From 8afc8d2e6ee8e9fd22e471ee6088b7f3133b4570 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 14 Sep 2018 11:36:15 -0700
-Subject: [PATCH 0825/1239] octeontx/tx2: move from cavium to marvell
+Subject: [PATCH] octeontx/tx2: move from cavium to marvell
 
 Sadly, move from vendor cavium to Marvell and make necessary
 changes to code, usage of Cavium is discarded instead OcteonTX/TX2
 will be used.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/Kconfig                              |  15 +-
  arch/arm/mach-octeontx/Kconfig                |   2 +-
@@ -1097,6 +1098,3 @@ index 73c536dda7..8ded0736b1 100644
  
  #define CONFIG_MISC_INIT_R
  
--- 
-2.29.0
-

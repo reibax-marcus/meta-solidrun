@@ -1,13 +1,14 @@
-From 8486e1690c5c1af3b150e1f83daf65b33936c29e Mon Sep 17 00:00:00 2001
+From aaef701892c1a2704f3f9f945caf548afbb38ab7 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Wed, 5 Dec 2018 13:54:18 +0200
-Subject: [PATCH 0841/1239] fix: mmc: recover the mainline mmc API
+Subject: [PATCH] fix: mmc: recover the mainline mmc API
 
 Surround Octeon-specific code with #ifdef and allow the original
 mmc driver API for passing "bubt" compilation.
 
 Change-Id: Ia4039c29fb42dd482fe9fbc3bd4c627171acb3ad
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  cmd/mmc.c                | 20 ++++++++++++++++++++
  drivers/mmc/mmc-uclass.c | 17 ++++++++++++++++-
@@ -179,6 +180,3 @@ index fd0463f0f2..f37bc3057b 100644
 +struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
 +#endif
  #endif /* _MMC_H_ */
--- 
-2.29.0
-

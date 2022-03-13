@@ -1,7 +1,7 @@
-From f70d2e4b73f284001e4324e3599a8bb948833593 Mon Sep 17 00:00:00 2001
+From 36b89fcab4e812fb27c7e0eda7894743fbc798fe Mon Sep 17 00:00:00 2001
 From: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
 Date: Fri, 10 Jun 2016 12:52:45 +0530
-Subject: [PATCH 0505/1239] booti, arm64: align kernel start address to 2MB.
+Subject: [PATCH] booti, arm64: align kernel start address to 2MB.
 
 linux kernel start address for arm64 should be aligned
 to 2MB(refer Documentation/arm64/booting.txt)
@@ -11,6 +11,7 @@ This fixes the kernel boot issue with u-boot, if it starts at
 2MB unaligned address.
 
 Signed-off-by: Ganapatrao Kulkarni <gkulkarni@caviumnetworks.com>
+
 ---
  cmd/bootm.c | 1 +
  1 file changed, 1 insertion(+)
@@ -27,6 +28,3 @@ index 8279f2b7cc..ba947a4ebc 100644
  #include <u-boot/zlib.h>
  
  DECLARE_GLOBAL_DATA_PTR;
--- 
-2.29.0
-

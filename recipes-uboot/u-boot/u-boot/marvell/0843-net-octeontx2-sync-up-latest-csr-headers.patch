@@ -1,7 +1,7 @@
-From 1dc37c8a6effdc47de7dfa7cbedd58eff392b2a5 Mon Sep 17 00:00:00 2001
+From 4409165fea352e28c6861bd283edf37bfb508351 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 6 Dec 2018 11:27:47 -0800
-Subject: [PATCH 0843/1239] net: octeontx2: sync up latest csr headers
+Subject: [PATCH] net: octeontx2: sync up latest csr headers
 
 Change-Id: Ib95f1fd00f796628c6c0a66cd0eeb0a452095eee
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
@@ -9,6 +9,7 @@ Reviewed-on: https://sj1git1.cavium.com/1456
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/net/octeontx2/cavm-csrs-cgx.h | 23 +++++---
  drivers/net/octeontx2/cavm-csrs-lmt.h | 11 ++--
@@ -430,6 +431,3 @@ index 5eef0fb62c..aeca8e8ee5 100644
   */
  union cavm_rvu_vf_block_addrx_disc {
  	u64 u;
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 6ee0e2b7e67ecd23bccecbe24edf3ddb3e5a62f8 Mon Sep 17 00:00:00 2001
+From 241a9b2db09a31ce8689eafe4464b089fe49315c Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Tue, 6 Nov 2018 17:22:02 +0200
-Subject: [PATCH 0209/1239] arm64: mvebu: dts: armada8040: add Cybertan board
- support
+Subject: [PATCH] arm64: mvebu: dts: armada8040: add Cybertan board support
 
 Add support for Cybertan A8040 uCPE board.
 
@@ -22,6 +21,7 @@ It has 2 network interfaces:
 
 Change-Id: I251cdb462db43423b3d27a655a2796d00101ffa1
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/Makefile                |   1 +
  arch/arm/dts/armada-8040-ucpe.dts    | 383 +++++++++++++++++++++++++++
@@ -519,6 +519,3 @@ index 0000000000..965899d9fd
 +CONFIG_USB_ETHER_RTL8152=y
 +CONFIG_USB_ETHER_SMSC95XX=y
 +CONFIG_SMBIOS_MANUFACTURER=""
--- 
-2.29.0
-

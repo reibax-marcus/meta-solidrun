@@ -1,9 +1,10 @@
-From 6d477b71458e9ef37283b4b13f0eb61bc97c796a Mon Sep 17 00:00:00 2001
+From d5880a5c9b3fdde267a9d2a1662ed031882821a7 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 16 May 2016 14:39:48 -0700
-Subject: [PATCH 0450/1239] net: thunderx: Set disparity only for QSGMII mode.
+Subject: [PATCH] net: thunderx: Set disparity only for QSGMII mode.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 13 ++++++++++---
  1 file changed, 10 insertions(+), 3 deletions(-)
@@ -39,6 +40,3 @@ index d4b31ca767..89161f54bd 100644
  
  	if (bgx_poll_reg(bgx, lmacid, BGX_GMP_PCS_MRX_STATUS,
  			 PCS_MRX_STATUS_AN_CPT, false)) {
--- 
-2.29.0
-

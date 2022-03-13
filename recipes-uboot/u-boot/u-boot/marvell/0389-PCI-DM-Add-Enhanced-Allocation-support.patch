@@ -1,7 +1,7 @@
-From 822e979c200e35a5c1da3abde25b53c59ccfa59a Mon Sep 17 00:00:00 2001
+From 3511d5b981d5da8a7977932dad1b436127764140 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 May 2016 17:02:22 -0700
-Subject: [PATCH 0389/1239] PCI: DM: Add Enhanced Allocation support
+Subject: [PATCH] PCI: DM: Add Enhanced Allocation support
 
 This commit adds support for the Enhanced Allocation PCI
 capability. EA-capable devices are treated as fixed and
@@ -9,6 +9,7 @@ if an EA capability is present, BAR values are taken from
 there
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/pci/pci-uclass.c | 171 +++++++++++++++++++++++++++++++++++----
  1 file changed, 157 insertions(+), 14 deletions(-)
@@ -234,6 +235,3 @@ index ab3e1310eb..6dc8b685d0 100644
  UCLASS_DRIVER(pci) = {
  	.id		= UCLASS_PCI,
  	.name		= "pci",
--- 
-2.29.0
-

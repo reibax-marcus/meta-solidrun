@@ -1,7 +1,7 @@
-From 4dabe70801b9553dcaf18bcb54fd1743b7adf9e7 Mon Sep 17 00:00:00 2001
+From 3da7ca1d6187cd46dbe4d7c86291d422cd7f819b Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Wed, 26 Aug 2020 04:01:39 -0700
-Subject: [PATCH 1207/1239] octeontx: nand: Clean up init code
+Subject: [PATCH] octeontx: nand: Clean up init code
 
 While the old code works, it looks broken and generates warnings.  This
 fixes it and cleans it up.
@@ -11,6 +11,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/34602
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mtd/nand/raw/octeontx_bch.c | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
@@ -56,6 +57,3 @@ index db6c948320..c1c6792a76 100644
  		*ixp = jbase;
  	}
  
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 75b428cfca6497a3ba0a3384c403111e68ad0964 Mon Sep 17 00:00:00 2001
+From 3ea87433acaf1488675740d51a042dd2da63de46 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 5 Jun 2019 20:00:29 -0700
-Subject: [PATCH 0928/1239] mmc: octeontx: Fix calibration and clock issues
+Subject: [PATCH] mmc: octeontx: Fix calibration and clock issues
 
 This fixes several issues with the timing calibration support.
 The calibration can only be performed after the MMC
@@ -17,6 +17,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/10558
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 137 +++++++++++++++++++++++------------
  drivers/mmc/octeontx_hsmmc.h |   2 +
@@ -235,6 +236,3 @@ index 8cb744e4bc..71bb95097f 100644
  };
  
  /*
--- 
-2.29.0
-

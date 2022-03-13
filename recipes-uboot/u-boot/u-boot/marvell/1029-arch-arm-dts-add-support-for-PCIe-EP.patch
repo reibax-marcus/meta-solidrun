@@ -1,12 +1,13 @@
-From 1c53068d7010e087f46dcede6290d95cf3fbe57b Mon Sep 17 00:00:00 2001
+From 6f5dbe850aa2a84ae8ea96763535d331ff146c1e Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 26 Nov 2019 10:39:16 +0200
-Subject: [PATCH 1029/1239] arch/arm/dts: add support for PCIe EP
+Subject: [PATCH] arch/arm/dts: add support for PCIe EP
 
 Change-Id: I0c5f35ebdd7363c4a2733da732863e0440b7d823
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19275
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-ocp.dts |  8 ++++++++
  arch/arm/dts/armada-cp110.dtsi   | 25 +++++++++++++++++++++++++
@@ -74,6 +75,3 @@ index c92c8d4f9d..9b29938f11 100644
  		CP110_LABEL(pcie0): pcie0@600000 {
  			compatible = "marvell,armada8k-pcie", "snps,dw-pcie";
  			reg =
--- 
-2.29.0
-

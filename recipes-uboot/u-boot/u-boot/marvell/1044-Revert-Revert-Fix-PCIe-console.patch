@@ -1,7 +1,7 @@
-From caaf35d652f5b187077d6f9eefc8fca287e934a5 Mon Sep 17 00:00:00 2001
+From 1eca6a3e46a6d6c595475363b4c4a52c90617c09 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Thu, 19 Dec 2019 18:07:14 -0800
-Subject: [PATCH 1044/1239] Revert "Revert "Fix PCIe console""
+Subject: [PATCH] Revert "Revert "Fix PCIe console""
 
 This reverts commit fe1b9119124c8123ee7673fae1e4f4dafd850559.
 Now that pcie console shutdown is fixed, re-enable probe.
@@ -11,6 +11,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20611
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx2/board.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -28,6 +29,3 @@ index c15e970479..9e34860f38 100644
  
  extern unsigned long fdt_base_addr;
  extern void cgx_intf_shutdown(void);
--- 
-2.29.0
-

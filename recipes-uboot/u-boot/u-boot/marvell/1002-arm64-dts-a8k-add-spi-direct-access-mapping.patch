@@ -1,7 +1,7 @@
-From 71e6051e75ad712728fd291a3e787c4702d64bff Mon Sep 17 00:00:00 2001
+From fa42edafe7e42205a5311da04ce2e86ab222938e Mon Sep 17 00:00:00 2001
 From: Ofer Heifetz <oferh@marvell.com>
 Date: Mon, 11 Nov 2019 15:19:27 +0200
-Subject: [PATCH 1002/1239] arm64: dts: a8k: add spi direct access mapping
+Subject: [PATCH] arm64: dts: a8k: add spi direct access mapping
 
 In ATF, spi direct mapping window of [0xf9000000, 0xf9ffffff] is added
 for a80x0_ocp, this patch adds the spi direct access mapping for
@@ -15,6 +15,7 @@ Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/18951
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Marcin Wojtas <marcin@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-ocp.dts | 3 +++
  1 file changed, 3 insertions(+)
@@ -33,6 +34,3 @@ index 460f2d49bf..b2af482496 100644
  	status = "okay";
  
  	spi-flash@0 {
--- 
-2.29.0
-

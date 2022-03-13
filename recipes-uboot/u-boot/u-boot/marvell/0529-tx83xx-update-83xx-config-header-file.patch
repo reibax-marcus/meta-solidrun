@@ -1,13 +1,14 @@
-From 9c7fd5bed828982056e7c52932de9c2eb80e6528 Mon Sep 17 00:00:00 2001
+From c35100f738bd38e7e7c226a56b0448cd652f0dcc Mon Sep 17 00:00:00 2001
 From: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
 Date: Tue, 18 Oct 2016 23:17:52 +0530
-Subject: [PATCH 0529/1239] tx83xx: update 83xx config header file.
+Subject: [PATCH] tx83xx: update 83xx config header file.
 
 increase bgx to 4
 undef rgmii/xcv
 increase maxcpu to 24
 
 Signed-off-by: Ganapatrao Kulkarni <ganapatrao.kulkarni@cavium.com>
+
 ---
  include/configs/thunderx_83xx.h | 7 +++----
  1 file changed, 3 insertions(+), 4 deletions(-)
@@ -46,6 +47,3 @@ index c68b825f69..10d6eabab8 100644
  					"root=/dev/sda2 coherent_pool=16M"
  
  /** Store U-Boot version in "ver" environment variable */
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From 409e22c1a53bf09b1eb1224bef92d899049d8371 Mon Sep 17 00:00:00 2001
+From 5af1107f2e025e8d0d6c88c1e84107bcc0f6da37 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 16 May 2018 14:38:21 -0700
-Subject: [PATCH 0777/1239] octeontx2: Add SMC call to disable RVU LF and PF
+Subject: [PATCH] octeontx2: Add SMC call to disable RVU LF and PF
 
 Add atf_disable_rvu_lf() that calls OCTEONTX2_DISABLE_RVU_LFS SMC call to disables
 LFs and PFs configured for NPA and NIX blocks.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/octeontx2_svc.h |  3 ++-
  board/cavium/octeontx2/atf.c                        | 10 ++++++++++
@@ -65,6 +66,3 @@ index 593d453784..150b99b7a1 100644
  	cgx_intf_shutdown();
  }
  
--- 
-2.29.0
-

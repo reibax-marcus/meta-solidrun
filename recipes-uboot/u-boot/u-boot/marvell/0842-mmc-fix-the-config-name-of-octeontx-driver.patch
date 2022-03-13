@@ -1,12 +1,13 @@
-From 0162a30b95d962b67b758a90d2f2806db1bdaeb0 Mon Sep 17 00:00:00 2001
+From 07396ee7e9e42cb200b7798c234e02f9199183de Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 11 Dec 2018 11:25:06 -0800
-Subject: [PATCH 0842/1239] mmc: fix the config name of octeontx driver
+Subject: [PATCH] mmc: fix the config name of octeontx driver
 
 Replace _CAVIUM with _OCTEONTX to fix build error.
 
 Change-Id: Ic3e1683616f50c626d53cad914be9a54437381d2
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/mmc.c                | 10 +++++-----
  drivers/mmc/mmc-uclass.c |  2 +-
@@ -120,6 +121,3 @@ index f37bc3057b..289fe810e5 100644
  struct blk_desc *mmc_get_blk_desc(struct mmc *mmc, int devnum);
  #else
  struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
--- 
-2.29.0
-

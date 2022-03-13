@@ -1,13 +1,14 @@
-From 7e14606156e365f3498b614aaa7d992eaa1bb6f6 Mon Sep 17 00:00:00 2001
+From 84f3aa1f7a5200ef206f6db3df1e9f7f226ae64b Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 28 Oct 2018 11:32:33 +0200
-Subject: [PATCH 0198/1239] arm64: mvebu: a3900: fix the USB 2.0 TX amplitude
+Subject: [PATCH] arm64: mvebu: a3900: fix the USB 2.0 TX amplitude
 
 Fix the default settings for USB 2.0 (UTMI) ports TX output
 driver amplitude value for passing compatibility tests.
 
 Change-Id: Ic5babec8cee65d6789ea2ea129fa7e658375eb5a
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  board/Marvell/mvebu_armada-8k/board.c | 20 +++++++++++++++++++-
  1 file changed, 19 insertions(+), 1 deletion(-)
@@ -56,6 +57,3 @@ index aa6b9126f1..3fd8936203 100644
 +
  	return 0;
  }
--- 
-2.29.0
-

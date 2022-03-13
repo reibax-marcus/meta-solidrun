@@ -1,9 +1,10 @@
-From 93a4e08d500c8e6fca5d7c7eceb59d5f8620b33c Mon Sep 17 00:00:00 2001
+From cce63a9dcc009414b5ad6c786ebe98b38c0e6cc7 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 6 Jun 2016 17:38:27 -0700
-Subject: [PATCH 0494/1239] net: thunderx: Added RGMII support.
+Subject: [PATCH] net: thunderx: Added RGMII support.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/Makefile      |   4 +-
  drivers/net/cavium/nic.h         |   1 +
@@ -519,6 +520,3 @@ index c880c9a93b..cbdd6736bb 100644
  
  #define CONFIG_PHYLIB_10G
  
--- 
-2.29.0
-

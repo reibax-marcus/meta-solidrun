@@ -1,8 +1,7 @@
-From 4a6e17045f545b2d251e0016ec0b904cc60ee7ad Mon Sep 17 00:00:00 2001
+From 3ea1e0bc0ae437ce44dcafeba0e5f60a5ffbeea9 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 13 Jan 2020 18:52:06 +0200
-Subject: [PATCH 1057/1239] arch/arm/dts: update BARs for CP110 PCI0 EP
- platforms
+Subject: [PATCH] arch/arm/dts: update BARs for CP110 PCI0 EP platforms
 
 - move BAR regions from DTS to CP110 DTSI file
 - add back BAR2 16MB @ 0x3f000000
@@ -14,6 +13,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/21469
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-ocp.dts | 18 ++++++++++++++----
  arch/arm/dts/armada-cp110.dtsi   |  7 +++++--
@@ -129,6 +129,3 @@ index 519108de89..2a754c58fd 100644
  	status = "okay";
  };
  
--- 
-2.29.0
-

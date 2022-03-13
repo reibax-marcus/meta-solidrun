@@ -1,14 +1,14 @@
-From 20eafec65d903406fc8d83a4c8e75eb82283f5d9 Mon Sep 17 00:00:00 2001
+From 792452f7cfe7516d7b99f1e5e5ded7683e601140 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Fri, 7 Sep 2018 16:24:29 -0700
-Subject: [PATCH 0797/1239] octeontx: nic: move to u-boot driver model for
- ethernet class
+Subject: [PATCH] octeontx: nic: move to u-boot driver model for ethernet class
 
 Move to use of DM_ETH uclass framework with necessary changes
 in nic driver. Minor changes in board files too and few compiler
 error fixes.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/octeontx.h |   1 +
  .../include/asm/arch-octeontx/octeontx_vnic.h |   4 +-
@@ -848,6 +848,3 @@ index 3bd98b01ad..91c2428db3 100644
  	/*
  	 * Devices need to write the hwaddr even if not started so that Linux
  	 * will have access to the hwaddr that u-boot stored for the device.
--- 
-2.29.0
-

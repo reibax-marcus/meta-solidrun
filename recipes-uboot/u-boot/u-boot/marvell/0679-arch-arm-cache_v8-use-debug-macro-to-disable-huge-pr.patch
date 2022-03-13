@@ -1,10 +1,10 @@
-From 409c035f26a9230312b430c842f06a1848290162 Mon Sep 17 00:00:00 2001
+From 645f4256075de2392741a87f1ba49d6c590696d7 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 1 Aug 2017 12:55:23 -0700
-Subject: [PATCH 0679/1239] arch: arm: cache_v8: use debug macro to disable
- huge prints
+Subject: [PATCH] arch: arm: cache_v8: use debug macro to disable huge prints
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/cpu/armv8/cache_v8.c | 37 +++++++++++++++++++++++++++--------
  1 file changed, 29 insertions(+), 8 deletions(-)
@@ -164,6 +164,3 @@ index e500e722e5..7e3b3974b6 100644
  	if (!gd->arch.tlb_emerg)
  		panic("Emergency page table not setup.");
  
--- 
-2.29.0
-

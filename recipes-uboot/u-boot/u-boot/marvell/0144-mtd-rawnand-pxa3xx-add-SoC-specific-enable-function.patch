@@ -1,8 +1,7 @@
-From 579b7b0d518c5bc3399ee700ced62f16d60eac8d Mon Sep 17 00:00:00 2001
+From 740892d36df791ac48186cbec896d55c6c96be4f Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Wed, 4 Jul 2018 17:18:13 +0300
-Subject: [PATCH 0144/1239] mtd: rawnand: pxa3xx: add SoC-specific enable
- function
+Subject: [PATCH] mtd: rawnand: pxa3xx: add SoC-specific enable function
 
 Add SoC-dependent function to the NAND driver for selecting
 NAND interface in DEVBUS MUX register.
@@ -16,6 +15,7 @@ Change-Id: I9cd9b2cbecee0eaa2dd54eacb5ca0a55f4bede3b
 Signed-off-by: Igal Liberman <igall@marvell.com>
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+
 ---
  arch/arm/dts/armada-cp110.dtsi         |  7 ++-
  arch/arm/mach-mvebu/armada8k/cpu.c     | 18 -------
@@ -335,6 +335,3 @@ index 4d2712df4c..8a603fd011 100644
  	ret = alloc_nand_resource(info);
  	if (ret) {
  		dev_err(&pdev->dev, "alloc nand resource failed\n");
--- 
-2.29.0
-

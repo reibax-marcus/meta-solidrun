@@ -1,10 +1,10 @@
-From 5081a48b23047b581e81c82d2a1c7e6cd6b88727 Mon Sep 17 00:00:00 2001
+From 0acd0cb8f9b41682ad065393c9aeae2ee03dbdf3 Mon Sep 17 00:00:00 2001
 From: Rabeeh Khoury <rabeeh@solid-run.com>
 Date: Sun, 20 Jun 2021 20:02:33 +0300
-Subject: [PATCH 11/11] arm: dts: cn9130: add cn9130 based clearfog base and
- pro
+Subject: [PATCH] arm: dts: cn9130: add cn9130 based clearfog base and pro
 
 Signed-off-by: Rabeeh Khoury <rabeeh@solid-run.com>
+
 ---
  arch/arm/dts/Makefile           |   6 +-
  arch/arm/dts/cn9130-cf-base.dts | 383 ++++++++++++++++++++++++++++++
@@ -963,6 +963,3 @@ index 0000000000..51d56359aa
 +		output-high;
 +	};
 +};
--- 
-2.25.1
-

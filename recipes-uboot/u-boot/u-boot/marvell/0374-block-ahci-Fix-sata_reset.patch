@@ -1,7 +1,7 @@
-From 086f05b2ebef961caa27f04030c42fb6d353c9eb Mon Sep 17 00:00:00 2001
+From 404c2c5d7ef051311fcf5a281b921504f6d729a2 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 24 Nov 2015 05:10:25 -0800
-Subject: [PATCH 0374/1239] block: ahci: Fix sata_reset()
+Subject: [PATCH] block: ahci: Fix sata_reset()
 
 ---
  drivers/block/sata_ahci.c | 19 +++++++++++++------
@@ -41,6 +41,3 @@ index 23e8cbfa09..90c0ddbdae 100644
  	setbits_le32(&host_mmio->ghc, SATA_HOST_GHC_HR);
  	while (readl(&host_mmio->ghc) & SATA_HOST_GHC_HR)
  		udelay(100);
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 952e384c0d485d6e94aa1cb2f3c54c2e97b808e3 Mon Sep 17 00:00:00 2001
+From 22c4c9775160d24dc36e03f53065ebe4f836fc2d Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 22 May 2019 10:26:13 -0700
-Subject: [PATCH 0909/1239] drivers: mmc: octeontx: skip calibrate_delay for
- F95 A0 also
+Subject: [PATCH] drivers: mmc: octeontx: skip calibrate_delay for F95 A0 also
 
 Calibrate delay is not fixed yet.
 
@@ -12,6 +11,7 @@ Reviewed-on: https://sj1git1.cavium.com/9781
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -29,6 +29,3 @@ index c2d9052f84..73974d8807 100644
  		emm_tap.s.delay = 4;
  	} else {
  		emm_calb.u = 0;
--- 
-2.29.0
-

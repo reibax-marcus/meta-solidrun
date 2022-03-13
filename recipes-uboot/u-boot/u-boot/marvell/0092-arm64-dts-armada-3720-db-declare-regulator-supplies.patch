@@ -1,14 +1,14 @@
-From 109360627b5ffd0a8ded46e3df727015397f9147 Mon Sep 17 00:00:00 2001
+From 20b89c4f7494912ea4230623ae3629596c54e2ea Mon Sep 17 00:00:00 2001
 From: allen yan <yanwei@marvell.com>
 Date: Wed, 5 Apr 2017 10:24:46 +0800
-Subject: [PATCH 0092/1239] arm64: dts: armada-3720-db: declare regulator
- supplies
+Subject: [PATCH] arm64: dts: armada-3720-db: declare regulator supplies
 
 This patch introduces a control over USB2/3 and SDIO
 power supplies via GPIO-driven regulators.
 
 Signed-off-by: allen yan <yanwei@marvell.com>
 Signed-off-by: Evan Wang <xswang@marvell.com>
+
 ---
  arch/arm/dts/armada-3720-db.dts | 32 ++++++++++++++++++++++++++++++++
  1 file changed, 32 insertions(+)
@@ -75,6 +75,3 @@ index 4543c66af8..cc129380b8 100644
  	status = "okay";
  };
  
--- 
-2.29.0
-

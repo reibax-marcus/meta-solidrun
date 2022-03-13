@@ -1,12 +1,13 @@
-From fdef3554192a498e427764dee92cc67bcb66344c Mon Sep 17 00:00:00 2001
+From bfad9e066de2f44e9ad402501cd47f28c7a9cedf Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Fri, 27 May 2016 15:45:03 -0700
-Subject: [PATCH 0489/1239] cavium: Fix issue with UART clock
+Subject: [PATCH] cavium: Fix issue with UART clock
 
 Define CONFIG_OF_BOARD_SETUP to update refclkuaa. Also fix
 clock-frequence for sclk by reading RST_BOOT CSR.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/fdt.c     | 17 ++++++++++++++++-
  include/configs/thunderx_81xx.h |  2 +-
@@ -65,6 +66,3 @@ index 52673e2218..c880c9a93b 100644
  
  /* SMP Spin Table Definitions */
  #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
--- 
-2.29.0
-

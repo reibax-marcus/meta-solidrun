@@ -1,14 +1,15 @@
-From 58bce1066ba108b63df8a2c4b10511e57873f956 Mon Sep 17 00:00:00 2001
+From 9e33380b134b6eb17e33dfabb68f287081d22465 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 23 Oct 2019 18:34:52 -0700
-Subject: [PATCH 0987/1239] drivers: ata: ahci: update max id if it is more
- than available ports
+Subject: [PATCH] drivers: ata: ahci: update max id if it is more than
+ available ports
 
 After check for maximum between max id and available ports, also check
 if available port count is less than max id and update.
 
 Change-Id: Ic6d2b8dd08e7c6eced0b08171e36fa5ed8297757
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+
 ---
  drivers/ata/ahci.c | 3 +++
  1 file changed, 3 insertions(+)
@@ -27,6 +28,3 @@ index 7affdffd1c..90c394022d 100644
  
  	return 0;
  }
--- 
-2.29.0
-

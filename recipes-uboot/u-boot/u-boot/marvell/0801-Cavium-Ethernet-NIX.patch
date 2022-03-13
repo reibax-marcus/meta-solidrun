@@ -1,11 +1,12 @@
-From f96e610aff501dea410f8ae7a0c33aefa99e6ef8 Mon Sep 17 00:00:00 2001
+From d4bf363489e0a540ca4528104f611aa306be17c6 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 12 Mar 2018 17:24:44 -0700
-Subject: [PATCH 0801/1239] Cavium: Ethernet: NIX
+Subject: [PATCH] Cavium: Ethernet: NIX
 
 Added definition file for NPC registers and structures.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/net/cavium/octeontx2/npc_regs.h | 362 ++++++++++++++++++++++++
  1 file changed, 362 insertions(+)
@@ -379,6 +380,3 @@ index 0000000000..9a2736c8cb
 +};
 +
 +#endif /* __NPC_REG_H__ */
--- 
-2.29.0
-

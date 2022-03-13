@@ -1,7 +1,7 @@
-From 99f7061128d2b5f1faf3e18110a808e0a7e5317c Mon Sep 17 00:00:00 2001
+From e87b1370b684f27db6dea135fa93ddf4f6889abc Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Tue, 15 Oct 2019 12:30:39 +0200
-Subject: [PATCH 0021/1239] phy: marvell: cp110: remove unused definitions
+Subject: [PATCH] phy: marvell: cp110: remove unused definitions
 
 Even if comphy types of SATA2/SATA3/SGMII3 and comphy speeds of
 1.5G/3G/6.25G were referenced in the driver non configuration (dts)
@@ -12,6 +12,7 @@ This patch removes unused definitions.
 Change-Id: I53ed6f9d3a82b9d18cb4e488bc14d3cf687f9488
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_core.c        | 18 ++++-----
  drivers/phy/marvell/comphy_cp110.c       |  3 --
@@ -145,6 +146,3 @@ index e6b4bfca3c..8e92705989 100644
  #define COMPHY_TYPE_INVALID		0xff
  
  #define COMPHY_POLARITY_NO_INVERT	0
--- 
-2.29.0
-

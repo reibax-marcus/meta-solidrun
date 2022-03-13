@@ -1,12 +1,13 @@
-From 70c5868c4fe0efc3886e4453d1baf940ac799037 Mon Sep 17 00:00:00 2001
+From 554b8b1a21ca9b3e7afbf988703f782f8161b4e1 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Date: Mon, 11 Mar 2019 13:41:45 -0700
-Subject: [PATCH 0897/1239] mmc: octeontx: Remove old driver.
+Subject: [PATCH] mmc: octeontx: Remove old driver.
 
 Change-Id: I7d51f76e555a54021e42c361226d81c5d4a5c394
 Signed-off-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5497
 Tested-by: sa_ip-sw-jenkins
+
 ---
  drivers/mmc/octeontx_mmc.c | 6496 ------------------------------------
  1 file changed, 6496 deletions(-)
@@ -6514,6 +6515,3 @@ index a7b8802a75..0000000000
 -	.ops = &octeontx_mmc_ops,
 -};
 -
--- 
-2.29.0
-

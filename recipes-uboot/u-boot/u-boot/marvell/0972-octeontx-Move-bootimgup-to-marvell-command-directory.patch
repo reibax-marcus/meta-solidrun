@@ -1,8 +1,7 @@
-From 52b70fc2d0a712b8c98a39986367ac8046fae369 Mon Sep 17 00:00:00 2001
+From 025466552331ef0f54d4e7be4949a542e8ae83b4 Mon Sep 17 00:00:00 2001
 From: aaronw <awilliams@marvell.com>
 Date: Fri, 18 Oct 2019 20:06:29 -0700
-Subject: [PATCH 0972/1239] octeontx: Move bootimgup to marvell command
- directory
+Subject: [PATCH] octeontx: Move bootimgup to marvell command directory
 
 Since this command is currently specific to the OcteonTX and
 OcteonTX2 SoCs this command should be under the marvell
@@ -13,6 +12,7 @@ Signed-off-by: aaronw <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/17581
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  cmd/Kconfig                   | 7 -------
  cmd/Makefile                  | 1 -
@@ -90,6 +90,3 @@ diff --git a/cmd/bootimgup.c b/cmd/marvell/bootimgup.c
 similarity index 100%
 rename from cmd/bootimgup.c
 rename to cmd/marvell/bootimgup.c
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From 0ad14ca8ef627201937e2f4af7acc353bcaa6d7c Mon Sep 17 00:00:00 2001
+From 64318994ad8cb8d5a49b4e6c3d5532bde2274ef4 Mon Sep 17 00:00:00 2001
 From: Rick Farrington <Ricardo.Farrington@cavium.com>
 Date: Thu, 19 Sep 2019 01:01:31 -0400
-Subject: [PATCH 0960/1239] Added support for 'attest' command (for Software
+Subject: [PATCH] Added support for 'attest' command (for Software
  Attestation).
 
 Change-Id: I1bc2358f61d5c56ae5807e9ca3da9c8f5812267c
@@ -10,6 +10,7 @@ Reviewed-on: https://sj1git1.cavium.com/16059
 Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/atf.h     |   1 +
  .../include/asm/arch-octeontx2/octeontx2.h    |  40 ++++++
@@ -303,6 +304,3 @@ index 3145740854..b09c68ac58 100644
  CONFIG_SYS_CONSOLE_IS_IN_ENV=y
  CONFIG_CMD_FAILSAFE=y
 +# CONFIG_CMD_ATTEST is not set
--- 
-2.29.0
-

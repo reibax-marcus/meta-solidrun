@@ -1,7 +1,7 @@
-From 30629907ca82214d7027eed79b48359cf773f925 Mon Sep 17 00:00:00 2001
-From: aaronw <Aaron Williams awilliams@marvell.com>
+From 2c89d7700500565c693419dc7e07595579f66679 Mon Sep 17 00:00:00 2001
+From: "awilliams@marvell.com" <awilliams@marvell.com>
 Date: Wed, 14 Aug 2019 18:15:28 -0700
-Subject: [PATCH 0950/1239] mmc: octeontx: Fix HS400 writes and other issues
+Subject: [PATCH] mmc: octeontx: Fix HS400 writes and other issues
 
 This fixes the tuning support and writes in HS400 mode.
 Part of this involves having two timing values, one
@@ -32,6 +32,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/14364
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/mmc/octeontx_hsmmc.c | 616 +++++++++++++++++++++++++----------
  drivers/mmc/octeontx_hsmmc.h |  10 +-
@@ -1109,6 +1110,3 @@ index ad3f3a50d7..e503f405e0 100644
  };
  
  /*
--- 
-2.29.0
-

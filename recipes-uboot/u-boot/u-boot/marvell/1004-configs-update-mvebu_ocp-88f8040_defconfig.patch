@@ -1,7 +1,7 @@
-From 98bcc278391d2fbb0b13df7e3956ad1fd7b52c4f Mon Sep 17 00:00:00 2001
+From 151a9a08b94b4998397f2dafb1c949d22b1a2fa5 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 25 Nov 2019 15:00:57 +0200
-Subject: [PATCH 1004/1239] configs: update mvebu_ocp-88f8040_defconfig
+Subject: [PATCH] configs: update mvebu_ocp-88f8040_defconfig
 
 - fix DTS name
 - add USB ETH support
@@ -13,6 +13,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19235
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  configs/mvebu_ocp-88f8040_defconfig | 21 ++++++++++++++++++++-
  1 file changed, 20 insertions(+), 1 deletion(-)
@@ -81,6 +82,3 @@ index a5d10bdc45..1fb61c71e0 100644
 +CONFIG_USB_ETHER_RTL8152=y
 +CONFIG_USB_ETHER_SMSC95XX=y
  CONFIG_SMBIOS_MANUFACTURER=""
--- 
-2.29.0
-

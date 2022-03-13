@@ -1,12 +1,13 @@
-From 3860687356636d2e506fc7fb76d8100434794d9c Mon Sep 17 00:00:00 2001
+From 1a714ea006c7ac20e12d51f041c54edf861edf8e Mon Sep 17 00:00:00 2001
 From: Alex Leibovich <alexl@marvell.com>
 Date: Sun, 10 Mar 2019 11:50:43 +0200
-Subject: [PATCH 0241/1239] arm64: mvebu: dts: a8k: add rtc device tree node
+Subject: [PATCH] arm64: mvebu: dts: a8k: add rtc device tree node
 
 Added rtc module to dtsi files.
 
 Change-Id: Ic6d510f29a2a13c5f33e7ca9b2872d158415ab5d
 Signed-off-by: Alex Leibovich <alexl@marvell.com>
+
 ---
  arch/arm/dts/armada-70x0.dtsi  | 4 ++++
  arch/arm/dts/armada-8040.dtsi  | 4 ++++
@@ -60,6 +61,3 @@ index 1381910431..601c3100a9 100644
  			CP110_LABEL(ethernet): ethernet@0 {
  				compatible = "marvell,armada-7k-pp22";
  				reg = <0x0 0x100000>, <0x129000 0xb000>;
--- 
-2.29.0
-

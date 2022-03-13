@@ -1,11 +1,12 @@
-From 915301d29cb792303d4a668dd57e43b47e4982a2 Mon Sep 17 00:00:00 2001
+From c481a82a2306bd2137b9db1a733bea9023e46de4 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 29 Jun 2016 17:13:53 -0700
-Subject: [PATCH 0511/1239] Moved thunderx arch specific include files
+Subject: [PATCH] Moved thunderx arch specific include files
 
 I forgot to include the new arch directory for thunderx in my last checkin.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  arch/arm/include/asm/arch-thunderx/atf.h      | 22 ++++++
  arch/arm/include/asm/arch-thunderx/atf_part.h | 26 +++++++
@@ -258,6 +259,3 @@ index 0000000000..e79284c8c5
 +			unsigned int *phy_addr);
 +
 +#endif /* VNIC_H_ */
--- 
-2.29.0
-

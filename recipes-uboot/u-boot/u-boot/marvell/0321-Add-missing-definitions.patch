@@ -1,7 +1,7 @@
-From 709d6d83e29598bbaa6deabc5cf7f95322f718d6 Mon Sep 17 00:00:00 2001
+From abd167bf14ad5eb505315a4649434583e1c7ab3b Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Tue, 7 Apr 2015 21:49:56 +0300
-Subject: [PATCH 0321/1239] Add missing definitions
+Subject: [PATCH] Add missing definitions
 
 ---
  include/configs/thunderx_88xx.h | 55 +++++++++++++++++++++++++++++++++
@@ -73,6 +73,3 @@ index 11055dca20..033a349211 100644
  /* Link Definitions */
  #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
  
--- 
-2.29.0
-

@@ -1,9 +1,10 @@
-From df48d6cdd4477b7c21f32c32ea2f5d7ab8f4e54c Mon Sep 17 00:00:00 2001
+From 8484f986247ca0e66c2e1c5fae5196bbf51f1627 Mon Sep 17 00:00:00 2001
 From: Alon Rotman <alon.rotman@solid-run.com>
 Date: Thu, 4 Feb 2021 17:22:50 +0200
 Subject: [PATCH] dts: cn9132 cxe7 pwm assert and xmdio support
 
 Signed-off-by: Alon Rotman <alon.rotman@solid-run.com>
+
 ---
  arch/arm/dts/cn9130-cex7-A.dts         | 10 ++++++++--
  arch/arm/dts/cn9131-cex7.dtsi          |  1 +
@@ -103,10 +104,10 @@ index 0244fd6aa4..514ddfa7d4 100644
  &cp2_pcie0 {
  		/* non-prefetchable memory */
 diff --git a/board/Marvell/octeontx2_cn913x/board.c b/board/Marvell/octeontx2_cn913x/board.c
-index d4158802d0..e9a98a38a4 100644
+index e0998faf28..8c2bcbcdbc 100644
 --- a/board/Marvell/octeontx2_cn913x/board.c
 +++ b/board/Marvell/octeontx2_cn913x/board.c
-@@ -57,6 +57,10 @@ int board_init(void)
+@@ -60,6 +60,10 @@ int board_init(void)
  	/* address of boot parameters */
  	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
  
@@ -117,11 +118,8 @@ index d4158802d0..e9a98a38a4 100644
  #ifdef CONFIG_BOARD_CONFIG_EEPROM
  	cfg_eeprom_init();
  #endif
-@@ -125,3 +129,4 @@ int board_late_init(void)
- #endif
+@@ -141,3 +145,4 @@ int ft_board_setup(void *blob, bd_t *bd)
+ 	ft_cpu_setup(blob, bd);
  	return 0;
  }
 +
--- 
-2.25.1
-

@@ -1,12 +1,12 @@
-From c8dbc06b05fb739f6a36f98786acf5d60eb301e4 Mon Sep 17 00:00:00 2001
+From 07e848a03d9e616896032892fd4b929a05944455 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 16 May 2016 15:32:00 -0400
-Subject: [PATCH 0446/1239] thunderx: Remove stale node1 mapping entries from
- config
+Subject: [PATCH] thunderx: Remove stale node1 mapping entries from config
 
 81xx is not NUMA capable, so it needs only Node 0 addresses
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  include/configs/thunderx_81xx.h | 13 +------------
  1 file changed, 1 insertion(+), 12 deletions(-)
@@ -47,6 +47,3 @@ index cf43069e49..826e154f6b 100644
  
  #define CONFIG_COREID_MASK		0xffffff
  #define CONFIG_SYS_FULL_VA
--- 
-2.29.0
-

@@ -1,13 +1,14 @@
-From fb50ba041f76691ccd75ab6b7f5e0d2349d61af9 Mon Sep 17 00:00:00 2001
+From 3e8c3d72b59c7e64ca3b79bb27b99374b9e2531f Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 21 Feb 2018 15:12:38 -0800
-Subject: [PATCH 0755/1239] configs: Remove CONFIG_SYS_MEM_TOP_HIDE, not
- required for ARM64
+Subject: [PATCH] configs: Remove CONFIG_SYS_MEM_TOP_HIDE, not required for
+ ARM64
 
 Fix for bug #32518
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  include/configs/thunderx_81xx.h | 9 ---------
  include/configs/thunderx_83xx.h | 9 ---------
@@ -74,6 +75,3 @@ index 447faaf169..0a4f723206 100644
  /**
   * Only allow the Ethernet MAC address environment variable to be
   * overwritten once.
--- 
-2.29.0
-

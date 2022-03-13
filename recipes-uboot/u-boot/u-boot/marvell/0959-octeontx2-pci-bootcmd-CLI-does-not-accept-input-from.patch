@@ -1,8 +1,8 @@
-From f92241e1f3277d0675c946c635a2e7641a11a8da Mon Sep 17 00:00:00 2001
+From 9dea1e16b32d6d3fea10fc94377d1827aa2cd57f Mon Sep 17 00:00:00 2001
 From: vburru <Veerasenareddy.Burru@cavium.com>
 Date: Sun, 15 Sep 2019 21:56:36 -0700
-Subject: [PATCH 0959/1239] octeontx2 pci-bootcmd: CLI does not accept input
- from pci-bootcmd by default
+Subject: [PATCH] octeontx2 pci-bootcmd: CLI does not accept input from
+ pci-bootcmd by default
 
 unable to execute commands through pci-bootcmd when T93/T96 is in
 end point mode when "stdin" is defined to include only serial input,
@@ -19,6 +19,7 @@ Reviewed-on: https://sj1git1.cavium.com/15881
 Reviewed-by: Derek Chickles <Derek.Chickles@cavium.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  board/Marvell/octeontx2/octeontx2.c | 19 ++++++++++++++-----
  1 file changed, 14 insertions(+), 5 deletions(-)
@@ -67,6 +68,3 @@ index 7ff99a89de..26a6d55d23 100644
  	}
  #endif
  #endif
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From 6f1df7bba7a03a15b26ecaae72d9051b51468f5e Mon Sep 17 00:00:00 2001
+From 3519734221716d93bf0cceee15aa3612d4380025 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 17 Dec 2019 17:30:06 +0100
-Subject: [PATCH 1047/1239] thermal: a80x0: a70x0: use smc calls for thermal
- sensor init and read
+Subject: [PATCH] thermal: a80x0: a70x0: use smc calls for thermal sensor init
+ and read
 
 Since the dfx register set is going to be marked as secure, use smc for
 performing thermal sensor configuration and read.
@@ -15,6 +15,7 @@ Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/20588
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/include/asm/arch-mvebu/thermal.h |  1 +
  arch/arm/mach-mvebu/armada8k/soc.c        | 15 ++++++++
@@ -149,6 +150,3 @@ index 9afea50a24..980de4cf3b 100644
  	/* Initialize thermal sensor hardware reset once */
  	reg = readl(tsen->regs_base + THERMAL_SEN_CTRL_LSB);
  	/* De-assert TSEN_RESET */
--- 
-2.29.0
-

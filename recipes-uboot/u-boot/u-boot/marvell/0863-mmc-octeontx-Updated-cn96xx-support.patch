@@ -1,7 +1,7 @@
-From 2701cb1394d321d6aabfebdbf439dcb0a1e984b7 Mon Sep 17 00:00:00 2001
+From 82a7d5bb4497e0488fa69515f94f0c29c87609a1 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Wed, 19 Dec 2018 19:47:17 -0500
-Subject: [PATCH 0863/1239] mmc: octeontx: Updated cn96xx support
+Subject: [PATCH] mmc: octeontx: Updated cn96xx support
 
 This adds some additional debugging support as well as support for
 determining the proper timing parameters to use.  Note that more
@@ -12,6 +12,7 @@ Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/1466
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  .../include/asm/arch-octeontx/octeontx_mmc.h  |   1 +
  drivers/mmc/octeontx_mmc.c                    | 291 +++++++++++++-----
@@ -563,6 +564,3 @@ index b5b85a4c6b..bd05b16c1e 100644
  
  		/* Get voltage range */
  		if (fdtdec_get_int_array(blob, slot_node,
--- 
-2.29.0
-

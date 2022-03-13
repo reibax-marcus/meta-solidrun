@@ -1,7 +1,7 @@
-From 6b50cb9ed039fd43a35078837bd8ee19d16299fc Mon Sep 17 00:00:00 2001
+From 5aa35c340d45d349059fffbb506907502c892512 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Thu, 17 Oct 2019 17:17:33 +0200
-Subject: [PATCH 0133/1239] arm64: mvebu: config: a8k-mcbin: enable SAR
+Subject: [PATCH] arm64: mvebu: config: a8k-mcbin: enable SAR
 
 Enabling SAR configuration option will allow to make
 use of the newly added sample-at-reset infrastructure
@@ -9,6 +9,7 @@ for the A8K SoC family.
 
 Change-Id: Ia93297654a0ebfaef2d5b73eace761914f456923
 Signed-off-by: Marcin Wojtas <mw@semihalf.com>
+
 ---
  configs/mvebu_mcbin-88f8040_defconfig | 1 +
  1 file changed, 1 insertion(+)
@@ -25,6 +26,3 @@ index 2cbd356109..2cfe53e80e 100644
  CONFIG_DEBUG_UART=y
  CONFIG_AHCI=y
  CONFIG_DISTRO_DEFAULTS=y
--- 
-2.29.0
-

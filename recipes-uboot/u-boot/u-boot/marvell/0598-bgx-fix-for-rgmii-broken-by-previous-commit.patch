@@ -1,11 +1,12 @@
-From 97717a44ffe5bd6fba674e1bc483ac2c4b3c4216 Mon Sep 17 00:00:00 2001
+From 2eaf4ff4a63160f59de57fb2d342ab7d718f4dd0 Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Tue, 17 Jan 2017 15:24:32 -0800
-Subject: [PATCH 0598/1239] bgx: fix for rgmii broken by previous commit
+Subject: [PATCH] bgx: fix for rgmii broken by previous commit
 
 commit #a83c7d7 broke rgmii and this patch fixes it
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
@@ -24,6 +25,3 @@ index 6f7d50acb5..762a2eecb9 100644
  
  	} else {
  		u64 status1;
--- 
-2.29.0
-

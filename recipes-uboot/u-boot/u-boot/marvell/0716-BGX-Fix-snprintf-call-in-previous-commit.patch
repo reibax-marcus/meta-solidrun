@@ -1,9 +1,10 @@
-From 83f1dd87e9c76d8117539b1e5e5e31fc6f07f999 Mon Sep 17 00:00:00 2001
+From 04f8c1382a24933fecaef716bfb70186456232bf Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 27 Sep 2017 14:07:10 -0700
-Subject: [PATCH 0716/1239] BGX: Fix snprintf() call in previous commit.
+Subject: [PATCH] BGX: Fix snprintf() call in previous commit.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -24,6 +25,3 @@ index e311e479b2..d7149d4b80 100644
  		case QLM_MODE_10G_KR:
  			if ((bgx->bgx_id == 0) && is_altpkg) {
  				if (lmacid >= 2)
--- 
-2.29.0
-

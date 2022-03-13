@@ -1,7 +1,7 @@
-From 7b2264609c4787cf79c3fb3ccd7ad2d3b1b085a0 Mon Sep 17 00:00:00 2001
+From 3dd6caf33f0101028b08c5e1a446dadbadc71749 Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Fri, 24 Jul 2020 15:00:41 -0700
-Subject: [PATCH 1212/1239] smbios: type 7 implementation
+Subject: [PATCH] smbios: type 7 implementation
 
 SMBIOS type 7 is implemented. Type 7 details the cache
 information in armada CN9130.
@@ -11,6 +11,7 @@ Change-Id: Ib0279b48d78376a864a304054785082cea6bcfb9
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35164
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Tested-by: Jia Ma <jiam@marvell.com>
+
 ---
  include/smbios.h | 49 ++++++++++++++++++++++++++++++++++++++++++++++++
  lib/smbios.c     | 47 ++++++++++++++++++++++++++++++++++++++++++++++
@@ -148,6 +149,3 @@ index cffd75cb0a..ed24852dec 100644
  	smbios_write_type32,
  	smbios_write_type127
  };
--- 
-2.29.0
-

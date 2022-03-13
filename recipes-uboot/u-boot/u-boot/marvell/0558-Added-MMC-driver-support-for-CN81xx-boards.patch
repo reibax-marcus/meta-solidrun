@@ -1,9 +1,10 @@
-From 52efa6b01573781c8e3c7f098986c2d2cf80394e Mon Sep 17 00:00:00 2001
+From c6a3e38c1b044ad5bb0222f844e261b5e5c23ec7 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 8 Nov 2016 20:04:04 -0800
-Subject: [PATCH 0558/1239] Added MMC driver support for CN81xx boards.
+Subject: [PATCH] Added MMC driver support for CN81xx boards.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  arch/arm/mach-thunderx/Kconfig  | 27 +++++++++++++++++++++++++++
  configs/t83_defconfig           |  2 ++
@@ -101,6 +102,3 @@ index 27fddd9ca2..6434d1a26d 100644
 +#define CONFIG_CMD_TIME
 +
  #endif /* __THUNDERX_81XX_H__ */
--- 
-2.29.0
-

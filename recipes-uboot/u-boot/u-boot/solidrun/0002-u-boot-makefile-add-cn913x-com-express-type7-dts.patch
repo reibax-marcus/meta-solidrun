@@ -1,9 +1,10 @@
-From 301882dda26d820fc29db5f34d47bacf10d1dc04 Mon Sep 17 00:00:00 2001
+From ff5bb4123d0e3f8a35ca0acb1b1c6a7dd211efcb Mon Sep 17 00:00:00 2001
 From: Alon Rotman <alon.rotman@solid-run.com>
 Date: Thu, 29 Oct 2020 17:20:50 +0200
-Subject: [PATCH 2/6] u-boot: makefile add cn913x com express type7 dts
+Subject: [PATCH] u-boot: makefile add cn913x com express type7 dts
 
 Signed-off-by: Alon Rotman <alon.rotman@solid-run.com>
+
 ---
  arch/arm/dts/Makefile | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
@@ -29,6 +30,3 @@ index 61bf75a5b6..c561974a97 100644
  
  dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
  	uniphier-ld11-global.dtb \
--- 
-2.25.1
-

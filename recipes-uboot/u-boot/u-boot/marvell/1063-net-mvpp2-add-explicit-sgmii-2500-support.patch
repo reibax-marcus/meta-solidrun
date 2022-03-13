@@ -1,7 +1,7 @@
-From 68a1f0856fe4e0b667157bcf689e3ef0a22a4495 Mon Sep 17 00:00:00 2001
+From f08780fec308b5f649c92dc56d8346b5f8821d20 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Wed, 22 Jan 2020 17:55:39 +0100
-Subject: [PATCH 1063/1239] net: mvpp2: add explicit sgmii-2500 support
+Subject: [PATCH] net: mvpp2: add explicit sgmii-2500 support
 
 Until now the mvpp2 driver used an extra 'phy-speed'
 DT property in order to differentiate between the
@@ -15,6 +15,7 @@ Reviewed-on: https://sj1git1.cavium.com/22042
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Reviewed-by: Nadav Haklai <nadavh@marvell.com>
 Tested-by: Nadav Haklai <nadavh@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 28 ++++++++++++----------------
  1 file changed, 12 insertions(+), 16 deletions(-)
@@ -129,6 +130,3 @@ index 4d1e327711..edbbf107fa 100644
  	case PHY_INTERFACE_MODE_1000BASEX:
  	case PHY_INTERFACE_MODE_2500BASEX:
  		mvpp2_port_power_up(port);
--- 
-2.29.0
-

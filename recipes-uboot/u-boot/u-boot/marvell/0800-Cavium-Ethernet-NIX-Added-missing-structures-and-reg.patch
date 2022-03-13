@@ -1,12 +1,12 @@
-From 1d46f73e8c229750b7fe88ed51b16e52e1b64042 Mon Sep 17 00:00:00 2001
+From d2bbeae5ec896ac0df28eb12bdb2b39f222dfbdf Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Mon, 12 Mar 2018 17:23:58 -0700
-Subject: [PATCH 0800/1239] Cavium: Ethernet: NIX: Added missing structures and
- registers
+Subject: [PATCH] Cavium: Ethernet: NIX: Added missing structures and registers
 
 Also renamed from nix_reg.h to nix_regs.h.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  drivers/net/cavium/octeontx2/nix_regs.h | 8901 +++++++++++++++++++++++
  1 file changed, 8901 insertions(+)
@@ -8919,6 +8919,3 @@ index 0000000000..a0940ef5ed
 +};
 +
 +#endif /* __NIX_REGS_H__ */
--- 
-2.29.0
-

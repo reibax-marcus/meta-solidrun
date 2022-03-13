@@ -1,7 +1,7 @@
-From 748c725e268608ff258d31d384fca2c64b87a994 Mon Sep 17 00:00:00 2001
+From baa6eb62d321f56fbc7155337f9c3753abc2fbb6 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 29 Dec 2016 13:51:36 -0800
-Subject: [PATCH 0583/1239] Configure ARQ107 PHY
+Subject: [PATCH] Configure ARQ107 PHY
 
 On SFF8104 board, ARQ107 PHY is configured on DLM1 lane 1, even
 though the mode is XFI, has only one port. Adjust lmac_count
@@ -11,6 +11,7 @@ Also configure starting with lmac0 even though whatever DLM is
 configured to a BGX mode.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 43 ++++++++++++++++++++++++++++----
  1 file changed, 38 insertions(+), 5 deletions(-)
@@ -103,6 +104,3 @@ index 4f525037c0..928f737689 100644
  				lmac->qlm_mode = QLM_MODE_XFI;
  				printf("BGX%d QLM%d LMAC%d mode: XFI\n",
  					bgx->bgx_id, lmac->qlm, lmacid);
--- 
-2.29.0
-

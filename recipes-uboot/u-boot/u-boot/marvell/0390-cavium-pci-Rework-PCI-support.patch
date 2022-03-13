@@ -1,13 +1,14 @@
-From 3349c026f3eba3123a0e024af8e8616dbee20f37 Mon Sep 17 00:00:00 2001
+From 1c97b7fbcc585fb3b2aa50b19119d2c83051100b Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 May 2016 17:09:53 -0700
-Subject: [PATCH 0390/1239] cavium: pci: Rework PCI support
+Subject: [PATCH] cavium: pci: Rework PCI support
 
 This commit completely replaces old ECAM support code with
 new DM-based. This version relies on FDT entries for ECAM
 description nodes.
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  arch/arm/Kconfig                |   2 +
  board/cavium/thunderx/Makefile  |   4 -
@@ -946,6 +947,3 @@ index 0000000000..c8e1433f35
 +	.probe	= pci_thunderx_ecam_probe,
 +	.priv_auto_alloc_size = sizeof(struct thunderx_pci),
 +};
--- 
-2.29.0
-

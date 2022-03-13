@@ -1,9 +1,10 @@
-From db63ada85a5aeca8540175ca022c3dca2fe503ad Mon Sep 17 00:00:00 2001
+From d7abe3713a2cd6ceef3fc6ed953b2c9625c36650 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Sun, 8 May 2016 00:03:05 -0700
-Subject: [PATCH 0412/1239] Fix lmac_count for XAUI/XLAUI interface
+Subject: [PATCH] Fix lmac_count for XAUI/XLAUI interface
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -30,6 +31,3 @@ index bcb15a6576..fd4ffc6a91 100644
  			break;
  		case QLM_MODE_10G_KR:
  			lmac->lmac_type = 3;
--- 
-2.29.0
-

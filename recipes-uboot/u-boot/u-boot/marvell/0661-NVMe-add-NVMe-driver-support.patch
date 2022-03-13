@@ -1,7 +1,7 @@
-From 5d69c5b55865bd735f18ba92e6ba831c86574d5a Mon Sep 17 00:00:00 2001
+From 114454cba8b4dd02c6465956b193fe96a05550c6 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 26 Jul 2017 14:37:45 +0300
-Subject: [PATCH 0661/1239] NVMe: add NVMe driver support
+Subject: [PATCH] NVMe: add NVMe driver support
 
 Add Support of devices that follow the NVM Express standard
 
@@ -10,6 +10,7 @@ basic functions: nvme Read/Write
 Signed-off-by: Zhikang Zhang <zhikang.zhang@nxp.com>
 Signed-off-by: Wenbin Song <wenbin.song@nxp.com>
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  common/board_r.c            |  10 +
  drivers/block/Makefile      |   2 +
@@ -1848,6 +1849,3 @@ index a8d6976be7..35bdf79c79 100644
  	UCLASS_SERIAL,		/* Serial UART */
  	UCLASS_SIMPLE_BUS,	/* Bus with child devices */
  	UCLASS_SMEM,		/* Shared memory interface */
--- 
-2.29.0
-

@@ -1,8 +1,7 @@
-From 8ddca99a2c614c2ea6923def46772a9e5c0f199f Mon Sep 17 00:00:00 2001
+From cf6f41e680b56a138ae0c46370ad8960421d3953 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Wed, 4 Apr 2018 14:59:45 +0200
-Subject: [PATCH 0027/1239] phy: marvell: cp110: let the firmware configure
- comphy for AP
+Subject: [PATCH] phy: marvell: cp110: let the firmware configure comphy for AP
 
 Replace the comphy initialization for AP with appropriate SMC call,
 so the firmware will execute required serdes configuration.
@@ -10,6 +9,7 @@ so the firmware will execute required serdes configuration.
 Change-Id: I9835eccff8a45fcc0eb567dfbc62337a31399407
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 32 ++++--------------------------
  1 file changed, 4 insertions(+), 28 deletions(-)
@@ -64,6 +64,3 @@ index 01e5800507..8f671c73a5 100644
  			break;
  		default:
  			debug("Unknown SerDes type, skip initialize SerDes %d\n",
--- 
-2.29.0
-

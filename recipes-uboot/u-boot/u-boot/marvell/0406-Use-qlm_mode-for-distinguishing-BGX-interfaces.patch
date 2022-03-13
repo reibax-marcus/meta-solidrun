@@ -1,11 +1,12 @@
-From f1ef693c9134b3ca8f037d76e0a858a2fdccac71 Mon Sep 17 00:00:00 2001
+From 2883e6ae0788649ac9706e4c07961ea8600831d3 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Thu, 5 May 2016 19:00:06 -0700
-Subject: [PATCH 0406/1239] Use qlm_mode for distinguishing BGX interfaces.
+Subject: [PATCH] Use qlm_mode for distinguishing BGX interfaces.
 
 Removed 'enum LMAC_TYPE' and replaced everywhere with qlm_mode.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 83 +++++++++++++++-----------------
  drivers/net/cavium/thunder_bgx.h | 23 +++------
@@ -245,6 +246,3 @@ index 24601bd4d7..897eca0700 100644
  };
  
  struct bgx_board_info {
--- 
-2.29.0
-

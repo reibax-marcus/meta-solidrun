@@ -1,13 +1,14 @@
-From fef91e25b83068050c7a40ba8fb566de7f3d34fb Mon Sep 17 00:00:00 2001
+From 7f00f428cda1f68d2c05af25bf93247a7e0a5ff0 Mon Sep 17 00:00:00 2001
 From: jinghua <jinghua@marvell.com>
 Date: Mon, 18 Dec 2017 10:13:38 +0800
-Subject: [PATCH 0147/1239] arm64: mvebu: a8k: align memory regions
+Subject: [PATCH] arm64: mvebu: a8k: align memory regions
 
 1. RAM: base address 0x0 size 2Gbytes
 2. MMIO: base address 0xf0000000 size 1Gbytes
 
 Change-Id: Ia3dfe9b6977754a7d1a53deb72dd134f75b53336
 Signed-off-by: Ofir Fedida <ofedida@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/cpu.c | 62 ++++--------------------------
  1 file changed, 7 insertions(+), 55 deletions(-)
@@ -109,6 +110,3 @@ index d95937f22d..e4b453a1cf 100644
  	icache_enable();
  	dcache_enable();
  }
--- 
-2.29.0
-

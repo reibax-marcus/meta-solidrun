@@ -1,7 +1,7 @@
-From d3e87a82b687127afc728a7daf57cfe07886bf15 Mon Sep 17 00:00:00 2001
+From 42f4045f467d2e36f665b13dbc67d2f84552a1e0 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 6 Dec 2018 17:25:06 -0800
-Subject: [PATCH 0844/1239] drivers: spi: add non-legacy support for 9xx chips
+Subject: [PATCH] drivers: spi: add non-legacy support for 9xx chips
 
 Add initial support in IOMODE_X1_UNIDIR for 9xx chips in
 non-legacy mode.
@@ -12,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/1457
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  drivers/spi/octeontx_spi.c | 115 +++++++++++++++++++++++++++++--------
  1 file changed, 90 insertions(+), 25 deletions(-)
@@ -203,6 +204,3 @@ index 61faac531f..fb4c6cd78b 100755
  	debug("SPI bus %s %d at %p\n",dev->name, dev->seq, priv->baseaddr);
  
  	return 0;
--- 
-2.29.0
-

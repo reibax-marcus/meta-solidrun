@@ -1,8 +1,8 @@
-From e7a4097c42c46a96a7765b4342cf0979025a7d5f Mon Sep 17 00:00:00 2001
+From 256b88c7e66793d5c724a20329043b934cb4fbcd Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Thu, 21 Nov 2019 07:21:25 +0100
-Subject: [PATCH 0998/1239] spi: mvebu_a3700_spi: prevent configuring speed
- exceeding max controller freq
+Subject: [PATCH] spi: mvebu_a3700_spi: prevent configuring speed exceeding max
+ controller freq
 
 This patch adds a limitation in the mvebu_a3700_spi driver
 set_speed hook, which prevents setting too high transfer
@@ -13,6 +13,7 @@ Signed-off-by: Marcin Wojtas <mw@semihalf.com>
 Reviewed-on: https://sj1git1.cavium.com/19040
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Tested-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  drivers/spi/mvebu_a3700_spi.c | 7 +++++++
  1 file changed, 7 insertions(+)
@@ -38,6 +39,3 @@ index 1b6db6064d..58ed409fd5 100644
  	data = readl(&reg->cfg);
  
  	prescale = DIV_ROUND_UP(clk_get_rate(&plat->clk), hz);
--- 
-2.29.0
-

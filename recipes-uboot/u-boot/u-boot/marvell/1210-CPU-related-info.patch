@@ -1,7 +1,7 @@
-From bda33bf210c20abf9305ec0bb19b3a1496202f88 Mon Sep 17 00:00:00 2001
+From 0adec6f63e7f9c45e7087995c2db0ccd99cf5d14 Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Fri, 24 Jul 2020 12:56:44 -0700
-Subject: [PATCH 1210/1239] CPU related info
+Subject: [PATCH] CPU related info
 
 Armada specific information is added to instatiate cpu
 uclass. Data is added to satisfy information needed for
@@ -14,6 +14,7 @@ Tested-by: Jia Ma <jiam@marvell.com>
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Reviewed-by: Sujeet Kumar Baranwal <Sujeet.Baranwal@cavium.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
+
 ---
  arch/arm/dts/armada-ap80x-quad.dtsi |   8 ++
  arch/arm/mach-mvebu/Makefile        |   1 +
@@ -312,6 +313,3 @@ index 97b9ddce23..3b81b1c8a4 100644
  /**
   * fill_smbios_header() - Fill the header of an SMBIOS table
   *
--- 
-2.29.0
-

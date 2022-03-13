@@ -1,8 +1,8 @@
-From f6dd0a837a2127d0c1a583f529808952f60cf261 Mon Sep 17 00:00:00 2001
+From 2d1a747f9e71b81757986cb18704f8e6fe1cbc62 Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Thu, 14 Mar 2019 13:00:53 +0100
-Subject: [PATCH 0246/1239] phy: marvell: utmi: update utmi config which fixes
- usb2.0 instability
+Subject: [PATCH] phy: marvell: utmi: update utmi config which fixes usb2.0
+ instability
 
 - Add additional step which enables the Impedance and PLL calibration.
 - Enable old squelch detector instead of the new analog squelch detector
@@ -11,6 +11,7 @@ circuit and update host disconnect threshold value.
 
 Change-Id: Ifa0a585bfb5ecab0bfa033eed6874ff98b16a7df
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 23 ++++++++++++++++++-----
  drivers/phy/marvell/utmi_phy.h     |  9 +++++++++
@@ -87,6 +88,3 @@ index e64087a406..2ca406f1e6 100644
  #define UTMI_RX_CH_CTRL0_SQ_DET_OFFSET		15
  #define UTMI_RX_CH_CTRL0_SQ_DET_MASK		\
  	(0x1 << UTMI_RX_CH_CTRL0_SQ_DET_OFFSET)
--- 
-2.29.0
-

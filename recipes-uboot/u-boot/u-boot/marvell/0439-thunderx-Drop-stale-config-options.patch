@@ -1,11 +1,12 @@
-From 668f3eea38f0873f26bad2109b72a5c7b512ea77 Mon Sep 17 00:00:00 2001
+From f39d7c2ead9102b208f969ea8eb6e74b41cee4a1 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 14 May 2016 17:41:04 -0400
-Subject: [PATCH 0439/1239] thunderx: Drop stale config options
+Subject: [PATCH] thunderx: Drop stale config options
 
 Remove stale config options which aren't relevant anymore
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  include/configs/thunderx_81xx.h | 14 --------------
  1 file changed, 14 deletions(-)
@@ -45,6 +46,3 @@ index ad488d200d..7cb7088fa4 100644
  /* Monitor Command Prompt */
  #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
  #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
--- 
-2.29.0
-

@@ -1,8 +1,8 @@
-From 3dbadfc2e2b3b38c8e6f4398d66e76c337a07ac8 Mon Sep 17 00:00:00 2001
+From 9656671182eaab8411886d4a71aa5a6c345e90d7 Mon Sep 17 00:00:00 2001
 From: Rick Farrington <Ricardo.Farrington@cavium.com>
 Date: Tue, 19 Nov 2019 15:03:34 -0500
-Subject: [PATCH 1010/1239] octeontx: pcie-console: Fix nexus header version
- number initialization.
+Subject: [PATCH] octeontx: pcie-console: Fix nexus header version number
+ initialization.
 
 When initializing the nexus header, place version number, flags and
 num_consoles in correct locations.  This also requires a change in
@@ -18,6 +18,7 @@ Tested-by: Chandrakala Chavva <cchavva@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19364
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/serial/serial_octeontx_pcie_console.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
@@ -38,6 +39,3 @@ index fe3ce4088e..48665eced8 100644
  
  	debug("%s: Writing %#llx %#llx to %p\n", __func__, new_hi, new_lo, pcd);
  	/* Now fill in the header atomically */
--- 
-2.29.0
-

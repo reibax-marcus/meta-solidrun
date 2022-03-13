@@ -1,7 +1,7 @@
-From 3c08cf75de2b6fe740b5f72154c5396aca18ca00 Mon Sep 17 00:00:00 2001
+From b2b6b9a9cfc42ba3020f072cf43e93ddca587f6c Mon Sep 17 00:00:00 2001
 From: Aaron Williams <awilliams@marvell.com>
 Date: Wed, 18 Dec 2019 23:57:21 -0800
-Subject: [PATCH 1043/1239] octeontx: pci console: Fix PCI console shutdown
+Subject: [PATCH] octeontx: pci console: Fix PCI console shutdown
 
 After upgrading to 2019.10 the driver removal process needs to remove
 itself from the IO mux by modifying the stdin, stdout and stderr
@@ -22,6 +22,7 @@ Signed-off-by: Aaron Williams <awilliams@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20555
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/serial/Kconfig                        |  5 ++
  drivers/serial/serial_octeontx_pcie_console.c | 72 ++++++++++++++++---
@@ -197,6 +198,3 @@ index 8a86bec09e..465c935fdc 100644
  	int console_num;
  };
  
--- 
-2.29.0
-

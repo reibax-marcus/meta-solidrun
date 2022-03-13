@@ -1,13 +1,13 @@
-From 178d93497541feb6a7c49554590fdca5f80b1aa2 Mon Sep 17 00:00:00 2001
+From 4646e3a14f427ce9800c6e12968e4dcbd0116af9 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 4 Apr 2017 17:07:04 -0700
-Subject: [PATCH 0632/1239] drivers: net: cavium: add support for marvell
- 88x3120 phy
+Subject: [PATCH] drivers: net: cavium: add support for marvell 88x3120 phy
 
 add static one time initialization code for marvell phy
 in rxaui mode
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c  | 16 +++++++++
  drivers/net/cavium/thunderx_smi.c | 56 +++++++++++++++++++++++++++++++
@@ -114,6 +114,3 @@ index e5d10ad956..87fd762fbb 100644
  int thunderx_smi_probe(struct udevice *dev)
  {
  	size_t size;
--- 
-2.29.0
-

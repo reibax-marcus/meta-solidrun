@@ -1,8 +1,7 @@
-From af112f27b8c450bd96f9793179f3ca938d68831c Mon Sep 17 00:00:00 2001
+From 355e6057ea3db62530390880a59f930197f6abce Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Sun, 26 Jul 2020 14:37:30 +0300
-Subject: [PATCH 1201/1239] board/Marvell/mvebu_armada-8k: enable
- CONFIG_OF_BOARD_SETUP
+Subject: [PATCH] board/Marvell/mvebu_armada-8k: enable CONFIG_OF_BOARD_SETUP
 
 Add support for ft_board_setup() call to all Armad-8K boards.
 The ft_board_setup implements call to fdt_fixup_kaslr for
@@ -15,6 +14,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/32679
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
+
 ---
  board/Marvell/mvebu_armada-8k/board.c      | 16 ++++++++++++++++
  board/Marvell/octeontx2_cn913x/board.c     | 16 ++++++++++++++++
@@ -205,6 +205,3 @@ index ed15f5129a..bd84651db8 100644
 +CONFIG_UPDATE_TFTP=y
 +CONFIG_OF_BOARD_SETUP=y
 \ No newline at end of file
--- 
-2.29.0
-

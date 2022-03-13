@@ -1,7 +1,7 @@
-From d78759f0a6215aa5302309b805540d5b7e9d666e Mon Sep 17 00:00:00 2001
+From e6476f51cb5191f89114c798845ce574c34e476c Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Thu, 26 Feb 2015 18:09:01 +0300
-Subject: [PATCH 0299/1239] Merged FDT patching code
+Subject: [PATCH] Merged FDT patching code
 
 ---
  drivers/net/cavium/thunder_bgx.c | 84 ++++++++++++++++++++++++++++++--
@@ -173,6 +173,3 @@ index 4e520051d3..d4beb636c0 100644
 -#endif
 -
  #endif /* THUNDER_BGX_H */
--- 
-2.29.0
-

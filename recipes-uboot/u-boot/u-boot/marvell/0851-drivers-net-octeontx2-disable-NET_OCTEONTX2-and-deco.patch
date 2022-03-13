@@ -1,8 +1,8 @@
-From e84921a4fe9efe48e42f2a7d8af22f00c73ccdbc Mon Sep 17 00:00:00 2001
+From 1af04b144ea66744a83bf4930acd6e2fdbb109de Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Tue, 25 Sep 2018 13:20:08 -0700
-Subject: [PATCH 0851/1239] drivers: net: octeontx2: disable NET_OCTEONTX2 and
- decouple cgx_intf.c
+Subject: [PATCH] drivers: net: octeontx2: disable NET_OCTEONTX2 and decouple
+ cgx_intf.c
 
 cgx_intf_shutdown is needed before handoff to Linux. So decouple the
 compilation of cgx_intf.c.
@@ -13,6 +13,7 @@ Reviewed-on: https://sj1git1.cavium.com/1464
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  board/Marvell/octeontx2/octeontx2.c | 2 ++
  configs/octeontx2_96xx_defconfig    | 2 ++
@@ -102,6 +103,3 @@ index beee8f28d5..bfe4a0c328 100644
 -obj-$(CONFIG_NET_OCTEONTX2) += cgx_intf.o cgx.o nix_af.o nix.o rvu_pf.o \
 +obj-$(CONFIG_NET_OCTEONTX2) += cgx.o nix_af.o nix.o rvu_pf.o \
  				rvu_af.o rvu_common.o
--- 
-2.29.0
-

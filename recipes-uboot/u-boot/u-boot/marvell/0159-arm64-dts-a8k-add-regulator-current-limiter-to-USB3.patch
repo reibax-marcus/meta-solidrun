@@ -1,8 +1,7 @@
-From 6b5613e84e9a377819de522726087c15e85ea932 Mon Sep 17 00:00:00 2001
+From 393ae95eb4da331ab477bfdf6f22ae3c8b4b1dbf Mon Sep 17 00:00:00 2001
 From: David Sniatkiwicz <davidsn@marvell.com>
 Date: Thu, 5 Jul 2018 15:49:11 +0300
-Subject: [PATCH 0159/1239] arm64: dts: a8k: add regulator current-limiter to
- USB3
+Subject: [PATCH] arm64: dts: a8k: add regulator current-limiter to USB3
 
 - The USB device should linked to current-limiter through
 "current-limiter" DTS property.
@@ -12,6 +11,7 @@ node in A7K/A8K device trees for turning on/off the current limiter.
 
 Change-Id: I6a7e3b8cb3d888c738e634db23949fdaca8e8c8b
 Signed-off-by: David Sniatkiwicz <davidsn@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-pcac.dts  | 24 ++++++++++++++++++++++++
  arch/arm/dts/armada-70x0-db.dtsi   | 18 ++++++++++++++++++
@@ -180,6 +180,3 @@ index 3544f8623a..2411bea8ab 100644
  				vbus-disable-delay = <500>;
  			};
  		};
--- 
-2.29.0
-

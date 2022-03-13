@@ -1,12 +1,13 @@
-From 352c91a38732fcf36fdfb5f9636aab09bdd7dd70 Mon Sep 17 00:00:00 2001
+From c2f4a6b662c12e41570ecb72958a57a627eea286 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 11 May 2016 20:11:51 -0400
-Subject: [PATCH 0423/1239] net: thunderx: Additional parameter checks
+Subject: [PATCH] net: thunderx: Additional parameter checks
 
 This commit adds parameter checks to prevent crashes caused
 by misconfigutation etc
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 37 ++++++++++++++++++++++----------
  1 file changed, 26 insertions(+), 11 deletions(-)
@@ -100,6 +101,3 @@ index 257e432af6..8e60138165 100644
  		}
  	}
  
--- 
-2.29.0
-

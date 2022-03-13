@@ -1,13 +1,13 @@
-From 32104911bb8b3bbf2e40f78dc06c9edcd9faaf84 Mon Sep 17 00:00:00 2001
+From 498e02d80a69bc0f91000ef512d2de6c9fd4dbb5 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Sun, 30 Oct 2016 21:51:36 -0700
-Subject: [PATCH 0548/1239] Added some FDT functions useful for Cavium SoC
- code.
+Subject: [PATCH] Added some FDT functions useful for Cavium SoC code.
 
 These functions probably should be merged into fdtdec.c or elsewhere since they
 are generic and not specific to Cavium in any way.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  .../include/asm/arch-thunderx/fdt-helper.h    | 36 ++++++++++
  arch/arm/mach-thunderx/fdt-helper.c           | 71 +++++++++++++++++++
@@ -134,6 +134,3 @@ index 0000000000..e535819383
 +	return -1;
 +}
 +
--- 
-2.29.0
-

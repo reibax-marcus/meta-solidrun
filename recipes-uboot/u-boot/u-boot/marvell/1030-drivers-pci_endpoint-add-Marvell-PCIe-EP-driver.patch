@@ -1,7 +1,7 @@
-From 695dbaa4b747a9861d6c1c4907c61be4353659f3 Mon Sep 17 00:00:00 2001
+From adf937092f34053aeafa5dac5128e765f753397c Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 26 Nov 2019 10:40:00 +0200
-Subject: [PATCH 1030/1239] drivers/pci_endpoint: add Marvell PCIe EP driver
+Subject: [PATCH] drivers/pci_endpoint: add Marvell PCIe EP driver
 
 Add driver supporting PCIe EP mode on A7K/A8K/CN913x devices
 
@@ -10,6 +10,7 @@ Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/19276
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Ofer Heifetz <oferh@marvell.com>
+
 ---
  arch/arm/mach-mvebu/arm64-common.c         |   4 +
  arch/arm/mach-mvebu/armada8k/cpu.c         |  11 +
@@ -631,6 +632,3 @@ index 0000000000..951a4ae33f
 +	.remove = uio_pci_ep_remove,
 +	.priv_auto_alloc_size = sizeof(struct uio_pci),
 +};
--- 
-2.29.0
-

@@ -1,7 +1,7 @@
-From ea9d63d8c66d5bbd6f32c339ecb96886320341be Mon Sep 17 00:00:00 2001
+From 5e5ea08ed1d0ad52e2127a90b43053b72b156438 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 5 Nov 2015 20:37:18 -0800
-Subject: [PATCH 0351/1239] Added EA register definitions
+Subject: [PATCH] Added EA register definitions
 
 ---
  include/pci.h | 41 +++++++++++++++++++++++++++++++++++++++++
@@ -59,6 +59,3 @@ index 298d0d4355..f4f8c2f947 100644
  #define PCI_MAX_PCI_DEVICES	32
  #define PCI_MAX_PCI_FUNCTIONS	8
  
--- 
-2.29.0
-

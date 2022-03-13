@@ -1,8 +1,8 @@
-From b9990e6caed2b738eef712d0ad8da43cb5653ec3 Mon Sep 17 00:00:00 2001
+From cc5314c2d08417db699ad48fe32f29789dfa5416 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Wed, 18 May 2016 23:27:51 -0400
-Subject: [PATCH 0471/1239] dm: net: Update ThunderX SMI for new dm_map_bar()
- semantics Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+Subject: [PATCH] dm: net: Update ThunderX SMI for new dm_map_bar() semantics
+ Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 
 ---
  drivers/net/cavium/thunderx_smi.c | 5 +++--
@@ -31,6 +31,3 @@ index 6fce11bff1..2fa7c64f55 100644
  		priv->mode = CLAUSE22;
  
  		priv->sample_lo = 0;
--- 
-2.29.0
-

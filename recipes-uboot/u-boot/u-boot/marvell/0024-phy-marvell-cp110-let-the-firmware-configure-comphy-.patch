@@ -1,8 +1,8 @@
-From 03615b532244bba04c0d08017f57ec73af944390 Mon Sep 17 00:00:00 2001
+From 3d7f295df0ff274108f1c0f66376b752eb64d01f Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Tue, 27 Mar 2018 12:52:24 +0200
-Subject: [PATCH 0024/1239] phy: marvell: cp110: let the firmware configure
- comphy for RXAUI
+Subject: [PATCH] phy: marvell: cp110: let the firmware configure comphy for
+ RXAUI
 
 Replace the comphy initialization for RXAUI with appropriate SMC call,
 so the firmware will execute required serdes configuration.
@@ -10,6 +10,7 @@ so the firmware will execute required serdes configuration.
 Change-Id: Iedae0285fb283e05bb263a8b4ce46e8e7451a309
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/phy/marvell/comphy_cp110.c | 184 +----------------------------
  1 file changed, 4 insertions(+), 180 deletions(-)
@@ -216,6 +217,3 @@ index bd2626e071..04b3e995f2 100644
  			break;
  		case COMPHY_TYPE_AP:
  			ret = comphy_ap_power_up(lane, comphy_base_addr);
--- 
-2.29.0
-

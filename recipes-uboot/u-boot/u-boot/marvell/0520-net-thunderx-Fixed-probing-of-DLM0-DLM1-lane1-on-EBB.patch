@@ -1,13 +1,14 @@
-From 7d2587a9b054e2214ae54cc948aaef1dc45164d7 Mon Sep 17 00:00:00 2001
+From f1ad9455dd245ce0d60272a1cbeb9eca683e300a Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Wed, 7 Sep 2016 17:00:05 -0700
-Subject: [PATCH 0520/1239] net:thunderx: Fixed probing of DLM0/DLM1 lane1 on
- EBB8004 board
+Subject: [PATCH] net:thunderx: Fixed probing of DLM0/DLM1 lane1 on EBB8004
+ board
 
 On EBB8004, lane1 is not present on DLM0+DLM1. Updated code to use
 LMAC0 for DLM0,lan0 and LMAC1 for DLM1,lane0 for EBB8004 board only.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 30 +++++++++++++++++++++++++-----
  1 file changed, 25 insertions(+), 5 deletions(-)
@@ -67,6 +68,3 @@ index 889242d687..fd004c7817 100644
  				lmac->qlm_mode = QLM_MODE_SGMII;
  				printf("BGX%d QLM%d LMAC%d mode: SGMII\n",
  						bgx->bgx_id, lmac->qlm, lmacid);
--- 
-2.29.0
-

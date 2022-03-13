@@ -1,8 +1,7 @@
-From b1cedb5f56b8379081c8f2706961313f2bde752c Mon Sep 17 00:00:00 2001
+From a071a26cfb2dbbb09fd874c33556144fe69e1472 Mon Sep 17 00:00:00 2001
 From: Marcin Wojtas <mw@semihalf.com>
 Date: Sun, 26 Jan 2020 22:59:55 +0100
-Subject: [PATCH 1073/1239] arm64: dts: armada-8040-mcbin: fix 10G PHY reset
- polarity
+Subject: [PATCH] arm64: dts: armada-8040-mcbin: fix 10G PHY reset polarity
 
 The mvpp2 driver issues the PHY reset according to the
 DT-defined polarity. Because of a bad definition
@@ -15,6 +14,7 @@ Reviewed-on: https://sj1git1.cavium.com/22337
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Kostya Porotchkin <kostap@marvell.com>
 Reviewed-by: Stefan Chulski <stefanc@marvell.com>
+
 ---
  arch/arm/dts/armada-8040-mcbin.dts | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -41,6 +41,3 @@ index 9c23b04210..d5ec4fba7c 100644
  	marvell,sfp-tx-disable-gpio = <&cp1_gpio0 10 GPIO_ACTIVE_HIGH>;
  };
  
--- 
-2.29.0
-

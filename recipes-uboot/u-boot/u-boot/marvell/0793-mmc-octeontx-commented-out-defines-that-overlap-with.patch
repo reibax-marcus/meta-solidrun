@@ -1,10 +1,10 @@
-From 3f1ab568b8f9b6505817b8fdf6a5489aaa95d6d0 Mon Sep 17 00:00:00 2001
+From d5c41c3934ca4f8bb7f3116124a0649dd37850cf Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Fri, 7 Sep 2018 21:31:13 -0700
-Subject: [PATCH 0793/1239] mmc: octeontx: commented out defines that overlap
- with mmc.h.
+Subject: [PATCH] mmc: octeontx: commented out defines that overlap with mmc.h.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  arch/arm/include/asm/arch-octeontx/octeontx_mmc.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
@@ -31,6 +31,3 @@ index d9975785f5..6536b0c4aa 100644
  
  #define R1_BLOCK_READ_MASK	R1_OUT_OF_RANGE |	\
  				R1_ADDRESS_ERROR |	\
--- 
-2.29.0
-

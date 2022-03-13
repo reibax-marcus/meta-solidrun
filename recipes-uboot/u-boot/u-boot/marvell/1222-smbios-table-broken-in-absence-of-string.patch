@@ -1,7 +1,7 @@
-From 39cc72bc6a3daa370f776ab82f1d4e218dcd0073 Mon Sep 17 00:00:00 2001
+From 830d4e7d22be5f15dda657405af4d9b2cbbf001f Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Mon, 27 Jul 2020 11:28:32 -0700
-Subject: [PATCH 1222/1239] smbios: table broken in absence of string
+Subject: [PATCH] smbios: table broken in absence of string
 
 If a type in smbios doesn't have any string in it,
 the table needs to considering having two zeros at
@@ -13,6 +13,7 @@ Change-Id: I09a07fe70dcc384a4a5dca9b420cfb14fb989c6c
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35174
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Tested-by: Jia Ma <jiam@marvell.com>
+
 ---
  lib/smbios.c | 4 ++++
  1 file changed, 4 insertions(+)
@@ -32,6 +33,3 @@ index 04be3fea00..bbbaa5521c 100644
  	return len + 1;
  }
  
--- 
-2.29.0
-

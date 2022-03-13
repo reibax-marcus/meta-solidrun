@@ -1,12 +1,13 @@
-From 179c05b6c630198673de0a97d4da9413720e58d4 Mon Sep 17 00:00:00 2001
+From 9d9f699421b551d7613a4b1e772baf44b9d02967 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 19 May 2016 13:56:20 -0400
-Subject: [PATCH 0475/1239] net: cavium: Use ECAM-based enumeration for BGX
+Subject: [PATCH] net: cavium: Use ECAM-based enumeration for BGX
 
 Use ECAM-based enumeration for BGX which provides more flexibility
 and future chips support
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 81 ++++++++++++++++++++++----------
  1 file changed, 55 insertions(+), 26 deletions(-)
@@ -187,6 +188,3 @@ index 3a24377612..94e14582a7 100644
 +};
  
 +U_BOOT_PCI_DEVICE(thunderx_bgx, thunderx_bgx_supported);
--- 
-2.29.0
-

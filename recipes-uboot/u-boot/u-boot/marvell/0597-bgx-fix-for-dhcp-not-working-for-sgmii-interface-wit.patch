@@ -1,8 +1,8 @@
-From 5e4e689c3c5861007ab693f7c6e6abeea72accfa Mon Sep 17 00:00:00 2001
+From 3217d6cbe95ae6dde4040a3c8d1569a7a972b667 Mon Sep 17 00:00:00 2001
 From: Nithya <nithya.mani@caviumnetworks.com>
 Date: Mon, 16 Jan 2017 17:24:51 -0800
-Subject: [PATCH 0597/1239] bgx: fix for dhcp not working for sgmii interface
- with 10/100M switch
+Subject: [PATCH] bgx: fix for dhcp not working for sgmii interface with
+ 10/100M switch
 
 This patch updates the CSR registers to program
 the BGX based on the speed once the link is
@@ -10,6 +10,7 @@ established for SGMII interface. It fixes the dhcp issue
 not working with 10/100M switch.
 
 Signed-off-by: Nithya <nithya.mani@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunder_bgx.c | 85 ++++++++++++++++++++++++++++++++
  1 file changed, 85 insertions(+)
@@ -117,6 +118,3 @@ index 928f737689..6f7d50acb5 100644
  	} else {
  		u64 status1;
  		u64 tx_ctl;
--- 
-2.29.0
-

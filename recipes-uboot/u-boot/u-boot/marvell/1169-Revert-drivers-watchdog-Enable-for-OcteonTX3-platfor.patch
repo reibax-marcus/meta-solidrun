@@ -1,8 +1,7 @@
-From d1d82d923c65daa4983b91d4c3bde43ff4271c7a Mon Sep 17 00:00:00 2001
+From 37971fd1319db3a0ce9ff2fc5242af03d9e6fd9a Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 11 Jun 2020 00:50:49 -0700
-Subject: [PATCH 1169/1239] Revert "drivers: watchdog: Enable for OcteonTX3
- platforms"
+Subject: [PATCH] Revert "drivers: watchdog: Enable for OcteonTX3 platforms"
 
 This reverts commit 02803d2d3d8e4264a027d8eb366f9deaef17beea.
 
@@ -13,6 +12,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/29833
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/watchdog/Kconfig        | 4 ++--
  drivers/watchdog/octeontx_wdt.c | 2 +-
@@ -46,6 +46,3 @@ index e558768422..9362ad99bf 100644
  #define REG_BASE 0x802000000000
  #endif
  
--- 
-2.29.0
-

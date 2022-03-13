@@ -1,7 +1,7 @@
-From 0393493d7bc03aab6c1f449eeedab92dc2bdc5e8 Mon Sep 17 00:00:00 2001
+From 46d3ac377d1b05de1c8fccfcf296509d48548cce Mon Sep 17 00:00:00 2001
 From: zachary zhang <zhangzg@marvell.com>
 Date: Mon, 21 Aug 2017 14:51:30 +0800
-Subject: [PATCH 0119/1239] efuse: mvebu: use High density efuse operation
+Subject: [PATCH] efuse: mvebu: use High density efuse operation
 
 The A38x SoC uses internally the same High Density (HD) efuses as the
 A8K SoC.
@@ -10,6 +10,7 @@ and support ap806 hd efuse rows read/write action.
 
 Change-Id: I767fcb0370e094c46316fb71838293d426f25c0f
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/dts/armada-388-gp.dts |   1 +
  arch/arm/dts/armada-38x.dtsi   |   2 +-
@@ -721,6 +722,3 @@ index 671f6a06bd..77752ef6b3 100644
 +int mvebu_efuse_hd_prog(struct udevice *dev, int word, int row_id, u32 new_val);
  
  #endif
--- 
-2.29.0
-

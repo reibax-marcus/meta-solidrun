@@ -1,9 +1,10 @@
-From 05c403b6aa22cc4cd199ebbb054cf083398848c0 Mon Sep 17 00:00:00 2001
+From 72f52c556a1bfb7807b3de22259511e1c7bcf7c8 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Mon, 6 Jun 2016 12:45:06 -0700
-Subject: [PATCH 0493/1239] net: thunderx: Fix 88xx pass2 silicon check
+Subject: [PATCH] net: thunderx: Fix 88xx pass2 silicon check
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  drivers/net/cavium/nic.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -21,6 +22,3 @@ index 1c3636b6f1..cbf9b0d53a 100644
  }
  
  #endif /* NIC_H */
--- 
-2.29.0
-

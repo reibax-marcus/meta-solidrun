@@ -1,7 +1,7 @@
-From 4dffcd2d6f6447c3a24907cb7432f40b6aabb6d5 Mon Sep 17 00:00:00 2001
+From d004d578a76aba15deddd3b51775d04eeb41fa6f Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <sergey.temerkhanov@auriga.com>
 Date: Fri, 3 Apr 2015 21:25:50 +0300
-Subject: [PATCH 0319/1239] usb: cavium: Add multi-node support for xHCI
+Subject: [PATCH] usb: cavium: Add multi-node support for xHCI
 
 ---
  drivers/usb/host/xhci-thunderx.c | 33 +++++++++++++++++++++++++++++---
@@ -86,6 +86,3 @@ index cc54afbbf8..840559e66b 100644
  
  
  /* PCIe network controller drivers */
--- 
-2.29.0
-

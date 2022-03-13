@@ -1,9 +1,10 @@
-From 542f5b2241b56deb00d746b2030f757b0c011167 Mon Sep 17 00:00:00 2001
+From 103f513cb2776f695466bc64a2ea45990d781ddb Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Tue, 8 Nov 2016 18:46:49 -0800
-Subject: [PATCH 0552/1239] Fixed rst_boot register definitions.
+Subject: [PATCH] Fixed rst_boot register definitions.
 
 Signed-off-by: Aaron Williams <aaron.williams@cavium.com>
+
 ---
  arch/arm/mach-thunderx/clock.c | 229 +++++++++++++++++++++++++++++----
  1 file changed, 204 insertions(+), 25 deletions(-)
@@ -271,6 +272,3 @@ index 2ecc941600..df959cec31 100644
  
  	rst_boot.u = readq(RST_BOOT);
  
--- 
-2.29.0
-

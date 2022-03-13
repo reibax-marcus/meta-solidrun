@@ -1,7 +1,7 @@
-From 22579e784cdef6977bef125be3604af5accf7565 Mon Sep 17 00:00:00 2001
+From d60b01470cdc274313575257cbc848ab69ac4054 Mon Sep 17 00:00:00 2001
 From: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
 Date: Wed, 26 Oct 2016 16:18:03 -0400
-Subject: [PATCH 0534/1239] 83xx: vnic: Add network support
+Subject: [PATCH] 83xx: vnic: Add network support
 
 Add network support. There is still work to be done on programming right
 LMAC count so that we don't detect bogus interfaces.
@@ -9,6 +9,7 @@ LMAC count so that we don't detect bogus interfaces.
 Also BGX-QLM mapping will need work to support all chips.
 
 Signed-off-by: Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
+
 ---
  drivers/net/cavium/nic_main.c    | 10 +++++++---
  drivers/net/cavium/thunder_bgx.c | 33 ++++++++++++++++++++++++++++----
@@ -137,6 +138,3 @@ index 56be0c22a6..10d6eabab8 100644
  
  /** Generate a random MAC address if it is not already defined */
  #define CONFIG_RANDOM_MACADDR
--- 
-2.29.0
-

@@ -1,14 +1,14 @@
-From d6a78bc07275862fe5d2bc97d82da89522ec561f Mon Sep 17 00:00:00 2001
+From 3de6ef2e4c743895465123ec89d1aa0ccbd195c0 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Tue, 28 Aug 2018 19:05:56 +0300
-Subject: [PATCH 0186/1239] cmd: mvebu: bubt: add support for legacy Marvell
- SoCs
+Subject: [PATCH] cmd: mvebu: bubt: add support for legacy Marvell SoCs
 
 Add support for image load and basic verification in bubt
 for legacy Marvell SoCs (A38x, A39x, ...)
 
 Change-Id: I8e271a53c449a452db4fc31804211387df19a655
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+
 ---
  cmd/mvebu/bubt.c | 75 ++++++++++++++++++++++++++++++++++++++++++++++--
  1 file changed, 72 insertions(+), 3 deletions(-)
@@ -108,6 +108,3 @@ index 84d2d531f0..6daa2cf60b 100644
  }
  #endif
  
--- 
-2.29.0
-

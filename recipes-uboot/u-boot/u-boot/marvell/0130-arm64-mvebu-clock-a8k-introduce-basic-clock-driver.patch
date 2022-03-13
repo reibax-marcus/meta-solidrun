@@ -1,14 +1,14 @@
-From 08fbfb1911ca7bbf6497fbd36df704cbe852e577 Mon Sep 17 00:00:00 2001
+From 4ab139e96ab2fefb49ea12f162c3f225685ef869 Mon Sep 17 00:00:00 2001
 From: Christine Gharzuzi <chrisg@marvell.com>
 Date: Wed, 10 May 2017 12:24:32 +0300
-Subject: [PATCH 0130/1239] arm64: mvebu: clock: a8k: introduce basic clock
- driver
+Subject: [PATCH] arm64: mvebu: clock: a8k: introduce basic clock driver
 
 Clock driver is used to print SoC information during
 boot.
 
 Change-Id: I4f6a523c1e6498c9d504abd1856d611edaa62f02
 Signed-off-by: Christine Gharzuzi <chrisg@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/Makefile    |  1 +
  arch/arm/mach-mvebu/armada8k/clock.c     | 53 ++++++++++++++++++++++++
@@ -135,6 +135,3 @@ index d3894a004f..a19de16778 100644
  /* SAR AP806 registers */
  #define SAR_CLOCK_FREQ_MODE_OFFSET	0
  #define SAR_CLOCK_FREQ_MODE_MASK	(0x1f << SAR_CLOCK_FREQ_MODE_OFFSET)
--- 
-2.29.0
-

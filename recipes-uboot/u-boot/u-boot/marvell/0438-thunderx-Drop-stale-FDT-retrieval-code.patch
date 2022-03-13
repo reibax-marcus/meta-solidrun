@@ -1,12 +1,13 @@
-From c2c3872d867d62be1a43a6d2c3007cc1c26af2c6 Mon Sep 17 00:00:00 2001
+From 8c3430e0b3f7c90e8e965323153f2b2e4622f1ce Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 14 May 2016 17:38:24 -0400
-Subject: [PATCH 0438/1239] thunderx: Drop stale FDT retrieval code
+Subject: [PATCH] thunderx: Drop stale FDT retrieval code
 
 Since this hacky call is replaced with a cleaner method of
 FDT passing, drop it
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  board/cavium/thunderx/fdt.c | 14 +++++++-------
  1 file changed, 7 insertions(+), 7 deletions(-)
@@ -55,6 +56,3 @@ index 2f85fd193e..d6effc49f7 100644
  		}
  	}
  
--- 
-2.29.0
-

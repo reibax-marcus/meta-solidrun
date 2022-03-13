@@ -1,7 +1,7 @@
-From 19471092739ffaab530abf32368b5a5cfa2f18e1 Mon Sep 17 00:00:00 2001
+From 36358213d935ddfc5adc74c126ab60b2d4497a88 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Tue, 3 May 2016 21:04:58 -0700
-Subject: [PATCH 0395/1239] Update configs
+Subject: [PATCH] Update configs
 
 ---
  configs/thunderx_88xx_defconfig | 4 ++++
@@ -42,6 +42,3 @@ index 30abc81d94..81b45fee83 100644
  
  #define CONFIG_SPECIAL_SYNC_HANDLER
  
--- 
-2.29.0
-

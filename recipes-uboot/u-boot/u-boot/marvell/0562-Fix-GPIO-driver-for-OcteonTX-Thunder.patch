@@ -1,7 +1,7 @@
-From 006d170d7e9d435425edb19a18e8533cf2370709 Mon Sep 17 00:00:00 2001
+From c4ef55f797b9d93355aa610a9233f9e5113e0833 Mon Sep 17 00:00:00 2001
 From: Aaron Williams <aaron.williams@cavium.com>
 Date: Sat, 12 Nov 2016 00:41:14 -0800
-Subject: [PATCH 0562/1239] Fix GPIO driver for OcteonTX/Thunder
+Subject: [PATCH] Fix GPIO driver for OcteonTX/Thunder
 
 There are a number of changes involved with this checkin.
 Normally I wouldn't combine these, but the previous code
@@ -16,6 +16,7 @@ did not work at all.
 - Fixed the device tree compatibility string.
 
 - Added the proper copyright.
+
 ---
  drivers/gpio/thunderx_gpio.c | 85 ++++++++++++++++++++++++------------
  1 file changed, 56 insertions(+), 29 deletions(-)
@@ -199,6 +200,3 @@ index 67a4d055ae..5fc10090c0 100644
 +};
 +
 +U_BOOT_PCI_DEVICE(cavium_pci_gpio, cavium_pci_gpio_supported);
--- 
-2.29.0
-

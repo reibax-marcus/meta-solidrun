@@ -1,7 +1,7 @@
-From 1e6fc70c60c17a682f3eb44adb219931d67dc410 Mon Sep 17 00:00:00 2001
+From aaca2ff6f6669acacea439707341915b33860fb6 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Sat, 25 Apr 2015 15:33:30 -0700
-Subject: [PATCH 0325/1239] Increase the environment storage space
+Subject: [PATCH] Increase the environment storage space
 
 ---
  include/configs/thunderx_88xx.h | 11 ++++++++++-
@@ -29,6 +29,3 @@ index aea91945ae..8eed9f99c9 100644
  #define CONFIG_ENV_OFFSET		0xf00000
  
  #define CONFIG_SYS_I2C
--- 
-2.29.0
-

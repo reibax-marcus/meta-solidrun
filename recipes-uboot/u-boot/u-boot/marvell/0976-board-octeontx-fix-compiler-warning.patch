@@ -1,13 +1,14 @@
-From 7cc9cc1a9bfb269e8f14e06e74120e5913c5eda5 Mon Sep 17 00:00:00 2001
+From 9f8db47d3af3cfc2767f68fc92863fd655802fe6 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Wed, 23 Oct 2019 21:02:18 -0700
-Subject: [PATCH 0976/1239] board: octeontx: fix compiler warning
+Subject: [PATCH] board: octeontx: fix compiler warning
 
 Change-Id: Ia827a1d7facb70e66835f5f41571a4737cf9f2d4
 Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/17761
 Tested-by: Suneel Garapati <sgarapati@caviumnetworks.com>
 Reviewed-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx/board.c  | 1 +
  board/Marvell/octeontx2/board.c | 1 +
@@ -37,6 +38,3 @@ index 96bd61eaf4..b9480922f9 100644
  #include <asm/io.h>
  #include <linux/compiler.h>
  #include <linux/libfdt.h>
--- 
-2.29.0
-

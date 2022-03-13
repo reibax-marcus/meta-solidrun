@@ -1,8 +1,8 @@
-From 8bfe4c2c502ba8da58e18df54c0205951d780de2 Mon Sep 17 00:00:00 2001
+From 840a293e2886e9c37e3cb171170ca13a62810ba8 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 7 Aug 2017 14:27:15 +0300
-Subject: [PATCH 0006/1239] arm64: mvebu: config: move env to the end of the
- 4MB boot device
+Subject: [PATCH] arm64: mvebu: config: move env to the end of the 4MB boot
+ device
 
 The size of flash_image.bin with the tee binary exceeds 1.5MB.
 The tee binary size can grow up to 2MB, and without the environment
@@ -18,6 +18,7 @@ Signed-off-by: wangwen <wangwen@marvell.com>
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Signed-off-by: Ken Ma <make@marvell.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  include/configs/mvebu_armada-common.h | 10 +++++++++-
  1 file changed, 9 insertions(+), 1 deletion(-)
@@ -45,6 +46,3 @@ index 44c1d13ecf..f11129aef9 100644
  
  /*
   * SATA/SCSI/AHCI configuration
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From 8f20bcb70ab2d365798deb324e0743acc0404d1d Mon Sep 17 00:00:00 2001
+From 5d568f26fe6f84f46574620be0947efe132b3e75 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Wed, 17 Jan 2018 15:05:36 -0800
-Subject: [PATCH 0743/1239] Kconfig: add entries for drivers
+Subject: [PATCH] Kconfig: add entries for drivers
 
 add Kconfig entries in respective files for rtc, network, serial
 and pci drivers.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/Kconfig         |  2 ++
  drivers/net/Makefile        |  1 +
@@ -135,6 +136,3 @@ index 82643e6d47..c744a28942 100644
  config RTC_S35392A
  	bool "Enable S35392A driver"
  	select BITREVERSE
--- 
-2.29.0
-

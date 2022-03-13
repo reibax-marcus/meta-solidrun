@@ -1,8 +1,7 @@
-From 13ee782310b6d021159c3c4f0a58d5e4a0505567 Mon Sep 17 00:00:00 2001
+From 30ea7efd4e6190aac56edddc4a4cc8f5bb76a316 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 20 Dec 2018 14:13:53 -0800
-Subject: [PATCH 0853/1239] octeontx2: increase mmap region to include PEM
- controllers
+Subject: [PATCH] octeontx2: increase mmap region to include PEM controllers
 
 This inclusion helps in debug of PEM controller registers
 from u-boot command line interface.
@@ -13,6 +12,7 @@ Reviewed-on: https://sj1git1.cavium.com/1468
 Reviewed-by: Kostya Porotchkin <Kostya.Porotchkin@cavium.com>
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  arch/arm/mach-octeontx2/cpu.c | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)
@@ -43,6 +43,3 @@ index 577c3c4b0a..12d1daab44 100644
  }
  
  void reset_cpu(ulong addr)
--- 
-2.29.0
-

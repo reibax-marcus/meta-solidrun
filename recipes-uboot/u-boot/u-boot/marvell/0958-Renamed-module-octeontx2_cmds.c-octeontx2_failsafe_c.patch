@@ -1,14 +1,15 @@
-From 4f4b606721b8aaf7d4cd1f9e50b61d7d4633c79c Mon Sep 17 00:00:00 2001
+From abafcf3e3f184611f08c1244c7df274d26e5d7f4 Mon Sep 17 00:00:00 2001
 From: Rick Farrington <Ricardo.Farrington@cavium.com>
 Date: Wed, 18 Sep 2019 22:34:05 -0400
-Subject: [PATCH 0958/1239] Renamed module octeontx2_cmds.c ->
- octeontx2_failsafe_cmds.c and updated Makefile accordingly.
+Subject: [PATCH] Renamed module octeontx2_cmds.c -> octeontx2_failsafe_cmds.c
+ and updated Makefile accordingly.
 
 Change-Id: I956e4008b86b4c26fc1d637f0c51114c8b62bf3b
 Signed-off-by: Rick Farrington <Ricardo.Farrington@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/16055
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  cmd/marvell/Makefile                                        | 2 +-
  cmd/marvell/{octeontx2_cmds.c => octeontx2_failsafe_cmds.c} | 0
@@ -32,6 +33,3 @@ diff --git a/cmd/marvell/octeontx2_cmds.c b/cmd/marvell/octeontx2_failsafe_cmds.
 similarity index 100%
 rename from cmd/marvell/octeontx2_cmds.c
 rename to cmd/marvell/octeontx2_failsafe_cmds.c
--- 
-2.29.0
-

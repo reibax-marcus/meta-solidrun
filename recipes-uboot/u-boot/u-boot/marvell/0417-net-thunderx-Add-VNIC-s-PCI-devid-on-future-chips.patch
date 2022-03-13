@@ -1,7 +1,7 @@
-From b1d91f59412aa5f7bbe5d142ee16a461b5aa5cca Mon Sep 17 00:00:00 2001
+From 888403e51ebe707b0c93e80b2e56ce596af6f968 Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Mon, 9 May 2016 17:38:16 -0700
-Subject: [PATCH 0417/1239] net: thunderx: Add VNIC's PCI devid on future chips
+Subject: [PATCH] net: thunderx: Add VNIC's PCI devid on future chips
 
 This patch adds PCI device IDs of VNIC on newer chips and also
 registers VF driver with them. Device id remains same for all
@@ -9,6 +9,7 @@ versions of chips but subsystem device id changes.
 
 Signed-off-by: Sunil Goutham <sgoutham@cavium.com>
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/cavium/nic.h | 9 ++++++++-
  1 file changed, 8 insertions(+), 1 deletion(-)
@@ -33,6 +34,3 @@ index fd99888ac4..59870c9fb3 100644
  
  #define	NIC_INTF_COUNT			2  /* Interfaces btw VNIC and TNS/BGX */
  #define	NIC_CHANS_PER_INF		128
--- 
-2.29.0
-

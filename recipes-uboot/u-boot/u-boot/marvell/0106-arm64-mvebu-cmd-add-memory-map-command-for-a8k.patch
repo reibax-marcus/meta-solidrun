@@ -1,13 +1,14 @@
-From 0daad6c63fac9d4417b476ce59d00b56d401080f Mon Sep 17 00:00:00 2001
+From df14dc28e61c2df70538f9652a32d7334e38a21b Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Thu, 8 Feb 2018 18:44:13 +0200
-Subject: [PATCH 0106/1239] arm64: mvebu: cmd: add memory map command for a8k
+Subject: [PATCH] arm64: mvebu: cmd: add memory map command for a8k
 
 Add command for dumping address decode maps on A8K
 platforms.
 
 Change-Id: I8eefd54b87b8b837ee377d586cb58f4fbdaa81a8
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/mach-mvebu/include/mach/soc.h |  20 ++
  cmd/mvebu/Kconfig                      |   7 +
@@ -332,6 +333,3 @@ index 0000000000..4ffa2e3974
 +	"Display address decode windows\n",
 +	"\tDisplay address decode windows\n"
 +);
--- 
-2.29.0
-

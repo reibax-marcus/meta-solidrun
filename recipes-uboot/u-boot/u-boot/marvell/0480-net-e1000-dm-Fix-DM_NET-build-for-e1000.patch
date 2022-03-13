@@ -1,9 +1,10 @@
-From c6e2a3cd95513568778560541a6db952a7cf1cdd Mon Sep 17 00:00:00 2001
+From f13689e60f96284928e1acea1f947abcb0d6f48e Mon Sep 17 00:00:00 2001
 From: Sergey Temerkhanov <s.temerkhanov@gmail.com>
 Date: Thu, 19 May 2016 18:36:28 -0400
-Subject: [PATCH 0480/1239] net: e1000: dm: Fix DM_NET build for e1000
+Subject: [PATCH] net: e1000: dm: Fix DM_NET build for e1000
 
 Signed-off-by: Sergey Temerkhanov <s.temerkhanov@gmail.com>
+
 ---
  drivers/net/e1000.c     | 7 ++++++-
  drivers/net/e1000_spi.c | 4 ++--
@@ -69,6 +70,3 @@ index aecd290d72..f6ae3c4d07 100644
  }
  
  int spi_claim_bus(struct spi_slave *spi)
--- 
-2.29.0
-

@@ -1,13 +1,14 @@
-From c05573951a8d71807438e7f93023f269f55932b4 Mon Sep 17 00:00:00 2001
+From f64e344f05260cf69ff6c2999c9b2dcbb9e7d277 Mon Sep 17 00:00:00 2001
 From: Konstantin Porotchkin <kostap@marvell.com>
 Date: Mon, 23 Dec 2019 14:40:41 +0200
-Subject: [PATCH 1049/1239] Bump u-boot-2019.10-devel to release 1.0.0
+Subject: [PATCH] Bump u-boot-2019.10-devel to release 1.0.0
 
 Change-Id: I5553c01cd91a290c09ef9d3dfdbed8543d123ab9
 Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/20721
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  localversion | 1 +
  1 file changed, 1 insertion(+)
@@ -20,6 +21,3 @@ index 0000000000..f21306878f
 +++ b/localversion
 @@ -0,0 +1 @@
 +-1.0.0
--- 
-2.29.0
-

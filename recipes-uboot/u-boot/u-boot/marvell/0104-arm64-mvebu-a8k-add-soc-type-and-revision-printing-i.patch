@@ -1,14 +1,15 @@
-From 37f3a1dc203884d2e63fc2ec5f8989fcd40c4311 Mon Sep 17 00:00:00 2001
+From 19c4f3ca28c9b4d6d71dfad23413425f856c4d15 Mon Sep 17 00:00:00 2001
 From: zachary zhang <zhangzg@marvell.com>
 Date: Fri, 26 Jan 2018 14:07:11 +0800
-Subject: [PATCH 0104/1239] arm64: mvebu: a8k: add soc type and revision
- printing in boot log
+Subject: [PATCH] arm64: mvebu: a8k: add soc type and revision printing in boot
+ log
 
 This patch adds SoC type and revision and each module's type
 and revision printing for a7k and a8k boards.
 
 Change-Id: I16166c4c231fce169bbbf9e8ef197a92f01c3d63
 Signed-off-by: zachary zhang <zhangzg@marvell.com>
+
 ---
  arch/arm/mach-mvebu/armada8k/Makefile  |   1 +
  arch/arm/mach-mvebu/armada8k/cpu.c     |   9 ++
@@ -235,6 +236,3 @@ index 1652406347..b83c36a66f 100644
  CONFIG_DISPLAY_BOARDINFO_LATE=y
  CONFIG_ARCH_EARLY_INIT_R=y
  CONFIG_BOARD_EARLY_INIT_F=y
--- 
-2.29.0
-

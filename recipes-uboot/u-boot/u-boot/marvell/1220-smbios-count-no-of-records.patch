@@ -1,7 +1,7 @@
-From 71efa4eedbf1f2d4bd6d9ed18d0ec4d04ba0910d Mon Sep 17 00:00:00 2001
+From b3421686df70f80b0afdd3298ad9ceae207a9e12 Mon Sep 17 00:00:00 2001
 From: Sujeet Baranwal <sbaranwal@marvell.com>
 Date: Mon, 27 Jul 2020 11:11:35 -0700
-Subject: [PATCH 1220/1239] smbios: count no of records
+Subject: [PATCH] smbios: count no of records
 
 smbios needs to keep track of how many types are added
 in its storage to be used later to enumerate them in
@@ -12,6 +12,7 @@ Change-Id: Ib8ef99e81e5c05d0b872810e8ce5c42f4334d35e
 Reviewed-on: https://sj1git1.cavium.com/c/IP/SW/boot/u-boot/+/35172
 Reviewed-by: Jia Ma <jiam@marvell.com>
 Tested-by: Jia Ma <jiam@marvell.com>
+
 ---
  lib/smbios.c | 20 +++++++++++++++++++-
  1 file changed, 19 insertions(+), 1 deletion(-)
@@ -166,6 +167,3 @@ index 0e6324c36f..04be3fea00 100644
  
  	/* calculate checksums */
  	istart = (char *)se + SMBIOS_INTERMEDIATE_OFFSET;
--- 
-2.29.0
-

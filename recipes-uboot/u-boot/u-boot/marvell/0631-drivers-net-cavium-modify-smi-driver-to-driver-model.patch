@@ -1,8 +1,7 @@
-From 9c62dd7ea319a626a7ec099c0e523085412f53b3 Mon Sep 17 00:00:00 2001
+From 219ee44286cd9ac647357d83885d24efdf22f2a6 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarpati@caviumnetworks.com>
 Date: Tue, 4 Apr 2017 15:48:56 -0700
-Subject: [PATCH 0631/1239] drivers: net: cavium: modify smi driver to
- driver-model
+Subject: [PATCH] drivers: net: cavium: modify smi driver to driver-model
 
 move to driver-model probe method based on compatible.
 Parse child nodes and fetch base addresses in probe method.
@@ -11,6 +10,7 @@ add compatible thunderx-smi. use smi0/1 as bus names instead
 of txsmi for simplicity.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  drivers/net/cavium/thunderx_smi.c | 104 +++++++++---------------------
  1 file changed, 31 insertions(+), 73 deletions(-)
@@ -187,6 +187,3 @@ index 243bf5ecd6..e5d10ad956 100644
 -};
 -
 -U_BOOT_PCI_DEVICE(thunderx_smi, thunderx_smi_supported);
--- 
-2.29.0
-

@@ -1,12 +1,13 @@
-From bf228c851c871d1e8f3d532901bb8e9fc393ce20 Mon Sep 17 00:00:00 2001
+From e6a43be5ebca1e0e4f1e5fea4ae876dd628f67b9 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 11 Sep 2017 10:17:16 -0700
-Subject: [PATCH 0705/1239] board: thunderx: remove redundant code
+Subject: [PATCH] board: thunderx: remove redundant code
 
 remove redundant mac addr parsing in parse functions, also
 reset lmacid for each bgx in parse_mac_addr.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/fdt.c | 42 +------------------------------------
  1 file changed, 1 insertion(+), 41 deletions(-)
@@ -85,6 +86,3 @@ index afb2b8dba3..308a3bef61 100644
  		}
  	}
  }
--- 
-2.29.0
-

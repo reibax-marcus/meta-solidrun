@@ -1,7 +1,7 @@
-From 0cf4051376d39c5cee72e27483abb347a7c7e1a5 Mon Sep 17 00:00:00 2001
+From fe8c22f68202dfa2c3bea9fb97726de7cb3ee68b Mon Sep 17 00:00:00 2001
 From: Grzegorz Jaszczyk <jaz@semihalf.com>
 Date: Thu, 2 Aug 2018 09:28:35 +0200
-Subject: [PATCH 0059/1239] net: mvpp2: mark phy as invalid in case of missing
+Subject: [PATCH] net: mvpp2: mark phy as invalid in case of missing
  appropriate driver
 
 If the phy doesn't match with any existing u-boot drivers the phy
@@ -16,6 +16,7 @@ This patch fixes the issue with the link always down on MCBIN board.
 Change-Id: I8263f7d814b05dbf0910a1c302e810a623d51bc3
 Signed-off-by: Grzegorz Jaszczyk <jaz@semihalf.com>
 Reviewed-by: Igal Liberman <igall@marvell.com>
+
 ---
  drivers/net/mvpp2.c | 21 +++++++++++++++++++++
  1 file changed, 21 insertions(+)
@@ -52,6 +53,3 @@ index 0bbaa6e7e7..c7abebf83d 100644
  		port->phy_dev = phy_dev;
  		if (!phy_dev) {
  			netdev_err(port->dev, "cannot connect to phy\n");
--- 
-2.29.0
-

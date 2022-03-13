@@ -1,7 +1,7 @@
-From 4d405b289b53057212663f14b395dbcfe9a42f15 Mon Sep 17 00:00:00 2001
+From 2b139bad668da7318b3d9d34f413a0c9f9542d83 Mon Sep 17 00:00:00 2001
 From: Igal Liberman <igall@marvell.com>
 Date: Thu, 5 Jul 2018 18:41:39 +0300
-Subject: [PATCH 0148/1239] arm64: mvebu: dts: a8k: align comphy and network
+Subject: [PATCH] arm64: mvebu: dts: a8k: align comphy and network
  configurations
 
 Setup A:
@@ -18,6 +18,7 @@ Documentation will be updated in a separate patch.
 
 Change-Id: If44fb786287ea07e4401645b84d2d2746e9f4a4d
 Signed-off-by: Igal Liberman <igall@marvell.com>
+
 ---
  arch/arm/dts/armada-7040-db-C.dts | 2 +-
  arch/arm/dts/armada-7040-db-D.dts | 8 ++------
@@ -77,6 +78,3 @@ index 4b57cca2e5..7edc741edb 100644
  };
  
  &cp0_eth2 {
--- 
-2.29.0
-

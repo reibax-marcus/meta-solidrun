@@ -1,12 +1,13 @@
-From 98a2b7fb9cf2452095d5e3dec793525727f60d90 Mon Sep 17 00:00:00 2001
+From 9dcec9eca3307079550689012635e5d9dd39c4c9 Mon Sep 17 00:00:00 2001
 From: Chandrakala Chavva <cchavva@caviumnetworks.com>
 Date: Tue, 7 Jun 2016 09:06:37 -0700
-Subject: [PATCH 0496/1239] device tree: Changed printf to debug
+Subject: [PATCH] device tree: Changed printf to debug
 
 On 81xx, BGX can be configured as 2 lanes, so disabling printing phy not
 found message when parsing the device tree to check for phy addresses.
 
 Signed-off-by: Chandrakala Chavva <cchavva@caviumnetworks.com>
+
 ---
  board/cavium/thunderx/fdt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -24,6 +25,3 @@ index 6ef42149d5..ae121d9d42 100644
  			}
  		}
  		bgx_set_board_info(bgx_id, mdio_bus, &phy_addr[0]);
--- 
-2.29.0
-

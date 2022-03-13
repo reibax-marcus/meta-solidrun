@@ -1,9 +1,10 @@
-From 6b0ab5d28264e0e0672320d485eae553abd53243 Mon Sep 17 00:00:00 2001
+From 8744b45022bff05fdf8228feaa62796599270745 Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Thu, 1 Mar 2018 18:29:09 -0800
-Subject: [PATCH 0764/1239] cavm: move 93xx code to octeontx2
+Subject: [PATCH] cavm: move 93xx code to octeontx2
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  arch/arm/Kconfig                              |   11 +
  arch/arm/Makefile                             |    2 +
@@ -3070,6 +3071,3 @@ index 1de7449e92..28d3284994 100644
  
 -#endif /* __OCTEONTX_93XX_H__ */
 +#endif /* __OCTEONTX2_93XX_H__ */
--- 
-2.29.0
-

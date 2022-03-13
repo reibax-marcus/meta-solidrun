@@ -1,7 +1,7 @@
-From a496d7402f8ca9b6c2fdd60264c943aae7b13c23 Mon Sep 17 00:00:00 2001
+From d6ca2b1d08899e52a60cda4be0831ec2fc7c1a90 Mon Sep 17 00:00:00 2001
 From: aaronw <aaron.williams@cavium.com>
 Date: Mon, 4 Mar 2019 20:29:29 -0800
-Subject: [PATCH 0886/1239] mmc: remove octeontx mmc hacks
+Subject: [PATCH] mmc: remove octeontx mmc hacks
 
 The hacks for the old driver are no longer needed for the new driver.
 
@@ -10,6 +10,7 @@ Signed-off-by: aaronw <aaron.williams@cavium.com>
 Reviewed-on: https://sj1git1.cavium.com/5410
 Reviewed-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
 Tested-by: Chandrakala Chavva <Chandrakala.Chavva@cavium.com>
+
 ---
  cmd/bootimgup.c                  |  2 +-
  cmd/mmc.c                        | 28 ----------
@@ -311,6 +312,3 @@ index b21843ef1b..81230f59a3 100644
  	int ret;
  
  	ret = mmc_init(mmc);
--- 
-2.29.0
-

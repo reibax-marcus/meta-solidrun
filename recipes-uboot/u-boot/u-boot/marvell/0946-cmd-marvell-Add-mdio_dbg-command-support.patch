@@ -1,7 +1,7 @@
-From b39984549d47f2ba135902e725d04c38107bf439 Mon Sep 17 00:00:00 2001
+From abad040bd142ee5db988576d8a70fa974121ef4a Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@marvell.com>
 Date: Sun, 28 Jul 2019 20:38:00 -0700
-Subject: [PATCH 0946/1239] cmd: marvell: Add mdio_dbg command support
+Subject: [PATCH] cmd: marvell: Add mdio_dbg command support
 
 mdio_dbg command supports read and write of PHY registers
 on Marvell OcteonTX2 RVU PF interfaces with valid PHY
@@ -16,6 +16,7 @@ Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
 Reviewed-on: https://sj1git1.cavium.com/13204
 Tested-by: sa_ip-sw-jenkins <sa_ip-sw-jenkins@marvell.com>
 Reviewed-by: Chandrakala Chavva <cchavva@marvell.com>
+
 ---
  arch/arm/include/asm/arch-octeontx2/atf.h     |  4 +
  .../asm/arch-octeontx2/octeontx2_svc.h        |  3 +
@@ -270,6 +271,3 @@ index 3829f7e464..dc4f62b228 100644
  
  /**
   * Only allow the Ethernet MAC address environment variable to be
--- 
-2.29.0
-

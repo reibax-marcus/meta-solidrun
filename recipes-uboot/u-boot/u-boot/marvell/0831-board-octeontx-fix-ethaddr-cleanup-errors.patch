@@ -1,13 +1,14 @@
-From e3379f56533235114fda40e4014761b11bf8351e Mon Sep 17 00:00:00 2001
+From 747d2c7311ea366153e03ad92226feea2588701a Mon Sep 17 00:00:00 2001
 From: Suneel Garapati <sgarapati@caviumnetworks.com>
 Date: Mon, 17 Sep 2018 16:48:00 -0700
-Subject: [PATCH 0831/1239] board: octeontx: fix ethaddr cleanup errors
+Subject: [PATCH] board: octeontx: fix ethaddr cleanup errors
 
 Cleanup existing ethaddr variables with force flag.
 If local-mac-address is not defined, set zero value to ethaddr.
 Later network stack will set random addr.
 
 Signed-off-by: Suneel Garapati <sgarapati@caviumnetworks.com>
+
 ---
  board/Marvell/octeontx/octeontx.c | 11 +++++++----
  1 file changed, 7 insertions(+), 4 deletions(-)
@@ -41,6 +42,3 @@ index d608c21de2..4a0859366d 100644
  		return;
  	}
  }
--- 
-2.29.0
-
