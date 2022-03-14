@@ -1,1 +1,2 @@
 core
+recipes-bsp/arm-trusted-firmware/arm-trusted-firmware_%.bbappend

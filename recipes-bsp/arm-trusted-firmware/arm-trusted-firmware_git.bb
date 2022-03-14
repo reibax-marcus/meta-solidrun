@@ -25,9 +25,9 @@ SRC_URI = "\
            git://github.com/ARM-software/arm-trusted-firmware.git;protocol=https \
            file://mrvl_scp_bl2.img \
            file://0001-Fix-fiptool-native-compilation.patch \
+           file://0001-ddr-spd-read-failover-to-defualt-config.patch \
+           file://0002-som-sdp-failover-using-crc-verification.patch \
            "
-
-SRC_URI:append_cn9130-cf-base = " file://arm-trusted-firmware-temp-fix-cn9130-som-rev-1.0.patch "
 
 # Modify these as desired
 PV = "2.3+git${SRCPV}"
