@@ -2,7 +2,7 @@ LICENSE = "CLOSED"
 
 SRC_URI = "\
            git://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git;nobranch=1;protocol=https \
-           file://0001-Hide-snps_fw.c-compilation-error.patch \
+           file://0001-COMPILE-fix-stack-overflow-warning.patch \
            file://0002-Avoid-multiple-definition-of-gd-error.patch \
            "
 
