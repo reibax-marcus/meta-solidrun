@@ -37,3 +37,5 @@ do_install () {
 FILES:${PN}-dev = "/usr/src/${PN}"
 INSANE_SKIP:${PN}-dev += "file-rdeps"
 SYSROOT_DIRS +=  " /usr/src/${PN} "
+
+PATCHTOOL = "git"

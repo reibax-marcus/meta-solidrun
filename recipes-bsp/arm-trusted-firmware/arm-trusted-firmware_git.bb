@@ -80,3 +80,5 @@ do_deploy () {
 addtask deploy after do_install before do_package
 
 FILES:${PN} = "/lib/firmware"
+
+PATCHTOOL = "git"
