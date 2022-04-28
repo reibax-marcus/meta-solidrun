@@ -1,0 +1,68 @@
+From 9287ebb45c27d6856a5a1fdbba5b56b4981f4c2e Mon Sep 17 00:00:00 2001
+From: Xabier Marquiegui <xmarquiegui@ainguraiiot.com>
+Date: Thu, 28 Apr 2022 18:12:45 +0200
+Subject: [PATCH] Add rbxos support environment variables
+
+---
+ board/Marvell/octeontx2_cn913x/board.c | 20 ++++++++++++++++++++
+ include/configs/mvebu_armada-common.h  |  8 ++++++--
+ 2 files changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/board/Marvell/octeontx2_cn913x/board.c b/board/Marvell/octeontx2_cn913x/board.c
+index 27db37e86e..0992ee91fc 100644
+--- a/board/Marvell/octeontx2_cn913x/board.c
++++ b/board/Marvell/octeontx2_cn913x/board.c
+@@ -127,5 +127,25 @@ int board_late_init(void)
+ 	if (init_bootcmd_console())
+ 		printf("Failed to init bootcmd input\n");
+ #endif
++    /* RbxOS custom boot system */
++    env_set("fdtr", "false");
++    env_set("fdtcustomvars", "hwver serial");
++    env_set("fdtmod", "env set fdtr true; \
++	fdt resize 1 ; fdt mknode / factory ; for variable in \
++	$fdtcustomvars ; do if env exists $variable ; then env set evalitem \"env \
++	set varvalue $$variable\" ; run evalitem ; fdt set /factory $variable \
++	$varvalue ; else echo \"ERROR: Missing variable $variable\" ; env set fdtr false ; fi ; done; $fdtr");
++    env_set("defargs","setenv bootargs ${console} root=/dev/mmcblk${mmcdev}p${rootpartition} ro rootwait \
++    rootfstype=squashfs earlycon ${extra_params} ${cpuidle}");
++	env_set("bootcmd", "run defargs && mmc dev $mmcdev && mmcinfo && \
++    if load mmc $mmcdev:$partid $fdt_addr_r $fdt_file ; then echo \"Device tree loaded\" ; else \
++    echo \"ERROR: could not load device tree\" ; false ; fi && fdt addr $fdt_addr_r && \
++	run fdtmod && if load mmc $mmcdev:$partid $kernel_addr_r $fkernel ; then \
++    echo \"Kernel loaded\" ; else echo \"ERROR: Could not load kernel\" ; false ; fi && \
++	if load mmc $mmcdev:$partid $initrd_addr $finitramfs ; then \
++    echo \"Initramfs loaded\" ; else echo \"ERROR: Could not load initramfs\" ; false ; fi && \
++	booti $kernel_addr_r $initrd_addr $fdt_addr_r");
++    env_save();
++    /* End of RbxOS cutom boot system */
+ 	return 0;
+ }
+diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
+index d3669ff022..f7bca6a4b3 100644
+--- a/include/configs/mvebu_armada-common.h
++++ b/include/configs/mvebu_armada-common.h
+@@ -43,14 +43,18 @@
+ 					"ramdisk_addr_r=0x9000000\0"	\
+ 					"ramfs_name=-\0"		\
+ 					"cpuidle=cpuidle.off=1\0"	\
+-					"fdt_name=fdt.dtb\0"		\
+ 					"netdev=eth0\0"			\
+ 					"ethaddr=00:51:82:11:22:00\0"	\
+ 					"eth1addr=00:51:82:11:22:01\0"	\
+ 					"eth2addr=00:51:82:11:22:02\0"	\
+ 					"eth3addr=00:51:82:11:22:03\0"	\
+ 					"eth4addr=00:51:82:11:22:04\0"	\
+-					"image_name=Image\0"		\
++					"fdt_file=cn9130-cf-base.dtb\0" \
++					"mmcdev=1\0"    \
++					"finitramfs=initrd.cpio.ub\0"   \
++					"fkernel=Image\0"		\
++					"rootpartition=5\0"	\
++					"partid=1\0"	\
+ 					"get_ramfs=if test \"${ramfs_name}\"" \
+ 						" != \"-\"; then setenv " \
+ 						"ramdisk_addr_r $ramdisk_addr_r; " \
+-- 
+2.25.1
+
