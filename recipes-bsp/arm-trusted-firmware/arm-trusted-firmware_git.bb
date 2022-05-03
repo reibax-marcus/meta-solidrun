@@ -74,8 +74,7 @@ do_install () {
 }
 
 do_deploy () {
-    install -d ${DEPLOYDIR}/fsbl
-    install -m 0644 ${D}/lib/firmware/flash-image.bin ${DEPLOYDIR}/fsbl/
+    install -m 0644 ${D}/lib/firmware/flash-image.bin ${DEPLOYDIR}/
 }
 addtask deploy after do_install before do_package
 
