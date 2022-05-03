@@ -13,4 +13,6 @@ do_compile:prepend() {
     export DEVICE_TREE="${UBOOT_BUILDENV_DEVICE_TREE}"
 }
 
+EXTRA_OEMAKE += " EXTRAVERSION=-bsupver[001] "
+
 SYSROOT_DIRS +=  " /boot "
