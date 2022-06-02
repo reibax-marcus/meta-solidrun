@@ -1,18 +1,19 @@
-From 9287ebb45c27d6856a5a1fdbba5b56b4981f4c2e Mon Sep 17 00:00:00 2001
+From 45a086d9113b30fc36b1ac7f702eb2f8ff07d063 Mon Sep 17 00:00:00 2001
 From: Xabier Marquiegui <xmarquiegui@ainguraiiot.com>
 Date: Thu, 28 Apr 2022 18:12:45 +0200
 Subject: [PATCH] Add rbxos support environment variables
 
 ---
  board/Marvell/octeontx2_cn913x/board.c | 20 ++++++++++++++++++++
- include/configs/mvebu_armada-common.h  |  8 ++++++--
- 2 files changed, 26 insertions(+), 2 deletions(-)
+ common/Kconfig                         | 10 ++++++++++
+ include/configs/octeontx2_cn913x.h     | 17 +++++++++++++++++
+ 3 files changed, 47 insertions(+)
 
 diff --git a/board/Marvell/octeontx2_cn913x/board.c b/board/Marvell/octeontx2_cn913x/board.c
-index 27db37e86e..0992ee91fc 100644
+index 1e900d2aab..5894ae6a97 100644
 --- a/board/Marvell/octeontx2_cn913x/board.c
 +++ b/board/Marvell/octeontx2_cn913x/board.c
-@@ -127,5 +127,25 @@ int board_late_init(void)
+@@ -224,5 +224,25 @@ int board_late_init(void)
  	if (init_bootcmd_console())
  		printf("Failed to init bootcmd input\n");
  #endif
@@ -38,31 +39,60 @@ index 27db37e86e..0992ee91fc 100644
 +    /* End of RbxOS cutom boot system */
  	return 0;
  }
-diff --git a/include/configs/mvebu_armada-common.h b/include/configs/mvebu_armada-common.h
-index d3669ff022..f7bca6a4b3 100644
---- a/include/configs/mvebu_armada-common.h
-+++ b/include/configs/mvebu_armada-common.h
-@@ -43,14 +43,18 @@
- 					"ramdisk_addr_r=0x9000000\0"	\
- 					"ramfs_name=-\0"		\
- 					"cpuidle=cpuidle.off=1\0"	\
--					"fdt_name=fdt.dtb\0"		\
- 					"netdev=eth0\0"			\
- 					"ethaddr=00:51:82:11:22:00\0"	\
- 					"eth1addr=00:51:82:11:22:01\0"	\
- 					"eth2addr=00:51:82:11:22:02\0"	\
- 					"eth3addr=00:51:82:11:22:03\0"	\
- 					"eth4addr=00:51:82:11:22:04\0"	\
--					"image_name=Image\0"		\
-+					"fdt_file=cn9130-cf-base.dtb\0" \
-+					"mmcdev=1\0"    \
-+					"finitramfs=initrd.cpio.ub\0"   \
-+					"fkernel=Image\0"		\
-+					"rootpartition=5\0"	\
-+					"partid=1\0"	\
- 					"get_ramfs=if test \"${ramfs_name}\"" \
- 						" != \"-\"; then setenv " \
- 						"ramdisk_addr_r $ramdisk_addr_r; " \
+diff --git a/common/Kconfig b/common/Kconfig
+index 28d5e9a0cc..0fee0560a2 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -811,6 +811,16 @@ config DEFAULT_FDT_FILE
+ 	help
+ 	  This option is used to set the default fdt file to boot OS.
+ 
++config DEFAULT_RAMDISK_FILE
++	string "Default ramdisk file"
++	help
++	  This option is used to set the default fdt file to boot OS.
++
++config DEFAULT_CONSOLE
++	string "Default console configuration"
++	help
++	  This option is used to set the default console configuration
++
+ config MISC_INIT_R
+ 	bool "Execute Misc Init"
+ 	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx
+diff --git a/include/configs/octeontx2_cn913x.h b/include/configs/octeontx2_cn913x.h
+index d01644fcb5..9ce16d2aa5 100644
+--- a/include/configs/octeontx2_cn913x.h
++++ b/include/configs/octeontx2_cn913x.h
+@@ -36,11 +36,28 @@
+ 
+ #undef CONFIG_EXTRA_ENV_SETTINGS
+ #define CONFIG_EXTRA_ENV_SETTINGS \
++    "extra_params=pci=pcie_bus_safe\0" \
+ 	"kernel_addr_r=0x7000000\0" \
+ 	"fdt_addr_r=0x6f00000\0" \
+ 	"ramdisk_addr_r=0x9000000\0" \
++    "initrd_addr=0xa00000\0"	\
+ 	"scriptaddr=0x6e00000\0" \
+ 	"pxefile_addr_r=0x6000000\0" \
++    "fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
++    "mmcdev=1\0"    \
++    "finitramfs=" CONFIG_DEFAULT_RAMDISK_FILE "\0"   \
++    "fkernel=Image\0"		\
++    "rootpartition=5\0"	\
++    "partid=1\0"	\
++    "console=" CONFIG_DEFAULT_CONSOLE "\0"\
++    "cpuidle=cpuidle.off=1\0"	\
++    "set_bootargs=setenv bootargs $console"\
++    " $root ip=$ipaddr:$serverip:" \
++    "$gatewayip:$netmask:$hostname"\
++    ":$netdev:none nfsroot="\
++    "$serverip:$rootpath,tcp,v3 " \
++    "$extra_params " \
++    "$cpuidle\0" \
+ 	BOOTENV
+ 
+ /* RTC configuration */
 -- 
 2.25.1
 

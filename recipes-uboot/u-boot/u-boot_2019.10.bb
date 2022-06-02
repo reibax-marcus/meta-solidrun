@@ -21,6 +21,7 @@ SRC_URI += "\
             file://0015-octeontx2_cn913x-remove-console-variable.patch \
             file://0016-octeontx2_cn913x-enable-mmc-partconf-command.patch \
             file://0001-Add-rbxos-support-environment-variables.patch \
+            file://default_vars.cfg \
             "
 
 do_compile:prepend() {
