@@ -31,3 +31,5 @@ II. Misc
 ========
 
 This is a hardware layer, so you will need to add your own layers if you want to build a complete system image.
+
+This repo takes inspiration from https://github.com/SolidRun/cn913x_build
