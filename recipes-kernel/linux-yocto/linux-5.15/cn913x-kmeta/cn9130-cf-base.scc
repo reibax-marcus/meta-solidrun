@@ -8,5 +8,6 @@ patch 0005-DTS-update-cn9130-device-tree.patch
 patch 0007-update-spi-clock-frequency-to-10MHz.patch
 patch 0009-dts-cn9130-som-for-clearfog-base-and-pro.patch
 patch 0010-dts-add-usb2-support-and-interrupt-btn.patch
+patch 0001-Revert-back-dts-for-cn9130-prototype-compatibility.patch
 
 kconf hardware cn913x_additions.config
