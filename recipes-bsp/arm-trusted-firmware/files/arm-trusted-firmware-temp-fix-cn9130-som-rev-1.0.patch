@@ -1,0 +1,114 @@
+diff --git a/plat/marvell/octeontx/otx2/t91/t9130/board/dram_port.c b/plat/marvell/octeontx/otx2/t91/t9130/board/dram_port.c
+index 0befadfc6..3fb9e0686 100644
+--- a/plat/marvell/octeontx/otx2/t91/t9130/board/dram_port.c
++++ b/plat/marvell/octeontx/otx2/t91/t9130/board/dram_port.c
+@@ -33,7 +33,7 @@ struct mv_ddr_iface dram_iface_ap0 = {
+ 	.id = 0,
+ 	.iface_base_addr = 0,
+ 	.tm = {
+-		DEBUG_LEVEL_ERROR,
++		DEBUG_LEVEL_INFO,
+ 		0x1, /* active interfaces */
+ 		/* cs_mask, mirror, dqs_swap, ck_swap X subphys */
+ 		{ { { {0x1, 0x0, 0, 0},
+@@ -45,8 +45,8 @@ struct mv_ddr_iface dram_iface_ap0 = {
+ 		      {0x1, 0x0, 0, 0},
+ 		      {0x1, 0x0, 0, 0},
+ 		      {0x1, 0x0, 0, 0} },
+-		   SPEED_BIN_DDR_2400T,		/* speed_bin */
+-		   MV_DDR_DEV_WIDTH_8BIT,	/* sdram device width */
++		   SPEED_BIN_DDR_2400R,		/* speed_bin */
++		   MV_DDR_DEV_WIDTH_16BIT,	/* sdram device width */
+ 		   MV_DDR_DIE_CAP_8GBIT,	/* die capacity */
+ 		   MV_DDR_FREQ_SAR,		/* frequency */
+ 		   0, 0,			/* cas_l, cas_wl */
+@@ -54,9 +54,9 @@ struct mv_ddr_iface dram_iface_ap0 = {
+ #if DDR32
+ 		MV_DDR_32BIT_ECC_PUP8_BUS_MASK,	/* subphys mask */
+ #else
+-		MV_DDR_64BIT_ECC_PUP8_BUS_MASK,	/* subphys mask */
++		0xf,//MV_DDR_64BIT_BUS_MASK,	/* subphys mask */
+ #endif
+-		MV_DDR_CFG_SPD,			/* ddr configuration data src */
++		MV_DDR_CFG_DEFAULT,		/* ddr configuration data src */
+ 		NOT_COMBINED,			/* ddr twin-die combined*/
+ 		{ {0} },			/* raw spd data */
+ 		{0},				/* timing parameters */
+@@ -135,24 +135,76 @@ static void mpp_config(void)
+  * based on information received from SPD or bootloader
+  * configuration located on non volatile storage
+  */
++
++/* Following is template of DDR memory SPD K0B300092412371B96 - 8GByte 1Rx8 PC4 - 2666V - 
++
++root@localhost:~# i2cdump -f -y 0x3 0x51
++No size specified (using byte-data access)
++     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
++00: 23 11 0c 03 85 21 00 08 00 60 00 03 01 03 00 00    #????!.?.`.???..
++10: 00 00 06 0d f8 3f 00 00 6e 6e 6e 11 00 6e f0 0a    ..????..nnn?.n??
++20: 20 08 00 05 00 a8 18 28 28 00 78 00 14 3c 00 00     ?.?.??((.x.?<..
++30: 00 00 00 00 00 00 00 00 00 00 00 00 0c 2b 2d 04    ............?+-?
++40: 16 35 23 0d 00 00 2c 0b 03 24 35 0c 03 2d 00 00    ?5#?..,??$5??-..
++50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
++60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
++70: 00 00 00 00 00 00 9c 00 00 00 00 00 e7 00 d0 4e    ......?.....?.?N
++80: 0f 11 20 00 00 00 00 00 00 00 00 00 00 00 00 00    ?? .............
++90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
++a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
++b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
++c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
++d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
++e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00    ................
++f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ef 55    ..............?U
++
++*/
+ void plat_marvell_dram_update_topology(void)
+ {
++	unsigned char K0B300092412371B96[256] = {
++		// byte 4 - bank group = 2, banks = 8 -->  0x55
++		// byte 5 - 17 row, 10 column --> 0x29
++		// review bytes 20..23 (0x14..0x17) - case latency value is 17
++		//
++/*		  0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f */
++/* 0x00 */	0x11, 0x11, 0x0c, 0x03, 0x55, 0x29, 0x00, 0x08, 0x00, 0x60, 0x00, 0x03, 0x02, 0x03, 0x00, 0x00,
++/* 0x10 */	0x00, 0x00, 0x07, 0x0d, 0xf8, 0x07, 0x00, 0x00, 0x6e, 0x6e, 0x6e, 0x11, 0x00, 0x6e, 0xf0, 0x0a,
++/* 0x20 */	0x20, 0x08, 0x00, 0x05, 0x00, 0xa8, 0x1b, 0x28, 0x28, 0x00, 0x78, 0x00, 0x14, 0x3c, 0x00, 0x00,
++/* 0x30 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x2b, 0x2d, 0x04,
++/* 0x40 */	0x16, 0x35, 0x23, 0x0d, 0x00, 0x00, 0x2c, 0x0b, 0x03, 0x24, 0x35, 0x0c, 0x03, 0x2d, 0x00, 0x00,
++/* 0x50 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++/* 0x60 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++/* 0x70 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x9c, 0xb4, 0x00, 0x00, 0x00, 0x00, 0xe7, 0xd6, 0xd0, 0x4e,
++/* 0x80 */	0x0f, 0x11, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++/* 0x90 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++/* 0xa0 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++/* 0xb0 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++/* 0xc0 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++/* 0xd0 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++/* 0xe0 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++/* 0xf0 */	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xef, 0x55};
++
+ 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
+ 
+ 	INFO("Gathering DRAM information\n");
+ 
++	printf ("Rabeeh - here - again\n");
+ 	if (tm->cfg_src == MV_DDR_CFG_SPD) {
+ 		/* configure MPPs to enable i2c */
+ 		mpp_config();
+ 
+ 		/* initialize i2c */
+ 		i2c_init((void *)MVEBU_CP0_I2C_BASE);
+-
++#if 1
++		printf ("Copying\n");
++		memcpy (tm->spd_data.all_bytes, K0B300092412371B96, 256);
++#else
+ 		/* select SPD memory page 0 to access DRAM configuration */
+ 		i2c_write(I2C_SPD_P0_ADDR, 0x0, 1, tm->spd_data.all_bytes, 1);
+ 
+ 		/* read data from spd */
+ 		i2c_read(I2C_SPD_ADDR, 0x0, 1, tm->spd_data.all_bytes,
+ 			 sizeof(tm->spd_data.all_bytes));
++#endif
+ 	}
+ }

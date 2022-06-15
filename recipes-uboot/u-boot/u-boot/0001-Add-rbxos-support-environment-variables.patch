@@ -1,0 +1,98 @@
+From 45a086d9113b30fc36b1ac7f702eb2f8ff07d063 Mon Sep 17 00:00:00 2001
+From: Xabier Marquiegui <xmarquiegui@ainguraiiot.com>
+Date: Thu, 28 Apr 2022 18:12:45 +0200
+Subject: [PATCH] Add rbxos support environment variables
+
+---
+ board/Marvell/octeontx2_cn913x/board.c | 20 ++++++++++++++++++++
+ common/Kconfig                         | 10 ++++++++++
+ include/configs/octeontx2_cn913x.h     | 17 +++++++++++++++++
+ 3 files changed, 47 insertions(+)
+
+diff --git a/board/Marvell/octeontx2_cn913x/board.c b/board/Marvell/octeontx2_cn913x/board.c
+index 1e900d2aab..5894ae6a97 100644
+--- a/board/Marvell/octeontx2_cn913x/board.c
++++ b/board/Marvell/octeontx2_cn913x/board.c
+@@ -224,5 +224,25 @@ int board_late_init(void)
+ 	if (init_bootcmd_console())
+ 		printf("Failed to init bootcmd input\n");
+ #endif
++    /* RbxOS custom boot system */
++    env_set("fdtr", "false");
++    env_set("fdtcustomvars", "hwver serial");
++    env_set("fdtmod", "env set fdtr true; \
++	fdt resize 1 ; fdt mknode / factory ; for variable in \
++	$fdtcustomvars ; do if env exists $variable ; then env set evalitem \"env \
++	set varvalue $$variable\" ; run evalitem ; fdt set /factory $variable \
++	$varvalue ; else echo \"ERROR: Missing variable $variable\" ; env set fdtr false ; fi ; done; $fdtr");
++    env_set("defargs","setenv bootargs ${console} root=/dev/mmcblk${mmcdev}p${rootpartition} ro rootwait \
++    rootfstype=squashfs earlycon ${extra_params} ${cpuidle}");
++	env_set("bootcmd", "run defargs && mmc dev $mmcdev && mmcinfo && \
++    if load mmc $mmcdev:$partid $fdt_addr_r $fdt_file ; then echo \"Device tree loaded\" ; else \
++    echo \"ERROR: could not load device tree\" ; false ; fi && fdt addr $fdt_addr_r && \
++	run fdtmod && if load mmc $mmcdev:$partid $kernel_addr_r $fkernel ; then \
++    echo \"Kernel loaded\" ; else echo \"ERROR: Could not load kernel\" ; false ; fi && \
++	if load mmc $mmcdev:$partid $initrd_addr $finitramfs ; then \
++    echo \"Initramfs loaded\" ; else echo \"ERROR: Could not load initramfs\" ; false ; fi && \
++	booti $kernel_addr_r $initrd_addr $fdt_addr_r");
++    env_save();
++    /* End of RbxOS cutom boot system */
+ 	return 0;
+ }
+diff --git a/common/Kconfig b/common/Kconfig
+index 28d5e9a0cc..0fee0560a2 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -811,6 +811,16 @@ config DEFAULT_FDT_FILE
+ 	help
+ 	  This option is used to set the default fdt file to boot OS.
+ 
++config DEFAULT_RAMDISK_FILE
++	string "Default ramdisk file"
++	help
++	  This option is used to set the default fdt file to boot OS.
++
++config DEFAULT_CONSOLE
++	string "Default console configuration"
++	help
++	  This option is used to set the default console configuration
++
+ config MISC_INIT_R
+ 	bool "Execute Misc Init"
+ 	default y if ARCH_KEYSTONE || ARCH_SUNXI || MPC85xx
+diff --git a/include/configs/octeontx2_cn913x.h b/include/configs/octeontx2_cn913x.h
+index d01644fcb5..9ce16d2aa5 100644
+--- a/include/configs/octeontx2_cn913x.h
++++ b/include/configs/octeontx2_cn913x.h
+@@ -36,11 +36,28 @@
+ 
+ #undef CONFIG_EXTRA_ENV_SETTINGS
+ #define CONFIG_EXTRA_ENV_SETTINGS \
++    "extra_params=pci=pcie_bus_safe\0" \
+ 	"kernel_addr_r=0x7000000\0" \
+ 	"fdt_addr_r=0x6f00000\0" \
+ 	"ramdisk_addr_r=0x9000000\0" \
++    "initrd_addr=0xa00000\0"	\
+ 	"scriptaddr=0x6e00000\0" \
+ 	"pxefile_addr_r=0x6000000\0" \
++    "fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
++    "mmcdev=1\0"    \
++    "finitramfs=" CONFIG_DEFAULT_RAMDISK_FILE "\0"   \
++    "fkernel=Image\0"		\
++    "rootpartition=5\0"	\
++    "partid=1\0"	\
++    "console=" CONFIG_DEFAULT_CONSOLE "\0"\
++    "cpuidle=cpuidle.off=1\0"	\
++    "set_bootargs=setenv bootargs $console"\
++    " $root ip=$ipaddr:$serverip:" \
++    "$gatewayip:$netmask:$hostname"\
++    ":$netdev:none nfsroot="\
++    "$serverip:$rootpath,tcp,v3 " \
++    "$extra_params " \
++    "$cpuidle\0" \
+ 	BOOTENV
+ 
+ /* RTC configuration */
+-- 
+2.25.1
+

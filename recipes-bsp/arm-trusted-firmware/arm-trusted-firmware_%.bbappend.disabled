@@ -1,0 +1,18 @@
+# Our CN9130-CF-BASE prototype has a different memory configuration
+# This is a lazy workaround for keeping things as clean as possible
+# The nice way of solving this would be to create a new target just
+# for that unit
+# Instead, I will just create this dummy append that will override
+# the applied patchset.
+# In order to activate it, just symlink this file to a working append:
+#
+# ln -sf arm-trusted-firmware_%.bbappend.disabled arm-trusted-firmware_%.bbappend
+#
+
+SRC_URI:cn9130-cf-base = "\
+           git://github.com/ARM-software/arm-trusted-firmware.git;protocol=https \
+           file://mrvl_scp_bl2.img \
+           file://0001-Fix-fiptool-native-compilation.patch \
+           file://arm-trusted-firmware-temp-fix-cn9130-som-rev-1.0.patch \
+           "
+
